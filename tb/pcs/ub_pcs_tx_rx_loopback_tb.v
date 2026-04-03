@@ -9,7 +9,7 @@
 module ub_pcs_tx_rx_loopback_tb;
 
     localparam DL_CLK_PERIOD  = 0.8;    // 1.25 GHz
-    localparam PCS_CLK_PERIOD = 1.085;  // 921.875 MHz
+    localparam PCS_CLK_PERIOD = 1.143;  // 875 MHz
 
     reg dl_clk, pcs_clk;
     reg dl_rst_n, pcs_rst_n;

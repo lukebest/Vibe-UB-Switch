@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 // Testbench: ub_cdc_async_fifo_tb
-// Verifies async FIFO with dual clocks (1.25GHz write, 921.875MHz read)
+// Verifies async FIFO with dual clocks (1.25GHz write, 875MHz read)
 //-----------------------------------------------------------------------------
 `timescale 1ps/1ps
 
@@ -12,7 +12,7 @@ module ub_cdc_async_fifo_tb;
 
     // Clock periods in ps
     localparam WR_CLK_PERIOD = 800;    // 1.25 GHz = 800 ps
-    localparam RD_CLK_PERIOD = 1085;   // 921.875 MHz ~ 1085 ps
+    localparam RD_CLK_PERIOD = 1143;   // 875 MHz ~ 1143 ps
 
     reg                    wr_clk, rd_clk;
     reg                    wr_rst_n, rd_rst_n;

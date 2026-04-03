@@ -3,7 +3,7 @@
 // PCS TX pipeline top module.
 // DL clock domain: gearbox(640b->FEC->512b) -> per-lane scramble(4x128b)
 //                  -> AMCTL insertion(4x128b)
-// CDC crossing: per-lane async FIFO (DL 1.25GHz -> PCS 921.875MHz)
+// CDC crossing: per-lane async FIFO (DL 1.25GHz -> PCS 875MHz)
 // PCS clock domain: gray coder -> SerDes output (4x128b)
 //-----------------------------------------------------------------------------
 module ub_pcs_tx_pipe (
@@ -140,7 +140,7 @@ module ub_pcs_tx_pipe (
     );
 
     //=========================================================================
-    // PCS Clock Domain (921.875 MHz)
+    // PCS Clock Domain (875 MHz)
     //=========================================================================
 
     // --- Gray coding (combinational, per-lane) ---

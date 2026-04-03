@@ -67,7 +67,7 @@ module ub_switch_top_tb;
     always #0.4 dl_clk = ~dl_clk;
 
     initial pcs_clk = 0;
-    always #0.5425 pcs_clk = ~pcs_clk;
+    always #0.5714 pcs_clk = ~pcs_clk;
 
     //-------------------------------------------------------------------------
     // Helpers

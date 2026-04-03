@@ -40,7 +40,7 @@ This project implements a 4-port UB Protocol switch targeting ASIC implementatio
 | Crossbar | 4x4, round-robin arbitration |
 | Output queue | Store-and-forward, depth 8 |
 | DL clock | 1.25 GHz |
-| PCS clock | 921.875 MHz |
+| PCS clock | 875 MHz |
 | Routing | DCNA-based (bits [511:496] of 512b packet) |
 
 ## Directory Structure
@@ -242,5 +242,5 @@ Packets are routed by DCNA (Destination Component Name Address):
 
 ### Clock Domain Crossing
 
-- Dual-clock design: DL domain (1.25 GHz) and PCS domain (921.875 MHz)
+- Dual-clock design: DL domain (1.25 GHz) and PCS domain (875 MHz)
 - Asynchronous FIFO with 2-stage gray-code pointer synchronization

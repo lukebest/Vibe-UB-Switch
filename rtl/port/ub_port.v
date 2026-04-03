@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // Module: ub_port
 // Single UB port: NW + DLL engines + PCS TX/RX pipes (with CDC) + LMSM.
-// Dual clock domain: dl_clk (1.25 GHz) and pcs_clk (921.875 MHz).
+// Dual clock domain: dl_clk (1.25 GHz) and pcs_clk (875 MHz).
 //-----------------------------------------------------------------------------
 module ub_port #(
     parameter [15:0] DEFAULT_SCNA = 16'h0001

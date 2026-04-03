@@ -2,7 +2,7 @@
 // Module: ub_switch_top
 // 4-port 400Gbps UB ASIC switch top level.
 // 4x ub_port + ub_xbar_fabric.
-// Dual clock: dl_clk (1.25 GHz), pcs_clk (921.875 MHz).
+// Dual clock: dl_clk (1.25 GHz), pcs_clk (875 MHz).
 //-----------------------------------------------------------------------------
 module ub_switch_top (
     // Global clocks

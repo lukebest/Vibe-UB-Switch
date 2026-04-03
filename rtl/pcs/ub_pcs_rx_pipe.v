@@ -29,7 +29,7 @@ module ub_pcs_rx_pipe (
 );
 
     //=========================================================================
-    // PCS Clock Domain (921.875 MHz) — only CDC write side
+    // PCS Clock Domain (875 MHz) — only CDC write side
     //=========================================================================
 
     // Gray decoding is combinational, done after CDC in DL domain
