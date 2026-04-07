@@ -17,6 +17,8 @@ module ub_pcs_scrambler_tb;
     always #5 clk = ~clk;
 
     initial begin
+        $dumpfile("ub_pcs_scrambler_tb.vcd");
+        $dumpvars(0, ub_pcs_scrambler_tb);
         clk = 0; rst_n = 0; valid_in = 0; data_in = 160'h0;
         #20 rst_n = 1;
         #10 valid_in = 1; data_in = 160'hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA;

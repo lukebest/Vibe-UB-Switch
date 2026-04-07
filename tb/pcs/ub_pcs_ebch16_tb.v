@@ -9,6 +9,8 @@ module ub_pcs_ebch16_tb;
 
     integer i;
     initial begin
+        $dumpfile("ub_pcs_ebch16_tb.vcd");
+        $dumpvars(0, ub_pcs_ebch16_tb);
         $display("Starting eBCH-16 LUT testbench...");
         for (i = 0; i < 8; i = i + 1) begin
             index = i;

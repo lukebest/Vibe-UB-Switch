@@ -13,6 +13,8 @@ module ub_dll_reassembler_tb;
 
     always #5 clk = ~clk;
     initial begin
+        $dumpfile("ub_dll_reassembler_tb.vcd");
+        $dumpvars(0, ub_dll_reassembler_tb);
         $monitor("T=%0t flit_in=%h valid=%b sop=%b eop=%b data=%h", $time, flit_in, net_valid, net_sop, net_eop, net_data);
         clk = 0; rst_n = 0; flit_valid = 0; flit_in = 0;
         #20 rst_n = 1;

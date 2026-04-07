@@ -11,6 +11,8 @@ module ub_nw_csr_tb;
 
     always #5 clk = ~clk;
     initial begin
+        $dumpfile("ub_nw_csr_tb.vcd");
+        $dumpvars(0, ub_nw_csr_tb);
         clk = 0; rst_n = 0; reg_wen = 0; reg_wdata = 0;
         #20 rst_n = 1;
         #10 reg_wen = 1; reg_wdata = 16'h1234;

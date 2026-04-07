@@ -12,6 +12,8 @@ module ub_pcs_descrambler_tb;
 
     always #5 clk = ~clk;
     initial begin
+        $dumpfile("ub_pcs_descrambler_tb.vcd");
+        $dumpvars(0, ub_pcs_descrambler_tb);
         $monitor("Time=%0t valid_in=%b data_in=%h valid_out=%b data_out=%h", $time, valid_in, data_in, valid_out, data_out);
         clk = 0; rst_n = 0; valid_in = 0; data_in = 0;
         #20 rst_n = 1;

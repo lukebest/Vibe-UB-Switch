@@ -18,6 +18,8 @@ module ub_pcs_lmsm_tb;
     always #5 clk = ~clk;
 
     initial begin
+        $dumpfile("ub_pcs_lmsm_tb.vcd");
+        $dumpvars(0, ub_pcs_lmsm_tb);
         clk = 0; rst_n = 0; start_train = 0; rx_flit_in = 160'd0;
         #20 rst_n = 1;
         #10 if (current_state !== 3'd0) $display("FAIL: Not in LINK_IDLE");

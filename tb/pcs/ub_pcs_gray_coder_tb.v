@@ -3,6 +3,8 @@ module ub_pcs_gray_coder_tb;
     wire [1:0] symbols;
     ub_pcs_gray_coder uut (.bits(bits), .symbols(symbols));
     initial begin
+        $dumpfile("ub_pcs_gray_coder_tb.vcd");
+        $dumpvars(0, ub_pcs_gray_coder_tb);
         $monitor("bits=%b symbols=%b", bits, symbols);
         bits = 2'b00; #10; // Expected 00
         bits = 2'b01; #10; // Expected 01

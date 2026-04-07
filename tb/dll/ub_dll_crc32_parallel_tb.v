@@ -12,6 +12,8 @@ module ub_dll_crc32_parallel_tb;
     always #5 clk = ~clk;
 
     initial begin
+        $dumpfile("ub_dll_crc32_parallel_tb.vcd");
+        $dumpvars(0, ub_dll_crc32_parallel_tb);
         clk = 0; rst_n = 0; data_valid = 0; data_in = 160'h0;
         #20 rst_n = 1;
         #10 data_valid = 1; data_in = 160'h0123456789ABCDEF0123456789ABCDEF01234567;

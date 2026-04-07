@@ -60,6 +60,8 @@ module ub_cdc_async_fifo_tb;
     // Write process
     //-------------------------------------------------------------------------
     initial begin
+        $dumpfile("ub_cdc_async_fifo_tb.vcd");
+        $dumpvars(0, ub_cdc_async_fifo_tb);
         wr_rst_n = 0;
         wr_en    = 0;
         wr_data  = 0;

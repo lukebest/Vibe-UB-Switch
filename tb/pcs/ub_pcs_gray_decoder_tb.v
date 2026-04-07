@@ -3,6 +3,8 @@ module ub_pcs_gray_decoder_tb;
     wire [1:0] bits;
     ub_pcs_gray_decoder uut (.symbols(symbols), .bits(bits));
     initial begin
+        $dumpfile("ub_pcs_gray_decoder_tb.vcd");
+        $dumpvars(0, ub_pcs_gray_decoder_tb);
         $display("Testing Gray Decoder...");
         symbols = 2'b00; #10; $display("symbols: %b, bits: %b (Expected: 00)", symbols, bits);
         symbols = 2'b01; #10; $display("symbols: %b, bits: %b (Expected: 01)", symbols, bits);

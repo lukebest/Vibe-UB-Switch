@@ -92,6 +92,8 @@ module ub_switch_top_tb;
     // Test sequence
     //-------------------------------------------------------------------------
     initial begin
+        $dumpfile("ub_switch_top_tb.vcd");
+        $dumpvars(0, ub_switch_top_tb);
         errors  = 0;
         test_num = 0;
 

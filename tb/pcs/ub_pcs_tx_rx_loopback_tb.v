@@ -84,6 +84,8 @@ module ub_pcs_tx_rx_loopback_tb;
     integer rx_count;
 
     initial begin
+        $dumpfile("ub_pcs_tx_rx_loopback_tb.vcd");
+        $dumpvars(0, ub_pcs_tx_rx_loopback_tb);
         // Test flit patterns (full 640-bit)
         test_flits[0] = 640'hAAAA_BBBB_CCCC_DDDD_EEEE_1111_2222_3332_2222_1111_EEEE_DDDD_CCCC_BBBB_AAAA_0000_5555_6666_7777_8888_9999_AAAA_BBBB_CCCC_1234_5678_9ABC_DEF0_0FED_CBA9_8765_4321_DEAD_BEEF_CAFE_BABA_55AA_CC33_33CC_AA55;
         test_flits[1] = 640'h1234_5678_9ABC_DEF0_0FED_CBA9_8765_4321_1234_5678_9ABC_DEF0_0FED_CBA9_8765_4321_AAAA_BBBB_CCCC_DDDD_EEEE_FFFF_0000_1111_2222_3333_4444_5555_6666_7777_8888_9999_CAFE_BABE_DEAD_BEEF_1234_5678_9ABC_DEF0;

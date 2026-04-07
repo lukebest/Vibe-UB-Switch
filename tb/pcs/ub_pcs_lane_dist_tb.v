@@ -6,6 +6,8 @@ module ub_pcs_lane_dist_tb;
         .lane0(lane0), .lane1(lane1), .lane2(lane2), .lane3(lane3)
     );
     initial begin
+        $dumpfile("ub_pcs_lane_dist_tb.vcd");
+        $dumpvars(0, ub_pcs_lane_dist_tb);
         data_in = 128'h0123456789ABCDEF0123456789ABCDEF;
         #10;
         $display("Lane 0: %h", lane0);

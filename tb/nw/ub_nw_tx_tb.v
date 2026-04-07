@@ -28,6 +28,8 @@ module ub_nw_tx_tb;
     always #5 clk = ~clk;
 
     initial begin
+        $dumpfile("ub_nw_tx_tb.vcd");
+        $dumpvars(0, ub_nw_tx_tb);
         clk = 0; rst_n = 0;
         pkt_data = 0; pkt_valid = 0; pkt_sop = 0; pkt_eop = 0;
         rt = 2'b01; scna = 16'hAAAA; dcna = 16'hBBBB; cci = 16'hCCCC;

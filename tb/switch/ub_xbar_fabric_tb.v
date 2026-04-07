@@ -101,6 +101,8 @@ module ub_xbar_fabric_tb;
     // Main test
     //-------------------------------------------------------------------------
     initial begin
+        $dumpfile("ub_xbar_fabric_tb.vcd");
+        $dumpvars(0, ub_xbar_fabric_tb);
         errors = 0;
         for (i = 0; i < 4; i = i + 1) begin
             in_valid[i] = 0; in_sop[i] = 0; in_eop[i] = 0;

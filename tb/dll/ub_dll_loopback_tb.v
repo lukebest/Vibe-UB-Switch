@@ -105,6 +105,8 @@ module ub_dll_loopback_tb;
     endfunction
 
     initial begin
+        $dumpfile("ub_dll_loopback_tb.vcd");
+        $dumpvars(0, ub_dll_loopback_tb);
         //---------------------------------------------------------------------
         // Setup test data
         //---------------------------------------------------------------------

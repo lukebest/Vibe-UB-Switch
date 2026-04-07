@@ -30,6 +30,8 @@ module ub_nw_rx_tb;
     always #5 clk = ~clk;
 
     initial begin
+        $dumpfile("ub_nw_rx_tb.vcd");
+        $dumpvars(0, ub_nw_rx_tb);
         clk = 0; rst_n = 0;
         flit_in = 0; flit_valid = 0; flit_sop = 0; flit_eop = 0;
         local_scna = 16'hBBBB;

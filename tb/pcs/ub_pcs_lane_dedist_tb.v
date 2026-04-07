@@ -6,6 +6,8 @@ module ub_pcs_lane_dedist_tb;
         .data_out(data_out)
     );
     initial begin
+        $dumpfile("ub_pcs_lane_dedist_tb.vcd");
+        $dumpvars(0, ub_pcs_lane_dedist_tb);
         lane0 = 32'h01234567;
         lane1 = 32'h89ABCDEF;
         lane2 = 32'h01234567;

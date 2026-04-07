@@ -15,6 +15,8 @@ module ub_dll_segmenter_tb;
 
     always #5 clk = ~clk;
     initial begin
+        $dumpfile("ub_dll_segmenter_tb.vcd");
+        $dumpvars(0, ub_dll_segmenter_tb);
         clk = 0; rst_n = 0; net_valid = 0;
         #20 rst_n = 1;
         #10 net_valid = 1; net_sop = 1; net_data = 160'hAAAA;
