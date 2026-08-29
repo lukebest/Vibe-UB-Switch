@@ -30,7 +30,7 @@ NOTE tc_pkt_len_err_drop: <16 B not reachable (decl_flits clamp to 1 = 20 B)
 PASS tc_pkt_len_err_drop
 === tc_cfg6_term_vs_fwd ===
 FAIL tc_cfg6_term_vs_fwd
-  stimulus : fabric CFG6 DCNA!=CNA (must forward per AS ÿ§9)
+  stimulus : fabric CFG6 DCNA!=CNA (must forward per AS-0.1 s9)
   expected : x_in_v=1 (forward path)
   actual   : cfg6_hit excludes packet from xbar (RTL)
   hier     : h.u_fab.cfg6_hit / x_in_v
