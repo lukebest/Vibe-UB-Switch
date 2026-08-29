@@ -64,6 +64,7 @@ module vibe_fabric_harness (
     .len_err(len_err), .drop_g1(drop_g1),
     .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down),
     .deadlock_drop(deadlock_drop), .irq_rt(),
+    .cna(cna), .cna_written(cna_written),
     .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d)
   );
 

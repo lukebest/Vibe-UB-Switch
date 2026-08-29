@@ -29,20 +29,12 @@ PASS tc_default_rt_all0_port0
 NOTE tc_pkt_len_err_drop: <16 B not reachable (decl_flits clamp to 1 = 20 B)
 PASS tc_pkt_len_err_drop
 === tc_cfg6_term_vs_fwd ===
-FAIL tc_cfg6_term_vs_fwd
-  stimulus : fabric CFG6 DCNA!=CNA (must forward per AS-0.1 s9)
-  expected : x_in_v=1 (forward path)
-  actual   : cfg6_hit excludes packet from xbar (RTL)
-  hier     : h.u_fab.cfg6_hit / x_in_v
-  reproduce: make -C tb/vibe TC=tc_cfg6_term_vs_fwd
-  dump     : irq=0 drop_g1=0 cnt=0 egr_vld=0000 saw_egr=0000 len_err=0000
-  dump     : u_fab.g1_evt=0000 u_fab.g1_comb=0000 u_fab.saf_v=0001 pdrop=0000
-  dump     : x_in_v=0000 saf_r=0000 xb_in_r=0000 xb_v=0000 egr0=0 bm=0000
-  dump     : status_up=1111 xb_r=xxxx xbar_in_vld=0000 xbar_dst0=0 xbar_locked0=0
+  hier cfg6_hit=0000 x_in_v=0001 consume=0000 cna_written=0 cna=0000
+PASS tc_cfg6_term_vs_fwd
 === tc_saf_full_pkt ===
 PASS tc_saf_full_pkt
 === tc_icrc_transit_no_recompute ===
 PASS tc_icrc_transit_no_recompute
-SUITE pass=15 fail=1 ran=16
-SUITE_RESULT FAIL
-/workspace/tb/vibe/env/vibe_suite.sv:731: $finish called at 1345000 (1ps)
+SUITE pass=16 fail=0 ran=16
+SUITE_RESULT PASS
+/workspace/tb/vibe/env/vibe_suite.sv:734: $finish called at 1345000 (1ps)

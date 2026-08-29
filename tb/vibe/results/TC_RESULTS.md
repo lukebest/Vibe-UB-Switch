@@ -1,8 +1,9 @@
 # TC results (this PR)
 
-Simulator: Icarus Verilog 12.0. RTL not modified. Old `tb/ub_*` not run.
+Simulator: Icarus Verilog 12.0. TB does not modify `rtl/`. Rebased onto
+`5be17592` (PR1: qualify fabric `cfg6_hit` with CFG6 terminate). Old `tb/ub_*` not run.
 
-## Minimum / G1 (must)
+## Minimum / G1 (must) — re-run after rebase: all PASS
 
 | Test | Result | Notes |
 |------|--------|-------|
@@ -25,7 +26,7 @@ Simulator: Icarus Verilog 12.0. RTL not modified. Old `tb/ub_*` not run.
 | Test | Result | Notes |
 |------|--------|-------|
 | tc_cfg0_term_not_fabric | PASS | `vibe_dll_rx` CFG0 → cfg0_hit, no `nw_vld` |
-| tc_cfg6_term_vs_fwd | **FAIL** | cna_ep term vs not-term PASS; fabric `cfg6_hit` excludes **all** CFG6 from xbar so “else forward” does not happen. RTL not patched. |
+| tc_cfg6_term_vs_fwd | **PASS** (after `5be17592`) | Expected unchanged. See re-run below. |
 | tc_icrc_txrx_vs_transit | PASS | unit CRC; cna_ep has no `vibe_icrc` (NOTE); transit SAF header unchanged |
 | tc_icrc_transit_no_recompute | PASS | suite |
 | tc_vl_rr | PASS | VL0/VL2 walk |
@@ -37,15 +38,26 @@ Simulator: Icarus Verilog 12.0. RTL not modified. Old `tb/ub_*` not run.
 | tc_top_smoke | PASS | pins, cfg CNA, hier `dut.u_fab.rt_shortest_unimpl==0` |
 | tc_identity_cfg_space | PASS | unit cfg_space |
 
-## Recorded FAIL (RTL, not TB)
+## tc_cfg6_term_vs_fwd re-run (`5be17592`)
 
-**tc_cfg6_term_vs_fwd**
+```
+make -C tb/vibe suite TC=tc_cfg6_term_vs_fwd
+```
 
-- Stimulus: CFG6, DCNA != written CNA, NLP=0, after cna_ep correctly leaves `consume=0`.
-- Expected (AS-0.1 §9): forward on route table.
-- Actual: `h.u_fab.cfg6_hit[0]=1` and `x_in_v[0]=0` (`vibe_fabric` omits every CFG6 from xbar).
-- Hier: `u_fab.cfg6_hit`, `u_fab.x_in_v`, `u_fab.saf_v`.
-- Reproduce: `make -C tb/vibe suite TC=tc_cfg6_term_vs_fwd`.
+Expected (unchanged): cna_ep terminate when DCNA==written CNA (`consume`/`reply`);
+not terminate when DCNA!=CNA; fabric CFG6 that must forward has `x_in_v=1`
+(not excluded by `cfg6_hit`).
+
+Actual: **PASS**
+
+| Signal | Value |
+|--------|--------|
+| `u_fab.cfg6_hit` | `0000` |
+| `u_fab.x_in_v` | `0001` |
+| `u_mgmt.cfg6_consume` | `0000` |
+| `cna_written` / `cna` | `0` / `0000` (post-reset; DCNA=`0x2222`, NLP=0) |
+
+Suite after rebase: `pass=16 fail=0`.
 
 ## Coverage
 
