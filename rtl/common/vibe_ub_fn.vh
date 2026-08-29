@@ -66,6 +66,27 @@ function automatic logic [13:0] vibe_lph_plength;
   end
 endfunction
 
+// AS-0.1 §9 / FS-0.2.3: CFG6 terminate (not all CFG6).
+// us = CNA statically written AND DCNA==mgmt CNA.
+// NLP=1 enumerate terminates even if DCNA is not us.
+// opcode 0x10 terminates only if targeting this device (us).
+function automatic logic vibe_cfg6_should_term;
+  input logic        cna_written;
+  input logic [15:0] cna;
+  input logic [159:0] flit;
+  logic [15:0] dcna;
+  logic [2:0]  nlp;
+  logic [7:0]  opc;
+  logic        us;
+  begin
+    dcna = vibe_nth_dcna(flit);
+    nlp  = vibe_nth_nlp(flit);
+    opc  = flit[103:96];
+    us   = cna_written && (dcna == cna);
+    vibe_cfg6_should_term = us || (nlp == 3'd1) || ((opc == 8'h10) && us);
+  end
+endfunction
+
 function automatic integer vibe_decl_flits;
   input logic [13:0] plen;
   integer nblk, lastn;

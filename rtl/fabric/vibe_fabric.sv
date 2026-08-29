@@ -23,7 +23,10 @@ module vibe_fabric #(
   output logic [31:0]  drop_down_cnt,
   output logic [3:0]   deadlock_drop,
   output logic         irq_rt,
-  // to cna_ep: CFG6 terminate candidate
+  // AS-0.1 §9: mgmt CNA for CFG6 terminate vs forward
+  input  logic [15:0]  cna,
+  input  logic         cna_written,
+  // to cna_ep: only terminate-class CFG6 (not all CFG6)
   output logic [3:0]   cfg6_hit,
   output logic [639:0] cfg6_data [0:3]
 );
@@ -151,20 +154,51 @@ module vibe_fabric #(
     end
   end
 
+  // CFG6: terminate only if us / NLP=1 / opcode 0x10 targeting us (AS-0.1 §9).
+  // Non-term CFG6 must take the xbar like CFG3/4/5/7/9. Do not flood.
+  logic [3:0] cfg6_term, cfg6_drain, cfg6_seen;
   always @* begin
     for (p = 0; p < 4; p = p + 1) begin
-      cfg6_hit[p]  = saf_v[p] && (vibe_lph_cfg(saf_d[p][639:480]) == 4'd6);
+      cfg6_term[p] = saf_v[p] &&
+                     (vibe_lph_cfg(saf_d[p][639:480]) == 4'd6) &&
+                     vibe_cfg6_should_term(cna_written, cna, saf_d[p][639:480]);
+      cfg6_hit[p]  = cfg6_term[p] || cfg6_drain[p];
       cfg6_data[p] = saf_d[p];
-      // Drain G1 drops; do not present them to xbar.
+      // Drain G1 drops and terminate-CFG6; non-term CFG6 uses xbar ready.
       saf_r[p]     = g1_evt[p] || g1_drain[p] || pdrop[p] ||
-                     (xb_in_r[p] && !g1_comb[p]);
+                     cfg6_term[p] || cfg6_drain[p] ||
+                     (xb_in_r[p] && !g1_comb[p] && !cfg6_hit[p]);
+    end
+  end
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n || device_rst) begin
+      cfg6_drain <= 4'd0;
+      cfg6_seen  <= 4'd0;
+    end else begin
+      for (p = 0; p < 4; p = p + 1) begin
+        if (cfg6_drain[p] && saf_v[p] && saf_r[p] && saf_eop[p]) begin
+          cfg6_seen[p]  <= 1'b0;
+          cfg6_drain[p] <= 1'b0;
+        end else if (cfg6_term[p] && saf_sop[p] && !cfg6_seen[p]) begin
+          // Single-beat term: do not leave drain sticky (next pkt must be able to fwd).
+          if (saf_r[p] && saf_eop[p]) begin
+            cfg6_seen[p]  <= 1'b0;
+            cfg6_drain[p] <= 1'b0;
+          end else begin
+            cfg6_seen[p]  <= 1'b1;
+            cfg6_drain[p] <= 1'b1;
+          end
+        end
+      end
     end
   end
 
   logic [3:0] x_in_v;
   always @* begin
     for (p = 0; p < 4; p = p + 1)
-      x_in_v[p] = saf_v[p] && !pdrop[p] && !cfg6_hit[p] && !g1_comb[p] && !g1_drain[p];
+      x_in_v[p] = saf_v[p] && !pdrop[p] && !cfg6_hit[p] &&
+                  !g1_comb[p] && !g1_drain[p];
   end
 
   vibe_xbar u_xbar (
