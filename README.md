@@ -120,4 +120,18 @@ iverilog -g2012 -I rtl/common -o /tmp/vibe_ub_switch.vvp \
   rtl/top/vibe_ub_switch.sv
 ```
 
-Prior `tb/` remains in-tree but does not target this RTL and is not a source of behavior.
+Prior `tb/` (`ub_*`) remains in-tree but does not target this RTL and is not a source of behavior. Do not run it as the gate.
+
+## Verification (new `tb/vibe`)
+
+G1 and TP-0.3 tests live under `tb/vibe/`. They do **not** modify `rtl/`.
+`rt_shortest_unimpl` is probed hierarchically (`u_fab.rt_shortest_unimpl`); it is not a top port.
+
+```bash
+make -C tb/vibe sim              # suite + units + top + absent-feature scan
+make -C tb/vibe suite            # fabric + port_sel G1/routing
+make -C tb/vibe suite TC=tc_rt10_must_drop
+scripts/sim/run_vibe.sh sim
+```
+
+See `tb/vibe/README.md`. Icarus Verilog 12 (`iverilog`/`vvp`) is the functional simulator.
