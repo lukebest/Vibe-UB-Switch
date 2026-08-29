@@ -108,20 +108,46 @@ module vibe_fabric #(
     end
   endgenerate
 
-  assign drop_g1 = g1 | g1_p[1] | g1_p[2] | g1_p[3];
+  // FS-0.2.3 + AS-0.1 G1 named signals (architecture-chosen):
+  //   rt_shortest_unimpl : 32-bit saturating (does not wrap)
+  //   drop_g1            : one-shot per RT=10/11 packet → sticky irq_logic
+  // No extra IRQ pins. No Dijkstra / no treat-as-RT=00 / no RT rewrite.
+  logic [3:0] g1_comb, g1_evt, g1_drain, g1_seen, xb_in_r;
+  always @* begin
+    for (p = 0; p < 4; p = p + 1) begin
+      g1_comb[p] = saf_v[p] &&
+                   ((vibe_lph_rt(saf_d[p][639:480]) == 2'b10) ||
+                    (vibe_lph_rt(saf_d[p][639:480]) == 2'b11));
+      g1_evt[p]  = g1_comb[p] && saf_sop[p] && !g1_seen[p];
+    end
+  end
+  assign drop_g1 = |g1_evt;
   assign irq_rt  = drop_g1;
 
-  // FS-0.2.3 + AS-0.1 G1: 32-bit saturating counter (architecture-chosen, no wrap).
-  // Named signal rt_shortest_unimpl for hierarchical probe. No extra IRQ pins.
-  wire [2:0] g1_inc = {2'b0, g1} + {2'b0, g1_p[1]} + {2'b0, g1_p[2]} + {2'b0, g1_p[3]};
+  wire [2:0] g1_inc = {2'b0, g1_evt[0]} + {2'b0, g1_evt[1]} +
+                      {2'b0, g1_evt[2]} + {2'b0, g1_evt[3]};
   always @(posedge clk or negedge rst_n) begin
-    if (!rst_n || device_rst)
+    if (!rst_n || device_rst) begin
       rt_shortest_unimpl <= 32'd0;
-    else if (g1_inc != 3'd0) begin
-      if (rt_shortest_unimpl >= (32'hFFFF_FFFF - {29'd0, g1_inc}))
-        rt_shortest_unimpl <= 32'hFFFF_FFFF;
-      else
-        rt_shortest_unimpl <= rt_shortest_unimpl + {29'd0, g1_inc};
+      g1_drain           <= 4'd0;
+      g1_seen            <= 4'd0;
+    end else begin
+      if (g1_inc != 3'd0) begin
+        if (rt_shortest_unimpl >= (32'hFFFF_FFFF - {29'd0, g1_inc}))
+          rt_shortest_unimpl <= 32'hFFFF_FFFF;
+        else
+          rt_shortest_unimpl <= rt_shortest_unimpl + {29'd0, g1_inc};
+      end
+      for (p = 0; p < 4; p = p + 1) begin
+        if (g1_evt[p]) begin
+          g1_seen[p]  <= 1'b1;
+          g1_drain[p] <= 1'b1;
+        end
+        if (g1_drain[p] && saf_v[p] && saf_r[p] && saf_eop[p]) begin
+          g1_seen[p]  <= 1'b0;
+          g1_drain[p] <= 1'b0;
+        end
+      end
     end
   end
 
@@ -129,20 +155,22 @@ module vibe_fabric #(
     for (p = 0; p < 4; p = p + 1) begin
       cfg6_hit[p]  = saf_v[p] && (vibe_lph_cfg(saf_d[p][639:480]) == 4'd6);
       cfg6_data[p] = saf_d[p];
-      saf_r[p]     = !pdrop[p];
+      // Drain G1 drops; do not present them to xbar.
+      saf_r[p]     = g1_evt[p] || g1_drain[p] || pdrop[p] ||
+                     (xb_in_r[p] && !g1_comb[p]);
     end
   end
 
   logic [3:0] x_in_v;
   always @* begin
     for (p = 0; p < 4; p = p + 1)
-      x_in_v[p] = saf_v[p] && !pdrop[p] && !cfg6_hit[p];
+      x_in_v[p] = saf_v[p] && !pdrop[p] && !cfg6_hit[p] && !g1_comb[p] && !g1_drain[p];
   end
 
   vibe_xbar u_xbar (
     .clk(clk), .rst_n(rst_n), .status_up(status_up),
     .in_data(saf_d), .in_vld(x_in_v), .in_sop(saf_sop), .in_eop(saf_eop),
-    .in_dst(egr), .in_ready(),
+    .in_dst(egr), .in_ready(xb_in_r),
     .out_data(xb_d), .out_vld(xb_v), .out_sop(xb_sop), .out_eop(xb_eop),
     .out_ready(xb_r)
   );
