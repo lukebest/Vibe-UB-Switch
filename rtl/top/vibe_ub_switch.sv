@@ -1,4 +1,5 @@
-// AS-0.1 §4/§17: top — 4-port PMA + clk_fab + rst_n + cfg_wr_* + irq_logic.
+// FS-0.2.3 + AS-0.1 §4/§17: top — 4-port PMA + clk_fab + rst_n + cfg_wr_* + irq_logic.
+// G1 named signals: rt_shortest_unimpl (32-bit saturating), sticky irq_logic. No extra IRQ pins.
 module vibe_ub_switch #(
   parameter int ROUTE_TABLE_DEPTH = 256
 ) (
@@ -45,7 +46,7 @@ module vibe_ub_switch #(
   logic [3:0]   mgmt_tx_v, mgmt_tx_r;
   logic [3:0]   len_err, deadlock_drop, cfg6_hit, cfg6_cons;
   logic         drop_g1;
-  logic [31:0]  rt_unimpl, drop_down;
+  logic [31:0]  rt_shortest_unimpl, drop_down;
   logic [639:0] cfg6_d [0:3];
   logic [639:0] reply_d [0:3];
   logic [3:0]   reply_v, reply_r;
@@ -91,7 +92,7 @@ module vibe_ub_switch #(
     .ing_data(fab_rx), .ing_vld(fab_rx_v), .ing_ready(fab_rx_r),
     .egr_data(fab_tx), .egr_vld(fab_tx_v), .egr_ready(fab_tx_r),
     .len_err(len_err), .drop_g1(drop_g1),
-    .rt_shortest_unimpl(rt_unimpl), .drop_down_cnt(drop_down),
+    .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down),
     .deadlock_drop(deadlock_drop), .irq_rt(),
     .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d)
   );

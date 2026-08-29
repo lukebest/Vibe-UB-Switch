@@ -1,4 +1,5 @@
-// AS-0.1 §10/§15: irq_logic sticky OR of observable errors. Clear on static write or reset.
+// FS-0.2.3 + AS-0.1 §10/§15: irq_logic sticky OR of observable errors (includes G1 RT=10/11).
+// Clear on static write or reset. Single bit; no extra product IRQ pins.
 module vibe_irq_agg (
   input  logic       clk,
   input  logic       rst_n,

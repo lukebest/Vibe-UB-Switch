@@ -5,13 +5,14 @@
 **This branch supersedes the prior `rtl/` and `tb/` trees.** Those sources are void: do not use their signal names, queue depths, SCNA-compare routing, 640-bit-as-flit, README depth 8, or CDC ready formulas. Verification owns testbenches; this revision does not add testcases.
 
 Architecture: [`docs/Vibe-UB-Switch-architecture-spec.md`](docs/Vibe-UB-Switch-architecture-spec.md) (AS-0.1).  
-Public protocol reference: https://www.unifiedbus.com (UB 2.0). Function-spec documents under `docs/UB-*.md` are not modified by this revision.
+Function behavior for this rev: **FS-0.2.3** + AS-0.1 (function-spec true source is not in this repo and is not modified here).  
+Public protocol reference: https://www.unifiedbus.com (UB 2.0).
 
 ## Locked subset
 
 - Fabric store-and-forward. Flit = 20 bytes (never 640-bit).
 - Routing: `CFG0_ROUTE_TABLE` dest → 4-bit egress bitmap. Default all-0 → port 0.
-- **G1 (mandatory):** RT=10 and RT=11 **DROP** the packet, increment `rt_shortest_unimpl`, assert `irq_logic`. No Dijkstra, no treat-as-RT=00, no RT rewrite.
+- **G1 (mandatory, FS-0.2.3 + AS-0.1):** RT=10 and RT=11 **DROP** the packet. `rt_shortest_unimpl` is a **32-bit saturating** counter (does not wrap). The drop also sets sticky `irq_logic`. No extra IRQ pins. No Dijkstra, no treat-as-RT=00, no RT rewrite.
 - RT=00 per-flow sticky RR; RT=01 per-packet RR. Flow key `{CFG, src, dest, VL}`.
 - U26 width chain + G1/G2 gearbox. Per-lane gray-pointer AFIFO CDC 1.25 GHz ↔ 922 MHz.
 - LMSM (this-rev subset), DLL SM, `RETRY_REQ_SM`, `RETRY_ACK_SM`, AMCTL lock per lane.

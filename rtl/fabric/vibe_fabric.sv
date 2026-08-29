@@ -70,7 +70,7 @@ module vibe_fabric #(
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
     .wr_en(rt_wr_en), .wr_idx(rt_wr_idx), .wr_data(rt_wr_data),
     .dest(dst0), .rt(rt0), .lu_vld(saf_v[0]),
-    .bitmap(bm), .drop_g1(g1), .rt_shortest_unimpl(rt_shortest_unimpl)
+    .bitmap(bm), .drop_g1(g1)
   );
 
   vibe_port_sel u_ps (
@@ -92,7 +92,7 @@ module vibe_fabric #(
         .dest(vibe_nth_dcna(saf_d[gi][639:480])),
         .rt(vibe_lph_rt(saf_d[gi][639:480])),
         .lu_vld(saf_v[gi]),
-        .bitmap(bm_p[gi]), .drop_g1(g1_p[gi]), .rt_shortest_unimpl()
+        .bitmap(bm_p[gi]), .drop_g1(g1_p[gi])
       );
       vibe_port_sel u_psi (
         .clk(clk), .rst_n(rst_n),
@@ -110,6 +110,20 @@ module vibe_fabric #(
 
   assign drop_g1 = g1 | g1_p[1] | g1_p[2] | g1_p[3];
   assign irq_rt  = drop_g1;
+
+  // FS-0.2.3 + AS-0.1 G1: 32-bit saturating counter (architecture-chosen, no wrap).
+  // Named signal rt_shortest_unimpl for hierarchical probe. No extra IRQ pins.
+  wire [2:0] g1_inc = {2'b0, g1} + {2'b0, g1_p[1]} + {2'b0, g1_p[2]} + {2'b0, g1_p[3]};
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n || device_rst)
+      rt_shortest_unimpl <= 32'd0;
+    else if (g1_inc != 3'd0) begin
+      if (rt_shortest_unimpl >= (32'hFFFF_FFFF - {29'd0, g1_inc}))
+        rt_shortest_unimpl <= 32'hFFFF_FFFF;
+      else
+        rt_shortest_unimpl <= rt_shortest_unimpl + {29'd0, g1_inc};
+    end
+  end
 
   always @* begin
     for (p = 0; p < 4; p = p + 1) begin
