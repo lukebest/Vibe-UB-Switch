@@ -34,32 +34,26 @@ module tc_fabric_g1;
     repeat (4) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
-    // default table → port 0 (bitmap 0)
-    @(negedge clk);
-    ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
-        4'd3, 2'b00, 4'd0, 16'h1, 16'h0001, vibe_tb_plen_nflit(1),
-        16'd0, 8'd0, 3'd0, 8'd0));
-    ing_vld[0] = 1;
-    @(posedge clk);
-    @(negedge clk);
-    ing_vld[0] = 0;
-    repeat (16) @(posedge clk);
-    // write route dest=2
+    // write route dest=2 (do not occupy SAF with a prior packet)
     @(negedge clk);
     rt_wr_en = 1; rt_wr_idx = 16'd2; rt_wr_data = 32'h0000_0002;
     @(posedge clk);
     @(negedge clk);
     rt_wr_en = 0;
-    // RT=10 G1 drop
+    // RT=10 G1 drop (2 beats so SAF done is definite)
     @(negedge clk);
+    while (!ing_ready[0]) @(posedge clk);
     ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
-        4'd3, 2'b10, 4'd0, 16'h1, 16'h0002, vibe_tb_plen_nflit(1),
+        4'd3, 2'b10, 4'd0, 16'h1, 16'h0002, vibe_tb_plen_nflit(5),
         16'd0, 8'd0, 3'd0, 8'd0));
     ing_vld[0] = 1;
     @(posedge clk);
     @(negedge clk);
+    ing_data[0] = 640'h2;
+    @(posedge clk);
+    @(negedge clk);
     ing_vld[0] = 0;
-    repeat (20) @(posedge clk);
+    repeat (40) @(posedge clk);
     if (rt_shortest_unimpl === 32'd0) begin
       $display("FAIL tc_fabric_g1");
       $display("  stimulus : RT=10 1-beat");

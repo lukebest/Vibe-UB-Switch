@@ -112,8 +112,7 @@ module tc_retry_buf_256;
     @(negedge clk);
     wr_en = 0; port_rst = 1;
     @(posedge clk);
-    port_rst = 0;
-    @(posedge clk);
+    @(negedge clk);
     if (num_free !== 9'd256) begin
       $display("FAIL tc_retry_buf_256");
       $display("  stimulus : port_rst");

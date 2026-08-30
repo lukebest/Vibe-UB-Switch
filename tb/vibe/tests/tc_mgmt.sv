@@ -57,10 +57,10 @@ module tc_mgmt;
       $display("  actual   : %h %0b", cna, cna_written);
       fail = 1;
     end
+    @(negedge clk);
     drop_g1 = 1;
     @(posedge clk);
-    drop_g1 = 0;
-    @(posedge clk);
+    @(negedge clk);
     if (!irq_logic) begin
       $display("FAIL tc_mgmt");
       $display("  stimulus : drop_g1");

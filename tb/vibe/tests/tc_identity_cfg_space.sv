@@ -64,12 +64,11 @@ module tc_identity_cfg_space;
       $display("  actual   : cna=%h written=%0b", cna, cna_written);
       fail = 1;
     end
-    // cmd=1 route write
+    // cmd=1 route write — sample at negedge after NBA
     @(negedge clk);
     cfg_wr_cmd = 3'd1; cfg_wr_idx = 16'h0003; cfg_wr_data = 32'h0000_000F; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
-    cfg_wr_vld = 0;
     if (!rt_wr_en || rt_wr_idx !== 16'h0003 || rt_wr_data !== 32'h0000_000F) begin
       $display("FAIL tc_identity_cfg_space");
       $display("  stimulus : cfg_wr_cmd=1 idx=3 data=F");
@@ -95,6 +94,7 @@ module tc_identity_cfg_space;
     @(negedge clk);
     cfg_wr_cmd = 3'd3; cfg_wr_idx = 16'd2; cfg_wr_vld = 1;
     @(posedge clk);
+    @(negedge clk);
     if (port_rst_pulse[2] !== 1'b1) begin
       $display("FAIL tc_identity_cfg_space");
       $display("  stimulus : cfg_wr_cmd=3 idx=2");
@@ -108,6 +108,7 @@ module tc_identity_cfg_space;
     @(negedge clk);
     cfg_wr_cmd = 3'd4; cfg_wr_vld = 1;
     @(posedge clk);
+    @(negedge clk);
     if (!device_rst_pulse) begin
       $display("FAIL tc_identity_cfg_space");
       $display("  stimulus : cfg_wr_cmd=4");
@@ -121,6 +122,7 @@ module tc_identity_cfg_space;
     @(negedge clk);
     cfg_wr_cmd = 3'd5; cfg_wr_idx = 16'd1; cfg_wr_vld = 1;
     @(posedge clk);
+    @(negedge clk);
     if (lmsm_go_pulse[1] !== 1'b1) begin
       $display("FAIL tc_identity_cfg_space");
       $display("  stimulus : cfg_wr_cmd=5 idx=1");
@@ -134,6 +136,7 @@ module tc_identity_cfg_space;
     @(negedge clk);
     cfg_wr_cmd = 3'd7; cfg_wr_vld = 1;
     @(posedge clk);
+    @(negedge clk);
     if (!irq_clr) begin
       $display("FAIL tc_identity_cfg_space");
       $display("  stimulus : cfg_wr_cmd=7 (ignored opcode)");
