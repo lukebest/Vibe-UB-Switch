@@ -54,7 +54,7 @@ all: sim
 help:
 	@echo "make suite          - fabric+mgmt G1/TP suite (iverilog)"
 	@echo "make suite TC=name  - one suite test"
-	@echo "make units          - CFG0 / ICRC / VL-RR / credit-hole / LMSM-neg / identity"
+	@echo "make units          - all standalone vibe TCs (PHY/DLL/PCS/CDC/neg)"
 	@echo "make top            - vibe_ub_switch smoke + hier probe"
 	@echo "make sim            - suite + units + top (gate)"
 	@echo "make cov            - verilator line/toggle coverage on vibe_* (if supported)"
@@ -71,27 +71,7 @@ suite: $(RES)
 	@cp -f $(RES)/suite.log $(RES)/last_run.txt
 
 units: $(RES)
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_cfg0.vvp \
-	  $(TB)/tests/tc_cfg0_term_not_fabric.sv $(UNIT_RTL_DLLRX)
-	$(VVP) $(RES)/tc_cfg0.vvp | tee $(RES)/tc_cfg0.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_icrc.vvp \
-	  $(TB)/tests/tc_icrc_txrx_vs_transit.sv $(UNIT_RTL_ICRC)
-	$(VVP) $(RES)/tc_icrc.vvp | tee $(RES)/tc_icrc.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_vl_rr.vvp \
-	  $(TB)/tests/tc_vl_rr.sv $(UNIT_RTL_VL)
-	$(VVP) $(RES)/tc_vl_rr.vvp | tee $(RES)/tc_vl_rr.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_credit.vvp \
-	  $(TB)/tests/tc_credit_1024_hole.sv $(UNIT_RTL_CRD)
-	$(VVP) $(RES)/tc_credit.vvp | tee $(RES)/tc_credit.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_neg_lmsm.vvp \
-	  $(TB)/tests/tc_neg_absent_features.sv $(UNIT_RTL_LMSM)
-	$(VVP) $(RES)/tc_neg_lmsm.vvp | tee $(RES)/tc_neg_lmsm.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_identity.vvp \
-	  $(TB)/tests/tc_identity_cfg_space.sv $(UNIT_RTL_CFG)
-	$(VVP) $(RES)/tc_identity.vvp | tee $(RES)/tc_identity.log
-	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_xbar.vvp \
-	  $(TB)/tests/tc_xbar_unit.sv $(RTL)/fabric/vibe_xbar.sv
-	$(VVP) $(RES)/tc_xbar.vvp | tee $(RES)/tc_xbar.log
+	$(TB)/scripts/run_units.sh
 
 top: $(RES)
 	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_top.vvp \

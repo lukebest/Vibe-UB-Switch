@@ -2,25 +2,23 @@
 
 Icarus Verilog 12 has no line/toggle/FSM coverage engine.
 
-Verilator 5.020 `--coverage` was attempted on `vibe_suite`. It did not produce
-a report in this PR:
+Verilator 5 `--coverage --coverage-line --coverage-toggle` is the source of
+numbers. Prior failure modes (not faked):
 
-- `%Error-BLKLOOPINIT` in `vibe_route_lu` (NBA to array in a for-loop). Not
-  patched (RTL freeze).
-- Waiving that error still did not finish compiling `vibe_voq_egr` age loops
-  in the time budget.
+- `%Error-BLKLOOPINIT` in `vibe_route_lu` — waived with `-Wno-BLKLOOPINIT`
+  (RTL freeze; not patched).
+- `--binary` generated `main()` did **not** write `coverage.dat` after
+  `$finish`. Fixed by `scripts/run_verilator_cov.sh` custom main that calls
+  `VerilatedCov::write()` after the timing loop.
 
-Honest numbers for the full `vibe_*` tree: **not collected**. Do not treat this as 100%.
+Run: `make -C tb/vibe cov`
 
-A Verilator `--coverage --binary` build of `vibe_port_sel` plus `cov/tc_psel_cov.sv` **did compile and run** (`$finish` at line 35). Verilator 5.020’s `--binary` main did **not** write `coverage.dat` (no `%` line/toggle totals). Re-run: `make -C tb/vibe cov`.
+Outputs:
 
-What *was* executed on `vibe_*` (functional, Icarus):
+- `tb/vibe/cov/out/*.dat` per cluster, `merged.dat`
+- `tb/vibe/results/cov_report.md` — line/toggle % for `vibe_*.sv` only
+- `tb/vibe/results/cov_raw.txt` — `verilator_coverage` dump
 
-| Module | How |
-|--------|-----|
-| `vibe_fabric` / `vibe_port_sel` / `vibe_route_lu` / `vibe_saf_ing` / `vibe_irq_agg` | G1 + suite |
-| `vibe_cfg_space` / `vibe_cna_ep` / `vibe_mgmt` | suite + units |
-| `vibe_dll_rx` / `vibe_icrc` / `vibe_vl_rr` / `vibe_dll_credit` / `vibe_lmsm` / `vibe_xbar` | units |
-| `vibe_ub_switch` | top smoke (pins + hier `u_fab.rt_shortest_unimpl`) |
-
-Re-try: `make -C tb/vibe cov` (may fail; report tool output as-is).
+Verilator has no VCS-style FSM report. FSM coverage is line hits on state
+`case`/`if`. Gate is 100% of implemented `vibe_*` if the tool reaches it;
+otherwise uncovered bins are listed (dead/non-goal vs missing stimulus).

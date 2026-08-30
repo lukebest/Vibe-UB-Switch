@@ -663,6 +663,163 @@ module vibe_suite;
     end
   endtask
 
+  // CFG 3/4/5/7/9 and reserved (1,2,8,10-15) must take xbar, not cfg6_hit.
+  task automatic expect_cfg_fwd;
+    input [3:0]        cfg;
+    input [8*40-1:0]   name;
+    begin
+      h.tb_reset();
+      h.tb_wr_route(16'h0001, 4'b1111);
+      h.tb_clr_mon();
+      h.tb_inject_hdr(0, cfg, 2'b00, 4'd0, 16'h0001, 16'h0001,
+                      vibe_tb_plen_nflit(5), 3'd0, 8'd0);
+      h.tb_cycles(14);
+      if (h.u_fab.cfg6_hit[0]) begin
+        h.tb_fail(name,
+          "inject CFG to dest=1 bitmap=1111",
+          "cfg6_hit=0 (not terminate-class CFG6)",
+          "cfg6_hit=1",
+          "h.u_fab.cfg6_hit / x_in_v");
+      end else if (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)) begin
+        h.tb_fail(name,
+          "inject non-term CFG RT=00",
+          "x_in_v=1 (forward / xbar)",
+          "not presented to xbar",
+          "h.u_fab.x_in_v / saf_v / pdrop");
+      end else
+        h.tb_pass(name);
+    end
+  endtask
+
+  task automatic tc_cfg3_fwd; begin $display("=== tc_cfg3_fwd ==="); expect_cfg_fwd(4'd3, "tc_cfg3_fwd"); end endtask
+  task automatic tc_cfg4_fwd; begin $display("=== tc_cfg4_fwd ==="); expect_cfg_fwd(4'd4, "tc_cfg4_fwd"); end endtask
+  task automatic tc_cfg5_fwd; begin $display("=== tc_cfg5_fwd ==="); expect_cfg_fwd(4'd5, "tc_cfg5_fwd"); end endtask
+  task automatic tc_cfg7_fwd; begin $display("=== tc_cfg7_fwd ==="); expect_cfg_fwd(4'd7, "tc_cfg7_fwd"); end endtask
+  task automatic tc_cfg9_fwd; begin $display("=== tc_cfg9_fwd ==="); expect_cfg_fwd(4'd9, "tc_cfg9_fwd"); end endtask
+
+  task automatic tc_cfg_reserved_fwd;
+    integer i, nfail;
+    reg [3:0] cfgs [0:4];
+    begin
+      $display("=== tc_cfg_reserved_fwd ===");
+      cfgs[0] = 4'd1; cfgs[1] = 4'd2; cfgs[2] = 4'd8; cfgs[3] = 4'd10; cfgs[4] = 4'd15;
+      nfail = 0;
+      for (i = 0; i < 5; i = i + 1) begin
+        h.tb_reset();
+        h.tb_wr_route(16'h0001, 4'b1111);
+        h.tb_clr_mon();
+        h.tb_inject_hdr(0, cfgs[i], 2'b00, 4'd0, 16'h0001, 16'h0001,
+                        vibe_tb_plen_nflit(5), 3'd0, 8'd0);
+        h.tb_cycles(14);
+        if (h.u_fab.cfg6_hit[0] ||
+            (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
+          nfail = nfail + 1;
+      end
+      if (nfail) begin
+        h.tb_fail("tc_cfg_reserved_fwd",
+          "CFG 1,2,8,10,15 RT=00 dest=1",
+          "each x_in_v=1 and cfg6_hit=0",
+          "one or more reserved CFGs not forwarded",
+          "h.u_fab.x_in_v / cfg6_hit");
+      end else
+        h.tb_pass("tc_cfg_reserved_fwd");
+    end
+  endtask
+
+  // CFG0 is terminated in DLL, not fabric. Fabric presents it like other CFGs.
+  task automatic tc_cfg0_fabric_no_special;
+    begin
+      $display("=== tc_cfg0_fabric_no_special ===");
+      expect_cfg_fwd(4'd0, "tc_cfg0_fabric_no_special");
+    end
+  endtask
+
+  task automatic tc_port_rst_via_cfg;
+    begin
+      $display("=== tc_port_rst_via_cfg ===");
+      h.tb_reset();
+      h.tb_cfg(VIBE_TB_CMD_PORTRST, 16'd2, 32'd0);
+      if (!h.port_rst[2]) begin
+        h.tb_fail("tc_port_rst_via_cfg",
+          "cfg_wr_cmd=3 idx=2 (Port Reset)",
+          "port_rst[2]=1 (hold from rst_ctl)",
+          "port_rst[2]=0",
+          "h.u_mgmt.u_rst.port_rst / h.port_rst");
+      end else if (h.port_rst[0] || h.port_rst[1] || h.port_rst[3]) begin
+        h.tb_fail("tc_port_rst_via_cfg",
+          "port reset index 2",
+          "only bit 2",
+          "other bits set",
+          "h.port_rst");
+      end else
+        h.tb_pass("tc_port_rst_via_cfg");
+    end
+  endtask
+
+  task automatic tc_device_rst_via_cfg;
+    begin
+      $display("=== tc_device_rst_via_cfg ===");
+      h.tb_reset();
+      h.tb_cfg(VIBE_TB_CMD_CNA, 16'd0, 32'h0000_00AA);
+      h.tb_cfg(VIBE_TB_CMD_DEVRST, 16'd0, 32'd0);
+      if (!h.device_rst) begin
+        h.tb_fail("tc_device_rst_via_cfg",
+          "cfg_wr_cmd=4 device reset",
+          "device_rst hold=1",
+          "device_rst=0",
+          "h.u_mgmt.u_rst.device_rst");
+      end else begin
+        h.tb_cycles(12);
+        if (h.cna_written !== 1'b0) begin
+          h.tb_fail("tc_device_rst_via_cfg",
+            "device reset after CNA write",
+            "CNA unwritten (RW config cleared)",
+            "cna_written still 1",
+            "h.u_mgmt.u_cfg.cna_written");
+        end else
+          h.tb_pass("tc_device_rst_via_cfg");
+      end
+    end
+  endtask
+
+  task automatic tc_pkt_len_legal_16_4300;
+    integer bad20, bad4300;
+    begin
+      $display("=== tc_pkt_len_legal_16_4300 ===");
+      // 16 B is not an integer-flit LPH; min representable is 1 flit = 20 B.
+      h.tb_reset();
+      h.tb_wr_route(16'h0001, 4'b1111);
+      h.tb_clr_mon();
+      h.tb_inject_hdr(0, 4'd3, 2'b00, 4'd0, 16'h1, 16'h0001,
+                      vibe_tb_plen_min_try(), 3'd0, 8'd0);
+      h.tb_cycles(16);
+      bad20 = h.saw_len_err[0];
+      h.tb_reset();
+      h.tb_wr_route(16'h0001, 4'b1111);
+      h.tb_clr_mon();
+      h.tb_inject_hdr(0, 4'd3, 2'b00, 4'd0, 16'h1, 16'h0001,
+                      vibe_tb_plen_4300(), 3'd0, 8'd0);
+      h.tb_cycles(80);
+      bad4300 = h.saw_len_err[0];
+      if (bad20) begin
+        h.tb_fail("tc_pkt_len_legal_16_4300",
+          "1-flit / 20 B (16 B not LPH-representable)",
+          "len_err=0 (inside 16..4300)",
+          "len_err pulsed",
+          "h.u_fab.g_saf[0].u_saf.len_err");
+      end else if (bad4300) begin
+        h.tb_fail("tc_pkt_len_legal_16_4300",
+          "declared 215 flits = 4300 B",
+          "len_err=0",
+          "len_err pulsed",
+          "h.u_fab.g_saf[0].u_saf.len_err");
+      end else begin
+        $display("NOTE tc_pkt_len_legal_16_4300: 16 B not reachable (1-flit clamp=20 B)");
+        h.tb_pass("tc_pkt_len_legal_16_4300");
+      end
+    end
+  endtask
+
   task automatic run_named;
     input [8*40-1:0] n;
     begin
@@ -684,6 +841,16 @@ module vibe_suite;
         "tc_cfg6_term_vs_fwd":         tc_cfg6_term_vs_fwd();
         "tc_saf_full_pkt":             tc_saf_full_pkt();
         "tc_icrc_transit_no_recompute": tc_icrc_transit_no_recompute();
+        "tc_cfg3_fwd":                 tc_cfg3_fwd();
+        "tc_cfg4_fwd":                 tc_cfg4_fwd();
+        "tc_cfg5_fwd":                 tc_cfg5_fwd();
+        "tc_cfg7_fwd":                 tc_cfg7_fwd();
+        "tc_cfg9_fwd":                 tc_cfg9_fwd();
+        "tc_cfg_reserved_fwd":         tc_cfg_reserved_fwd();
+        "tc_cfg0_fabric_no_special":   tc_cfg0_fabric_no_special();
+        "tc_port_rst_via_cfg":         tc_port_rst_via_cfg();
+        "tc_device_rst_via_cfg":       tc_device_rst_via_cfg();
+        "tc_pkt_len_legal_16_4300":    tc_pkt_len_legal_16_4300();
         default: $display("UNKNOWN TC %0s", n);
       endcase
     end
@@ -707,6 +874,16 @@ module vibe_suite;
       run_named("tc_cfg6_term_vs_fwd");
       run_named("tc_saf_full_pkt");
       run_named("tc_icrc_transit_no_recompute");
+      run_named("tc_cfg3_fwd");
+      run_named("tc_cfg4_fwd");
+      run_named("tc_cfg5_fwd");
+      run_named("tc_cfg7_fwd");
+      run_named("tc_cfg9_fwd");
+      run_named("tc_cfg_reserved_fwd");
+      run_named("tc_cfg0_fabric_no_special");
+      run_named("tc_port_rst_via_cfg");
+      run_named("tc_device_rst_via_cfg");
+      run_named("tc_pkt_len_legal_16_4300");
     end
   endtask
 
