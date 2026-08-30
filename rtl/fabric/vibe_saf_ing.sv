@@ -61,6 +61,10 @@ module vibe_saf_ing #(
             assembling <= 1'b0;
             wptr       <= wptr; // drop: rewind
             wptr       <= rptr;
+          end else if (((dflits + 3) >> 2) == 1) begin
+            // 1-beat (min 16 B / 1 flit): complete on SOP so pkt_sop && pkt_eop coincide
+            assembling <= 1'b0;
+            done       <= 1'b1;
           end
         end else begin
           beat_cnt <= beat_cnt + 7'd1;

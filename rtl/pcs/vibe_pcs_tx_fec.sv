@@ -93,7 +93,7 @@ module vibe_pcs_tx_fec (
           cw_data <= {w0, 64'd0};
           cw_vld  <= 1'b1;
           emit_b  <= 1'b1;
-        end else if (cw_ready || !cw_vld) begin
+        end else begin
           cw_data <= {w1, 64'd0};
           cw_vld  <= 1'b1;
           emit_b  <= 1'b0;

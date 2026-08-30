@@ -33,7 +33,7 @@ module vibe_dll_sm (
       st <= ST_DIS;
     end else begin
       case (st)
-        ST_DIS:  if (link_up) st <= ST_PARM;
+        ST_DIS:  st <= ST_PARM;
         ST_PARM: if (param_ok) st <= ST_CRD;
         ST_CRD:  if (credit_ok) st <= ST_NRM;
         default: st <= ST_NRM;

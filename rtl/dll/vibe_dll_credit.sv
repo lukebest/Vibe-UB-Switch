@@ -39,6 +39,9 @@ module vibe_dll_credit (
   assign bp_nw         = (pend >= VIBE_CREDIT_THRESH[15:0]);
   assign credit_low    = (cells == 16'd0);
 
+  // 17-bit sum so Flow Control Overflow is reachable (16-bit CMPCONST never fired).
+  wire [16:0] cells_sum = {1'b0, cells} + {1'b0, ceil_div(consume_flits, grain_n)};
+
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       cells     <= 16'd0;
@@ -52,9 +55,11 @@ module vibe_dll_credit (
       to        <= 11'd0;
     end else begin
       if (consume_vld && !is_cfg0) begin
-        cells <= cells + ceil_div(consume_flits, grain_n);
-        if (cells + ceil_div(consume_flits, grain_n) > 16'd65535)
+        if (cells_sum > 17'd65535) begin
           fc_ovf <= 1'b1;
+          cells  <= 16'd65535;
+        end else
+          cells  <= cells_sum[15:0];
       end
       if (credit_ret) begin
         pend <= pend + credit_ret_n;
