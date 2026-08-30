@@ -138,7 +138,7 @@ run_cluster lmsm_vlock tc_lmsm_vlock --vl "--public-flat-rw" \
   "$T/tc_lmsm_vlock.sv" "$RTL/lmsm/vibe_lmsm.sv"
 # Surgical --cc arms: Disc.C hold/lid_bad, CFG_C eq, EQ_A hold, RTR_A expire/hold.
 # --inline-mult 0 keeps tmr_load as a real function so case arms can take LINE.
-run_cluster lmsm_cc tc_lmsm_cc --vl "--public-flat-rw --inline-mult 0" \
+run_cluster lmsm_cc tc_lmsm_cc --vl "--public-flat-rw --inline-mult 0 --coverage-line --public" \
   "$T/tc_lmsm_cc.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run_cluster dll_rx_err tc_dll_rx_errflag \
   "$T/tc_dll_rx_errflag.sv" "$RTL/dll/vibe_dll_rx.sv"

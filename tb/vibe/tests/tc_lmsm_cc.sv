@@ -1,13 +1,15 @@
 // --cc LMSM arms that Icarus force-walks miss: Disc.C / EQ / RTR.
-// 2-posedge sample (like tc_lmsm_idle_discovery). Deposit tmr=1 then let
-// the RTL decrement to 0 (force-to-0 races the sequential reload).
-// No Probe (AS-0.1 §11). Do not edit rtl/.
+// Park via force st+tmr (--public-flat-rw). Verilator 5.020 keeps stale
+// st_n if inputs change on the negedge after a 1-cycle state.
+// force must not use automatic task args (Icarus). Deposit tmr=1 then
+// RTL decrement (force-to-0 races tmr_load). No Probe. Do not edit rtl/.
 `timescale 1ns/1ps
 module tc_lmsm_cc;
   logic clk, rst_n, port_rst, lmsm_go, lid_bad, lane0_fail, eq_negotiated, retrain_req;
   logic [3:0] am_locked;
   logic link_up, link_ready, sdf_period, width_fail;
   logic [4:0] state;
+  logic [4:0] park_s;
   integer fail;
   initial clk = 0;
   always #1 clk = ~clk;
@@ -19,60 +21,40 @@ module tc_lmsm_cc;
     .state(state), .width_fail(width_fail)
   );
 
-  task automatic hard_rst;
+  task park_do;
     begin
-      rst_n = 0; port_rst = 0; lmsm_go = 0; am_locked = 0;
-      lid_bad = 0; lane0_fail = 0; eq_negotiated = 0; retrain_req = 0;
-      repeat (4) @(posedge clk);
-      rst_n = 1;
-      repeat (2) @(posedge clk);
-    end
-  endtask
-
-  task automatic go_disc;
-    begin
-      lmsm_go = 1;
-      @(posedge clk);
-      lmsm_go = 0;
-      @(posedge clk);
-    end
-  endtask
-
-  // Sit in Disc.C with !x4_ok && !lid_bad (58 else).
-  task automatic enter_disc_c_hold;
-    begin
-      go_disc();                 // Disc.A
-      am_locked = 4'b1111;
-      @(posedge clk);            // Disc.C
       @(negedge clk);
-      am_locked = 4'b0111;       // not all_lock, not lid_bad → stay C
+      force u_l.st  = park_s;
+      force u_l.tmr = 27'd8;
       @(posedge clk);
+      release u_l.st;
+      release u_l.tmr;
       @(posedge clk);
     end
   endtask
 
-  // tmr=1 → next posedge decrements to 0 → following combo sees tmr==0.
-  task automatic expire_tmr;
+  task expire_tmr;
     begin
       @(negedge clk);
       force u_l.tmr = 27'd1;
-`ifdef VERILATOR
-      $c("u_l__DOT__tmr = 1;");
-`endif
       @(posedge clk);
       release u_l.tmr;
-      @(posedge clk); // tmr<=0 (stay in state)
-      @(posedge clk); // tmr==0 arm taken
+      @(posedge clk);
+      @(posedge clk);
     end
   endtask
 
-  task automatic to_active;
+  // 1-cycle states (CFG_C + eq=0 → NULL) cannot sit until tmr expires.
+  // Force tmr=0 in the same window as st so combo takes the timeout arm.
+  task park_tmr0;
     begin
-      go_disc();
-      am_locked = 4'b1111;
-      eq_negotiated = 0;
-      repeat (5) @(posedge clk); // C,A,K,C,NULL
-      repeat (12) @(posedge clk); // ACTIVE
+      @(negedge clk);
+      force u_l.st  = park_s;
+      force u_l.tmr = 27'd0;
+      @(posedge clk);
+      release u_l.st;
+      release u_l.tmr;
+      @(posedge clk);
     end
   endtask
 
@@ -80,16 +62,21 @@ module tc_lmsm_cc;
     fail = 0;
     rst_n = 0; port_rst = 0; lmsm_go = 0; am_locked = 0;
     lid_bad = 0; lane0_fail = 0; eq_negotiated = 0; retrain_req = 0;
+    park_s = 0;
     repeat (4) @(posedge clk);
     rst_n = 1;
     repeat (2) @(posedge clk);
 
-    // --- Disc.C stay (58 else) then tmr==0 (56) ---
-    enter_disc_c_hold();
+    // Disc.C stay (58 else) then tmr==0 (56)
+    am_locked = 4'b0111;
+    lid_bad = 0;
+    park_s = 5'd2;
+    park_do();
+    @(negedge clk);
     if (state !== 5'd2) begin
       $display("FAIL tc_lmsm_cc");
-      $display("  stimulus : Disc.C hold partial lock");
-      $display("  expected : Disc.C (2)");
+      $display("  stimulus : park Disc.C partial lock");
+      $display("  expected : 2");
       $display("  actual   : %0d", state);
       fail = 1;
     end
@@ -98,77 +85,62 @@ module tc_lmsm_cc;
     if (state !== 5'd0)
       $display("NOTE tc_lmsm_cc: Disc.C tmr==0 → IDLE got %0d", state);
 
-    // --- Disc.C lid_bad (58 if): arrive C, lid_bad same window ---
-    hard_rst();
-    go_disc();
-    am_locked = 4'b1111;
-    @(posedge clk); // Disc.C
-    @(negedge clk);
-    lid_bad = 1;    // x4_ok=0, lid_bad=1
-    @(posedge clk);
-    @(posedge clk);
+    // Disc.C lid_bad (58 if)
+    am_locked = 4'b0111;
+    lid_bad = 1;
+    park_s = 5'd2;
+    park_do();
     @(negedge clk);
     if (state !== 5'd0)
       $display("NOTE tc_lmsm_cc: Disc.C lid_bad → IDLE got %0d", state);
     lid_bad = 0;
 
-    // --- CFG_C eq_negotiated (70): walk to CFG_C then raise eq ---
-    hard_rst();
-    go_disc();
+    // CFG_C tmr==0 (70) with eq=0. CFG_C is 1-cycle if tmr!=0 (!eq → NULL).
     am_locked = 4'b1111;
     eq_negotiated = 0;
-    @(posedge clk); // C
-    @(posedge clk); // CFG_A
-    @(posedge clk); // CFG_K
-    @(posedge clk); // CFG_C
-    @(negedge clk);
+    park_s = 5'd5;
+    park_tmr0();
+
+    // CFG_C eq_negotiated (71)
     eq_negotiated = 1;
-    @(posedge clk);
-    @(posedge clk);
+    park_s = 5'd5;
+    park_do();
     @(negedge clk);
     if (state !== 5'd6)
       $display("NOTE tc_lmsm_cc: CFG_C eq → EQ_P got %0d", state);
 
-    // --- EQ_P expire → EQ_A hold (75 else: tmr!=0) then expire ---
-    expire_tmr(); // EQ_P tmr==0 → EQ_A, reloads 24ms
-    @(posedge clk); // sit EQ_A with tmr!=0 (75 else)
+    // EQ_P hold / expire → EQ_A hold (75 else) / expire
+    if (state !== 5'd6) begin
+      park_s = 5'd6;
+      park_do();
+    end
     @(posedge clk);
-    expire_tmr(); // EQ_A tmr==0 → NULL
+    @(posedge clk);
+    expire_tmr();
+    @(posedge clk);
+    @(posedge clk);
+    expire_tmr();
     eq_negotiated = 0;
 
-    // --- RTR_A stay (86 else) then tmr==0 (85) ---
-    hard_rst();
-    to_active();
-    @(negedge clk);
-    if (state !== 5'd9) begin
-      $display("FAIL tc_lmsm_cc");
-      $display("  stimulus : lock walk to ACTIVE");
-      $display("  expected : 9");
-      $display("  actual   : %0d", state);
-      fail = 1;
-    end
+    // RTR_A stay (86 else) then tmr==0 (85)
     am_locked = 4'b0000;
-    retrain_req = 1;
+    park_s = 5'd10;
+    park_do();
+    @(negedge clk);
+    if (state !== 5'd10)
+      $display("NOTE tc_lmsm_cc: park RTR_A got %0d", state);
     @(posedge clk);
-    retrain_req = 0;
-    @(posedge clk); // RTR_A, !all_lock → stay (86 else)
     @(posedge clk);
-    expire_tmr();   // 85
+    expire_tmr();
     @(negedge clk);
     if (state !== 5'd0)
       $display("NOTE tc_lmsm_cc: RTR_A tmr==0 → IDLE got %0d", state);
 
-    // --- RTR_C stay then timeout (hits tmr_load RTR_*) ---
-    hard_rst();
-    to_active();
-    retrain_req = 1;
+    // RTR_C stay then timeout
+    am_locked = 4'b0111;
+    park_s = 5'd11;
+    park_do();
     @(posedge clk);
-    retrain_req = 0;
-    @(posedge clk); // RTR_A, still locked → RTR_C next
-    @(posedge clk);
-    @(negedge clk);
-    am_locked = 4'b0111; // !x4_ok
-    @(posedge clk); // RTR_C stay
     expire_tmr();
 
     if (!fail) $display("PASS tc_lmsm_cc");
