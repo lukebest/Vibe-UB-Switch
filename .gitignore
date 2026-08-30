@@ -1,1 +1,6 @@
 *.vcd
+*.vvp
+tb/vibe/obj_dir/
+tb/vibe/results/*.vvp
+tb/vibe/results/*.log
+coverage.dat
