@@ -3,13 +3,15 @@
 Simulator: Icarus Verilog 12.0. TB does not modify `rtl/`. FS-0.2.4 G7:
 credit threshold 1024 is **flit**. Old `tb/ub_*` not run.
 
-**Counts (this revision):** suite **26/26 PASS** + units **68 files PASS / 0 FAIL**
+**Counts (this revision):** suite **26/26 PASS** + units **70 files PASS / 0 FAIL**
 + top **1 PASS** + `make neg` **9 PASS**. **Icarus: 0 FAIL.** No new TC failed
 RTL (do not patch `rtl/`). Verilator `tc_lmsm_walk` FAIL lines are `--cc`
-same-timeslot sampling; Icarus walk PASSes. Use `tc_lmsm_vlock` for `--cc`.
+same-timeslot sampling; Icarus walk PASSes. Use `tc_lmsm_cc` / `tc_lmsm_vlock`
+for `--cc`.
 
-Verilator unique LINE: **618/638 = 96.9%** (was 408/650 = 62.8%). See
-`COVERAGE_HOLES.md` / `CHECKER_AUDIT.md`.
+Verilator unique LINE: **626/638 = 98.1%** (was 618/638 = 96.9%). **100% of
+TB-hittable** (no missing stim). Remaining 12 = 4 dead RTL + 8 tool
+(`tmr_load`). See `COVERAGE_HOLES.md` / `CHECKER_AUDIT.md`.
 
 ## Suite (`make suite`) — 26/26 PASS
 
@@ -44,7 +46,7 @@ Verilator unique LINE: **618/638 = 96.9%** (was 408/650 = 62.8%). See
 
 `SUITE pass=26 fail=0 ran=26`
 
-## Units (`make units`) — 68 pass_files / 0 fail_files
+## Units (`make units`) — 70 pass_files / 0 fail_files
 
 | Test | Result | Notes |
 |------|--------|-------|
@@ -78,6 +80,9 @@ Verilator unique LINE: **618/638 = 96.9%** (was 408/650 = 62.8%). See
 | tc_pcs_scramble | PASS | en=0 pass-through |
 | tc_ebch16_lut | PASS | sel0=0000 sel1=0A6F |
 | tc_lmsm_idle_discovery | PASS | Idle→Discovery, not Probe |
+| tc_lmsm_cc | PASS | park Disc.C/EQ/RTR; `--cc` LINE |
+| tc_dll_rx_errflag | PASS | `!link_up && have` ERROR_FLAG |
+| tc_pcs_fec_emitb | PASS | bypass second CW (`96 if`) |
 | tc_rst_port_device | PASS | port pulse vs device hold |
 | tc_fecn_mark | PASS | Mode=100 occ≥24 |
 | tc_nw_adapt_linkready | PASS | LinkReady + mgmt pri |
@@ -104,14 +109,15 @@ expected vs actual / hier / `make -C tb/vibe …`.
 ## Coverage (Verilator 5.020, honest)
 
 Custom C++ main writes `coverage.dat`. `-Wno-BLKLOOPINIT` (not an RTL patch).
-36 unit clusters merged (incl. `vibe_xbar`). Full suite+VOQ Verilator compile
-**OOM** (~7 GB); Icarus suite still ran those TCs.
+60 unit clusters merged. Full suite+VOQ Verilator compile **OOM**; Icarus suite
+still ran those TCs.
 
 | | Hit/tot | % |
 |--|--------:|--:|
-| **Line (`vibe_*.sv`)** | **408/650** | **62.8** |
-| **Toggle** | **1627/9127** | **17.8** |
+| **Line (`vibe_*.sv`)** | **626/638** | **98.1** |
+| **Toggle** | **7917/19807** | **40.0** |
 | **FSM** | (no VCS FSM engine; use line on state `case`) | |
 
-100% of implemented `vibe_*` **not** achieved. See `tb/vibe/results/cov_report.md`
-for per-module table, uncovered bins, and dead vs missing-stimulus notes.
+100% of TB-hittable LINE. 12 left: 4 dead RTL (list for 设计, not waived) +
+8 `tmr_load` case arms (Verilator 5.020 instruments before `s` is assigned).
+See `COVERAGE_HOLES.md` / `cov_report.md`.

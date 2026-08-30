@@ -120,3 +120,6 @@ Waive only Probe/Dijkstra/QDLWS/Exact Route/UBFM — those are
 **not in RTL** (AS-0.1 non-goals). Do not waive missing stimulus.
 Suite Verilator bind OOM on VOQ — use per-module clusters.
 
+LINE 626/638 = 98.1%
+TOGGLE 7917/19807 = 40.0%
+FSM note: no separate FSM engine; use line % on state machines
