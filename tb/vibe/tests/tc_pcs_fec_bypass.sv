@@ -27,9 +27,6 @@ module tc_pcs_fec_bypass;
     @(posedge clk);
     @(negedge clk);
     win_vld = 0;
-    cw_ready = 0;
-    repeat (4) @(posedge clk);
-    cw_ready = 1;
     repeat (16) begin
       @(posedge clk);
       if (cw_vld) ncw = ncw + 1;
@@ -42,6 +39,19 @@ module tc_pcs_fec_bypass;
       $display("  hier     : u_f.bypass / emit_b");
       fail = 1;
     end
+    // Second pair: stall cw_ready after first emit to take bypass emit_b else
+    @(negedge clk);
+    win_vld = 1; win_data = 960'h3;
+    @(posedge clk);
+    @(negedge clk);
+    win_data = 960'h4;
+    @(posedge clk);
+    @(negedge clk);
+    win_vld = 0;
+    cw_ready = 0;
+    repeat (4) @(posedge clk);
+    cw_ready = 1;
+    repeat (8) @(posedge clk);
     if (!fail) $display("PASS tc_pcs_fec_bypass");
     $finish;
   end
