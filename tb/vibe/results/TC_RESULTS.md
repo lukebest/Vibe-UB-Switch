@@ -96,9 +96,17 @@ scan: 9 PASS. **Icarus: all PASS (0 FAIL).**
 None on this Icarus run. If a later TC fails, record name / stimulus /
 expected vs actual / hier / `make -C tb/vibe …`.
 
-## Coverage
+## Coverage (Verilator 5.020, honest)
 
-See `tb/vibe/results/cov_report.md` after `make -C tb/vibe cov`.
-Verilator `--binary` previously wrote **no** `coverage.dat` (`$finish` exits
-before the generated main dump). This PR uses a custom C++ main +
-`-Wno-BLKLOOPINIT` (not an RTL patch). Numbers are tool output, not invented.
+Custom C++ main writes `coverage.dat`. `-Wno-BLKLOOPINIT` (not an RTL patch).
+36 unit clusters merged (incl. `vibe_xbar`). Full suite+VOQ Verilator compile
+**OOM** (~7 GB); Icarus suite still ran those TCs.
+
+| | Hit/tot | % |
+|--|--------:|--:|
+| **Line (`vibe_*.sv`)** | **408/650** | **62.8** |
+| **Toggle** | **1627/9127** | **17.8** |
+| **FSM** | (no VCS FSM engine; use line on state `case`) | |
+
+100% of implemented `vibe_*` **not** achieved. See `tb/vibe/results/cov_report.md`
+for per-module table, uncovered bins, and dead vs missing-stimulus notes.

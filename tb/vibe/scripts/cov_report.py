@@ -13,28 +13,30 @@ from collections import defaultdict
 
 
 def parse_dat(path: str):
-    """Parse Verilator coverage.dat records."""
+    """Parse Verilator SystemC::Coverage-3 records.
+
+    Lines look like:
+      C '\\x01f\\x02/path/vibe_x.sv\\x01l\\x0226\\x01page\\x02v_line/vibe_x...' N
+    """
     recs = []
-    cur = {}
     if not os.path.isfile(path):
         return recs
     with open(path, "r", errors="replace") as f:
         for line in f:
             line = line.rstrip("\n")
-            if line.startswith("C "):
-                # C 'key' 'value'
-                m = re.match(r"C\s+'([^']*)'\s+'([^']*)'", line)
-                if not m:
-                    continue
-                k, v = m.group(1), m.group(2)
-                if k == "count" and cur:
-                    cur["count"] = int(v) if v.isdigit() else 0
-                    recs.append(cur)
-                    cur = {}
-                else:
-                    cur[k] = v
-            elif line.startswith("#") or not line.strip():
+            if not line.startswith("C "):
                 continue
+            m = re.match(r"C '(.*)'\s+(\d+)\s*$", line)
+            if not m:
+                continue
+            payload, cnt = m.group(1), int(m.group(2))
+            fields = {"count": cnt}
+            for part in payload.split("\x01"):
+                if not part or "\x02" not in part:
+                    continue
+                k, v = part.split("\x02", 1)
+                fields[k] = v
+            recs.append(fields)
     return recs
 
 
@@ -63,18 +65,19 @@ def main() -> int:
     by_file = defaultdict(lambda: {"line_tot": 0, "line_hit": 0, "tog_tot": 0, "tog_hit": 0, "miss": []})
 
     for r in recs:
-        fn = r.get("filename") or r.get("file") or r.get("page") or ""
+        fn = r.get("f") or r.get("filename") or r.get("file") or ""
         if not fn:
             continue
         if not is_vibe_rtl(fn, rtl_root):
             continue
         base = os.path.basename(fn)
-        typ = (r.get("type") or r.get("thresh") or "l").lower()
-        # Verilator uses 'l' line, 't' toggle; some dumps use comment
-        comment = (r.get("comment") or "").lower()
-        is_tog = typ.startswith("t") or "toggle" in comment
+        page = (r.get("page") or "").lower()
+        is_tog = "toggle" in page or page.startswith("v_t")
         cnt = int(r.get("count") or 0)
-        loc = r.get("line") or r.get("column") or "?"
+        loc = r.get("l") or r.get("line") or "?"
+        name = r.get("o") or ""
+        if name:
+            loc = f"{loc} {name}"
         bucket = by_file[base]
         if is_tog:
             bucket["tog_tot"] += 1
@@ -146,9 +149,10 @@ def main() -> int:
     if extra > 0:
         lines.append(f"- … {extra} more (see annotate/ and cov_raw.txt)")
     lines.append("")
-    lines.append("Classification: timer-heavy LMSM/retry-wait paths and unused RX PCS")
-    lines.append("states are **missing stimulus**, not faked as covered. Dead/non-goal")
-    lines.append("bins (Probe, Dijkstra, QDLWS, Exact Route) are not in RTL.")
+    lines.append("Classification: see TC_RESULTS / cov README. Wide-bus toggle")
+    lines.append("miss is unused data-bit patterns (not dead). LMSM/retry-wait and")
+    lines.append("RX PCS wrappers are **missing stimulus**. Probe/Dijkstra/QDLWS")
+    lines.append("are **not in RTL** (non-goal). Suite Verilator bind OOM on VOQ.")
     lines.append("")
 
     text = "\n".join(lines)

@@ -20,7 +20,7 @@ fi
 
 VERILATOR="${VERILATOR:-verilator}"
 INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
-WARN="-Wno-fatal -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
+WARN="-Wno-fatal -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
 COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
 
 write_main() {
@@ -140,11 +140,11 @@ run_cluster fec_byp tc_pcs_fec_bypass "$T/tc_pcs_fec_bypass.sv" \
 run_cluster rsdec tc_rs_dec_syndrome "$T/tc_rs_dec_syndrome.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
 run_cluster voq tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fabric/vibe_voq_egr.sv"
 run_cluster psel tc_psel_cov "$TB/cov/tc_psel_cov.sv" "$RTL/fabric/vibe_port_sel.sv"
+run_cluster xbar tc_xbar_unit "$T/tc_xbar_unit.sv" "$RTL/fabric/vibe_xbar.sv"
 
-# Fabric suite (BLKLOOPINIT waived). May be slow due to VOQ age loops.
-run_cluster suite vibe_suite \
-  "$TB/env/vibe_fabric_harness.sv" "$TB/env/vibe_psel_harness.sv" \
-  "$TB/env/vibe_suite.sv" "${FAB_RTL[@]}"
+# Full vibe_suite + VOQ age loops: Verilator C++ hits multi-GB RSS and does not
+# finish in this environment (BLKLOOPINIT waived; RTL not patched). Icarus suite
+# still runs those TCs. Do not re-enable here without a smaller VOQ bind.
 
 # Merge
 dats=()

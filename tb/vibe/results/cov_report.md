@@ -36,7 +36,8 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 | `vibe_sync2.sv` | 3/3 | 100.0 | 13/17 | 76.5 |
 | `vibe_vl_rr.sv` | 7/8 | 87.5 | 36/36 | 100.0 |
 | `vibe_voq_egr.sv` | 15/16 | 93.8 | 15/270 | 5.6 |
-| **TOTAL implemented vibe_*** | **384/620** | **61.9** | **1609/9055** | **17.8** |
+| `vibe_xbar.sv` | 24/30 | 80.0 | 18/72 | 25.0 |
+| **TOTAL implemented vibe_*** | **408/650** | **62.8** | **1627/9127** | **17.8** |
 
 ## RTL files with no coverage records
 
@@ -56,7 +57,6 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 - `vibe_route_lu.sv` — no stimulus in Verilator clusters (or not elaborated)
 - `vibe_saf_ing.sv` — no stimulus in Verilator clusters (or not elaborated)
 - `vibe_ub_switch.sv` — no stimulus in Verilator clusters (or not elaborated)
-- `vibe_xbar.sv` — no stimulus in Verilator clusters (or not elaborated)
 
 ## Uncovered bins (first 80)
 
@@ -140,9 +140,27 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[27]`
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[28]`
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[29]`
-- … 7602 more (see annotate/ and cov_raw.txt)
+- … 7662 more (see annotate/ and cov_raw.txt)
 
-Classification: timer-heavy LMSM/retry-wait paths and unused RX PCS
-states are **missing stimulus**, not faked as covered. Dead/non-goal
-bins (Probe, Dijkstra, QDLWS, Exact Route) are not in RTL.
+## Classification (honest; gate 100% of implemented `vibe_*` **not** met)
+
+**Tool:** Verilator 5.020 `--coverage-line --coverage-toggle`. Custom C++ main
+writes `coverage.dat` (fixes prior `--binary`+$finish gap). `-Wno-BLKLOOPINIT`
+on `vibe_route_lu` (RTL freeze). **No FSM engine** — FSM = line hits on state
+`case`/`if`.
+
+**Collected:** 36 unit clusters (including `vibe_xbar`). Full `vibe_suite`
+Verilator bind **did not finish** (g++/cc1plus ~7 GB RSS on VOQ age loops).
+Those modules still ran under Icarus.
+
+| Class | What |
+|-------|------|
+| **100% line (this run)** | gear_160_128, gear_128_160, pcs_scramble, pcs_tx_cw2beat, rs128_120_dec, rst_sync, sync2 |
+| **Combo-only (0 line points)** | `vibe_fecn_mark`, `vibe_nw_adapt` — toggle is the metric (`nw_adapt` toggle 100%) |
+| **Wide-bus toggle miss** | PMA 512b, AFIFO/gear/DLL 160b+ datapaths — unused data-bit patterns, **not dead code** |
+| **Missing Verilator stimulus** | fabric/top/SAF/route_lu/cna_ep/irq/mgmt, full PCS RX/TX wrappers, `vibe_dll`/`vibe_port` — suite cluster OOM |
+| **Timer / unused SM** | LMSM post-Discovery (ms timers), retry WAIT/RETRAIN/ERROR, credit ovf/port_rst — **missing stimulus** |
+| **Dead / non-goal** | Probe, Dijkstra, QDLWS, Exact Route, cut-through, UBFM, hi_FEC_BER — **not in RTL** |
+
+Do not treat 62.8% / 17.8% as 100%. Numbers are tool output.
 
