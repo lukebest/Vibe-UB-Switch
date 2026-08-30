@@ -136,6 +136,14 @@ run_cluster lmsm_walk tc_lmsm_walk --vl "--public-flat-rw" \
   "$T/tc_lmsm_walk.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run_cluster lmsm_vlock tc_lmsm_vlock --vl "--public-flat-rw" \
   "$T/tc_lmsm_vlock.sv" "$RTL/lmsm/vibe_lmsm.sv"
+# Surgical --cc arms: Disc.C hold/lid_bad, CFG_C eq, EQ_A hold, RTR_A expire/hold.
+# --inline-mult 0 keeps tmr_load as a real function so case arms can take LINE.
+run_cluster lmsm_cc tc_lmsm_cc --vl "--public-flat-rw --inline-mult 0" \
+  "$T/tc_lmsm_cc.sv" "$RTL/lmsm/vibe_lmsm.sv"
+run_cluster dll_rx_err tc_dll_rx_errflag \
+  "$T/tc_dll_rx_errflag.sv" "$RTL/dll/vibe_dll_rx.sv"
+run_cluster fec_emitb tc_pcs_fec_emitb \
+  "$T/tc_pcs_fec_emitb.sv" "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv"
 run_cluster retry_wr tc_retry_wait_retrain "$T/tc_retry_wait_retrain.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv"
 run_cluster cna_ep tc_cna_ep "$T/tc_cna_ep.sv" "$RTL/mgmt/vibe_cna_ep.sv"
 run_cluster irq tc_irq_agg "$T/tc_irq_agg.sv" "$RTL/mgmt/vibe_irq_agg.sv"

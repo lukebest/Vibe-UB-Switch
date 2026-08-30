@@ -116,8 +116,7 @@ module tc_cfg0_term_not_fabric;
     @(posedge clk);
     @(negedge clk);
     pcs_vld = 1'b0;
-    repeat (1) @(posedge clk); // have registered
-    @(negedge clk);
+    // have is live this cycle only — drop link_up now (no extra posedge).
     link_up = 0;
     repeat (3) @(posedge clk);
     link_up = 1;
