@@ -34,7 +34,7 @@ Do **not** waive missing stimulus. There is none left on LINE.
 | `vibe_dll_credit.sv:56 if` | `cells + ceil_div > 16'd65535` is 16-bit; never true. `%Warning-CMPCONST`. | FS-0.2.4 credit; overflow sticky intended, width makes it dead. **Not patched.** |
 | `vibe_dll_sm.sv:36 else` | `ST_DIS && !link_up` inside `else` after `if (!link_up)` already took Disabled. | AS-0.1 §12 |
 | `vibe_fabric.sv:185 if` | single-beat CFG6 term (`saf_sop && saf_eop`). SAF does not present a 1-beat packet (`done` only on beat 2+). | AS-0.1 §8 SAF + §9 CFG6 |
-| `vibe_pcs_tx_fec.sv:96 else` | bypass `else if (cw_ready \|\| !cw_vld)` is nested under `have0 && have1 && bypass && !cw_vld`. `!(cw_ready \|\| !cw_vld)` requires `cw_vld`, which contradicts the outer `!cw_vld`. `tc_pcs_fec_emitb` takes the else-if body (`96 if`). | AS-0.1 §5 T3 bypass |
+| `vibe_pcs_tx_fec.sv:96 else` | bypass `else if (cw_ready \|\| !cw_vld)` is nested under outer `!cw_vld`. The else arm needs `cw_vld && !cw_ready`, which contradicts that outer predicate. `tc_pcs_fec_emitb` takes the else-if body (`96 if`). | AS-0.1 §5 T3 bypass |
 
 TB cannot hit these. Leave uncovered. Do not waive.
 
