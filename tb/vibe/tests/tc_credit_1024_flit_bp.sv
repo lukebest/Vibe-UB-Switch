@@ -148,8 +148,18 @@ module tc_credit_1024_flit_bp;
     consume_vld = 0;
     @(posedge clk);
     if (!fc_ovf) begin
-      $display("NOTE tc_credit_1024_flit_bp: fc_ovf not set after 70x1023 grain=1 (RTL cells wrap?)");
+      $display("NOTE tc_credit_1024_flit_bp: fc_ovf not set after 70x1023 grain=1 (RTL 16-bit wrap)");
     end
+    // Deposit cells near 16-bit max (predicate is still 16-bit; may stay dead)
+    force u_crd.cells = 16'hFFFF;
+    @(negedge clk);
+    consume_vld = 1; consume_flits = 10'd1023; grain_n = 8'd1; is_cfg0 = 0;
+    @(posedge clk);
+    consume_vld = 0;
+    release u_crd.cells;
+    @(posedge clk);
+    if (!fc_ovf)
+      $display("NOTE tc_credit_1024_flit_bp: fc_ovf still 0 after cells=FFFF consume (RTL-dead 16-bit add)");
     if (!fail) $display("PASS tc_credit_1024_flit_bp");
     $finish;
   end

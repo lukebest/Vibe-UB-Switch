@@ -61,6 +61,10 @@ module tc_dll_tx_cfg0;
     // send_idle / send_req / send_ack / replay / !link_up
     send_idle = 1;
     @(posedge clk);
+    // pcs_vld=1, now stall ready → else of send_* emit
+    pcs_ready = 0;
+    @(posedge clk);
+    pcs_ready = 1;
     send_idle = 0;
     send_req = 1;
     @(posedge clk);
@@ -70,6 +74,9 @@ module tc_dll_tx_cfg0;
     send_ack = 0;
     replay = 1; replay_flit = 160'hA5;
     @(posedge clk);
+    pcs_ready = 0;
+    @(posedge clk);
+    pcs_ready = 1;
     replay = 0;
     // non-CFG0 consume
     nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(

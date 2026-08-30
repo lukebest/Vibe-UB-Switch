@@ -38,8 +38,12 @@ module tc_pcs_tx_pack;
     // AM insert: idle until sym_cnt>=512 (period 512 when !sdf)
     // force insert path
     force u_p.sym_cnt = 10'd512;
+    @(negedge clk);
+    beat_vld = 1; beat_data = 512'h55;
     @(posedge clk);
     release u_p.sym_cnt;
+    @(negedge clk);
+    beat_vld = 0;
     repeat (8) @(posedge clk);
     // afifo backpressure
     afifo_afull = 1;

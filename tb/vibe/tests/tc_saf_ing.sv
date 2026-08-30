@@ -78,6 +78,31 @@ module tc_saf_ing;
       $display("  actual   : 0");
       fail = 1;
     end
+    // 9-flit / 3 declared beats: mid-assemble else (beat 2 of 3)
+    @(negedge clk);
+    in_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+        4'd3, 2'b00, 4'd0, 16'h1, 16'h0001, vibe_tb_plen_nflit(9),
+        16'd0, 8'd0, 3'd0, 8'd0));
+    in_vld = 1; pkt_ready = 0;
+    @(posedge clk);
+    @(negedge clk);
+    in_data = 640'hC1;
+    @(posedge clk);
+    @(negedge clk);
+    if (pkt_vld) begin
+      $display("FAIL tc_saf_ing");
+      $display("  stimulus : 2 of 3 declared beats");
+      $display("  expected : pkt_vld=0 (still assembling)");
+      fail = 1;
+    end
+    in_data = 640'hC2;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 0;
+    repeat (3) @(posedge clk);
+    pkt_ready = 1;
+    repeat (8) @(posedge clk);
+    pkt_ready = 0;
     // 1-beat legal
     @(negedge clk);
     in_data = vibe_tb_mk_beat(vibe_tb_mk_flit(

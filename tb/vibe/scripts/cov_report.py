@@ -62,19 +62,35 @@ def main() -> int:
         return 2
     dat, rtl_root, out_md = sys.argv[1], sys.argv[2], sys.argv[3]
     recs = parse_dat(dat)
-    by_file = defaultdict(lambda: {"line_tot": 0, "line_hit": 0, "tog_tot": 0, "tog_hit": 0, "miss": []})
-
+    # Merge of per-cluster .dat files repeats the same file:line when a
+    # module is elaborated in several clusters. Uniq by (file,line,page,hier)
+    # and keep the max count so the total is implemented RTL, not cluster×N.
+    uniq = {}
     for r in recs:
         fn = r.get("f") or r.get("filename") or r.get("file") or ""
-        if not fn:
+        if not fn or not is_vibe_rtl(fn, rtl_root):
             continue
-        if not is_vibe_rtl(fn, rtl_root):
-            continue
+        page = (r.get("page") or "").lower()
+        loc = r.get("l") or r.get("line") or "?"
+        name = r.get("o") or ""
+        hier = r.get("h") or r.get("hier") or ""
+        # Source-line coverage of vibe_*.sv (not per-instance / per-cluster).
+        kind = "tog" if ("toggle" in page or page.startswith("v_t")) else "line"
+        key = (os.path.basename(fn), loc, kind, name)
+        cnt = int(r.get("count") or 0)
+        prev = uniq.get(key)
+        if prev is None or cnt > prev["count"]:
+            uniq[key] = {**r, "f": fn, "count": cnt, "page": page, "l": loc, "o": name}
+
+    by_file = defaultdict(lambda: {"line_tot": 0, "line_hit": 0, "tog_tot": 0, "tog_hit": 0, "miss": []})
+
+    for r in uniq.values():
+        fn = r["f"]
         base = os.path.basename(fn)
         page = (r.get("page") or "").lower()
         is_tog = "toggle" in page or page.startswith("v_t")
         cnt = int(r.get("count") or 0)
-        loc = r.get("l") or r.get("line") or "?"
+        loc = r.get("l") or "?"
         name = r.get("o") or ""
         if name:
             loc = f"{loc} {name}"

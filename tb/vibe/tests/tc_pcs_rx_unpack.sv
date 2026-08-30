@@ -48,7 +48,15 @@ module tc_pcs_rx_unpack;
     beat_ready = 0;
     @(posedge clk);
     beat_ready = 1;
-    repeat (4) @(posedge clk);
+    repeat (6) @(posedge clk);
+    // n==0 && have drain else (coverage; NOTE if force ignored)
+    force u_u.n = 3'd0;
+    force u_u.have = 1'b1;
+    beat_ready = 1;
+    @(posedge clk);
+    release u_u.n;
+    release u_u.have;
+    @(posedge clk);
     if (!fail) $display("PASS tc_pcs_rx_unpack");
     $finish;
   end

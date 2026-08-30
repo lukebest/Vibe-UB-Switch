@@ -48,19 +48,25 @@ int main(int argc, char** argv) {
 EOF
 }
 
-# Each cluster: name, top, extra sources...
+# Each cluster: name, top, [--vl "flags"], sources...
+# --public-flat-rw only on tiny modules (force/deposit). Never on fabric/VOQ.
 run_cluster() {
   local name="$1"
   local top="$2"
   shift 2
+  local extra=""
+  if [ "${1:-}" = "--vl" ]; then
+    extra="$2"
+    shift 2
+  fi
   local work="$COV/$name"
   mkdir -p "$work"
   write_main "$top" "$work/cov_main.cpp"
-  echo "COV cluster $name top=$top"
+  echo "COV cluster $name top=$top extra=$extra"
   set +e
   (
     cd "$work"
-    timeout 180 $COMMON --top-module "$top" --exe cov_main.cpp --Mdir obj_dir \
+    timeout 180 $COMMON $extra --top-module "$top" --exe cov_main.cpp --Mdir obj_dir \
       -CFLAGS "-I$work/obj_dir" "$@"
   )
   local rc=$?
@@ -102,13 +108,15 @@ FAB_RTL=(
 
 # Small / medium clusters (must produce numbers)
 run_cluster dll_sm tc_dll_sm_states "$T/tc_dll_sm_states.sv" "$RTL/dll/vibe_dll_sm.sv"
-run_cluster credit tc_credit_1024_flit_bp "$T/tc_credit_1024_flit_bp.sv" "$RTL/dll/vibe_dll_credit.sv"
+run_cluster credit tc_credit_1024_flit_bp --vl "--public-flat-rw" \
+  "$T/tc_credit_1024_flit_bp.sv" "$RTL/dll/vibe_dll_credit.sv"
 run_cluster credit_to tc_credit_timeout_1us "$T/tc_credit_timeout_1us.sv" "$RTL/dll/vibe_dll_credit.sv"
 run_cluster cfg0_crd tc_cfg0_no_credit "$T/tc_cfg0_no_credit.sv" "$RTL/dll/vibe_dll_credit.sv"
 run_cluster bcrc tc_bcrc_crc30 "$T/tc_bcrc_crc30.sv" "$RTL/dll/vibe_bcrc.sv"
 run_cluster retry_buf tc_retry_buf_256 "$T/tc_retry_buf_256.sv" "$RTL/dll/vibe_dll_retry_buf.sv"
 run_cluster retry_req tc_retry_req_gbn "$T/tc_retry_req_gbn.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv"
-run_cluster retry_ack tc_retry_ack_replay "$T/tc_retry_ack_replay.sv" "$RTL/dll/vibe_dll_retry_ack_sm.sv"
+run_cluster retry_ack tc_retry_ack_replay --vl "--public-flat-rw" \
+  "$T/tc_retry_ack_replay.sv" "$RTL/dll/vibe_dll_retry_ack_sm.sv"
 run_cluster dll_rx tc_cfg0_term_not_fabric "$T/tc_cfg0_term_not_fabric.sv" "$RTL/dll/vibe_dll_rx.sv"
 run_cluster dll_tx tc_dll_tx_cfg0 "$T/tc_dll_tx_cfg0.sv" \
   "$RTL/dll/vibe_dll_tx.sv" "$RTL/dll/vibe_bcrc.sv" "$RTL/dll/vibe_dll_credit.sv"
@@ -124,7 +132,8 @@ run_cluster rstctl tc_rst_port_device "$T/tc_rst_port_device.sv" "$RTL/mgmt/vibe
 run_cluster cfgspace tc_identity_cfg_space "$T/tc_identity_cfg_space.sv" "$RTL/mgmt/vibe_cfg_space.sv"
 run_cluster mgmtbyp tc_mgmt_byp "$T/tc_mgmt_byp.sv" "$RTL/mgmt/vibe_mgmt_byp.sv"
 run_cluster lmsm tc_lmsm_idle_discovery "$T/tc_lmsm_idle_discovery.sv" "$RTL/lmsm/vibe_lmsm.sv"
-run_cluster lmsm_walk tc_lmsm_walk "$T/tc_lmsm_walk.sv" "$RTL/lmsm/vibe_lmsm.sv"
+run_cluster lmsm_walk tc_lmsm_walk --vl "--public-flat-rw" \
+  "$T/tc_lmsm_walk.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run_cluster retry_wr tc_retry_wait_retrain "$T/tc_retry_wait_retrain.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv"
 run_cluster cna_ep tc_cna_ep "$T/tc_cna_ep.sv" "$RTL/mgmt/vibe_cna_ep.sv"
 run_cluster irq tc_irq_agg "$T/tc_irq_agg.sv" "$RTL/mgmt/vibe_irq_agg.sv"
@@ -136,7 +145,8 @@ run_cluster route tc_route_lu "$T/tc_route_lu.sv" "$RTL/fabric/vibe_route_lu.sv"
 run_cluster pcs_rx_am tc_pcs_rx_amctl "$T/tc_pcs_rx_amctl.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_ebch16.sv"
 run_cluster pcs_rx_dsk tc_pcs_rx_deskew "$T/tc_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv"
-run_cluster pcs_rx_un tc_pcs_rx_unpack "$T/tc_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv"
+run_cluster pcs_rx_un tc_pcs_rx_unpack --vl "--public-flat-rw" \
+  "$T/tc_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv"
 run_cluster pcs_rx_fec tc_pcs_rx_fec "$T/tc_pcs_rx_fec.sv" \
   "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
 run_cluster pcs_rx tc_pcs_rx "$T/tc_pcs_rx.sv" \
@@ -144,7 +154,8 @@ run_cluster pcs_rx tc_pcs_rx "$T/tc_pcs_rx.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv" \
   "$RTL/pcs/vibe_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_fec.sv" \
   "$RTL/pcs/vibe_rs128_120_dec.sv" "$RTL/pcs/vibe_ebch16.sv"
-run_cluster pcs_tx_pack tc_pcs_tx_pack "$T/tc_pcs_tx_pack.sv" \
+run_cluster pcs_tx_pack tc_pcs_tx_pack --vl "--public-flat-rw" \
+  "$T/tc_pcs_tx_pack.sv" \
   "$RTL/pcs/vibe_pcs_tx_pack.sv" "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv"
 run_cluster pcs_tx tc_pcs_tx "$T/tc_pcs_tx.sv" \
   "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
@@ -167,8 +178,14 @@ run_cluster fec_byp tc_pcs_fec_bypass "$T/tc_pcs_fec_bypass.sv" \
   "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv"
 run_cluster rsdec tc_rs_dec_syndrome "$T/tc_rs_dec_syndrome.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
 run_cluster voq tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fabric/vibe_voq_egr.sv"
+run_cluster voq_rd tc_voq_rd "$T/tc_voq_rd.sv" "$RTL/fabric/vibe_voq_egr.sv"
 run_cluster psel tc_psel_cov "$TB/cov/tc_psel_cov.sv" "$RTL/fabric/vibe_port_sel.sv"
 run_cluster xbar tc_xbar_unit "$T/tc_xbar_unit.sv" "$RTL/fabric/vibe_xbar.sv"
+run_cluster fabric_holes tc_fabric_line_holes "$T/tc_fabric_line_holes.sv" \
+  "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
+  "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
+  "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
+  "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv"
 
 # Small fabric (not vibe_suite). 4 VOQs — skip if this environment OOMs.
 run_cluster fabric tc_fabric_g1 "$T/tc_fabric_g1.sv" \

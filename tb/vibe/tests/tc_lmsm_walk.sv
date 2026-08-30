@@ -42,10 +42,11 @@ module tc_lmsm_walk;
     end
   endtask
 
+  // Hierarchical assign of tmr is ignored / illegal in Verilator --cc.
+  // force + --public-flat-rw (cov cluster) is the deposit path. No RTL edit.
   task automatic zap_tmr;
     begin
       force u_l.tmr = 27'd0;
-      u_l.tmr = 27'd0;
     end
   endtask
 
@@ -245,6 +246,95 @@ module tc_lmsm_walk;
     release u_l.tmr;
     if (state !== 5'd0)
       $display("NOTE tc_lmsm_walk: Disc.C tmr force not taken st=%0d", state);
+
+    // CFG_A tmr==0
+    hard_rst();
+    @(negedge clk);
+    lmsm_go = 1;
+    @(posedge clk);
+    lmsm_go = 0;
+    @(negedge clk);
+    am_locked = 4'b1111;
+    @(posedge clk); // Disc.C
+    @(posedge clk); // CFG_A
+    chk(5'd3, 25);
+    zap_tmr();
+    @(posedge clk);
+    release u_l.tmr;
+    chk(5'd0, 26);
+
+    // CFG_C tmr==0 (no EQ)
+    hard_rst();
+    @(negedge clk);
+    lmsm_go = 1;
+    @(posedge clk);
+    lmsm_go = 0;
+    @(negedge clk);
+    am_locked = 4'b1111;
+    repeat (4) @(posedge clk); // C,A,K,C
+    chk(5'd5, 27);
+    zap_tmr();
+    @(posedge clk);
+    release u_l.tmr;
+    chk(5'd0, 28);
+
+    // NULL tmr==0 before 8-cycle ACTIVE
+    hard_rst();
+    @(negedge clk);
+    lmsm_go = 1;
+    @(posedge clk);
+    lmsm_go = 0;
+    @(negedge clk);
+    am_locked = 4'b1111;
+    repeat (5) @(posedge clk); // to NULL
+    chk(5'd8, 29);
+    zap_tmr();
+    @(posedge clk);
+    release u_l.tmr;
+    chk(5'd0, 30);
+
+    // ACTIVE lid_bad → RTR_A; RTR_C tmr==0
+    hard_rst();
+    @(negedge clk);
+    lmsm_go = 1;
+    @(posedge clk);
+    lmsm_go = 0;
+    @(negedge clk);
+    am_locked = 4'b1111;
+    repeat (8) @(posedge clk);
+    repeat (10) @(posedge clk);
+    chk(5'd9, 31);
+    @(negedge clk);
+    lid_bad = 1;
+    @(posedge clk);
+    lid_bad = 0;
+    chk(5'd10, 32);
+    @(posedge clk); // RTR_C if still locked — unlock first
+    @(negedge clk);
+    am_locked = 4'd0;
+    zap_tmr();
+    @(posedge clk);
+    release u_l.tmr;
+    // RTR_A or RTR_C timeout → IDLE
+    if (state !== 5'd0)
+      $display("NOTE tc_lmsm_walk: RTR tmr force st=%0d", state);
+
+    // CFG_K tmr==0 while x4_ok
+    hard_rst();
+    @(negedge clk);
+    lmsm_go = 1;
+    @(posedge clk);
+    lmsm_go = 0;
+    @(negedge clk);
+    am_locked = 4'b1111;
+    @(posedge clk); // C
+    @(posedge clk); // CFG_A
+    @(posedge clk); // CFG_K
+    chk(5'd4, 33);
+    zap_tmr();
+    @(posedge clk);
+    release u_l.tmr;
+    chk(5'd0, 34);
 
     if (!fail) $display("PASS tc_lmsm_walk");
     $finish;

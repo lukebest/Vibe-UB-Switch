@@ -104,13 +104,23 @@ module tc_cfg0_term_not_fabric;
       fail = 1;
     end
     fec_fail = 0;
-    // !link_up while have: pad ERROR_FLAG
-    send_beat(4'd3);
+    // !link_up while have: pad ERROR_FLAG. have is set on the send posedge
+    // and consumed on the next posedge if link_up stays 1 — drop link_up
+    // on the intervening negedge (no extra cycle).
     @(negedge clk);
+    pcs_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+        4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+        16'd0, 8'd0, 3'd0, 8'd0));
+    pcs_vld = 1'b1;
+    nw_ready = 1'b0;
+    @(posedge clk);
+    @(negedge clk);
+    pcs_vld = 1'b0;
     link_up = 0;
     @(posedge clk);
     @(posedge clk);
     link_up = 1;
+    nw_ready = 1;
     port_rst = 1;
     @(posedge clk);
     port_rst = 0;

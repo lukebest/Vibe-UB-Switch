@@ -63,6 +63,13 @@ module tc_retry_ack_replay;
       $display("  actual   : %0d", state);
       fail = 1;
     end
+    // illegal st → default NORMAL (coverage; NOTE if force ignored)
+    force u_a.st = 3'd7;
+    @(posedge clk);
+    release u_a.st;
+    @(posedge clk);
+    if (state !== 3'd0)
+      $display("NOTE tc_retry_ack_replay: default force st=%0d", state);
     if (!fail) $display("PASS tc_retry_ack_replay");
     $finish;
   end

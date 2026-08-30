@@ -36,12 +36,31 @@ module tc_dll_sm_states;
       $display("  actual   : %0d", state);
       fail = 1;
     end
+    // hold Param_Init while !param_ok (case else)
+    param_ok = 0;
+    repeat (3) @(posedge clk);
+    if (state !== 2'd1) begin
+      $display("FAIL tc_dll_sm_states");
+      $display("  stimulus : LinkUp=1 param_ok=0");
+      $display("  expected : stay Param_Init");
+      $display("  actual   : %0d", state);
+      fail = 1;
+    end
     param_ok = 1;
     @(posedge clk);
     if (state !== 2'd2) begin
       $display("FAIL tc_dll_sm_states");
       $display("  stimulus : param_ok");
       $display("  expected : Credit_Init (2)");
+      $display("  actual   : %0d", state);
+      fail = 1;
+    end
+    credit_ok = 0;
+    repeat (3) @(posedge clk);
+    if (state !== 2'd2) begin
+      $display("FAIL tc_dll_sm_states");
+      $display("  stimulus : Credit_Init credit_ok=0");
+      $display("  expected : stay Credit_Init");
       $display("  actual   : %0d", state);
       fail = 1;
     end

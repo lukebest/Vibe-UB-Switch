@@ -27,6 +27,9 @@ module tc_pcs_fec_bypass;
     @(posedge clk);
     @(negedge clk);
     win_vld = 0;
+    cw_ready = 0;
+    repeat (4) @(posedge clk);
+    cw_ready = 1;
     repeat (16) begin
       @(posedge clk);
       if (cw_vld) ncw = ncw + 1;

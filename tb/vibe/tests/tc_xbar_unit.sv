@@ -62,6 +62,17 @@ module tc_xbar_unit;
     @(posedge clk);
     in_vld[0] = 0; in_eop[0] = 0;
     repeat (2) @(posedge clk);
+    // locked grant with out_ready=0 (else of locked if)
+    in_data[0] = {160'hE, 480'd0};
+    in_dst[0]  = 2'd1;
+    in_vld[0]  = 1; in_sop[0] = 1; in_eop[0] = 0; out_ready = 4'b1111;
+    @(posedge clk);
+    out_ready[1] = 0; in_sop[0] = 0; in_eop[0] = 0;
+    @(posedge clk);
+    out_ready[1] = 1; in_eop[0] = 1; in_data[0] = {160'hF, 480'd0};
+    @(posedge clk);
+    in_vld[0] = 0; in_eop[0] = 0;
+    repeat (2) @(posedge clk);
     // conflict: two ingress to dest 3
     in_data[0] = {160'h1, 480'd0}; in_dst[0] = 2'd3; in_vld[0] = 1; in_sop[0] = 1; in_eop[0] = 1;
     in_data[1] = {160'h2, 480'd0}; in_dst[1] = 2'd3; in_vld[1] = 1; in_sop[1] = 1; in_eop[1] = 1;
