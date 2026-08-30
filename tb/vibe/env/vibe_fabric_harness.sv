@@ -176,8 +176,7 @@ module vibe_fabric_harness (
     end
   endtask
 
-  // SAF needs a completing beat when declared beats == 1 (RTL first-beat starts
-  // assembly and only the subsequent beat sets done). Send max(decl,2) beats.
+  // SAF completes on the last declared beat (1-beat when decl_flits<=4).
   task automatic tb_inject;
     input integer     port;
     input [639:0]     beat0;
@@ -185,7 +184,7 @@ module vibe_fabric_harness (
     integer           n, b;
     begin
       n = extra_beats;
-      if (n < 2) n = 2;
+      if (n < 1) n = 1;
       for (b = 0; b < n; b = b + 1) begin
         @(negedge clk);
         while (!ing_ready[port]) @(posedge clk);

@@ -103,16 +103,25 @@ module tc_saf_ing;
     pkt_ready = 1;
     repeat (8) @(posedge clk);
     pkt_ready = 0;
-    // 1-beat legal
+    // 1-beat legal (decl_flits=1): complete on SOP so sop&&eop coincide
     @(negedge clk);
     in_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd3, 2'b00, 4'd0, 16'h1, 16'h0001, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     in_vld = 1;
+    pkt_ready = 0;
     @(posedge clk);
     @(negedge clk);
     in_vld = 0;
-    repeat (3) @(posedge clk);
+    @(posedge clk);
+    @(negedge clk);
+    if (!(pkt_vld && pkt_sop && pkt_eop)) begin
+      $display("FAIL tc_saf_ing");
+      $display("  stimulus : 1-flit / 1-beat packet");
+      $display("  expected : pkt_vld && sop && eop");
+      $display("  actual   : vld=%0b sop=%0b eop=%0b", pkt_vld, pkt_sop, pkt_eop);
+      fail = 1;
+    end
     pkt_ready = 1;
     repeat (4) @(posedge clk);
     if (!fail) $display("PASS tc_saf_ing");

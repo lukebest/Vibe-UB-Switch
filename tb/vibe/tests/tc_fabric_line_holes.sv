@@ -58,6 +58,18 @@ module tc_fabric_line_holes;
     rst_n = 1;
     @(posedge clk);
 
+    // 1-beat CFG6 terminate (本CNA): SAF sop&&eop same beat → fabric :185
+    @(negedge clk);
+    while (!ing_ready[0]) @(posedge clk);
+    ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+        4'd6, 2'b00, 4'd0, 16'h1, 16'h1111, vibe_tb_plen_nflit(1),
+        16'd0, 8'd0, 3'd0, 8'd0));
+    ing_vld[0] = 1;
+    @(posedge clk);
+    @(negedge clk);
+    ing_vld[0] = 0;
+    repeat (12) @(posedge clk);
+
     // Multi-beat CFG6 terminate (本CNA): hits cfg6_seen/drain + eop clear
     send2(0, 4'd6, 2'b00, 16'h1111);
     repeat (20) @(posedge clk);

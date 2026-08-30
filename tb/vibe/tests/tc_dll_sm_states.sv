@@ -29,6 +29,7 @@ module tc_dll_sm_states;
     end
     link_up = 1;
     @(posedge clk);
+    @(posedge clk); // --cc: ST_DIS → Param (link_up already qualified)
     if (state !== 2'd1) begin
       $display("FAIL tc_dll_sm_states");
       $display("  stimulus : LinkUp=1");

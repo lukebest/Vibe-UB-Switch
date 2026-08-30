@@ -134,7 +134,8 @@ module tc_credit_1024_flit_bp;
       fail = 1;
     end
     link_up = 1;
-    // fc_ovf: many consume with grain=1
+    // 17-bit cells_sum > 65535 → fc_ovf (AS-0.1 flow-control overflow).
+    // 65 × 1023 (grain=1) exceeds 16-bit cells without wrapping the compare.
     grain_n = 8'd1;
     begin : ovf
       integer k;
@@ -147,10 +148,17 @@ module tc_credit_1024_flit_bp;
     @(negedge clk);
     consume_vld = 0;
     @(posedge clk);
+    @(negedge clk);
     if (!fc_ovf) begin
-      $display("NOTE tc_credit_1024_flit_bp: fc_ovf not set after 70x1023 grain=1 (RTL 16-bit wrap)");
+      $display("FAIL tc_credit_1024_flit_bp");
+      $display("  stimulus : 70×1023 flit consume grain=1 after cells=0");
+      $display("  expected : fc_ovf (17-bit cells_sum > 65535)");
+      $display("  actual   : 0 cells=%0d", u_crd.cells);
+      $display("  hier     : u_crd.cells_sum / fc_ovf");
+      $display("  reproduce: make -C tb/vibe units");
+      fail = 1;
     end
-    // Deposit cells near 16-bit max (predicate is still 16-bit; may stay dead)
+    // Second hit: deposit cells=FFFF + one consume (force; --public-flat-rw on --cc)
     force u_crd.cells = 16'hFFFF;
     @(negedge clk);
     consume_vld = 1; consume_flits = 10'd1023; grain_n = 8'd1; is_cfg0 = 0;
@@ -158,8 +166,6 @@ module tc_credit_1024_flit_bp;
     consume_vld = 0;
     release u_crd.cells;
     @(posedge clk);
-    if (!fc_ovf)
-      $display("NOTE tc_credit_1024_flit_bp: fc_ovf still 0 after cells=FFFF consume (RTL-dead 16-bit add)");
     if (!fail) $display("PASS tc_credit_1024_flit_bp");
     $finish;
   end
