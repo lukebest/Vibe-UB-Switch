@@ -58,6 +58,32 @@ module tc_dll_tx_cfg0;
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
+    // send_idle / send_req / send_ack / replay / !link_up
+    send_idle = 1;
+    @(posedge clk);
+    send_idle = 0;
+    send_req = 1;
+    @(posedge clk);
+    send_req = 0;
+    send_ack = 1;
+    @(posedge clk);
+    send_ack = 0;
+    replay = 1; replay_flit = 160'hA5;
+    @(posedge clk);
+    replay = 0;
+    // non-CFG0 consume
+    nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+        4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+        16'd0, 8'd0, 3'd0, 8'd0));
+    @(negedge clk);
+    nw_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    nw_vld = 0;
+    repeat (8) @(posedge clk);
+    link_up = 0;
+    @(posedge clk);
+    link_up = 1;
     if (!fail) $display("PASS tc_dll_tx_cfg0");
     $finish;
   end

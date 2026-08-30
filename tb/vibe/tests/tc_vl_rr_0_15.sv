@@ -35,6 +35,23 @@ module tc_vl_rr_0_15;
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
+    nonempty = 16'd0;
+    #1;
+    if (valid) begin
+      $display("FAIL tc_vl_rr_0_15");
+      $display("  stimulus : nonempty=0");
+      $display("  expected : valid=0");
+      fail = 1;
+    end
+    nonempty = 16'h8000;
+    #1;
+    if (vl_sel !== 4'd15) begin
+      $display("FAIL tc_vl_rr_0_15");
+      $display("  stimulus : only VL15");
+      $display("  expected : vl_sel=15");
+      $display("  actual   : %0d", vl_sel);
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_vl_rr_0_15");
     $finish;
   end

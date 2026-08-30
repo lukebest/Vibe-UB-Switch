@@ -134,25 +134,42 @@ def main() -> int:
             lines.append(f"- `{f}` — no stimulus in Verilator clusters (or not elaborated)")
         lines.append("")
 
-    lines.append("## Uncovered bins (first 80)")
-    lines.append("")
-    n = 0
+    line_miss = []
+    tog_miss = []
     for fn in files:
         for m in by_file[fn]["miss"]:
-            if n >= 80:
-                break
+            if m.startswith("line "):
+                line_miss.append(m)
+            else:
+                tog_miss.append(m)
+
+    lines.append("## Uncovered LINE points")
+    lines.append("")
+    if not line_miss:
+        lines.append("None.")
+        lines.append("")
+    else:
+        for m in line_miss:
             lines.append(f"- `{m}`")
-            n += 1
-        if n >= 80:
+        lines.append("")
+
+    lines.append("## Uncovered toggle bins (first 40; not the line gate)")
+    lines.append("")
+    n = 0
+    for m in tog_miss:
+        if n >= 40:
             break
-    extra = sum(len(by_file[fn]["miss"]) for fn in files) - n
+        lines.append(f"- `{m}`")
+        n += 1
+    extra = len(tog_miss) - n
     if extra > 0:
         lines.append(f"- … {extra} more (see annotate/ and cov_raw.txt)")
     lines.append("")
-    lines.append("Classification: see TC_RESULTS / cov README. Wide-bus toggle")
-    lines.append("miss is unused data-bit patterns (not dead). LMSM/retry-wait and")
-    lines.append("RX PCS wrappers are **missing stimulus**. Probe/Dijkstra/QDLWS")
-    lines.append("are **not in RTL** (non-goal). Suite Verilator bind OOM on VOQ.")
+    lines.append("Classification: see `CHECKER_AUDIT.md` / `COVERAGE_HOLES.md`.")
+    lines.append("Wide-bus toggle miss is unused data-bit patterns (not dead).")
+    lines.append("Waive only Probe/Dijkstra/QDLWS/Exact Route/UBFM — those are")
+    lines.append("**not in RTL** (AS-0.1 non-goals). Do not waive missing stimulus.")
+    lines.append("Suite Verilator bind OOM on VOQ — use per-module clusters.")
     lines.append("")
 
     text = "\n".join(lines)

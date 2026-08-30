@@ -72,6 +72,37 @@ module tc_dll_sm_states;
       $display("  actual   : %0d", state);
       fail = 1;
     end
+    // port_rst → Disabled even if LinkUp=1
+    link_up = 1; param_ok = 1; credit_ok = 1;
+    @(posedge clk);
+    @(posedge clk);
+    @(posedge clk);
+    port_rst = 1;
+    @(posedge clk);
+    port_rst = 0;
+    @(posedge clk);
+    if (state !== 2'd0) begin
+      $display("FAIL tc_dll_sm_states");
+      $display("  stimulus : port_rst while LinkUp=1");
+      $display("  expected : Disabled");
+      $display("  actual   : %0d", state);
+      fail = 1;
+    end
+    // dll_error → Disabled from Normal
+    link_up = 1;
+    @(posedge clk); // DIS→PARM
+    @(posedge clk); // PARM→CRD
+    @(posedge clk); // CRD→NRM
+    dll_error = 1;
+    @(posedge clk);
+    dll_error = 0;
+    if (state !== 2'd0) begin
+      $display("FAIL tc_dll_sm_states");
+      $display("  stimulus : dll_error in Normal");
+      $display("  expected : Disabled");
+      $display("  actual   : %0d", state);
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_dll_sm_states");
     $finish;
   end

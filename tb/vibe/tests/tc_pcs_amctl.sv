@@ -26,6 +26,25 @@ module tc_pcs_amctl;
       $display("  hier     : u_a.amctl_40B / u_a.cw21");
       fail = 1;
     end
+    // Hit every lane_id arm (combo LUT)
+    lane_id = 2'd1; #1;
+    lane_id = 2'd2; #1;
+    lane_id = 2'd3; #1;
+    if (amctl_40B === 320'd0) begin
+      $display("FAIL tc_pcs_amctl");
+      $display("  stimulus : lane_id=3");
+      $display("  expected : nonzero AMCTL");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    link_up = 0; #1;
+    if (ack) begin
+      $display("FAIL tc_pcs_amctl");
+      $display("  stimulus : req=1 link_up=0");
+      $display("  expected : ack=0");
+      $display("  actual   : 1");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_pcs_amctl");
     $finish;
   end

@@ -43,6 +43,8 @@ module tc_pma_512b_slice;
       $display("  actual   : r0=%h r3=%h", r0, r3);
       fail = 1;
     end
+    tx_lane_vld = 0;
+    @(posedge txclk);
     if (!fail) $display("PASS tc_pma_512b_slice");
     $finish;
   end

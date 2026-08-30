@@ -37,6 +37,46 @@ module tc_afifo_afull10;
       $display("  hier     : u_f.wocc");
       fail = 1;
     end
+    // fill to full (depth 16)
+    for (i = 10; i < 16; i = i + 1) begin
+      @(negedge wclk);
+      wdata = i[159:0];
+      wen = 1;
+      @(posedge wclk);
+    end
+    @(negedge wclk);
+    wen = 0;
+    @(posedge wclk);
+    if (!wfull) begin
+      $display("FAIL tc_afifo_afull10");
+      $display("  stimulus : 16 writes");
+      $display("  expected : wfull=1");
+      $display("  actual   : 0 wocc=%0d", wocc);
+      fail = 1;
+    end
+    // write while full must not increment
+    @(negedge wclk);
+    wen = 1; wdata = 160'hDEAD;
+    @(posedge wclk);
+    @(negedge wclk);
+    wen = 0;
+    // drain
+    repeat (4) @(posedge rclk);
+    for (i = 0; i < 16; i = i + 1) begin
+      @(negedge rclk);
+      if (!rempty) ren = 1;
+      @(posedge rclk);
+    end
+    @(negedge rclk);
+    ren = 0;
+    repeat (4) @(posedge rclk);
+    if (!rempty) begin
+      $display("FAIL tc_afifo_afull10");
+      $display("  stimulus : 16 reads after full");
+      $display("  expected : rempty=1");
+      $display("  actual   : 0");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_afifo_afull10");
     $finish;
   end

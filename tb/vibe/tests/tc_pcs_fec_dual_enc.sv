@@ -30,7 +30,8 @@ module tc_pcs_fec_dual_enc;
     @(posedge clk);
     @(negedge clk);
     win_vld = 0;
-    repeat (8) @(posedge clk);
+    // 120 symbols + emit both CWs
+    repeat (280) @(posedge clk);
     if (!saw_a || !saw_b) begin
       $display("FAIL tc_pcs_fec_dual_enc");
       $display("  stimulus : fec_mode=T4 two windows");

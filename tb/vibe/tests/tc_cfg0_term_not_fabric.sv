@@ -87,6 +87,33 @@ module tc_cfg0_term_not_fabric;
       fail = 1;
     end
 
+    // rx_ovf: RXBUF=32, each beat +4, 9 beats without consume
+    begin : ovf
+      integer k;
+      for (k = 0; k < 10; k = k + 1) send_beat(4'd3);
+    end
+    repeat (4) @(posedge clk);
+    // fec_fail → start_retry
+    fec_fail = 1;
+    @(posedge clk);
+    if (!start_retry) begin
+      $display("FAIL tc_cfg0_term_not_fabric");
+      $display("  stimulus : fec_fail");
+      $display("  expected : start_retry=1");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    fec_fail = 0;
+    // !link_up while have: pad ERROR_FLAG
+    send_beat(4'd3);
+    @(negedge clk);
+    link_up = 0;
+    @(posedge clk);
+    @(posedge clk);
+    link_up = 1;
+    port_rst = 1;
+    @(posedge clk);
+    port_rst = 0;
     if (!fail) $display("PASS tc_cfg0_term_not_fabric");
     $finish;
   end

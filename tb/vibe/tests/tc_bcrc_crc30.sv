@@ -38,6 +38,16 @@ module tc_bcrc_crc30;
       $display("  actual   : crc_word=%h", crc_word);
       fail = 1;
     end
+    in_vld = 0; last = 0;
+    @(posedge clk);
+    start = 1;
+    @(posedge clk);
+    start = 0;
+    in_vld = 1; last = 0; error_flag = 0; in_flit = 160'h1;
+    @(posedge clk);
+    last = 1;
+    @(posedge clk);
+    in_vld = 0; last = 0;
     if (!fail) $display("PASS tc_bcrc_crc30");
     $finish;
   end

@@ -29,6 +29,16 @@ module tc_mgmt_byp;
       $display("  actual   : vld=%0b data=%h", out_vld, out_data);
       fail = 1;
     end
+    out_ready = 1;
+    @(posedge clk);
+    @(posedge clk);
+    if (out_vld) begin
+      $display("FAIL tc_mgmt_byp");
+      $display("  stimulus : out_ready after one beat");
+      $display("  expected : empty");
+      $display("  actual   : still vld");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_mgmt_byp");
     $finish;
   end

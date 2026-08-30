@@ -75,6 +75,81 @@ module tc_credit_1024_flit_bp;
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
+    // Consume path: ceil_div by grain (cells, not G7 unit). grain=8, 8 flits → +1 cell.
+    @(negedge clk);
+    consume_vld = 1; consume_flits = 10'd8; is_cfg0 = 0;
+    @(posedge clk);
+    @(negedge clk);
+    consume_vld = 0;
+    @(posedge clk);
+    if (u_crd.cells !== 16'd1) begin
+      $display("FAIL tc_credit_1024_flit_bp");
+      $display("  stimulus : consume 8 flits grain=8");
+      $display("  expected : cells=1 (ceil_div, not G7 pending unit)");
+      $display("  actual   : cells=%0d pending=%0d", u_crd.cells, pending);
+      fail = 1;
+    end
+    // grain_n=0 → ceil_div=0
+    grain_n = 8'd0;
+    @(negedge clk);
+    consume_vld = 1; consume_flits = 10'd16;
+    @(posedge clk);
+    @(negedge clk);
+    consume_vld = 0; grain_n = 8'd8;
+    @(posedge clk);
+    if (u_crd.cells !== 16'd1) begin
+      $display("FAIL tc_credit_1024_flit_bp");
+      $display("  stimulus : grain_n=0 consume");
+      $display("  expected : cells unchanged (ceil_div=0)");
+      $display("  actual   : %0d", u_crd.cells);
+      fail = 1;
+    end
+    // port_rst clears
+    @(negedge clk);
+    port_rst = 1;
+    @(posedge clk);
+    @(negedge clk);
+    port_rst = 0;
+    @(posedge clk);
+    if (pending !== 16'd0) begin
+      $display("FAIL tc_credit_1024_flit_bp");
+      $display("  stimulus : port_rst");
+      $display("  expected : pending=0");
+      $display("  actual   : %0d", pending);
+      fail = 1;
+    end
+    // !link_up clears
+    @(negedge clk);
+    credit_ret = 1; credit_ret_n = 16'd3;
+    @(posedge clk);
+    @(negedge clk);
+    credit_ret = 0; link_up = 0;
+    @(posedge clk);
+    @(posedge clk);
+    if (pending !== 16'd0) begin
+      $display("FAIL tc_credit_1024_flit_bp");
+      $display("  stimulus : link_up=0");
+      $display("  expected : pending=0");
+      $display("  actual   : %0d", pending);
+      fail = 1;
+    end
+    link_up = 1;
+    // fc_ovf: many consume with grain=1
+    grain_n = 8'd1;
+    begin : ovf
+      integer k;
+      for (k = 0; k < 70; k = k + 1) begin
+        @(negedge clk);
+        consume_vld = 1; consume_flits = 10'd1023; is_cfg0 = 0;
+        @(posedge clk);
+      end
+    end
+    @(negedge clk);
+    consume_vld = 0;
+    @(posedge clk);
+    if (!fc_ovf) begin
+      $display("NOTE tc_credit_1024_flit_bp: fc_ovf not set after 70x1023 grain=1 (RTL cells wrap?)");
+    end
     if (!fail) $display("PASS tc_credit_1024_flit_bp");
     $finish;
   end

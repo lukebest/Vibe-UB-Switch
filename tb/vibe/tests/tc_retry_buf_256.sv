@@ -84,6 +84,46 @@ module tc_retry_buf_256;
       $display("  hier     : u_b.freeb");
       fail = 1;
     end
+    // legal release after a write: free 255 + 1 = 256
+    rst_n = 0;
+    repeat (2) @(posedge clk);
+    rst_n = 1;
+    @(posedge clk);
+    @(negedge clk);
+    wr_en = 1; wr_flit = 160'h11; is_null = 0; is_retry = 0;
+    @(posedge clk);
+    @(negedge clk);
+    wr_en = 0; ack_rel = 1; rel_size = 8'd1;
+    @(posedge clk);
+    @(negedge clk);
+    ack_rel = 0;
+    @(posedge clk);
+    if (num_free !== 9'd256 || proto_err) begin
+      $display("FAIL tc_retry_buf_256");
+      $display("  stimulus : write 1 then ack_rel 1");
+      $display("  expected : free=256 proto_err=0");
+      $display("  actual   : free=%0d err=%0b", num_free, proto_err);
+      fail = 1;
+    end
+    // port_rst / !link_up
+    @(negedge clk);
+    wr_en = 1;
+    @(posedge clk);
+    @(negedge clk);
+    wr_en = 0; port_rst = 1;
+    @(posedge clk);
+    port_rst = 0;
+    @(posedge clk);
+    if (num_free !== 9'd256) begin
+      $display("FAIL tc_retry_buf_256");
+      $display("  stimulus : port_rst");
+      $display("  expected : free=256");
+      $display("  actual   : %0d", num_free);
+      fail = 1;
+    end
+    link_up = 0;
+    @(posedge clk);
+    link_up = 1;
     if (!fail) $display("PASS tc_retry_buf_256");
     $finish;
   end

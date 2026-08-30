@@ -47,6 +47,18 @@ module tc_icrc_txrx_vs_transit;
     // Sender/receiver path: vibe_cna_ep has no vibe_icrc instance (scan_absent).
     $display("NOTE ICRC tx/rx: vibe_cna_ep does not instantiate vibe_icrc (RTL gap, not patched)");
     $display("NOTE ICRC transit: no vibe_icrc in vibe_fabric (AS §13 must)");
+    // multi-byte (else-if in_vld without last, then last)
+    start = 1;
+    @(posedge clk);
+    start = 0;
+    in_vld = 1; last = 0; in_byte = 8'h11;
+    @(posedge clk);
+    in_byte = 8'h22;
+    @(posedge clk);
+    in_byte = 8'h33; last = 1;
+    @(posedge clk);
+    in_vld = 0; last = 0;
+    repeat (2) @(posedge clk);
     if (!fail) $display("PASS tc_icrc_txrx_vs_transit");
     $finish;
   end

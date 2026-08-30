@@ -29,6 +29,44 @@ module tc_fecn_mark;
       $display("  actual   : marked=0 cci_out=%h", cci_out);
       fail = 1;
     end
+    // mode 010 also markable
+    cci_in = {3'b010, 11'd0, 2'b01};
+    voq_occ = 6'd24;
+    #1;
+    if (!marked) begin
+      $display("FAIL tc_fecn_mark");
+      $display("  stimulus : Mode=010 FECN=01 occ=24");
+      $display("  expected : marked");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    // FECN=00 unmarkable
+    cci_in = {3'b100, 11'd0, 2'b00};
+    #1;
+    if (marked) begin
+      $display("FAIL tc_fecn_mark");
+      $display("  stimulus : FECN=00");
+      $display("  expected : not marked");
+      fail = 1;
+    end
+    // already severe: local_lvl==fecn, not worse
+    cci_in = {3'b100, 11'd0, 2'b11};
+    #1;
+    if (marked) begin
+      $display("FAIL tc_fecn_mark");
+      $display("  stimulus : FECN=11 already severe");
+      $display("  expected : not marked (not worse)");
+      fail = 1;
+    end
+    // not markable mode
+    cci_in = {3'b000, 11'd0, 2'b01};
+    #1;
+    if (marked) begin
+      $display("FAIL tc_fecn_mark");
+      $display("  stimulus : Mode=000");
+      $display("  expected : not marked");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_fecn_mark");
     $finish;
   end

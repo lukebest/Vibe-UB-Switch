@@ -42,6 +42,24 @@ module tc_rst_port_device;
       $display("  actual   : 0");
       fail = 1;
     end
+    // hold expires (dct 7→0)
+    repeat (10) @(posedge clk);
+    if (device_rst) begin
+      $display("FAIL tc_rst_port_device");
+      $display("  stimulus : 10 cyc after device_rst_pulse");
+      $display("  expected : device_rst released");
+      $display("  actual   : still 1");
+      fail = 1;
+    end
+    // remaining port hold expire
+    repeat (8) @(posedge clk);
+    if (port_rst[2]) begin
+      $display("FAIL tc_rst_port_device");
+      $display("  stimulus : wait after port_rst_pulse[2]");
+      $display("  expected : port_rst[2]=0");
+      $display("  actual   : 1");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_rst_port_device");
     $finish;
   end

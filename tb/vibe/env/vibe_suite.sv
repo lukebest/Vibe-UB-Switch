@@ -39,18 +39,15 @@ module vibe_suite;
       if (|h.saw_egr) begin
         h.tb_fail(name,
           "inject RT=1x 2-beat pkt dest=1 vl=0",
-          "no egress beat; packet dropped",
+          "no egress beat; packet dropped (not shortest-path / not RT=00)",
           "saw_egr != 0 (forwarded)",
           "h.u_fab.x_in_v / h.egr_vld / h.saw_egr");
-      end else if (h.rt_shortest_unimpl !== (cnt_before + 32'd1) &&
-                   cnt_before != 32'hFFFF_FFFF) begin
-        // count checked by dedicated TCs; drop-only still fails if forwarded
-        h.tb_pass(name);
-      end else if (h.rt_shortest_unimpl === cnt_before && cnt_before != 32'hFFFF_FFFF) begin
+      end else if (cnt_before != 32'hFFFF_FFFF &&
+                   h.rt_shortest_unimpl !== (cnt_before + 32'd1)) begin
         h.tb_fail(name,
           "inject RT=1x packet",
-          "drop and no forward (counter may also +1)",
-          "no forward observed; counter did not increment",
+          "drop AND rt_shortest_unimpl += 1 (FS-0.2.4 / AS-0.1 G1)",
+          "no forward; counter did not step +1",
           "h.u_fab.rt_shortest_unimpl / h.u_fab.g1_evt");
       end else
         h.tb_pass(name);
@@ -519,25 +516,52 @@ module vibe_suite;
   // Extra locked: CFG6 terminate vs forward
   // -------------------------------------------------------------------------
   task automatic tc_cfg6_term_vs_fwd;
-    integer term_ok, fwd_hit;
+    integer term_us, term_nlp, term_opc, fwd_miss, fwd_opc_nous, unw;
     begin
       $display("=== tc_cfg6_term_vs_fwd ===");
+      // 1) 本CNA (DCNA==written CNA)
       c6_cna = 16'h1111; c6_written = 1'b1; c6_hit = 4'd0;
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      #0;
-      c6_hit[0] = 1'b1;
-      #0;
-      term_ok = c6_cons[0] && c6_rvld[0];
-      c6_hit[0] = 1'b0;
-      #0;
+      #0; c6_hit[0] = 1'b1; #0;
+      term_us = c6_cons[0] && c6_rvld[0];
+      c6_hit[0] = 1'b0; #0;
+      // 2) NLP=1 enumerate: terminate even if DCNA is not us (AS-0.1 §9)
+      c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
+          16'd0, 8'd0, 3'd1, 8'd0));
+      c6_hit[0] = 1'b1; #0;
+      term_nlp = c6_cons[0];
+      c6_hit[0] = 1'b0; #0;
+      // 3) opcode 0x10 targeting us
+      c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
+          16'd0, 8'd0, 3'd0, 8'h10));
+      c6_hit[0] = 1'b1; #0;
+      term_opc = c6_cons[0];
+      c6_hit[0] = 1'b0; #0;
+      // 4) opcode 0x10 not targeting us → FORWARD
+      c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
+          16'd0, 8'd0, 3'd0, 8'h10));
+      c6_hit[0] = 1'b1; #0;
+      fwd_opc_nous = !c6_cons[0];
+      c6_hit[0] = 1'b0; #0;
+      // 5) else FORWARD (DCNA!=CNA, NLP=0, opc!=0x10)
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      c6_hit[0] = 1'b1;
-      #0;
-      fwd_hit = !c6_cons[0];
+      c6_hit[0] = 1'b1; #0;
+      fwd_miss = !c6_cons[0];
+      c6_hit = 4'd0; #0;
+      // 6) CNA not written: 本CNA must not match
+      c6_written = 1'b0; c6_cna = 16'h1111;
+      c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      c6_hit[0] = 1'b1; #0;
+      unw = !c6_cons[0];
       c6_hit = 4'd0;
       h.tb_reset();
       h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h2222,
@@ -546,20 +570,43 @@ module vibe_suite;
       $display("  hier cfg6_hit=%04b x_in_v=%04b consume=%04b cna_written=%0b cna=%h",
                h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.cfg6_cons,
                h.cna_written, h.cna);
-      if (!term_ok) begin
+      if (!term_us) begin
         h.tb_fail("tc_cfg6_term_vs_fwd",
           "cna_ep CFG6 DCNA==written CNA",
-          "consume=1 reply_vld=1 (terminate)",
-          "no consume/reply",
+          "consume=1 (terminate 本CNA)",
+          "no consume",
           "u_c6.term / consume");
-      end else if (!fwd_hit) begin
+      end else if (!term_nlp) begin
         h.tb_fail("tc_cfg6_term_vs_fwd",
-          "cna_ep CFG6 DCNA!=CNA NLP=0",
-          "consume=0 (not terminate; AS-0.1 s9 else forward)",
+          "CFG6 NLP=1 DCNA!=CNA",
+          "consume=1 (enumerate terminate)",
+          "consume=0",
+          "u_c6.nlp / term");
+      end else if (!term_opc) begin
+        h.tb_fail("tc_cfg6_term_vs_fwd",
+          "CFG6 opcode 0x10 DCNA==CNA",
+          "consume=1 (targeting this device)",
+          "consume=0",
+          "u_c6.opc / us");
+      end else if (!fwd_opc_nous) begin
+        h.tb_fail("tc_cfg6_term_vs_fwd",
+          "CFG6 opcode 0x10 DCNA!=CNA",
+          "consume=0 (not targeting us → forward)",
           "consume=1",
           "u_c6.term");
+      end else if (!fwd_miss) begin
+        h.tb_fail("tc_cfg6_term_vs_fwd",
+          "cna_ep CFG6 DCNA!=CNA NLP=0 opc=0",
+          "consume=0 (AS-0.1 s9 else forward)",
+          "consume=1",
+          "u_c6.term");
+      end else if (!unw) begin
+        h.tb_fail("tc_cfg6_term_vs_fwd",
+          "CNA not statically written, DCNA==power-on CNA",
+          "consume=0 (do not match until write)",
+          "consume=1",
+          "u_c6.us / cna_written");
       end else if (h.u_fab.cfg6_hit[0] && !h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0]) begin
-        // RTL drops ALL CFG6 from xbar — record (no RTL patch)
         h.tb_fail("tc_cfg6_term_vs_fwd",
           "fabric CFG6 DCNA!=CNA (must forward per AS-0.1 s9)",
           "x_in_v=1 (forward path)",

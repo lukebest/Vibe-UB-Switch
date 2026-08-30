@@ -31,6 +31,38 @@ module tc_retry_ack_replay;
       $display("  hier     : u_a.st");
       fail = 1;
     end
+    // ACK burst is 1 Idle + 32 Ack (burst 0..32) then replay until rd==wr
+    repeat (40) @(posedge clk);
+    if (state !== 3'd2 && state !== 3'd0) begin
+      $display("FAIL tc_retry_ack_replay");
+      $display("  stimulus : 40 cyc after start_ack");
+      $display("  expected : ST_P replay or back to NORMAL");
+      $display("  actual   : st=%0d replay=%0b rd=%0d", state, replay, rd_ptr);
+      fail = 1;
+    end
+    repeat (8) @(posedge clk);
+    if (state !== 3'd0) begin
+      $display("FAIL tc_retry_ack_replay");
+      $display("  stimulus : replay until rd_ptr==wr_ptr=4");
+      $display("  expected : NORMAL");
+      $display("  actual   : st=%0d rd=%0d", state, rd_ptr);
+      fail = 1;
+    end
+    // port_rst
+    start_ack = 1;
+    @(posedge clk);
+    start_ack = 0;
+    port_rst = 1;
+    @(posedge clk);
+    port_rst = 0;
+    @(posedge clk);
+    if (state !== 3'd0) begin
+      $display("FAIL tc_retry_ack_replay");
+      $display("  stimulus : port_rst during ACK");
+      $display("  expected : NORMAL");
+      $display("  actual   : %0d", state);
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_retry_ack_replay");
     $finish;
   end

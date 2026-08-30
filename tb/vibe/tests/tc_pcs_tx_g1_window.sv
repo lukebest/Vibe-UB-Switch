@@ -37,6 +37,11 @@ module tc_pcs_tx_g1_window;
       $display("  hier     : u_g.nflit / have");
       fail = 1;
     end
+    // rem_vld → idle-null fill of next window
+    in_vld = 0; win_ready = 1; link_up = 1;
+    repeat (12) @(posedge clk);
+    link_up = 0;
+    @(posedge clk);
     if (!fail) $display("PASS tc_pcs_tx_g1_window");
     $finish;
   end

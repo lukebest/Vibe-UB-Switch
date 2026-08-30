@@ -60,19 +60,19 @@ run_cluster() {
   set +e
   (
     cd "$work"
-    $COMMON --top-module "$top" --exe cov_main.cpp --Mdir obj_dir \
+    timeout 180 $COMMON --top-module "$top" --exe cov_main.cpp --Mdir obj_dir \
       -CFLAGS "-I$work/obj_dir" "$@"
   )
   local rc=$?
   set -e
   if [ "$rc" -ne 0 ]; then
-    echo "NOTE cov: cluster $name compile rc=$rc"
+    echo "NOTE cov: cluster $name compile rc=$rc (timeout/OOM skipped, not waived)"
     return 0
   fi
   set +e
   (
     cd "$work"
-    ./obj_dir/V${top}
+    timeout 60 ./obj_dir/V${top}
   )
   set -e
   if [ -f "$work/coverage.dat" ]; then
@@ -124,6 +124,34 @@ run_cluster rstctl tc_rst_port_device "$T/tc_rst_port_device.sv" "$RTL/mgmt/vibe
 run_cluster cfgspace tc_identity_cfg_space "$T/tc_identity_cfg_space.sv" "$RTL/mgmt/vibe_cfg_space.sv"
 run_cluster mgmtbyp tc_mgmt_byp "$T/tc_mgmt_byp.sv" "$RTL/mgmt/vibe_mgmt_byp.sv"
 run_cluster lmsm tc_lmsm_idle_discovery "$T/tc_lmsm_idle_discovery.sv" "$RTL/lmsm/vibe_lmsm.sv"
+run_cluster lmsm_walk tc_lmsm_walk "$T/tc_lmsm_walk.sv" "$RTL/lmsm/vibe_lmsm.sv"
+run_cluster retry_wr tc_retry_wait_retrain "$T/tc_retry_wait_retrain.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv"
+run_cluster cna_ep tc_cna_ep "$T/tc_cna_ep.sv" "$RTL/mgmt/vibe_cna_ep.sv"
+run_cluster irq tc_irq_agg "$T/tc_irq_agg.sv" "$RTL/mgmt/vibe_irq_agg.sv"
+run_cluster mgmt tc_mgmt "$T/tc_mgmt.sv" \
+  "$RTL/mgmt/vibe_mgmt.sv" "$RTL/mgmt/vibe_cfg_space.sv" "$RTL/mgmt/vibe_cna_ep.sv" \
+  "$RTL/mgmt/vibe_irq_agg.sv" "$RTL/mgmt/vibe_rst_ctl.sv"
+run_cluster saf tc_saf_ing "$T/tc_saf_ing.sv" "$RTL/fabric/vibe_saf_ing.sv"
+run_cluster route tc_route_lu "$T/tc_route_lu.sv" "$RTL/fabric/vibe_route_lu.sv"
+run_cluster pcs_rx_am tc_pcs_rx_amctl "$T/tc_pcs_rx_amctl.sv" \
+  "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_ebch16.sv"
+run_cluster pcs_rx_dsk tc_pcs_rx_deskew "$T/tc_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv"
+run_cluster pcs_rx_un tc_pcs_rx_unpack "$T/tc_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv"
+run_cluster pcs_rx_fec tc_pcs_rx_fec "$T/tc_pcs_rx_fec.sv" \
+  "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
+run_cluster pcs_rx tc_pcs_rx "$T/tc_pcs_rx.sv" \
+  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_scramble.sv" \
+  "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv" \
+  "$RTL/pcs/vibe_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_fec.sv" \
+  "$RTL/pcs/vibe_rs128_120_dec.sv" "$RTL/pcs/vibe_ebch16.sv"
+run_cluster pcs_tx_pack tc_pcs_tx_pack "$T/tc_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_pack.sv" "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv"
+run_cluster pcs_tx tc_pcs_tx "$T/tc_pcs_tx.sv" \
+  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
+  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
+  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv" \
+  "$RTL/pcs/vibe_pcs_scramble.sv"
 run_cluster nw tc_nw_adapt_linkready "$T/tc_nw_adapt_linkready.sv" "$RTL/nw/vibe_nw_adapt.sv"
 run_cluster icrc tc_icrc_txrx_vs_transit "$T/tc_icrc_txrx_vs_transit.sv" "$RTL/nw/vibe_icrc.sv"
 run_cluster ebch tc_ebch16_lut "$T/tc_ebch16_lut.sv" "$RTL/pcs/vibe_ebch16.sv"
@@ -142,9 +170,70 @@ run_cluster voq tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fa
 run_cluster psel tc_psel_cov "$TB/cov/tc_psel_cov.sv" "$RTL/fabric/vibe_port_sel.sv"
 run_cluster xbar tc_xbar_unit "$T/tc_xbar_unit.sv" "$RTL/fabric/vibe_xbar.sv"
 
+# Small fabric (not vibe_suite). 4 VOQs — skip if this environment OOMs.
+run_cluster fabric tc_fabric_g1 "$T/tc_fabric_g1.sv" \
+  "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
+  "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
+  "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
+  "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv"
+
+# DLL wrapper (one instance). Children already clustered.
+run_cluster dll tc_dll "$T/tc_dll.sv" \
+  "$RTL/dll/vibe_dll.sv" "$RTL/dll/vibe_dll_sm.sv" "$RTL/dll/vibe_dll_credit.sv" \
+  "$RTL/dll/vibe_dll_retry_buf.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv" \
+  "$RTL/dll/vibe_dll_retry_ack_sm.sv" "$RTL/dll/vibe_dll_tx.sv" \
+  "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv"
+
+# One port + top smoke: try; skip on OOM. Never bind vibe_suite here.
+run_cluster port tc_port_smoke "$T/tc_port_smoke.sv" \
+  "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
+  "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
+  "$RTL/pma/vibe_pma_bnd.sv" \
+  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
+  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
+  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv" \
+  "$RTL/pcs/vibe_pcs_scramble.sv" \
+  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" \
+  "$RTL/pcs/vibe_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv" \
+  "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv" \
+  "$RTL/lmsm/vibe_lmsm.sv" \
+  "$RTL/dll/vibe_dll.sv" "$RTL/dll/vibe_dll_sm.sv" "$RTL/dll/vibe_dll_credit.sv" \
+  "$RTL/dll/vibe_dll_retry_buf.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv" \
+  "$RTL/dll/vibe_dll_retry_ack_sm.sv" "$RTL/dll/vibe_dll_tx.sv" \
+  "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv" \
+  "$RTL/nw/vibe_nw_adapt.sv" "$RTL/port/vibe_port.sv"
+
+run_cluster top tc_top_smoke "$T/tc_top_smoke.sv" \
+  "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
+  "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
+  "$RTL/pma/vibe_pma_bnd.sv" \
+  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
+  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
+  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv" \
+  "$RTL/pcs/vibe_pcs_scramble.sv" \
+  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" \
+  "$RTL/pcs/vibe_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv" \
+  "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv" \
+  "$RTL/lmsm/vibe_lmsm.sv" \
+  "$RTL/dll/vibe_dll.sv" "$RTL/dll/vibe_dll_sm.sv" "$RTL/dll/vibe_dll_credit.sv" \
+  "$RTL/dll/vibe_dll_retry_buf.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv" \
+  "$RTL/dll/vibe_dll_retry_ack_sm.sv" "$RTL/dll/vibe_dll_tx.sv" \
+  "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv" \
+  "$RTL/nw/vibe_nw_adapt.sv" "$RTL/nw/vibe_icrc.sv" \
+  "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
+  "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
+  "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
+  "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv" \
+  "$RTL/mgmt/vibe_cfg_space.sv" "$RTL/mgmt/vibe_cna_ep.sv" \
+  "$RTL/mgmt/vibe_irq_agg.sv" "$RTL/mgmt/vibe_rst_ctl.sv" \
+  "$RTL/mgmt/vibe_mgmt.sv" "$RTL/mgmt/vibe_mgmt_byp.sv" \
+  "$RTL/port/vibe_port.sv" "$RTL/top/vibe_ub_switch.sv"
+
 # Full vibe_suite + VOQ age loops: Verilator C++ hits multi-GB RSS and does not
 # finish in this environment (BLKLOOPINIT waived; RTL not patched). Icarus suite
-# still runs those TCs. Do not re-enable here without a smaller VOQ bind.
+# still runs those TCs. Do not re-enable here.
 
 # Merge
 dats=()

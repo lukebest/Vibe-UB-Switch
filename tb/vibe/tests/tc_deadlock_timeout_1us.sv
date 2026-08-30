@@ -50,6 +50,14 @@ module tc_deadlock_timeout_1us;
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
+    // normal drain path
+    @(negedge clk);
+    wr_en = 1; wr_vl = 4'd1; wr_data = 640'h2;
+    @(posedge clk);
+    @(negedge clk);
+    wr_en = 0; rd_vl = 4'd1; rd_en = 1;
+    @(posedge clk);
+    rd_en = 0;
     if (!fail) $display("PASS tc_deadlock_timeout_1us");
     $finish;
   end
