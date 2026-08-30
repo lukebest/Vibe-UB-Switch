@@ -134,6 +134,8 @@ run_cluster mgmtbyp tc_mgmt_byp "$T/tc_mgmt_byp.sv" "$RTL/mgmt/vibe_mgmt_byp.sv"
 run_cluster lmsm tc_lmsm_idle_discovery "$T/tc_lmsm_idle_discovery.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run_cluster lmsm_walk tc_lmsm_walk --vl "--public-flat-rw" \
   "$T/tc_lmsm_walk.sv" "$RTL/lmsm/vibe_lmsm.sv"
+run_cluster lmsm_vlock tc_lmsm_vlock --vl "--public-flat-rw" \
+  "$T/tc_lmsm_vlock.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run_cluster retry_wr tc_retry_wait_retrain "$T/tc_retry_wait_retrain.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv"
 run_cluster cna_ep tc_cna_ep "$T/tc_cna_ep.sv" "$RTL/mgmt/vibe_cna_ep.sv"
 run_cluster irq tc_irq_agg "$T/tc_irq_agg.sv" "$RTL/mgmt/vibe_irq_agg.sv"

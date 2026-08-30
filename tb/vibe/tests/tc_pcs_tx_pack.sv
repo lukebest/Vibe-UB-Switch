@@ -40,7 +40,7 @@ module tc_pcs_tx_pack;
     force u_p.sym_cnt = 10'd512;
     @(negedge clk);
     beat_vld = 1; beat_data = 512'h55;
-    @(posedge clk);
+    repeat (3) @(posedge clk);
     release u_p.sym_cnt;
     @(negedge clk);
     beat_vld = 0;

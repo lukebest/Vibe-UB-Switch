@@ -3,8 +3,13 @@
 Simulator: Icarus Verilog 12.0. TB does not modify `rtl/`. FS-0.2.4 G7:
 credit threshold 1024 is **flit**. Old `tb/ub_*` not run.
 
-**Counts:** suite 26 + units 47 + top 1 = **74 named TCs**. Static `make neg`
-scan: 9 PASS. **Icarus: all PASS (0 FAIL).**
+**Counts (this revision):** suite **26/26 PASS** + units **68 files PASS / 0 FAIL**
++ top **1 PASS** + `make neg` **9 PASS**. **Icarus: 0 FAIL.** No new TC failed
+RTL (do not patch `rtl/`). Verilator `tc_lmsm_walk` FAIL lines are `--cc`
+same-timeslot sampling; Icarus walk PASSes. Use `tc_lmsm_vlock` for `--cc`.
+
+Verilator unique LINE: **618/638 = 96.9%** (was 408/650 = 62.8%). See
+`COVERAGE_HOLES.md` / `CHECKER_AUDIT.md`.
 
 ## Suite (`make suite`) — 26/26 PASS
 
@@ -39,7 +44,7 @@ scan: 9 PASS. **Icarus: all PASS (0 FAIL).**
 
 `SUITE pass=26 fail=0 ran=26`
 
-## Units (`make units`) — 47/47 PASS
+## Units (`make units`) — 68 pass_files / 0 fail_files
 
 | Test | Result | Notes |
 |------|--------|-------|

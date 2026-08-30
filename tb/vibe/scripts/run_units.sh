@@ -82,6 +82,7 @@ run1 tc_pcs_scramble        "$T/tc_pcs_scramble.sv"        "$RTL/pcs/vibe_pcs_sc
 run1 tc_ebch16_lut          "$T/tc_ebch16_lut.sv"          "$RTL/pcs/vibe_ebch16.sv"
 run1 tc_lmsm_idle_discovery "$T/tc_lmsm_idle_discovery.sv" "$RTL/lmsm/vibe_lmsm.sv"
 run1 tc_lmsm_walk           "$T/tc_lmsm_walk.sv"           "$RTL/lmsm/vibe_lmsm.sv"
+run1 tc_lmsm_vlock          "$T/tc_lmsm_vlock.sv"          "$RTL/lmsm/vibe_lmsm.sv"
 run1 tc_voq_rd              "$T/tc_voq_rd.sv"              "$RTL/fabric/vibe_voq_egr.sv"
 run1 tc_fabric_line_holes   "$T/tc_fabric_line_holes.sv" \
   "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \

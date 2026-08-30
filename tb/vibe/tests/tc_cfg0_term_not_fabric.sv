@@ -116,9 +116,10 @@ module tc_cfg0_term_not_fabric;
     @(posedge clk);
     @(negedge clk);
     pcs_vld = 1'b0;
+    repeat (1) @(posedge clk); // have registered
+    @(negedge clk);
     link_up = 0;
-    @(posedge clk);
-    @(posedge clk);
+    repeat (3) @(posedge clk);
     link_up = 1;
     nw_ready = 1;
     port_rst = 1;

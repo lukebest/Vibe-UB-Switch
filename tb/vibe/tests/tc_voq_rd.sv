@@ -41,7 +41,7 @@ module tc_voq_rd;
       fail = 1;
     end
     rd_en = 1; rd_vl = 0;
-    @(posedge clk);
+    repeat (3) @(posedge clk);
     rd_en = 0;
     @(negedge clk);
     // second write/read on VL3
