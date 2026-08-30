@@ -5,13 +5,12 @@ credit threshold 1024 is **flit**. Old `tb/ub_*` not run.
 
 **Counts (this revision):** suite **26/26 PASS** + units **70 files PASS / 0 FAIL**
 + top **1 PASS** + `make neg` **9 PASS**. **Icarus: 0 FAIL.** No new TC failed
-RTL (do not patch `rtl/`). Verilator `tc_lmsm_walk` FAIL lines are `--cc`
-same-timeslot sampling; Icarus walk PASSes. Use `tc_lmsm_cc` / `tc_lmsm_vlock`
-for `--cc`.
+RTL (do not patch `rtl/`). Rebased onto `79ac9592`. Verilator `tc_lmsm_walk`
+FAIL lines are `--cc` same-timeslot sampling; Icarus walk PASSes.
 
-Verilator unique LINE: **626/638 = 98.1%** (was 618/638 = 96.9%). **100% of
-TB-hittable** (no missing stim). Remaining 12 = 4 dead RTL + 8 tool
-(`tmr_load`). See `COVERAGE_HOLES.md` / `CHECKER_AUDIT.md`.
+Verilator unique LINE: **628/636 = 98.7%**. **100% of remaining hittable.**
+Only `tmr_load :101–108` (8) are 0 — **tool, not a hole**. See
+`COVERAGE_HOLES.md` / `CHECKER_AUDIT.md`.
 
 ## Suite (`make suite`) — 26/26 PASS
 
@@ -114,10 +113,10 @@ still ran those TCs.
 
 | | Hit/tot | % |
 |--|--------:|--:|
-| **Line (`vibe_*.sv`)** | **626/638** | **98.1** |
-| **Toggle** | **7917/19807** | **40.0** |
+| **Line (`vibe_*.sv`)** | **628/636** | **98.7** |
+| **Toggle** | **7936/19824** | **40.0** |
 | **FSM** | (no VCS FSM engine; use line on state `case`) | |
 
-100% of TB-hittable LINE. 12 left: 4 dead RTL (list for 设计, not waived) +
-8 `tmr_load` case arms (Verilator 5.020 instruments before `s` is assigned).
+100% of remaining hittable LINE. 8 left are `tmr_load` case arms (tool; caller
+hit). Credit / dll_sm / fabric / SAF / FEC are 100% LINE after `79ac9592`.
 See `COVERAGE_HOLES.md` / `cov_report.md`.

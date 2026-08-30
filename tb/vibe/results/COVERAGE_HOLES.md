@@ -1,15 +1,24 @@
 # Remaining Verilator LINE points (`vibe_*.sv`)
 
-Gate: unique source LINE on implemented `vibe_*.sv`. Last merge: **626/638 = 98.1%**
-(was 618/638 = 96.9%, originally 408/650 = 62.8%). Combo-only wrappers
-(`vibe_dll`, `vibe_fecn_mark`, `vibe_mgmt`, `vibe_nw_adapt`, `vibe_pcs_tx`,
-`vibe_ub_switch`) contribute **0/0** line points.
+Gate: unique source LINE on implemented `vibe_*.sv`. Last merge: **628/636 = 98.7%**
+after rebase onto RTL `79ac9592` (was 626/638 = 98.1% before that RTL cleanup).
+Combo-only wrappers (`vibe_dll`, `vibe_fecn_mark`, `vibe_mgmt`, `vibe_nw_adapt`,
+`vibe_pcs_tx`, `vibe_ub_switch`) contribute **0/0** line points.
 
 Clusters: per-module / small groups. **`vibe_suite` is never bound** (VOQ OOM).
 
-**100% of TB-hittable lines.** No remaining missing-stimulus LINE. The 12
-uncovered points are dead RTL (4) or Verilator 5.020 tool (8). **Not waived.**
-Do not claim 100% of 638 by dropping those bins.
+**100% of remaining hittable LINE.** The only uncovered bins are `tmr_load`
+`:101–108` (tool). **Not a coverage hole** — the caller `st_n != st` is hit.
+Do not waive; do not treat as missing stim.
+
+## Newly live paths (RTL `79ac9592`) — all HIT
+
+| Path | Stim | Module LINE |
+|---|---|---|
+| Credit 17-bit `cells_sum > 65535` | `tc_credit_1024_flit_bp` 70×1023 grain=1 | `vibe_dll_credit.sv` **16/16** |
+| `ST_DIS → Param` | `tc_dll_sm_states` `link_up` + 2 posedge | `vibe_dll_sm.sv` **14/14** |
+| SAF 1-beat `sop&&eop` / fabric CFG6 `:185` | `tc_saf_ing` + `tc_fabric_line_holes` 1-flit 本CNA | `vibe_saf_ing.sv` **16/16**, `vibe_fabric.sv` **27/27** |
+| FEC bypass `else` (tautology removed) | `tc_pcs_fec_emitb` | `vibe_pcs_tx_fec.sv` **28/28** |
 
 ## Waivers (non-goals — not in RTL; AS-0.1)
 
@@ -23,55 +32,12 @@ No line to waive. Static `scan_absent.sh` + `tc_neg_*`:
 | Exact Route | AS-0.1 | not implemented |
 | UBFM | AS-0.1 | not implemented |
 
-Do **not** waive missing stimulus. There is none left on LINE.
+## Tool only (not a hole): `tmr_load` `:101–108`
 
-## Remaining LINE (12) — not waived
-
-### RTL-dead (predicate cannot be true) — list for 设计
-
-| Line | Reason | Spec |
-|---|---|---|
-| `vibe_dll_credit.sv:56 if` | `cells + ceil_div > 16'd65535` is 16-bit; never true. `%Warning-CMPCONST`. | FS-0.2.4 credit; overflow sticky intended, width makes it dead. **Not patched.** |
-| `vibe_dll_sm.sv:36 else` | `ST_DIS && !link_up` inside `else` after `if (!link_up)` already took Disabled. | AS-0.1 §12 |
-| `vibe_fabric.sv:185 if` | single-beat CFG6 term (`saf_sop && saf_eop`). SAF does not present a 1-beat packet (`done` only on beat 2+). | AS-0.1 §8 SAF + §9 CFG6 |
-| `vibe_pcs_tx_fec.sv:96 else` | bypass `else if (cw_ready \|\| !cw_vld)` is nested under outer `!cw_vld`. The else arm needs `cw_vld && !cw_ready`, which contradicts that outer predicate. `tc_pcs_fec_emitb` takes the else-if body (`96 if`). | AS-0.1 §5 T3 bypass |
-
-TB cannot hit these. Leave uncovered. Do not waive.
-
-### Tool: `tmr_load` function case (8)
-
-`vibe_lmsm.sv:101–108` — automatic function case arms. Caller `st_n != st` **is**
-hit (Idle→Disc→CFG→NULL→ACTIVE→RTR and EQ). Every load value is executed.
-
-Workarounds tried (no `rtl/` edit):
-
-| Attempt | Result on Verilator 5.020 |
-|---|---|
-| `--coverage-line` (already on) | case points exist, stay 0 |
-| `--inline-mult 0 --public --public-flat-rw` | function emitted as `__Vfunc_…tmr_load` |
-| `.vlt` `no_inline -function tmr_load` | **Unsupported: no_inline for tasks** |
-| `$c` poke of `u_l__DOT__tmr` | C++ name is `vlSelf->tc_lmsm_cc__DOT__u_l__DOT__tmr` |
-| park via `force st`/`tmr` | hits combo elsifs; does not increment function case LINE |
-
-Generated C++ instruments the case-cover tree **before** `__Vfunc_…s = st_n`
-(the selector is still 0). Only `default` (`:109`) increments. **Tool, not a
-non-goal, not waived.** Inlining the case into the sequential `always` (RTL
-edit) would make the arms visible.
-
-## Closed this revision (were missing `--cc` stim)
-
-| Line | How `--cc` samples it |
-|---|---|
-| `vibe_lmsm.sv:56 elsif` | park Disc.C + `force tmr=1` then RTL decrement |
-| `vibe_lmsm.sv:58 if/else` | park Disc.C, `lid_bad` / partial lock `4'b0111` |
-| `vibe_lmsm.sv:70 elsif` | park CFG_C with `force tmr=0` (1-cycle if `tmr!=0`) |
-| `vibe_lmsm.sv:75 else` | park EQ_P/EQ_A with `tmr!=0` |
-| `vibe_lmsm.sv:85/86` | park RTR_A `!all_lock`, then expire |
-| `vibe_dll_rx.sv:61 if` | drop `link_up` on the negedge of the 1-cycle `have` window (`tc_dll_rx_errflag`) |
-
-Icarus `tc_lmsm_walk` already walked several of these via `force tmr=0`. That
-is not enough for `--cc` (stale `st_n` after a 1-cycle state; force-to-0 races
-`tmr_load`).
+Automatic function case arms. Caller `if (st_n != st) tmr <= tmr_load(...)` **is**
+hit. Verilator 5.020 instruments the case-cover tree before `__Vfunc_…s = st_n`
+(selector still 0). `no_inline` for functions is **Unsupported** on 5.020.
+RTL `79ac9592` did not change `tmr_load`. Leave as 0; report separately.
 
 ## Combo-only (0 line points)
 
