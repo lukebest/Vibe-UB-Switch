@@ -26,6 +26,13 @@ function automatic [13:0] vibe_tb_plen_nflit;
   end
 endfunction
 
+// Legal max 4300 B = 215 flits: nblk=7 lastn=23 → {6,22,0}.
+function automatic [13:0] vibe_tb_plen_4300;
+  begin
+    vibe_tb_plen_4300 = {4'd6, 5'd22, 5'd0};
+  end
+endfunction
+
 // Oversize declared length: nblk=7, lastn=32 → 224 flits * 20 = 4480 B > 4300.
 function automatic [13:0] vibe_tb_plen_oversize;
   begin

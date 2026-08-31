@@ -42,16 +42,56 @@ module tc_xbar_unit;
     @(posedge clk);
     $display("XBAR +1   in_ready=%04b out_vld=%04b out1=%h",
              in_ready, out_vld, out_data[1][639:480]);
-    if (out_vld[1] && in_ready[0])
-      $display("PASS tc_xbar_unit");
-    else begin
+    if (!(out_vld[1] && in_ready[0])) begin
       $display("FAIL tc_xbar_unit");
       $display("  stimulus : 1-beat in0 dest=1, all ready/up");
       $display("  expected : out_vld[1]=1 in_ready[0]=1");
       $display("  actual   : out_vld=%04b in_ready=%04b", out_vld, in_ready);
       $display("  hier     : u_xbar.in_dst / locked / out_ready");
       $display("  reproduce: iverilog + vvp tc_xbar_unit");
+      $finish;
     end
+    in_vld = 0; in_sop = 0; in_eop = 0;
+    repeat (2) @(posedge clk);
+    // 2-beat locked grant (sop then eop)
+    in_data[0] = {160'hB, 480'd0};
+    in_dst[0]  = 2'd2;
+    in_vld[0]  = 1; in_sop[0] = 1; in_eop[0] = 0;
+    @(posedge clk);
+    in_sop[0] = 0; in_eop[0] = 1; in_data[0] = {160'hC, 480'd0};
+    @(posedge clk);
+    in_vld[0] = 0; in_eop[0] = 0;
+    repeat (2) @(posedge clk);
+    // locked grant with out_ready=0 (else of locked if)
+    in_data[0] = {160'hE, 480'd0};
+    in_dst[0]  = 2'd1;
+    in_vld[0]  = 1; in_sop[0] = 1; in_eop[0] = 0; out_ready = 4'b1111;
+    @(posedge clk);
+    out_ready[1] = 0; in_sop[0] = 0; in_eop[0] = 0;
+    @(posedge clk);
+    out_ready[1] = 1; in_eop[0] = 1; in_data[0] = {160'hF, 480'd0};
+    @(posedge clk);
+    in_vld[0] = 0; in_eop[0] = 0;
+    repeat (2) @(posedge clk);
+    // conflict: two ingress to dest 3
+    in_data[0] = {160'h1, 480'd0}; in_dst[0] = 2'd3; in_vld[0] = 1; in_sop[0] = 1; in_eop[0] = 1;
+    in_data[1] = {160'h2, 480'd0}; in_dst[1] = 2'd3; in_vld[1] = 1; in_sop[1] = 1; in_eop[1] = 1;
+    #0;
+    @(posedge clk);
+    in_vld = 0;
+    // down port: status_up[0]=0 gets no data
+    status_up[0] = 1'b0;
+    in_data[2] = {160'hD, 480'd0}; in_dst[2] = 2'd0; in_vld[2] = 1; in_sop[2] = 1; in_eop[2] = 1;
+    #0;
+    if (out_vld[0]) begin
+      $display("FAIL tc_xbar_unit");
+      $display("  stimulus : dest=0 status_up[0]=0");
+      $display("  expected : out_vld[0]=0 (down, no DLLDP)");
+      $display("  actual   : 1");
+      $finish;
+    end
+    in_vld = 0;
+    $display("PASS tc_xbar_unit");
     $finish;
   end
 endmodule

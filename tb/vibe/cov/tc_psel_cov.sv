@@ -31,6 +31,26 @@ module tc_psel_cov;
       @(posedge clk);
     end
     sel_vld = 0;
+    // default_bm all-0 → port 0; port0 down → drop_down
+    @(negedge clk);
+    bitmap = 4'd0; status_up = 4'b1110; default_bm = 4'd0;
+    rt = 2'b00; drop_g1 = 0; sel_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    status_up = 4'b0000;
+    @(posedge clk);
+    // default_bm nonempty
+    @(negedge clk);
+    default_bm = 4'b0100; status_up = 4'b1111; bitmap = 4'd0;
+    @(posedge clk);
+    // RT=00 sticky miss (use_bm bit not sticky)
+    @(negedge clk);
+    bitmap = 4'b0010; vl = 4'd3; rt = 2'b00;
+    @(posedge clk);
+    @(negedge clk);
+    bitmap = 4'b1000;
+    @(posedge clk);
+    sel_vld = 0;
     repeat (4) @(posedge clk);
     $finish;
   end

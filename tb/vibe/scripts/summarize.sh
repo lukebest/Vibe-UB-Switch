@@ -2,12 +2,17 @@
 set -euo pipefail
 RES="${1:?results dir}"
 echo "======== Vibe TB summary ========"
-for f in "$RES"/*.log; do
-  [ -f "$f" ] || continue
-  echo "----- $(basename "$f") -----"
-  grep -E '^(PASS|FAIL|NOTE|HOLE|SUITE|WARN)' "$f" || true
+p=0
+f=0
+for g in "$RES"/*.log; do
+  [ -f "$g" ] || continue
+  case "$(basename "$g")" in
+    cov.log|cov_*.log) continue ;;
+  esac
+  echo "----- $(basename "$g") -----"
+  grep -E '^(PASS|FAIL|NOTE|HOLE|SUITE|WARN)' "$g" || true
+  p=$((p + $(grep -c '^PASS ' "$g" 2>/dev/null || true)))
+  f=$((f + $(grep -c '^FAIL ' "$g" 2>/dev/null || true)))
 done
 echo "================================="
-p=$(grep -h '^PASS ' "$RES"/*.log 2>/dev/null | wc -l | tr -d ' ')
-f=$(grep -h '^FAIL ' "$RES"/*.log 2>/dev/null | wc -l | tr -d ' ')
-echo "TOTAL_PASS_LINES=$p TOTAL_FAIL_LINES=$f"
+echo "TOTAL_PASS_LINES=$p TOTAL_FAIL_LINES=$f (excl. cov.log)"

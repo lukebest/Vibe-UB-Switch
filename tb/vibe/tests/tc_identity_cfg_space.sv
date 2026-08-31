@@ -64,6 +64,102 @@ module tc_identity_cfg_space;
       $display("  actual   : cna=%h written=%0b", cna, cna_written);
       fail = 1;
     end
+    // cmd=1 route write — sample at negedge after NBA
+    @(negedge clk);
+    cfg_wr_cmd = 3'd1; cfg_wr_idx = 16'h0003; cfg_wr_data = 32'h0000_000F; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (!rt_wr_en || rt_wr_idx !== 16'h0003 || rt_wr_data !== 32'h0000_000F) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=1 idx=3 data=F");
+      $display("  expected : rt_wr_en pulse idx=3 data=F");
+      $display("  actual   : en=%0b idx=%h data=%h", rt_wr_en, rt_wr_idx, rt_wr_data);
+      fail = 1;
+    end
+    // cmd=2 default bitmap
+    @(negedge clk);
+    cfg_wr_cmd = 3'd2; cfg_wr_data = 32'h0000_0005; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    @(posedge clk);
+    if (default_bm !== 4'b0101) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=2 data=5");
+      $display("  expected : default_bm=0101");
+      $display("  actual   : %04b", default_bm);
+      fail = 1;
+    end
+    // cmd=3 port rst pulse
+    @(negedge clk);
+    cfg_wr_cmd = 3'd3; cfg_wr_idx = 16'd2; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (port_rst_pulse[2] !== 1'b1) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=3 idx=2");
+      $display("  expected : port_rst_pulse[2]=1");
+      $display("  actual   : %04b", port_rst_pulse);
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    // cmd=4 device rst pulse
+    @(negedge clk);
+    cfg_wr_cmd = 3'd4; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (!device_rst_pulse) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=4");
+      $display("  expected : device_rst_pulse=1");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    // cmd=5 lmsm_go
+    @(negedge clk);
+    cfg_wr_cmd = 3'd5; cfg_wr_idx = 16'd1; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (lmsm_go_pulse[1] !== 1'b1) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=5 idx=1");
+      $display("  expected : lmsm_go_pulse[1]=1");
+      $display("  actual   : %04b", lmsm_go_pulse);
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    // default cmd (7) still irq_clr
+    @(negedge clk);
+    cfg_wr_cmd = 3'd7; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (!irq_clr) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=7 (ignored opcode)");
+      $display("  expected : irq_clr=1 (any static write)");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    // device_rst pin clears CNA
+    @(negedge clk);
+    device_rst = 1;
+    @(posedge clk);
+    @(negedge clk);
+    device_rst = 0;
+    @(posedge clk);
+    if (cna_written !== 1'b0) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : device_rst");
+      $display("  expected : cna_written=0");
+      $display("  actual   : 1");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_identity_cfg_space");
     $finish;
   end
