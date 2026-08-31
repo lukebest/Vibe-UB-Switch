@@ -166,6 +166,9 @@ module tc_nw_pkt_pma_loopback;
       $display("  first_lph: CFG=%0d RT=%02b SCNA=%04h DCNA=%04h (expected CFG=3 RT=00 SCNA=A11A DCNA=B22B)",
                vibe_lph_cfg(first_flit0), vibe_lph_rt(first_flit0),
                vibe_nth_scna(first_flit0), vibe_nth_dcna(first_flit0));
+      $display("  last_lph : CFG=%0d RT=%02b SCNA=%04h DCNA=%04h",
+               vibe_lph_cfg(last_flit0), vibe_lph_rt(last_flit0),
+               vibe_nth_scna(last_flit0), vibe_nth_dcna(last_flit0));
       $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d saw_amctl_idle=%0d (during wait)",
                saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew, saw_amctl_idle);
       fail_at("rxdata=txdata after accepted NW packet; wait 20000 clk_fab",
