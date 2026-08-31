@@ -82,9 +82,14 @@ module vibe_pcs_rx_fec (
           hi      <= beat_data;
           have_hi <= 1'b1;
         end else begin
+          // Consume the 1024b either way so pairing stays on the 2×512 grid.
+          // A failed CW must not become a 960 for inverse G1 / DLL — that is
+          // how verification scored CFG=5/6 FEC-garbage instead of the LPH.
           have_hi  <= 1'b0;
-          win_data <= {hi, beat_data[511:64]};
-          win_vld  <= 1'b1;
+          if (bypass || (syn_now == 64'd0)) begin
+            win_data <= {hi, beat_data[511:64]};
+            win_vld  <= 1'b1;
+          end
           if (!bypass)
             fec_fail <= |syn_now;
         end

@@ -40,8 +40,14 @@ module vibe_pcs_rx_amctl_lock (
   wire match_end_leg = (in_data[127:112] == cw22);
   wire match_pair = have && match_body && (match_end_tx || match_end_leg);
 
+  // Word1 of TX AMCTL (am[159:0]): CTRL_TYPE Link-Width + CTRL_DETAIL SDF.
+  // Hunt slip can present this word without a pair-match; LFSR must still
+  // skip it the same way TX skips both am_phase words.
+  wire match_w1 = (in_data[127:64] == {cw8, cw9, cw8, cw9}) &&
+                  (in_data[63:0]   == {cw10, cw22, cw10, cw22});
+
   // Combo so descramble en=!is_amctl sees the same beat (pass-through AMCTL).
-  assign is_amctl = in_vld && (match_pair || match_w0);
+  assign is_amctl = in_vld && (match_pair || match_w0 || match_w1);
 
   function automatic [1:0] dec_lid;
     input [15:0] s;

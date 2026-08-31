@@ -1,5 +1,7 @@
 // AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2).
-// 4×640 = 2560b = 5×512. Must emit the fifth beat or later CWs mispair.
+// 4×640 = 2560b = 5×512. Dual-buffer the 2560: accept the next 4×640
+// while emitting 5×512. A single acc that dropped ingress while `have`
+// permanently slipped 512 pairing vs TX vibe_pcs_tx_pack (5×512 ↔ 4×640).
 module vibe_pcs_rx_unpack (
   input  logic         clk,
   input  logic         rst_n,
@@ -17,40 +19,68 @@ module vibe_pcs_rx_unpack (
   output logic         beat_vld,
   input  logic         beat_ready
 );
-  logic [2559:0] acc;
-  logic [2:0]    n;
-  logic          have;
+  logic [2559:0] acc;      // group being emitted as 5×512
+  logic [2559:0] nxt;      // group being filled as 4×640
+  logic [2:0]    n;        // 640s collected in nxt (0..3)
+  logic [2:0]    e;        // 512s left in acc after the one on beat_data
+  logic          have;     // acc holds a group
+  logic          nxt_full; // nxt holds a complete 2560 waiting for acc
 
   wire skip = am0 | am1 | am2 | am3;
+  wire [639:0] din = {lane3, lane2, lane1, lane0};
+  // Accept unless the fill buffer is already a complete group.
+  wire take = lane_vld && !skip && !am_gap && !nxt_full;
+
   assign beat_vld  = have;
   assign beat_data = acc[511:0];
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      acc  <= 2560'd0;
-      n    <= 3'd0;
-      have <= 1'b0;
+      acc      <= 2560'd0;
+      nxt      <= 2560'd0;
+      n        <= 3'd0;
+      e        <= 3'd0;
+      have     <= 1'b0;
+      nxt_full <= 1'b0;
+    end else if (am_gap) begin
+      // New 4×640 group after a lock/AMCTL hold; do not keep a partial.
+      n        <= 3'd0;
+      e        <= 3'd0;
+      have     <= 1'b0;
+      nxt_full <= 1'b0;
     end else begin
-      if (am_gap) begin
-        // New 4×640 group after AMCTL; do not keep a partial n across the marker.
-        n    <= 3'd0;
-        have <= 1'b0;
-      end
-      // n is 4 after a full group (5×512 still in acc). Each emit shifts 512.
-      // Keep have while n!=0 so the fifth beat (n=0, leftover 512) is emitted.
-      if (have && beat_ready && !am_gap) begin
-        acc  <= {512'd0, acc[2559:512]};
-        have <= (n != 3'd0);
-        if (n != 3'd0) n <= n - 3'd1;
-      end
-      // Do not write a new 640 over a group that still has 512s to emit.
-      if (lane_vld && !skip && !am_gap && !have) begin
-        acc[640*n +: 640] <= {lane3, lane2, lane1, lane0};
-        if (n == 3'd3) begin
-          n    <= 3'd4;
-          have <= 1'b1;
+      // Emit one 512. Last beat (e==0) frees acc, or swaps in nxt.
+      if (have && beat_ready) begin
+        if (e != 3'd0) begin
+          acc <= {512'd0, acc[2559:512]};
+          e   <= e - 3'd1;
+        end else if (nxt_full) begin
+          acc      <= nxt;
+          e        <= 3'd4;
+          have     <= 1'b1;
+          nxt_full <= 1'b0;
         end else begin
-          n <= n + 3'd1;
+          have <= 1'b0;
+        end
+      end
+
+      // Fill nxt (or acc if it is free this cycle). n=0..2 write slices;
+      // n==3 completes the 2560 as {4th 640, first 3×640}.
+      if (take) begin
+        if (n == 3'd3) begin
+          if (!have || (have && beat_ready && e == 3'd0 && !nxt_full)) begin
+            acc  <= {din, nxt[1919:0]};
+            e    <= 3'd4;
+            have <= 1'b1;
+            n    <= 3'd0;
+          end else begin
+            nxt      <= {din, nxt[1919:0]};
+            nxt_full <= 1'b1;
+            n        <= 3'd0;
+          end
+        end else begin
+          nxt[640*n +: 640] <= din;
+          n                 <= n + 3'd1;
         end
       end
     end
