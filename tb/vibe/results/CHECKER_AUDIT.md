@@ -45,8 +45,8 @@ Threshold **1024 is FLIT**. Pending path `pend += credit_ret_n` with **no divide
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_credit_1024_flit` | `pending=1023` + 1 return → `credit_low`/`bp_nw`; 2-flit return does **not** `ceil_div` | OK |
-| `tc_credit_cfg0_no_consume` | CFG0 does not consume | OK |
+| `tc_credit_1024_flit_bp` | `pending=1023` + 1 return → `credit_low`/`bp_nw`; 2-flit return does **not** `ceil_div` | OK |
+| `tc_cfg0_no_credit` | CFG0 does not consume | OK |
 
 ---
 
@@ -55,7 +55,7 @@ Threshold **1024 is FLIT**. Pending path `pend += credit_ret_n` with **no divide
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_credit_timeout_1us` | credit-return timeout 1 µs (`VIBE_US_CYC`) | OK — distinct DUT (`vibe_dll_credit`) |
-| `tc_voq_deadlock_1us` | VOQ deadlock 1 µs — **separate** timer (`vibe_voq`) | OK |
+| `tc_deadlock_timeout_1us` | VOQ deadlock 1 µs — **separate** timer (`vibe_voq_egr.age`) | OK |
 
 They must not share a counter or a single TB event. They do not.
 
