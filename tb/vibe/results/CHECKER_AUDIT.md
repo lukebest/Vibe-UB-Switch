@@ -101,9 +101,13 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **ADDED** — same DUT/packet; `rxdata=txdata`. Scores LPH (CFG/RT/SCNA/DCNA) **and** payload `[479:32]` (not just `fab_rx_vld`). |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **ADDED — FAIL (RTL gap)** — same DUT/packet; `rxdata=txdata`. After 20000 `clk_fab`, `afrv=1111` (RX gears live) but `am_locked=0`, `deskew_ok=0`, `pcs_rx_v=0`, `fab_rx_vld=0`. Not a missing stimulus. Likely invertibility: TX scrambles AMCTL (`am_word` tied 0) and RX scramble `seed_load` is tied 0 vs TX `seed_load=!link_up`. **Not patched** (`rtl/` frozen). |
 
-DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4. If either TC FAILs after bring-up, that is an RTL gap (verification does not patch `rtl/`).
+DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
+
+`tc_nw_pkt_to_pma_tx` **PASS** (Icarus): DLL LPH + 260 PMA pack beats + 106 PCS-lane golden + 260 gear golden.
+
+`tc_nw_pkt_pma_loopback` **FAIL** (Icarus). Reproduce: `make -C tb/vibe units` (or the `run1 tc_nw_pkt_pma_loopback` compile in `scripts/run_units.sh`).
 
 ---
 
@@ -119,3 +123,4 @@ All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCR
 |---|---|
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
+| ADDED | `tc_nw_pkt_to_pma_tx` PASS; `tc_nw_pkt_pma_loopback` FAIL (RTL RX inverse gap) |

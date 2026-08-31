@@ -78,6 +78,9 @@ module tc_nw_pkt_pma_loopback;
       force u_p.u_dll.u_crd.cells = 16'd64;
       @(posedge clk_fab);
       release u_p.u_dll.u_crd.cells;
+      force u_p.u_lmsm.st = 5'd9;
+      release u_p.u_lmsm.am_locked;
+      release u_p.u_lmsm.lid_bad;
       @(posedge clk_fab);
     end
   endtask
@@ -125,18 +128,21 @@ module tc_nw_pkt_pma_loopback;
     end
 
     if (!saw_rx) begin
+      $display("  detail   : vld=%0b flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b txlv=%0b",
+               fab_rx_vld, fab_rx_data[639:480],
+               u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail, u_p.deskew_ok,
+               u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.txlv);
       fail_at("rxdata=txdata after accepted NW packet; wait 20000 clk_fab",
               "fab_rx_vld with CFG=3 RT=00 SCNA=A11A DCNA=B22B (TP-PHY-012)",
-              $sformatf("vld=%0b flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b",
-                        fab_rx_vld, fab_rx_data[639:480],
-                        u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail),
+              "see detail line",
               "u_p.u_prx / u_p.u_dll.u_rx / u_p.u_nw.fab_rx");
       $finish;
     end
     if (!payload_ok) begin
+      $display("  detail   : rx[479:160]=%h", fab_rx_data[479:160]);
       fail_at("fab_rx LPH matched; compare payload flits",
               "payload[479:32] matches injected beat (BCRC may occupy [31:0])",
-              $sformatf("rx[479:160]=%h", fab_rx_data[479:160]),
+              "see detail line",
               "u_p.fab_rx_data");
       $finish;
     end

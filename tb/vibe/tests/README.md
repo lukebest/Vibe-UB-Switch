@@ -46,7 +46,7 @@ Dijkstra).
 
 | Test | TP / AS |
 |------|---------|
-| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH beat on `fab_tx` → score `txdata[511:0]` (lane0=`[127:0]` … lane3=`[511:384]`) vs TB golden PCS T=4 + AFIFO + 160→128 pack. AMCTL is in both streams. |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: `rxdata=txdata`; score `fab_rx` LPH + payload (not merely vld). |
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH beat on `fab_tx` → score `txdata[511:0]` (lane0=`[127:0]` … lane3=`[511:384]`) vs TB golden PCS T=4 + AFIFO + 160→128 pack. AMCTL is in both streams. **PASS.** |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: `rxdata=txdata`; score `fab_rx` LPH + payload (not merely vld). **FAIL — RTL gap** (RX never AM-locks / `fab_rx_vld=0`). See `CHECKER_AUDIT.md`. |
 
 Select one suite test: `make -C tb/vibe suite TC=tc_rt10_must_drop`
