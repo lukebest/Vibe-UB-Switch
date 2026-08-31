@@ -38,7 +38,9 @@ module vibe_pcs_tx_fec (
     .done(enc_b_done), .parity(par_b)
   );
 
-  assign win_ready = !have0 || (!have1 && !(win_vld && have0));
+  // Ready while a slot is free. Must stay 1 on the w1 accept so G1 drops have
+  // (old formula was 0 that cycle; G1 kept the window and FEC recaptured it).
+  assign win_ready = !have1;
 
   wire bypass = (fec_mode == VIBE_FEC_BYPASS);
 
@@ -69,10 +71,10 @@ module vibe_pcs_tx_fec (
       if (cw_vld && cw_ready)
         cw_vld <= 1'b0;
 
-      if (win_vld && !have0) begin
+      if (win_vld && win_ready && !have0) begin
         w0    <= win_data;
         have0 <= 1'b1;
-      end else if (win_vld && have0 && !have1) begin
+      end else if (win_vld && win_ready && have0 && !have1) begin
         w1    <= win_data;
         have1 <= 1'b1;
         if (bypass) begin

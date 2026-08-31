@@ -40,9 +40,12 @@ module vibe_pcs_tx_pack (
   wire insert_am = (sym_cnt >= period);
 
   assign beat_ready = !afifo_afull && lane_ready && (am_phase == 2'd0) && !pack_vld;
-  // Hold pack emit while insert_am so AMCTL is first, then P0..P3 (group-aligned).
-  assign lane_vld   = (am_phase != 2'd0) || (pack_vld && !insert_am);
+  // Emit the current 4×640 first, then AMCTL. Holding AM *before* P0 put the
+  // post-AM 512 stream on an odd beat (group of 5 starting at beat 35, 75, …)
+  // so RX 1024b pairs were permanently off-by-one. Idle zeros still passed.
+  assign lane_vld   = (am_phase != 2'd0) || pack_vld;
   assign am_word    = (am_phase != 2'd0);
+  wire completing   = beat_vld && beat_ready && (acc_n == 3'd4);
   assign lane0 = (am_phase == 2'd1) ? am0[319:160] :
                  (am_phase == 2'd2) ? am0[159:0]   :
                  pack[640*emit_idx + 159 -: 160];
@@ -70,7 +73,7 @@ module vibe_pcs_tx_pack (
       // G1 idle-fills Null Blocks while link_up, so beat_vld stays 1; requiring
       // !beat_vld meant AMCTL never went on the wire and PMA held stale txdata.
       // am_phase!=0 already drops beat_ready: pause data, emit 2×160b/lane, resume.
-      if (insert_am && am_phase == 2'd0) begin
+      if (insert_am && am_phase == 2'd0 && !pack_vld && !completing) begin
         am_phase <= 2'd1;
       end else if (am_phase == 2'd1 && lane_ready && !afifo_afull) begin
         am_phase <= 2'd2;
@@ -92,7 +95,7 @@ module vibe_pcs_tx_pack (
           sym_cnt <= sym_cnt + 10'd16; // 512b / 4 lanes / 8b = 16 symbols/lane
       end
 
-      if (pack_vld && lane_ready && am_phase == 2'd0 && !insert_am && !afifo_afull) begin
+      if (pack_vld && lane_ready && am_phase == 2'd0 && !afifo_afull) begin
         if (emit_idx == 2'd3) begin
           pack_vld <= 1'b0;
           emit_idx <= 2'd0;
