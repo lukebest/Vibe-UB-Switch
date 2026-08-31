@@ -134,27 +134,30 @@ module vibe_port (
   // captured a new lane0 128 with stale lane1-3 (PMA has no per-lane valid).
   logic gv0, gv1, gv2, gv3;
   assign p_txv = gv0 & gv1 & gv2 & gv3;
+  // A gear that is not yet holding must not eat the next 160 while a
+  // sibling waits for p_txv. That would mix 512s the same as dropping.
+  wire tx_hold_wait = (gv0 | gv1 | gv2 | gv3) && !p_txv;
 
   vibe_gear_160_128 u_g0 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te0), .in_ready(g0r), .in_data(tq0),
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te0 && !tx_hold_wait), .in_ready(g0r), .in_data(tq0),
     .out_vld(gv0), .out_ready(p_txv), .out_data(p_tx0)
   );
-  assign tren0 = g0r && !te0;
+  assign tren0 = g0r && !te0 && !tx_hold_wait;
   vibe_gear_160_128 u_g1 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te1), .in_ready(g1r), .in_data(tq1),
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te1 && !tx_hold_wait), .in_ready(g1r), .in_data(tq1),
     .out_vld(gv1), .out_ready(p_txv), .out_data(p_tx1)
   );
-  assign tren1 = g1r && !te1;
+  assign tren1 = g1r && !te1 && !tx_hold_wait;
   vibe_gear_160_128 u_g2 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te2), .in_ready(g2r), .in_data(tq2),
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te2 && !tx_hold_wait), .in_ready(g2r), .in_data(tq2),
     .out_vld(gv2), .out_ready(p_txv), .out_data(p_tx2)
   );
-  assign tren2 = g2r && !te2;
+  assign tren2 = g2r && !te2 && !tx_hold_wait;
   vibe_gear_160_128 u_g3 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te3), .in_ready(g3r), .in_data(tq3),
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te3 && !tx_hold_wait), .in_ready(g3r), .in_data(tq3),
     .out_vld(gv3), .out_ready(p_txv), .out_data(p_tx3)
   );
-  assign tren3 = g3r && !te3;
+  assign tren3 = g3r && !te3 && !tx_hold_wait;
 
   vibe_pma_bnd u_pma (
     .txclk(txclk), .rxclk(rxclk),
@@ -247,24 +250,27 @@ module vibe_port (
   // Hold each 160 until all four gears have one. out_ready=1 dropped a
   // lane whose sibling was a cycle late; PCS AND of afrv then skipped
   // that beat and 128→160 grouping slipped (every later CW failed).
+  // Also stall 128 ingress while any lane holds: a late gear must not
+  // consume the next 128 before the current 160 quartet is taken.
+  wire rx_hold_wait = (afrv0 | afrv1 | afrv2 | afrv3) && !all_rv;
   vibe_gear_128_160 u_rg0 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re0), .in_ready(gr0), .in_data(rq0),
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re0 && !rx_hold_wait), .in_ready(gr0), .in_data(rq0),
     .out_vld(afrv0), .out_ready(all_rv), .out_data(afr0)
   );
-  assign rren0 = gr0 && !re0;
+  assign rren0 = gr0 && !re0 && !rx_hold_wait;
   vibe_gear_128_160 u_rg1 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re1), .in_ready(gr1), .in_data(rq1),
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re1 && !rx_hold_wait), .in_ready(gr1), .in_data(rq1),
     .out_vld(afrv1), .out_ready(all_rv), .out_data(afr1)
   );
-  assign rren1 = gr1 && !re1;
+  assign rren1 = gr1 && !re1 && !rx_hold_wait;
   vibe_gear_128_160 u_rg2 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re2), .in_ready(gr2), .in_data(rq2),
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re2 && !rx_hold_wait), .in_ready(gr2), .in_data(rq2),
     .out_vld(afrv2), .out_ready(all_rv), .out_data(afr2)
   );
-  assign rren2 = gr2 && !re2;
+  assign rren2 = gr2 && !re2 && !rx_hold_wait;
   vibe_gear_128_160 u_rg3 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re3), .in_ready(gr3), .in_data(rq3),
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re3 && !rx_hold_wait), .in_ready(gr3), .in_data(rq3),
     .out_vld(afrv3), .out_ready(all_rv), .out_data(afr3)
   );
-  assign rren3 = gr3 && !re3;
+  assign rren3 = gr3 && !re3 && !rx_hold_wait;
 endmodule
