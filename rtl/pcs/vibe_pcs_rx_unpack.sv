@@ -11,6 +11,7 @@ module vibe_pcs_rx_unpack (
   input  logic         am1,
   input  logic         am2,
   input  logic         am3,
+  input  logic         am_gap = 1'b0,
   output logic [511:0] beat_data,
   output logic         beat_vld,
   input  logic         beat_ready
@@ -29,12 +30,17 @@ module vibe_pcs_rx_unpack (
       n    <= 3'd0;
       have <= 1'b0;
     end else begin
-      if (have && beat_ready) begin
+      if (am_gap) begin
+        // New 4×640 group after AMCTL; do not keep a partial n across the marker.
+        n    <= 3'd0;
+        have <= 1'b0;
+      end
+      if (have && beat_ready && !am_gap) begin
         acc  <= {512'd0, acc[2559:512]};
         have <= (n > 3'd1);
         if (n > 3'd0) n <= n - 3'd1;
       end
-      if (lane_vld && !skip) begin
+      if (lane_vld && !skip && !am_gap) begin
         acc[640*n +: 640] <= {lane3, lane2, lane1, lane0};
         if (n == 3'd3) begin
           n    <= 3'd4;

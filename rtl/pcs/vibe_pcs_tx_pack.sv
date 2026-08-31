@@ -40,7 +40,8 @@ module vibe_pcs_tx_pack (
   wire insert_am = (sym_cnt >= period);
 
   assign beat_ready = !afifo_afull && lane_ready && (am_phase == 2'd0) && !pack_vld;
-  assign lane_vld   = pack_vld || (am_phase != 2'd0);
+  // Hold pack emit while insert_am so AMCTL is first, then P0..P3 (group-aligned).
+  assign lane_vld   = (am_phase != 2'd0) || (pack_vld && !insert_am);
   assign am_word    = (am_phase != 2'd0);
   assign lane0 = (am_phase == 2'd1) ? am0[319:160] :
                  (am_phase == 2'd2) ? am0[159:0]   :
@@ -91,7 +92,7 @@ module vibe_pcs_tx_pack (
           sym_cnt <= sym_cnt + 10'd16; // 512b / 4 lanes / 8b = 16 symbols/lane
       end
 
-      if (pack_vld && lane_ready && am_phase == 2'd0 && !afifo_afull) begin
+      if (pack_vld && lane_ready && am_phase == 2'd0 && !insert_am && !afifo_afull) begin
         if (emit_idx == 2'd3) begin
           pack_vld <= 1'b0;
           emit_idx <= 2'd0;

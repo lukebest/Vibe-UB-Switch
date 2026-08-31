@@ -41,8 +41,9 @@ module vibe_pcs_tx_g1 (
 
       if (in_vld && in_ready) begin
         if (!rem_vld) begin
-          // Take 4 flits; keep 2 if we already have 4, else store 4 and wait
-          if (nflit == 3'd0) begin
+          // Take 4 flits; keep 2 if we already have 4, else store 4 and wait.
+          // have&&win_ready is a fresh window (nflit cleared NBA this cycle).
+          if (nflit == 3'd0 || (have && win_ready)) begin
             acc[959:320] <= in_data; // 4 flits, need 2 more
             rem          <= 320'd0;
             rem_vld      <= 1'b0;

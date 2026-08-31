@@ -48,7 +48,8 @@ module vibe_rs128_120_dec (
       data_out <= 960'd0;
       for (i = 0; i < 120; i = i + 1) msg[i] <= 8'd0;
     end else begin
-      done <= 1'b0;
+      done     <= 1'b0;
+      fec_fail <= 1'b0;
       if (start) begin
         s0 <= 8'd0; s1 <= 8'd0; s2 <= 8'd0; s3 <= 8'd0;
         s4 <= 8'd0; s5 <= 8'd0; s6 <= 8'd0; s7 <= 8'd0;

@@ -59,10 +59,13 @@ module vibe_pcs_rx (
       if (am_locked[3]) lid_seeded[3] <= 1'b1;
     end
   end
-  wire sl0 = !link_up || (edf0 && !link_up) || (am_locked[0] && !lid_seeded[0]);
-  wire sl1 = !link_up || (edf1 && !link_up) || (am_locked[1] && !lid_seeded[1]);
-  wire sl2 = !link_up || (edf2 && !link_up) || (am_locked[2] && !lid_seeded[2]);
-  wire sl3 = !link_up || (edf3 && !link_up) || (am_locked[3] && !lid_seeded[3]);
+  // Same as TX: hold seed while !link_up. Do not reload on first lock —
+  // that resets the LFSR while TX keeps running and descramble falls over.
+  // AMCTL+EDF while !link_up still reloads (UB 3.2.2.4).
+  wire sl0 = !link_up || (edf0 && !link_up);
+  wire sl1 = !link_up || (edf1 && !link_up);
+  wire sl2 = !link_up || (edf2 && !link_up);
+  wire sl3 = !link_up || (edf3 && !link_up);
 
   // Descramble LTB only; pass-through AMCTL (do not advance LFSR). Seed = AMCTL.LID.
   vibe_pcs_scramble u_d0 (.clk(clk), .rst_n(rst_n),
@@ -101,10 +104,14 @@ module vibe_pcs_rx (
   );
   assign deskew_ok = aligned;
 
+  // Deskew already drops AMCTL (out_vld=0). Do not pulse unpack/FEC am_gap
+  // from am*_d — that is one beat late vs the 160b stream and wipes n/have_hi
+  // in the middle of a 4×640 group.
   vibe_pcs_rx_unpack u_un (
     .clk(clk), .rst_n(rst_n),
     .lane0(u0), .lane1(u1), .lane2(u2), .lane3(u3), .lane_vld(uv),
-    .am0(1'b0), .am1(1'b0), .am2(1'b0), .am3(1'b0), // deskew already drops AMCTL
+    .am0(1'b0), .am1(1'b0), .am2(1'b0), .am3(1'b0),
+    .am_gap(1'b0),
     .beat_data(beat), .beat_vld(bv), .beat_ready(br)
   );
 
@@ -112,7 +119,7 @@ module vibe_pcs_rx (
     .clk(clk), .rst_n(rst_n), .fec_mode(fec_mode),
     .beat_data(beat), .beat_vld(bv), .beat_ready(br),
     .win_data(win), .win_vld(wv), .win_ready(wr),
-    .am_gap(am0_d | am1_d | am2_d | am3_d),
+    .am_gap(1'b0),
     .fec_fail(fec_fail)
   );
 
