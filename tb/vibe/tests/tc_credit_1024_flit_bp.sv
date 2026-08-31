@@ -16,6 +16,19 @@ module tc_credit_1024_flit_bp;
   initial clk = 0;
   always #1 clk = ~clk;
 
+  initial begin
+    if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
+      begin : dump_open
+        reg [8*256-1:0] dump_fn;
+        dump_fn = "credit_1024_flit.vcd";
+        if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
+        $dumpfile(dump_fn);
+        $dumpvars(0, clk, rst_n, credit_ret, credit_ret_n, pending,
+                  bp_nw, force_crd_ack, grain_n, consume_vld, consume_flits);
+      end
+    end
+  end
+
   vibe_dll_credit u_crd (
     .clk(clk), .rst_n(rst_n), .port_rst(port_rst), .link_up(link_up),
     .grain_n(grain_n),

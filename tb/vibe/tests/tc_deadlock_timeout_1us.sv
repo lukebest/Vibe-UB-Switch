@@ -12,6 +12,7 @@ module tc_deadlock_timeout_1us;
   integer fail, i;
   initial clk = 0;
   always #1 clk = ~clk;
+
   vibe_voq_egr #(.DEPTH(32)) u_v (
     .clk(clk), .rst_n(rst_n),
     .wr_vl(wr_vl), .wr_en(wr_en), .wr_data(wr_data),
@@ -20,6 +21,21 @@ module tc_deadlock_timeout_1us;
     .nonempty(nonempty), .occ_vl0(occ_vl0),
     .deadlock_drop(deadlock_drop), .deadlock_cnt(deadlock_cnt)
   );
+  wire [10:0] wav_age00 = u_v.age[0][0];  // VOQ age, not credit `to`
+
+  initial begin
+    if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
+      begin : dump_open
+        reg [8*256-1:0] dump_fn;
+        dump_fn = "voq_deadlock_1us.vcd";
+        if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
+        $dumpfile(dump_fn);
+        $dumpvars(0, clk, rst_n, wr_en, rd_en, wr_vl, nonempty, occ_vl0,
+                  deadlock_drop, deadlock_cnt, wav_age00);
+      end
+    end
+  end
+
   initial begin
     fail = 0;
     rst_n = 0; wr_en = 0; rd_en = 0; wr_vl = 0; rd_vl = 0;

@@ -45,8 +45,8 @@ Threshold **1024 is FLIT**. Pending path `pend += credit_ret_n` with **no divide
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_credit_1024_flit` | `pending=1023` + 1 return → `credit_low`/`bp_nw`; 2-flit return does **not** `ceil_div` | OK |
-| `tc_credit_cfg0_no_consume` | CFG0 does not consume | OK |
+| `tc_credit_1024_flit_bp` | `pending=1023` + 1 return → `credit_low`/`bp_nw`; 2-flit return does **not** `ceil_div` | OK |
+| `tc_cfg0_no_credit` | CFG0 does not consume | OK |
 
 ---
 
@@ -55,7 +55,7 @@ Threshold **1024 is FLIT**. Pending path `pend += credit_ret_n` with **no divide
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_credit_timeout_1us` | credit-return timeout 1 µs (`VIBE_US_CYC`) | OK — distinct DUT (`vibe_dll_credit`) |
-| `tc_voq_deadlock_1us` | VOQ deadlock 1 µs — **separate** timer (`vibe_voq`) | OK |
+| `tc_deadlock_timeout_1us` | VOQ deadlock 1 µs — **separate** timer (`vibe_voq_egr.age`) | OK |
 
 They must not share a counter or a single TB event. They do not.
 
@@ -92,6 +92,25 @@ Compute/check as **sender/receiver**. Transit does **not** recompute.
 
 ---
 
+## NW packet → PMA `txdata[511:0]` (FS-0.2.4 §1.4 / U26, AS-0.1 TX path)
+
+Product boundary: `txdata[511:0]`, no extra handshake; `[127:0]=lane0` … `[511:384]=lane3`.
+
+Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `txdata`. `tc_top_smoke` notes no packet BFM. PHY units use synthetic DLL/lane patterns.
+
+| Checker | Spec | Verdict |
+|---|---|---|
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **PASS** vs PR4 RTL `4bfac60c` (sim-only; not on this TB branch). Same expected LPH (CFG=3 RT=00 SCNA=A11A DCNA=B22B). Checker not relaxed. |
+
+DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
+
+`tc_nw_pkt_to_pma_tx` **PASS** (Icarus) vs `4bfac60c`: DLL LPH + 260 PMA pack + 104 PCS-lane golden + 260 gear golden (score not relaxed).
+
+`tc_nw_pkt_pma_loopback` **PASS** (Icarus) vs PR4 RTL `4bfac60c3f1780d99ea93aebed238a09865ebc27` (`cursor/as01-rtl-82c7` HEAD; RX scramble seed from physical lane 0..3; not committed on this TB branch). Expected LPH unchanged. `fab_rx` LPH+payload scored. Reproduce: `make -C tb/vibe units` (or the `run1` compile in `scripts/run_units.sh`) with PR4 `rtl/` checked out for sim.
+
+---
+
 ## Unit checkers (PHY / DLL / FEC / LMSM / retry)
 
 All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCRC, VL0–15 RR, retry 256, GBN, AFIFO, named negatives). New stimulus TCs (`tc_lmsm_walk`, `tc_retry_wait_retrain`, PCS RX wrappers, SAF/route/cna/irq/mgmt clusters) **add coverage**, they do not change the locked rules.
@@ -104,3 +123,4 @@ All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCR
 |---|---|
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
+| ADDED | `tc_nw_pkt_to_pma_tx` PASS; `tc_nw_pkt_pma_loopback` PASS vs PR4 RTL `4bfac60c` |

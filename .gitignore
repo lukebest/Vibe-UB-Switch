@@ -1,4 +1,5 @@
 *.vcd
+!tb/vibe/waves/*.vcd
 *.vvp
 tb/vibe/obj_dir/
 tb/vibe/cov/out/

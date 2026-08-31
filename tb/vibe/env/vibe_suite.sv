@@ -11,6 +11,21 @@ module vibe_suite;
 
   integer ran;
 
+  // Wave probes (TB-only; not RTL). Narrow names for +DUMP PNG.
+  wire        wav_clk     = h.clk;
+  wire        wav_ing0    = h.ing_vld[0];
+  wire        wav_egr0    = h.egr_vld[0];
+  wire [3:0]  wav_egr     = h.egr_vld;
+  wire [1:0]  wav_rt      = vibe_lph_rt(h.ing_data[0][639:480]);
+  wire [3:0]  wav_cfg     = vibe_lph_cfg(h.ing_data[0][639:480]);
+  wire [2:0]  wav_nlp     = vibe_nth_nlp(h.ing_data[0][639:480]);
+  wire [7:0]  wav_opc     = h.ing_data[0][583:576];  // opcode in first flit
+  wire        wav_irq     = h.irq_logic;
+  wire        wav_g1      = h.drop_g1;
+  wire [31:0] wav_g1cnt   = h.rt_shortest_unimpl;
+  wire        wav_cfg6h0  = h.u_fab.cfg6_hit[0];
+  wire        wav_xin0    = h.u_fab.x_in_v[0];
+
   // CFG6 unit (cna_ep) — fabric cfg6_hit is combo on stuck SAF
   logic [3:0]   c6_hit, c6_cons, c6_rready, c6_rvld;
   logic [639:0] c6_data [0:3];
@@ -519,54 +534,74 @@ module vibe_suite;
     integer term_us, term_nlp, term_opc, fwd_miss, fwd_opc_nous, unw;
     begin
       $display("=== tc_cfg6_term_vs_fwd ===");
+      // Clocked cna_ep pulses so +DUMP shows 本CNA / NLP / opc 0x10 vs FORWARD.
       // 1) 本CNA (DCNA==written CNA)
       c6_cna = 16'h1111; c6_written = 1'b1; c6_hit = 4'd0;
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      #0; c6_hit[0] = 1'b1; #0;
+      @(posedge h.clk);
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       term_us = c6_cons[0] && c6_rvld[0];
-      c6_hit[0] = 1'b0; #0;
+      c6_hit[0] = 1'b0;
+      @(posedge h.clk);
       // 2) NLP=1 enumerate: terminate even if DCNA is not us (AS-0.1 §9)
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd1, 8'd0));
-      c6_hit[0] = 1'b1; #0;
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       term_nlp = c6_cons[0];
-      c6_hit[0] = 1'b0; #0;
+      c6_hit[0] = 1'b0;
+      @(posedge h.clk);
       // 3) opcode 0x10 targeting us
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'h10));
-      c6_hit[0] = 1'b1; #0;
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       term_opc = c6_cons[0];
-      c6_hit[0] = 1'b0; #0;
+      c6_hit[0] = 1'b0;
+      @(posedge h.clk);
       // 4) opcode 0x10 not targeting us → FORWARD
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'h10));
-      c6_hit[0] = 1'b1; #0;
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       fwd_opc_nous = !c6_cons[0];
-      c6_hit[0] = 1'b0; #0;
+      c6_hit[0] = 1'b0;
+      @(posedge h.clk);
       // 5) else FORWARD (DCNA!=CNA, NLP=0, opc!=0x10)
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      c6_hit[0] = 1'b1; #0;
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       fwd_miss = !c6_cons[0];
-      c6_hit = 4'd0; #0;
+      c6_hit = 4'd0;
+      @(posedge h.clk);
       // 6) CNA not written: 本CNA must not match
       c6_written = 1'b0; c6_cna = 16'h1111;
       c6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      c6_hit[0] = 1'b1; #0;
+      c6_hit[0] = 1'b1;
+      @(posedge h.clk);
       unw = !c6_cons[0];
       c6_hit = 4'd0;
+      @(posedge h.clk);
       h.tb_reset();
+      h.tb_cfg(VIBE_TB_CMD_CNA, 16'd0, 32'h0000_1111);
+      // Fabric terminate (本CNA): cfg6_hit, no xbar — visible on +DUMP
+      h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h1111,
+                      vibe_tb_plen_nflit(5), 3'd0, 8'd0);
+      h.tb_cycles(16);
+      // Fabric FORWARD (DCNA≠CNA, NLP=0, opc=0): x_in_v=1
       h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h2222,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
-      h.tb_cycles(12);
+      h.tb_cycles(32);
       $display("  hier cfg6_hit=%04b x_in_v=%04b consume=%04b cna_written=%0b cna=%h",
                h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.cfg6_cons,
                h.cna_written, h.cna);
@@ -959,9 +994,20 @@ module vibe_suite;
   end
 
   initial begin
-    if ($test$plusargs("VCD")) begin
-      $dumpfile("vibe_suite.vcd");
-      $dumpvars(0, vibe_suite);
+    if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
+      begin : dump_open
+        reg [8*256-1:0] dump_fn;
+        dump_fn = "vibe_suite.vcd";
+        if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
+        $dumpfile(dump_fn);
+        $dumpvars(0, wav_clk, wav_ing0, wav_egr0, wav_egr, wav_rt, wav_cfg,
+                  wav_nlp, wav_opc, wav_irq, wav_g1, wav_g1cnt,
+                  wav_cfg6h0, wav_xin0, c6_hit, c6_cons);
+        $dumpvars(0, h.ing_vld, h.egr_vld, h.irq_logic, h.rt_shortest_unimpl,
+                  h.drop_g1, h.cna, h.cna_written);
+        $dumpvars(0, h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.u_fab.g1_comb);
+        $dumpvars(0, c6_hit, c6_cons, c6_written, c6_cna);
+      end
     end
   end
 endmodule

@@ -1,0 +1,529 @@
+$date
+	Mon Aug 31 02:06:42 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module vibe_suite $end
+$var wire 1 ! wav_clk $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 " wav_ing0 $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 # wav_egr0 $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 4 $ wav_egr [3:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 2 % wav_rt [1:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 4 & wav_cfg [3:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 3 ' wav_nlp [2:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 8 ( wav_opc [7:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 ) wav_irq $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 * wav_g1 $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 32 + wav_g1cnt [31:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 , wav_cfg6h0 $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 1 - wav_xin0 $end
+$upscope $end
+$scope module vibe_suite $end
+$var reg 4 . c6_hit [3:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$var wire 4 / c6_cons [3:0] $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var reg 4 0 ing_vld [3:0] $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 4 1 egr_vld [3:0] $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 1 2 irq_logic $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 32 3 rt_shortest_unimpl [31:0] $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 1 4 drop_g1 $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 16 5 cna [15:0] $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$var wire 1 6 cna_written $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$scope module u_fab $end
+$var reg 4 7 cfg6_hit [3:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$scope module u_fab $end
+$var reg 4 8 x_in_v [3:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$scope module h $end
+$scope module u_fab $end
+$var reg 4 9 g1_comb [3:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module vibe_suite $end
+$var reg 1 : c6_written $end
+$upscope $end
+$scope module vibe_suite $end
+$var reg 16 ; c6_cna [15:0] $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b0 ;
+0:
+b0 9
+b0 8
+b0 7
+06
+b0 5
+04
+b0 3
+02
+b0 1
+b0 0
+b0 /
+b0 .
+0-
+0,
+b0 +
+0*
+0)
+b0 (
+b0 '
+b0 &
+b0 %
+b0 $
+0#
+0"
+0!
+$end
+#1000
+1!
+#2000
+0!
+#3000
+1!
+#4000
+0!
+#5000
+1!
+#6000
+0!
+#7000
+1!
+#8000
+0!
+#9000
+1!
+#10000
+0!
+#11000
+1!
+#12000
+0!
+#13000
+1!
+#14000
+0!
+#15000
+1:
+b1000100010001 ;
+1!
+#16000
+0!
+#17000
+b1 /
+b1 .
+1!
+#18000
+0!
+#19000
+b0 /
+b0 .
+1!
+#20000
+0!
+#21000
+b1 /
+b1 .
+1!
+#22000
+0!
+#23000
+b0 /
+b0 .
+1!
+#24000
+0!
+#25000
+b1 /
+b1 .
+1!
+#26000
+0!
+#27000
+b0 /
+b0 .
+1!
+#28000
+0!
+#29000
+b1 .
+1!
+#30000
+0!
+#31000
+b0 .
+1!
+#32000
+0!
+#33000
+b1 .
+1!
+#34000
+0!
+#35000
+b0 .
+1!
+#36000
+0!
+#37000
+b1 .
+0:
+1!
+#38000
+0!
+#39000
+b0 .
+1!
+#40000
+0!
+#41000
+1!
+#42000
+0!
+#43000
+1!
+#44000
+0!
+#45000
+1!
+#46000
+0!
+#47000
+1!
+#48000
+0!
+#49000
+1!
+#50000
+0!
+#51000
+1!
+#52000
+0!
+#53000
+1!
+#54000
+0!
+#55000
+1!
+#56000
+0!
+#57000
+1!
+#58000
+0!
+#59000
+16
+b1000100010001 5
+1!
+#60000
+0!
+#61000
+1!
+#62000
+0!
+#63000
+1!
+#64000
+0!
+#65000
+1!
+#66000
+b110 &
+1"
+b1 0
+0!
+#67000
+1!
+#68000
+b0 &
+0!
+#69000
+1,
+b1 7
+1!
+#70000
+0"
+b0 0
+0!
+#71000
+1!
+#72000
+0!
+#73000
+0,
+b0 7
+1!
+#74000
+0!
+#75000
+1!
+#76000
+0!
+#77000
+1!
+#78000
+0!
+#79000
+1!
+#80000
+0!
+#81000
+1!
+#82000
+0!
+#83000
+1!
+#84000
+0!
+#85000
+1!
+#86000
+0!
+#87000
+1!
+#88000
+0!
+#89000
+1!
+#90000
+0!
+#91000
+1!
+#92000
+0!
+#93000
+1!
+#94000
+0!
+#95000
+1!
+#96000
+0!
+#97000
+1!
+#98000
+0!
+#99000
+1!
+#100000
+0!
+#101000
+1!
+#102000
+b110 &
+1"
+b1 0
+0!
+#103000
+1!
+#104000
+b0 &
+0!
+#105000
+1-
+b1 8
+1!
+#106000
+0"
+b0 0
+0!
+#107000
+1!
+#108000
+0!
+#109000
+1!
+#110000
+0!
+#111000
+1!
+#112000
+0!
+#113000
+1!
+#114000
+0!
+#115000
+1!
+#116000
+0!
+#117000
+1!
+#118000
+0!
+#119000
+1!
+#120000
+0!
+#121000
+1!
+#122000
+0!
+#123000
+1!
+#124000
+0!
+#125000
+1!
+#126000
+0!
+#127000
+1!
+#128000
+0!
+#129000
+1!
+#130000
+0!
+#131000
+1!
+#132000
+0!
+#133000
+1!
+#134000
+0!
+#135000
+1!
+#136000
+0!
+#137000
+1!
+#138000
+0!
+#139000
+1!
+#140000
+0!
+#141000
+1!
+#142000
+0!
+#143000
+1!
+#144000
+0!
+#145000
+1!
+#146000
+0!
+#147000
+1!
+#148000
+0!
+#149000
+1!
+#150000
+0!
+#151000
+1!
+#152000
+0!
+#153000
+1!
+#154000
+0!
+#155000
+1!
+#156000
+0!
+#157000
+1!
+#158000
+0!
+#159000
+1!
+#160000
+0!
+#161000
+1!
+#162000
+0!
+#163000
+1!
+#164000
+0!
+#165000
+1!
+#166000
+0!
+#167000
+1!
+#168000
+0!
+#169000
+1!
