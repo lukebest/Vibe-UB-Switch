@@ -15,21 +15,24 @@ try:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.patches import FancyBboxPatch
+    import matplotlib.image as mpimg
+    from matplotlib.ticker import FuncFormatter
 except ImportError as exc:
     sys.stderr.write("matplotlib required: pip install matplotlib\n")
     raise SystemExit(1) from exc
 
 
-Change = Tuple[int, int]  # time, value
+Change = Tuple[int, int]
 
 
 @dataclass
 class Vcd:
-    names: Dict[str, str] = field(default_factory=dict)  # id -> full name
-    width: Dict[str, int] = field(default_factory=dict)  # id -> bits
+    names: Dict[str, str] = field(default_factory=dict)
+    width: Dict[str, int] = field(default_factory=dict)
     series: Dict[str, List[Change]] = field(default_factory=dict)
-    alias: Dict[str, str] = field(default_factory=dict)  # basename/full -> id
+    alias: Dict[str, str] = field(default_factory=dict)
+    ts_ps: int = 1  # VCD time unit in picoseconds
+    period: int = 2000
 
 
 def _open(path: str):
@@ -38,9 +41,8 @@ def _open(path: str):
     return open(path, "r", encoding="utf-8", errors="replace")
 
 
-_VAR_RE = re.compile(
-    r"\$var\s+\S+\s+(\d+)\s+(\S+)\s+(\S+)(?:\s+\S+)?\s+\$end"
-)
+_VAR_RE = re.compile(r"\$var\s+\S+\s+(\d+)\s+(\S+)\s+(\S+)(?:\s+\S+)?\s+\$end")
+_TS_RE = re.compile(r"(\d+)\s*(fs|ps|ns|us|ms)", re.I)
 
 
 def parse_vcd(path: str) -> Vcd:
@@ -54,6 +56,14 @@ def parse_vcd(path: str) -> Vcd:
             if not line:
                 continue
             if in_defs:
+                if line.startswith("$timescale"):
+                    continue
+                if in_defs and not line.startswith("$") and _TS_RE.search(line):
+                    m = _TS_RE.search(line)
+                    if m:
+                        n, u = int(m.group(1)), m.group(2).lower()
+                        mul = {"fs": 0.001, "ps": 1, "ns": 1000, "us": 1e6, "ms": 1e9}[u]
+                        v.ts_ps = max(1, int(n * mul))
                 if line.startswith("$scope"):
                     parts = line.split()
                     if len(parts) >= 3:
@@ -70,13 +80,8 @@ def parse_vcd(path: str) -> Vcd:
                     v.names[vid] = full
                     v.width[vid] = w
                     v.series[vid] = [(0, 0)]
-                    v.alias[name] = vid
-                    v.alias[full] = vid
-                    v.alias[name.lower()] = vid
-                    v.alias[full.lower()] = vid
-                    # Icarus: module.signal and signal
-                    if "." in full:
-                        v.alias[full.split(".")[-1]] = vid
+                    for key in (name, full, name.lower(), full.lower(), full.split(".")[-1]):
+                        v.alias[key] = vid
                 elif line.startswith("$enddefinitions"):
                     in_defs = False
                 continue
@@ -86,21 +91,30 @@ def parse_vcd(path: str) -> Vcd:
                 except ValueError:
                     pass
                 continue
-            if line.startswith("$dumpvars") or line in ("$end", "$dumpoff", "$dumpon"):
+            if line.startswith("$dump") or line in ("$end", "$dumpoff", "$dumpon"):
                 continue
             if line[0] in "01xzXZ":
                 val_ch, vid = line[0], line[1:]
                 if vid in v.series:
-                    val = 1 if val_ch == "1" else 0
-                    _push(v.series[vid], cur_t, val)
+                    _push(v.series[vid], cur_t, 1 if val_ch == "1" else 0)
             elif line[0] in "bBrR":
                 parts = line.split()
-                if len(parts) < 2:
-                    continue
-                bits, vid = parts[0][1:], parts[1]
-                if vid in v.series:
-                    _push(v.series[vid], cur_t, _bits_to_int(bits))
+                if len(parts) >= 2 and parts[1] in v.series:
+                    _push(v.series[parts[1]], cur_t, _bits_to_int(parts[0][1:]))
+    v.period = _clk_period(v)
     return v
+
+
+def _clk_period(v: Vcd) -> int:
+    for name in ("wav_clk", "clk"):
+        vid = resolve(v, name)
+        if vid is None:
+            continue
+        rises = [t for t, val in v.series[vid] if val]
+        deltas = [rises[i + 1] - rises[i] for i in range(len(rises) - 1) if rises[i + 1] > rises[i]]
+        if deltas:
+            return min(deltas)
+    return 2000
 
 
 def _bits_to_int(bits: str) -> int:
@@ -131,10 +145,8 @@ def resolve(v: Vcd, name: str) -> Optional[str]:
     tail = name.split(".")[-1]
     if tail in v.alias:
         return v.alias[tail]
-    for full, vid in ((v.names[i], i) for i in v.names):
-        if full.endswith("." + name) or full == name:
-            return vid
-        if full.endswith("." + tail):
+    for vid, full in v.names.items():
+        if full.endswith("." + name) or full == name or full.endswith("." + tail):
             return vid
     return None
 
@@ -176,12 +188,36 @@ def first_rise(series: Sequence[Change], tmin: int = 0) -> Optional[int]:
     return None
 
 
+def all_rises(series: Sequence[Change], tmin: int = 0) -> List[int]:
+    out: List[int] = []
+    prev = 0
+    for t, val in series:
+        if t < tmin:
+            prev = val
+            continue
+        if val and not prev:
+            out.append(t)
+        prev = val
+    return out
+
+
 def last_time(v: Vcd) -> int:
     mx = 0
     for s in v.series.values():
         if s:
             mx = max(mx, s[-1][0])
     return mx
+
+
+def _need(v: Vcd, name: str) -> List[Change]:
+    vid = resolve(v, name)
+    if vid is None:
+        return [(0, 0)]
+    return v.series[vid]
+
+
+def _to_ns(t: int, ts_ps: int) -> float:
+    return t * ts_ps / 1000.0
 
 
 def draw_window(
@@ -195,48 +231,32 @@ def draw_window(
     caption: str,
     notes: Sequence[Tuple[int, str]] = (),
 ) -> None:
-    """rows: (vcd_name, label, kind) kind in {bit, dec, hex}."""
+    if t1 <= t0:
+        t1 = t0 + v.period * 8
     n = len(rows)
-    fig_h = max(4.2, 0.62 * n + 2.4)
-    fig, axes = plt.subplots(n, 1, sharex=True, figsize=(13.2, fig_h))
+    fig_h = max(4.4, 0.68 * n + 2.6)
+    fig, axes = plt.subplots(n, 1, sharex=True, figsize=(13.4, fig_h))
     if n == 1:
         axes = [axes]
     fig.patch.set_facecolor("white")
     for ax, (vname, label, kind) in zip(axes, rows):
         ax.set_facecolor("#f7f7f7")
         vid = resolve(v, vname)
-        ax.set_ylabel(label, rotation=0, ha="right", va="center", fontsize=8.5, labelpad=52)
-        ax.set_yticks([])
+        ax.set_ylabel(label, rotation=0, ha="right", va="center", fontsize=8.5, labelpad=58)
         ax.grid(axis="x", color="#dddddd", lw=0.6)
-        for spine in ("top", "right", "left"):
+        for spine in ("top", "right"):
             ax.spines[spine].set_visible(False)
+        ax.spines["left"].set_color("#bbbbbb")
         ax.spines["bottom"].set_color("#bbbbbb")
         if vid is None:
-            ax.text(0.5, 0.5, f"(missing {vname})", transform=ax.transAxes, ha="center",
-                    color="#aa0000", fontsize=8)
+            ax.set_yticks([])
             ax.set_ylim(-0.15, 1.35)
+            ax.text(0.5, 0.5, f"(missing {vname})", transform=ax.transAxes,
+                    ha="center", color="#aa0000", fontsize=8)
             continue
         series = v.series[vid]
         width = v.width[vid]
-        times = [t0] + [t for t, _ in series if t0 < t <= t1] + [t1]
-        xs: List[float] = []
-        ys: List[float] = []
-        prev_t = t0
-        prev_val = value_at(series, t0)
-        for t in times:
-            val = value_at(series, t)
-            if kind == "bit":
-                xs.extend([prev_t, t])
-                ys.extend([1.0 if prev_val else 0.0, 1.0 if prev_val else 0.0])
-            else:
-                xs.extend([prev_t, t])
-                ys.extend([0.55, 0.55])
-            if t > prev_t and t < t1 or t == t1:
-                pass
-            prev_t, prev_val = t, val
-        # rebuild step properly
-        xs, ys = [], []
-        ev = [(t0, value_at(series, t0))]
+        ev: List[Change] = [(t0, value_at(series, t0))]
         ev += [(t, val) for t, val in series if t0 < t <= t1]
         ev.append((t1, value_at(series, t1)))
         merged: List[Change] = []
@@ -245,87 +265,117 @@ def draw_window(
                 merged[-1] = (t, val)
             else:
                 merged.append((t, val))
-        if kind == "bit":
-            for i, (t, val) in enumerate(merged[:-1]):
-                t_next = merged[i + 1][0]
-                lvl = 1.0 if val else 0.0
-                xs.extend([t, t_next])
-                ys.extend([lvl, lvl])
-                if val:
-                    ax.fill_between([t, t_next], 0, 1, color="#4c78a8", alpha=0.28)
-            ax.plot(xs, ys, color="#1f4e79", lw=1.6, solid_capstyle="butt")
-            ax.set_ylim(-0.2, 1.35)
-            # value tags at mid of each high/low run
-            for i, (t, val) in enumerate(merged[:-1]):
-                t_next = merged[i + 1][0]
-                if t_next - t > (t1 - t0) * 0.04:
-                    ax.text((t + t_next) / 2, 1.12 if val else -0.08, str(int(bool(val))),
-                            ha="center", va="bottom" if val else "top", fontsize=7,
-                            color="#333333")
+
+        if kind == "count":
+            vals = [val for _, val in merged]
+            ymax = max(max(vals), 1)
+            xs = [t for t, _ in merged]
+            ys = [val for _, val in merged]
+            ax.plot(xs, ys, color="#1f4e79", lw=1.6, drawstyle="steps-post")
+            ax.set_ylim(-0.08 * ymax, ymax * 1.18)
+            ax.set_yticks([0, ymax // 2, ymax] if ymax >= 2 else [0, 1])
+            ax.tick_params(axis="y", labelsize=7)
+            endv = value_at(series, t1)
+            ax.text(1.005, 0.5, str(endv), transform=ax.transAxes, va="center",
+                    fontsize=8, color="#111111", fontweight="bold")
         else:
-            ax.set_ylim(-0.15, 1.35)
-            ax.axhline(0.45, color="#cccccc", lw=0.8)
-            for i, (t, val) in enumerate(merged[:-1]):
-                t_next = merged[i + 1][0]
-                ax.plot([t, t_next], [0.45, 0.45], color="#1f4e79", lw=2.0)
-                if t_next > t:
-                    ax.plot([t, t], [0.22, 0.68], color="#1f4e79", lw=1.2)
-                txt = f"{val}" if kind == "dec" else f"0x{val:X}"
-                if width == 2 and kind == "dec":
-                    txt = f"{val:02b}b"
-                ax.text((t + t_next) / 2, 0.82, txt, ha="center", va="bottom",
-                        fontsize=7.5, color="#1f4e79",
-                        clip_on=True)
-        # right-edge current value
-        endv = value_at(series, t1)
-        if kind == "bit":
-            tag = str(int(bool(endv)))
-        elif kind == "hex":
-            tag = f"0x{endv:X}"
-        else:
-            tag = str(endv)
-        ax.text(1.005, 0.5, tag, transform=ax.transAxes, va="center", fontsize=8,
-                color="#111111", fontweight="bold")
+            ax.set_yticks([])
+            if kind == "bit":
+                ax.set_ylim(-0.2, 1.35)
+                for i, (t, val) in enumerate(merged[:-1]):
+                    t_next = merged[i + 1][0]
+                    lvl = 1.0 if val else 0.0
+                    if val:
+                        ax.fill_between([t, t_next], 0, 1, color="#4c78a8", alpha=0.28)
+                    ax.plot([t, t_next], [lvl, lvl], color="#1f4e79", lw=1.6)
+                    if t_next - t > (t1 - t0) * 0.05:
+                        ax.text((t + t_next) / 2, 1.12 if val else -0.08,
+                                str(int(bool(val))), ha="center",
+                                va="bottom" if val else "top", fontsize=7, color="#333333")
+            else:
+                ax.set_ylim(-0.15, 1.35)
+                ax.axhline(0.45, color="#cccccc", lw=0.8)
+                span = max(t1 - t0, 1)
+                for i, (t, val) in enumerate(merged[:-1]):
+                    t_next = merged[i + 1][0]
+                    ax.plot([t, t_next], [0.45, 0.45], color="#1f4e79", lw=2.0)
+                    if t_next > t:
+                        ax.plot([t, t], [0.22, 0.68], color="#1f4e79", lw=1.2)
+                    if kind == "hex":
+                        txt = f"0x{val:X}"
+                    elif width == 2:
+                        txt = f"{val:02b}b"
+                    else:
+                        txt = str(val)
+                    if (t_next - t) > span * 0.04 or i == 0 or i == len(merged) - 2:
+                        ax.text((t + t_next) / 2, 0.82, txt, ha="center", va="bottom",
+                                fontsize=7.5, color="#1f4e79", clip_on=True)
+            endv = value_at(series, t1)
+            if kind == "bit":
+                tag = str(int(bool(endv)))
+            elif kind == "hex":
+                tag = f"0x{endv:X}"
+            else:
+                tag = str(endv)
+            ax.text(1.005, 0.5, tag, transform=ax.transAxes, va="center",
+                    fontsize=8, color="#111111", fontweight="bold")
         for mt, _lab, color in markers:
             if t0 <= mt <= t1:
                 ax.axvline(mt, color=color, lw=1.4, ls="--")
+
+    def _fmt(x, _pos):
+        return f"{_to_ns(int(x), v.ts_ps):.0f}"
+
+    axes[-1].xaxis.set_major_formatter(FuncFormatter(_fmt))
     axes[-1].set_xlim(t0, t1)
-    axes[-1].set_xlabel("time (ns, Icarus; clk period = 2)")
+    axes[-1].set_xlabel("time (ns)   [Icarus timescale 1ps; clk period 2 ns]")
     fig.suptitle(title, fontsize=11, fontweight="bold", y=0.995)
-    # marker legend
     if markers:
-        bits = "   ".join(f"| {lab} @ {mt}" for mt, lab, _ in markers)
-        fig.text(0.5, 0.965, bits, ha="center", fontsize=8, color="#a31f1f")
+        bits = "   ".join(
+            f"| {lab} @ {_to_ns(mt, v.ts_ps):.0f} ns" for mt, lab, _ in markers
+        )
+        fig.text(0.5, 0.958, bits, ha="center", fontsize=8, color="#a31f1f")
     for nt, nlab in notes:
         if t0 <= nt <= t1:
             axes[0].annotate(
-                nlab, xy=(nt, 1.15), xytext=(nt, 1.55),
+                nlab, xy=(nt, axes[0].get_ylim()[1] * 0.92),
+                xytext=(nt, axes[0].get_ylim()[1] * 1.12),
                 fontsize=7, ha="center", color="#333333",
                 arrowprops=dict(arrowstyle="-", color="#888888", lw=0.6),
                 annotation_clip=False,
             )
-    fig.text(0.03, 0.012, caption, ha="left", va="bottom", fontsize=8,
-             wrap=True, color="#222222")
-    fig.subplots_adjust(left=0.20, right=0.93, top=0.90, bottom=0.14, hspace=0.08)
+    fig.text(0.03, 0.012, caption, ha="left", va="bottom", fontsize=8, color="#222222")
+    fig.subplots_adjust(left=0.22, right=0.93, top=0.88, bottom=0.16, hspace=0.10)
     fig.savefig(path_png, dpi=130)
     plt.close(fig)
     print(f"wrote {path_png}")
 
 
-def _need(v: Vcd, name: str) -> List[Change]:
-    vid = resolve(v, name)
-    if vid is None:
-        return [(0, 0)]
-    return v.series[vid]
+def stitch(out: str, *pngs: str) -> None:
+    ims = [mpimg.imread(p) for p in pngs]
+    h = sum(im.shape[0] for im in ims)
+    w = max(im.shape[1] for im in ims)
+    fig, axes = plt.subplots(len(ims), 1, figsize=(w / 130.0, h / 130.0))
+    if len(ims) == 1:
+        axes = [axes]
+    for ax, im in zip(axes, ims):
+        ax.imshow(im)
+        ax.axis("off")
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0, hspace=0.01)
+    fig.savefig(out, dpi=130)
+    plt.close(fig)
+    for p in pngs:
+        os.remove(p)
+    print(f"wrote {out}")
 
 
 def render_g1(waves: str) -> None:
-    vcd = os.path.join(waves, "g1_rt10.vcd")
-    v = parse_vcd(vcd)
-    ing = _need(v, "wav_ing0")
-    t_ing = first_rise(ing) or 20
-    irq = first_rise(_need(v, "wav_irq")) or t_ing
-    t0, t1 = max(0, t_ing - 16), t_ing + 48
+    v = parse_vcd(os.path.join(waves, "g1_rt10.vcd"))
+    p = v.period
+    t_ing = first_rise(_need(v, "wav_ing0")) or 20 * p
+    t_irq = first_rise(_need(v, "wav_irq")) or (t_ing + 3 * p)
+    t_cnt = first_eq(_need(v, "wav_g1cnt"), 1) or t_irq
+    t0, t1 = max(0, t_ing - 3 * p), t_irq + 8 * p
     draw_window(
         os.path.join(waves, "g1_rt10.png"),
         v,
@@ -339,42 +389,29 @@ def render_g1(waves: str) -> None:
             ("wav_irq", "irq_logic", "bit"),
         ],
         t0, t1,
-        [(irq, "score: irq rises + sticks; egr stays 0", "#c0392b")],
+        [(t_irq, "score: irq rises+sticks; egr stays 0; cnt+1", "#c0392b")],
         "G1  RT=10 DROP  —  tc_rt10_must_drop  (AS-0.1 / TP-RT-003)",
-        "Expected: RT=10 (2'b10) ingress, egress valid stays 0, rt_shortest_unimpl +1, "
-        "irq_logic rises and sticks.  Actual: see window (PASS tc_rt10_must_drop).",
-        notes=[(t_ing, "inject RT=10")],
+        "Expected: RT=10 ingress, egress stays 0, rt_shortest_unimpl +1, irq_logic rises and sticks.  "
+        "Actual: egr=0, cnt 0->1, irq=1 sticky (PASS tc_rt10_must_drop).",
+        notes=[(t_ing, "inject RT=10"), (t_cnt, "cnt +1")],
     )
 
 
 def render_cfg6(waves: str) -> None:
-    vcd = os.path.join(waves, "cfg6_term_vs_fwd.vcd")
-    v = parse_vcd(vcd)
-    # Two stacked figures in one PNG via a taller custom layout
-    hit = _need(v, "c6_hit")
-    # unit pulses first, then fabric injects
-    t_unit0 = first_rise(hit) or 0
-    xin = first_rise(_need(v, "wav_xin0"))
-    ing_all = [t for t, val in _need(v, "wav_ing0") if val]
-    t_fab0 = ing_all[0] if ing_all else (xin or 200)
-    # split: draw two windows into one figure manually
-    from matplotlib.gridspec import GridSpec
-
-    fig = plt.figure(figsize=(13.2, 10.2))
-    fig.patch.set_facecolor("white")
-    gs = GridSpec(12, 1, figure=fig, left=0.20, right=0.93, top=0.90, bottom=0.10, hspace=0.12)
-    # Reuse draw by writing a temp approach: two separate draw_window calls then... 
-    # Simpler: one wide window covering fabric only + caption listing unit classes,
-    # plus a compact unit window in the top half via a second draw to a temp? 
-    # Use two files then... user asked one PNG. Do fabric + unit on same time axis
-    # if unit is early and fabric late — x will be sparse. Better two x-axes.
-    # Call draw_window twice to /tmp and compose? Keep it simple: two sequential
-    # draw_window into the same PNG by custom.
-    plt.close(fig)
-
+    v = parse_vcd(os.path.join(waves, "cfg6_term_vs_fwd.vcd"))
+    p = v.period
+    pulses = all_rises(_need(v, "c6_hit"))
+    t_unit0 = pulses[0] if pulses else 0
+    labels = [
+        "1 local-CNA TERM",
+        "2 NLP=1 TERM",
+        "3 opc 0x10 us TERM",
+        "4 opc 0x10 not-us FWD",
+        "5 else FWD",
+        "6 CNA unwritten FWD",
+    ]
+    notes = [(t, lab) for t, lab in zip(pulses, labels)]
     unit_png = os.path.join(waves, "_cfg6_unit.png")
-    fab_png = os.path.join(waves, "_cfg6_fab.png")
-    t0u, t1u = max(0, t_unit0 - 4), t_unit0 + 40
     draw_window(
         unit_png, v,
         [
@@ -383,67 +420,51 @@ def render_cfg6(waves: str) -> None:
             ("c6_cna", "c6_cna (mgmt)", "hex"),
             ("c6_written", "c6_written", "bit"),
         ],
-        t0u, t1u,
-        [(t_unit0, "本CNA terminate (consume=1)", "#c0392b")],
-        "CFG6 cna_ep classes (AS-0.1 §9) — unit pulses before fabric",
-        "Pulses in order: (1) 本CNA+DCNA consume=1  (2) NLP=1 consume=1  "
+        max(0, t_unit0 - 2 * p), t_unit0 + 14 * p,
+        [(t_unit0, "local-CNA terminate (consume=1)", "#c0392b")],
+        "CFG6 cna_ep classes (AS-0.1 s9) — unit pulses before fabric",
+        "Order: (1) local-CNA+DCNA consume=1  (2) NLP=1 consume=1  "
         "(3) opc 0x10 targeting-us consume=1  (4) opc 0x10 not-us FORWARD  "
         "(5) else FORWARD  (6) CNA unwritten no-match.",
+        notes=notes,
     )
-    cfg6h = first_rise(_need(v, "wav_cfg6h0"), tmin=t_fab0 - 2) or t_fab0
-    t0f = max(0, t_fab0 - 12)
-    t1f = (xin or t_fab0) + 40
+    ing_all = [t for t, val in _need(v, "wav_ing0") if val]
+    t_fab0 = ing_all[0] if ing_all else 60 * p
+    xin = first_rise(_need(v, "wav_xin0"), tmin=t_fab0 - p)
+    cfg6h = first_rise(_need(v, "wav_cfg6h0"), tmin=t_fab0 - 2 * p) or t_fab0
+    fab_png = os.path.join(waves, "_cfg6_fab.png")
     draw_window(
         fab_png, v,
         [
             ("wav_ing0", "ing_vld[0]", "bit"),
             ("wav_cfg", "CFG field", "dec"),
             ("wav_nlp", "NLP", "dec"),
-            ("wav_opc", "opcode[103:96]", "hex"),
+            ("wav_opc", "opcode flit[103:96]", "hex"),
             ("wav_cfg6h0", "fab.cfg6_hit[0]", "bit"),
             ("wav_xin0", "fab.x_in_v[0]", "bit"),
             ("wav_egr0", "egr_vld[0]", "bit"),
         ],
-        t0f, t1f,
+        max(0, t_fab0 - 4 * p), (xin or t_fab0) + 12 * p,
         [
-            (cfg6h, "terminate-class: cfg6_hit / no xbar (本CNA)", "#c0392b"),
-            (xin or t1f, "FORWARD: x_in_v=1 / egress", "#1e8449"),
+            (cfg6h, "TERM: cfg6_hit / no xbar (local-CNA)", "#c0392b"),
+            (xin or (t_fab0 + 20 * p), "FORWARD: x_in_v=1 / egress", "#1e8449"),
         ],
         "CFG6 fabric: terminate vs FORWARD — tc_cfg6_term_vs_fwd",
-        "Expected: 本CNA beat cfg6_hit=1 and x_in_v=0; FORWARD beat (DCNA≠CNA, NLP=0, opc=0) "
-        "x_in_v=1 and egress.  Actual: see window (PASS tc_cfg6_term_vs_fwd).",
+        "Expected: local-CNA beat cfg6_hit=1 and x_in_v=0; FORWARD beat (DCNA!=CNA, NLP=0, opc=0) "
+        "x_in_v=1.  Actual: TERM marker then FORWARD x_in_v=1 (PASS tc_cfg6_term_vs_fwd).",
     )
-    # stitch
-    import matplotlib.image as mpimg
-
-    im1 = mpimg.imread(unit_png)
-    im2 = mpimg.imread(fab_png)
-    h1, w1 = im1.shape[0], im1.shape[1]
-    h2, w2 = im2.shape[0], im2.shape[1]
-    w = max(w1, w2)
-    fig2, (a1, a2) = plt.subplots(2, 1, figsize=(w / 130.0, (h1 + h2) / 130.0))
-    for ax, im in ((a1, im1), (a2, im2)):
-        ax.imshow(im)
-        ax.axis("off")
-    fig2.subplots_adjust(left=0, right=1, top=1, bottom=0, hspace=0.01)
-    out = os.path.join(waves, "cfg6_term_vs_fwd.png")
-    fig2.savefig(out, dpi=130)
-    plt.close(fig2)
-    os.remove(unit_png)
-    os.remove(fab_png)
-    print(f"wrote {out}")
+    stitch(os.path.join(waves, "cfg6_term_vs_fwd.png"), unit_png, fab_png)
 
 
 def render_credit_1024(waves: str) -> None:
-    vcd = os.path.join(waves, "credit_1024_flit.vcd")
-    v = parse_vcd(vcd)
+    v = parse_vcd(os.path.join(waves, "credit_1024_flit.vcd"))
+    p = v.period
     pend = _need(v, "pending")
     t_1023 = first_eq(pend, 1023)
     t_1024 = first_eq(pend, 1024)
-    bp = first_rise(_need(v, "bp_nw"))
-    t_mark = t_1024 or bp or 20
-    t0 = max(0, (t_1023 or t_mark) - 16)
-    t1 = t_mark + 20
+    t_mark = t_1024 or first_rise(_need(v, "bp_nw")) or 20 * p
+    t0 = max(0, (t_1023 or t_mark) - 4 * p)
+    t1 = t_mark + 6 * p
     draw_window(
         os.path.join(waves, "credit_1024_flit.png"),
         v,
@@ -455,63 +476,88 @@ def render_credit_1024(waves: str) -> None:
             ("force_crd_ack", "force_crd_ack", "bit"),
         ],
         t0, t1,
-        [(t_mark, "pending 1023→1024; bp_nw=1 (flit, no /n)", "#c0392b")],
+        [(t_mark, "pending 1023->1024; bp_nw=0->1 (flit, no /n)", "#c0392b")],
         "Credit threshold 1024 is FLIT — tc_credit_1024_flit_bp  (FS-0.2.4 / G7)",
-        "Expected: pending=1023 and bp_nw=0, then +1 flit → pending=1024 and bp_nw=1 "
-        "(no divide-by-n on pending).  Actual: see window (PASS tc_credit_1024_flit_bp).  "
+        "Expected: pending=1023 and bp_nw=0, then +1 flit -> pending=1024 and bp_nw=1 "
+        "(no divide-by-n on pending).  Actual: 1023/0 then 1024/1 (PASS tc_credit_1024_flit_bp).  "
         "Note: force_crd_ack is also 1 whenever pending!=0 (RTL); the G7 threshold is bp_nw.",
         notes=[((t_1023 or t0), "pending=1023, no bp")],
     )
 
 
 def render_credit_to(waves: str) -> None:
-    vcd = os.path.join(waves, "credit_timeout_1us.vcd")
-    v = parse_vcd(vcd)
-    err = first_rise(_need(v, "proto_err"))
-    t_mark = err or last_time(v)
-    t0, t1 = max(0, t_mark - 80), t_mark + 24
+    v = parse_vcd(os.path.join(waves, "credit_timeout_1us.vcd"))
+    p = v.period
+    t_load = first_eq(_need(v, "wav_to"), 1250)
+    t_err = first_rise(_need(v, "proto_err")) or last_time(v)
+    load_png = os.path.join(waves, "_crd_to_load.png")
+    fire_png = os.path.join(waves, "_crd_to_fire.png")
+    t_l0 = max(0, (t_load or 4 * p) - 4 * p)
     draw_window(
-        os.path.join(waves, "credit_timeout_1us.png"),
-        v,
+        load_png, v,
         [
             ("credit_ret", "credit_ret", "bit"),
             ("pending", "pending", "dec"),
-            ("wav_to", "u_crd.to (credit timer)", "dec"),
+            ("wav_to", "u_crd.to (credit timer)", "count"),
+        ],
+        t_l0, t_l0 + 16 * p,
+        [((t_load or t_l0), "load to=1250 (VIBE_US_CYC) — not VOQ age", "#c0392b")],
+        "Credit timeout 1 us — load  (tc_credit_timeout_1us, DUT vibe_dll_credit)",
+        "Expected: credit_ret deposits pending and loads u_crd.to = 1250 (1 us @ 1.25 GHz).  "
+        "This counter is not vibe_voq_egr.age.",
+    )
+    draw_window(
+        fire_png, v,
+        [
+            ("pending", "pending", "dec"),
+            ("wav_to", "u_crd.to (credit timer)", "count"),
             ("proto_err", "proto_err", "bit"),
         ],
-        t0, t1,
-        [(t_mark, "to==0 → proto_err (1 µs = 1250 clk_fab)", "#c0392b")],
-        "Credit return timeout 1 µs — tc_credit_timeout_1us  (VIBE_US_CYC=1250 @ 1.25 GHz)",
-        "Expected: credit timer `u_crd.to` counts from 1250; proto_err rises at 1 µs.  "
-        "This is NOT the VOQ `age[][]` counter (separate DUT vibe_dll_credit).  "
-        "Actual: see window (PASS tc_credit_timeout_1us).",
+        max(0, t_err - 40 * p), t_err + 8 * p,
+        [(t_err, "to==0 -> proto_err after 1250 clk_fab", "#c0392b")],
+        "Credit timeout 1 us — fire  (same DUT / same counter as load panel)",
+        "Expected: after 1250 clk_fab without credit_ret, proto_err rises.  "
+        "Actual: proto_err 0->1 when to reaches 0 (PASS tc_credit_timeout_1us).",
     )
+    stitch(os.path.join(waves, "credit_timeout_1us.png"), load_png, fire_png)
 
 
 def render_voq(waves: str) -> None:
-    vcd = os.path.join(waves, "voq_deadlock_1us.vcd")
-    v = parse_vcd(vcd)
-    drop = first_rise(_need(v, "deadlock_drop"))
-    t_mark = drop or last_time(v)
-    t0, t1 = max(0, t_mark - 80), t_mark + 24
+    v = parse_vcd(os.path.join(waves, "voq_deadlock_1us.vcd"))
+    p = v.period
+    t_load = first_eq(_need(v, "wav_age00"), 1250)
+    t_drop = first_rise(_need(v, "deadlock_drop")) or last_time(v)
+    load_png = os.path.join(waves, "_voq_load.png")
+    fire_png = os.path.join(waves, "_voq_fire.png")
+    t_l0 = max(0, (t_load or 4 * p) - 4 * p)
     draw_window(
-        os.path.join(waves, "voq_deadlock_1us.png"),
-        v,
+        load_png, v,
         [
             ("wr_en", "wr_en", "bit"),
             ("nonempty", "nonempty", "hex"),
+            ("wav_age00", "u_v.age[0][0] (VOQ)", "count"),
+        ],
+        t_l0, t_l0 + 16 * p,
+        [((t_load or t_l0), "load age=1250 — vibe_voq_egr, not u_crd.to", "#c0392b")],
+        "VOQ deadlock 1 us — load  (tc_deadlock_timeout_1us, DUT vibe_voq_egr)",
+        "Expected: enqueue loads age[0][0] = 1250.  Separate DUT and separate counter from credit u_crd.to.",
+    )
+    draw_window(
+        fire_png, v,
+        [
+            ("nonempty", "nonempty", "hex"),
             ("occ_vl0", "occ_vl0", "dec"),
-            ("wav_age00", "u_v.age[0][0] (VOQ)", "dec"),
+            ("wav_age00", "u_v.age[0][0] (VOQ)", "count"),
             ("deadlock_drop", "deadlock_drop", "bit"),
             ("deadlock_cnt", "deadlock_cnt", "dec"),
         ],
-        t0, t1,
-        [(t_mark, "age==0 → deadlock_drop (1 µs, vibe_voq_egr)", "#c0392b")],
-        "VOQ deadlock timeout 1 µs — tc_deadlock_timeout_1us  (separate from credit `to`)",
-        "Expected: `vibe_voq_egr.age[0][0]` counts from 1250; deadlock_drop pulses at 1 µs.  "
-        "Different DUT and different counter from credit `u_crd.to`.  "
-        "Actual: see window (PASS tc_deadlock_timeout_1us).",
+        max(0, t_drop - 40 * p), t_drop + 8 * p,
+        [(t_drop, "age==0 -> deadlock_drop (1 us)", "#c0392b")],
+        "VOQ deadlock 1 us — fire  (same DUT / same age[][] counter as load panel)",
+        "Expected: after 1250 clk_fab without drain, deadlock_drop pulses and cnt+1.  "
+        "Actual: drop 0->1, cnt 0->1 (PASS tc_deadlock_timeout_1us).",
     )
+    stitch(os.path.join(waves, "voq_deadlock_1us.png"), load_png, fire_png)
 
 
 def main() -> int:

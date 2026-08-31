@@ -19,7 +19,7 @@ module vibe_suite;
   wire [1:0]  wav_rt      = vibe_lph_rt(h.ing_data[0][639:480]);
   wire [3:0]  wav_cfg     = vibe_lph_cfg(h.ing_data[0][639:480]);
   wire [2:0]  wav_nlp     = vibe_nth_nlp(h.ing_data[0][639:480]);
-  wire [7:0]  wav_opc     = h.ing_data[0][639:480][103:96];
+  wire [7:0]  wav_opc     = h.ing_data[0][583:576];  // opcode in first flit
   wire        wav_irq     = h.irq_logic;
   wire        wav_g1      = h.drop_g1;
   wire [31:0] wav_g1cnt   = h.rt_shortest_unimpl;
@@ -601,7 +601,7 @@ module vibe_suite;
       // Fabric FORWARD (DCNA≠CNA, NLP=0, opc=0): x_in_v=1
       h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h2222,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
-      h.tb_cycles(12);
+      h.tb_cycles(32);
       $display("  hier cfg6_hit=%04b x_in_v=%04b consume=%04b cna_written=%0b cna=%h",
                h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.cfg6_cons,
                h.cna_written, h.cna);
