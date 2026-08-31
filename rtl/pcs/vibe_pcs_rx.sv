@@ -123,8 +123,10 @@ module vibe_pcs_rx (
     .fec_fail(fec_fail)
   );
 
-  // 960b (6 flits) → 640b beats (4 flits) with 320b remainder (AS-0.1 inverse T2)
-  assign wr = dll_ready;
+  // 960b (6 flits) → 640b beats (4 flits) with 320b remainder (AS-0.1 inverse T2).
+  // Hold FEC while dll_vld is still 1 so the rem-aligned next 640 (CFG=3 in
+  // the first flit) is not dropped on win_ready.
+  assign wr = dll_ready && !dll_vld;
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       rem     <= 320'd0;
