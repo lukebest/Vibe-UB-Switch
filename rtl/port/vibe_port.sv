@@ -94,7 +94,7 @@ module vibe_port (
   );
 
   vibe_pcs_rx u_prx (
-    .clk(clk_fab), .rst_n(rst_n), .fec_mode(fec_mode),
+    .clk(clk_fab), .rst_n(rst_n), .link_up(link_up), .fec_mode(fec_mode),
     .lane0(afr0), .lane1(afr1), .lane2(afr2), .lane3(afr3),
     .lane_vld(afrv0 & afrv1 & afrv2 & afrv3),
     .dll_data(pcs_rx_d), .dll_vld(pcs_rx_v), .dll_ready(pcs_rx_r),

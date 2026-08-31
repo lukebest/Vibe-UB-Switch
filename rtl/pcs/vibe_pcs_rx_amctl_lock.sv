@@ -12,7 +12,8 @@ module vibe_pcs_rx_amctl_lock (
   output logic [1:0]   lid,
   output logic         lid_bad,
   output logic         is_amctl,
-  output logic         sdf
+  output logic         sdf,
+  output logic         edf
 );
   `include "vibe_ub_params.vh"
 
@@ -56,6 +57,8 @@ module vibe_pcs_rx_amctl_lock (
   wire [15:0] lid_sym = match_end_tx ? prev[15:0] : in_data[79:64];
   wire        lid_ok  = (lid_sym == cw3) || (lid_sym == cw8) ||
                         (lid_sym == cw9) || (lid_sym == cw10);
+  // TX CTRL_DETAIL x4 SDF = {cw10,cw22,cw10,cw22} in second 160b [63:0].
+  wire        detail_sdf = (in_data[63:0] == {cw10, cw22, cw10, cw22});
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -63,6 +66,7 @@ module vibe_pcs_rx_amctl_lock (
       lid     <= 2'd0;
       lid_bad <= 1'b0;
       sdf     <= 1'b0;
+      edf     <= 1'b0;
       conf    <= 2'd0;
       unlk    <= 2'd0;
       prev    <= 160'd0;
@@ -70,9 +74,11 @@ module vibe_pcs_rx_amctl_lock (
       via_leg <= 1'b0;
     end else begin
       sdf <= 1'b0;
+      edf <= 1'b0;
       if (in_vld) begin
         if (match_pair) begin
-          sdf <= 1'b1;
+          sdf <= detail_sdf;
+          edf <= !detail_sdf;
           if (lid_ok)
             lid <= dec_lid(lid_sym);
           else
