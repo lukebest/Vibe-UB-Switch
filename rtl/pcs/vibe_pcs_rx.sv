@@ -71,18 +71,22 @@ module vibe_pcs_rx (
   wire sl2 = !link_up || (edf2 && !link_up);
   wire sl3 = !link_up || (edf3 && !link_up);
 
-  // Descramble LTB only; pass-through AMCTL (do not advance LFSR). Seed = AMCTL.LID.
+  // Descramble LTB only; pass-through AMCTL (do not advance LFSR).
+  // Seed from physical lane id (U24: physical=logical, no swap) — same as TX.
+  // Do not use am_locked?LID: a force or early lock with lid still 0
+  // reseeds every lane as lane0, then seed_load drops on link_up and
+  // lanes 1-3 never recover (every later CW fails).
   vibe_pcs_scramble u_d0 (.clk(clk), .rst_n(rst_n),
-    .lane_id(am_locked[0] ? lid0 : 2'd0), .seed_load(sl0),
+    .lane_id(2'd0), .seed_load(sl0),
     .en(lane_vld && !am0), .in_vld(lane_vld), .in_data(lane0), .out_vld(dv), .out_data(d0));
   vibe_pcs_scramble u_d1 (.clk(clk), .rst_n(rst_n),
-    .lane_id(am_locked[1] ? lid1 : 2'd1), .seed_load(sl1),
+    .lane_id(2'd1), .seed_load(sl1),
     .en(lane_vld && !am1), .in_vld(lane_vld), .in_data(lane1), .out_vld(), .out_data(d1));
   vibe_pcs_scramble u_d2 (.clk(clk), .rst_n(rst_n),
-    .lane_id(am_locked[2] ? lid2 : 2'd2), .seed_load(sl2),
+    .lane_id(2'd2), .seed_load(sl2),
     .en(lane_vld && !am2), .in_vld(lane_vld), .in_data(lane2), .out_vld(), .out_data(d2));
   vibe_pcs_scramble u_d3 (.clk(clk), .rst_n(rst_n),
-    .lane_id(am_locked[3] ? lid3 : 2'd3), .seed_load(sl3),
+    .lane_id(2'd3), .seed_load(sl3),
     .en(lane_vld && !am3), .in_vld(lane_vld), .in_data(lane3), .out_vld(), .out_data(d3));
 
   always @(posedge clk or negedge rst_n) begin
