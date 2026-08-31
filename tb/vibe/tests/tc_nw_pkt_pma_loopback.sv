@@ -12,6 +12,7 @@ module tc_nw_pkt_pma_loopback;
   logic mgmt_tx_vld, mgmt_tx_ready, status_up, disabled, retry_error;
   logic proto_err, fc_ovf, rx_ovf, afifo_ovf, cfg0_hit;
   integer fail, i, accepted, saw_rx, payload_ok;
+  integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
   logic [639:0] pkt;
 
   initial clk_fab = 0;
@@ -87,6 +88,7 @@ module tc_nw_pkt_pma_loopback;
 
   initial begin
     fail = 0; accepted = 0; saw_rx = 0; payload_ok = 0;
+    saw_afrv = 0; saw_pcs_rx = 0; saw_am = 0; saw_txnz = 0;
     pkt = vibe_tb_nw_pma_pkt();
     bring_link();
     if (fail) begin
@@ -117,6 +119,10 @@ module tc_nw_pkt_pma_loopback;
     // TX→PMA→RX inverse. Score LPH + payload (not merely vld).
     for (i = 0; i < 20000; i = i + 1) begin
       @(negedge clk_fab);
+      if (u_p.afrv0 & u_p.afrv1 & u_p.afrv2 & u_p.afrv3) saw_afrv = 1;
+      if (u_p.pcs_rx_v) saw_pcs_rx = 1;
+      if (|u_p.am_locked) saw_am = 1;
+      if (txdata !== 512'd0) saw_txnz = 1;
       if (fab_rx_vld && vibe_tb_nw_pma_lph_ok(fab_rx_data)) begin
         saw_rx = 1;
         // Payload flits 1..2 and [159:32] of flit3 (DLL TX may attach BCRC in [31:0]).
@@ -132,6 +138,8 @@ module tc_nw_pkt_pma_loopback;
                fab_rx_vld, fab_rx_data[639:480],
                u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail, u_p.deskew_ok,
                u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.txlv);
+      $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d (during wait)",
+               saw_txnz, saw_afrv, saw_am, saw_pcs_rx);
       fail_at("rxdata=txdata after accepted NW packet; wait 20000 clk_fab",
               "fab_rx_vld with CFG=3 RT=00 SCNA=A11A DCNA=B22B (TP-PHY-012)",
               "see detail line",
