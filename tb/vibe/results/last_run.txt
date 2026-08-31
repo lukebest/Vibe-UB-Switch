@@ -1,0 +1,61 @@
+VIBE_SUITE start
+VIBE_SUITE reset done
+VIBE_SUITE run_all
+=== tc_rt00_per_flow_rr_fwd ===
+PASS tc_rt00_per_flow_rr_fwd
+=== tc_rt01_per_packet_rr_fwd ===
+PASS tc_rt01_per_packet_rr_fwd
+=== tc_rt10_must_drop (TP-RT-003) ===
+PASS tc_rt10_must_drop
+=== tc_rt11_must_drop (TP-RT-004) ===
+PASS tc_rt11_must_drop
+=== tc_rt_shortest_unimpl_count ===
+PASS tc_rt_shortest_unimpl_count
+=== tc_rt_shortest_irq_logic ===
+PASS tc_rt_shortest_irq_logic
+=== tc_rt_irq_logic_sticky ===
+PASS tc_rt_irq_logic_sticky
+=== tc_rt_no_rewrite ===
+PASS tc_rt_no_rewrite
+=== tc_rt10_not_as_rt00 ===
+PASS tc_rt10_not_as_rt00
+=== tc_rt_counter_32b_sat ===
+PASS tc_rt_counter_32b_sat
+=== tc_cfg_identity_guid_class ===
+PASS tc_cfg_identity_guid_class
+=== tc_default_rt_all0_port0 ===
+PASS tc_default_rt_all0_port0
+=== tc_pkt_len_err_drop ===
+NOTE tc_pkt_len_err_drop: <16 B not reachable (decl_flits clamp to 1 = 20 B)
+PASS tc_pkt_len_err_drop
+=== tc_cfg6_term_vs_fwd ===
+  hier cfg6_hit=0000 x_in_v=0001 consume=0000 cna_written=0 cna=0000
+PASS tc_cfg6_term_vs_fwd
+=== tc_saf_full_pkt ===
+PASS tc_saf_full_pkt
+=== tc_icrc_transit_no_recompute ===
+PASS tc_icrc_transit_no_recompute
+=== tc_cfg3_fwd ===
+PASS tc_cfg3_fwd
+=== tc_cfg4_fwd ===
+PASS tc_cfg4_fwd
+=== tc_cfg5_fwd ===
+PASS tc_cfg5_fwd
+=== tc_cfg7_fwd ===
+PASS tc_cfg7_fwd
+=== tc_cfg9_fwd ===
+PASS tc_cfg9_fwd
+=== tc_cfg_reserved_fwd ===
+PASS tc_cfg_reserved_fwd
+=== tc_cfg0_fabric_no_special ===
+PASS tc_cfg0_fabric_no_special
+=== tc_port_rst_via_cfg ===
+PASS tc_port_rst_via_cfg
+=== tc_device_rst_via_cfg ===
+PASS tc_device_rst_via_cfg
+=== tc_pkt_len_legal_16_4300 ===
+NOTE tc_pkt_len_legal_16_4300: 16 B not reachable (1-flit clamp=20 B)
+PASS tc_pkt_len_legal_16_4300
+SUITE pass=26 fail=0 ran=26
+SUITE_RESULT PASS
+/workspace/tb/vibe/env/vibe_suite.sv:911: $finish called at 2393000 (1ps)
