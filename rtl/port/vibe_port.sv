@@ -170,17 +170,19 @@ module vibe_port (
   logic [3:0]   rx_got;
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) begin
-      rx_got <= 4'd0;
+      // Prime hold=0 / got=1: do not write the power-on 0/X 128b. That extra
+      // beat slips the 128→160 grouping by 32b and AMCTL never matches.
+      rx_got <= 4'b1111;
       rxh0 <= 128'd0; rxh1 <= 128'd0; rxh2 <= 128'd0; rxh3 <= 128'd0;
     end else if (p_rxv) begin
       rxh0 <= p_rx0; rxh1 <= p_rx1; rxh2 <= p_rx2; rxh3 <= p_rx3;
       rx_got <= 4'b1111;
     end
   end
-  wire want0 = p_rxv && (!rx_got[0] || (p_rx0 !== rxh0));
-  wire want1 = p_rxv && (!rx_got[1] || (p_rx1 !== rxh1));
-  wire want2 = p_rxv && (!rx_got[2] || (p_rx2 !== rxh2));
-  wire want3 = p_rxv && (!rx_got[3] || (p_rx3 !== rxh3));
+  wire want0 = p_rxv && (p_rx0 !== rxh0);
+  wire want1 = p_rxv && (p_rx1 !== rxh1);
+  wire want2 = p_rxv && (p_rx2 !== rxh2);
+  wire want3 = p_rxv && (p_rx3 !== rxh3);
   wire wr0 = want0 && !wf0;
   wire wr1 = want1 && !wf1;
   wire wr2 = want2 && !wf2;
