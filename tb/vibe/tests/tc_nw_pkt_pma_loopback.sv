@@ -14,6 +14,8 @@ module tc_nw_pkt_pma_loopback;
   integer fail, i, k, accepted, saw_rx, payload_ok;
   integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
   integer saw_amctl_idle, saw_am_word;
+  integer saw_fab_rx, saw_fec_fail, saw_deskew;
+  logic [159:0] last_flit0;
   logic [639:0] pkt;
 
   initial clk_fab = 0;
@@ -91,6 +93,8 @@ module tc_nw_pkt_pma_loopback;
     fail = 0; accepted = 0; saw_rx = 0; payload_ok = 0;
     saw_afrv = 0; saw_pcs_rx = 0; saw_am = 0; saw_txnz = 0;
     saw_amctl_idle = 0; saw_am_word = 0;
+    saw_fab_rx = 0; saw_fec_fail = 0; saw_deskew = 0;
+    last_flit0 = 160'd0;
     pkt = vibe_tb_nw_pma_pkt();
     bring_link();
     if (fail) begin
@@ -125,6 +129,12 @@ module tc_nw_pkt_pma_loopback;
       if (u_p.pcs_rx_v) saw_pcs_rx = 1;
       if (|u_p.am_locked) saw_am = 1;
       if (txdata !== 512'd0) saw_txnz = 1;
+      if (u_p.fec_fail) saw_fec_fail = 1;
+      if (u_p.deskew_ok) saw_deskew = 1;
+      if (fab_rx_vld) begin
+        saw_fab_rx = 1;
+        last_flit0 = fab_rx_data[639:480];
+      end
       // Diagnostic only (does not change expected LPH). Idle = fab_tx_vld==0
       // after handshake. AMCTL-looking = 16b BODY/END CWs on held txdata.
       if (!fab_tx_vld) begin
@@ -147,12 +157,12 @@ module tc_nw_pkt_pma_loopback;
     end
 
     if (!saw_rx) begin
-      $display("  detail   : vld=%0b flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b txlv=%0b",
-               fab_rx_vld, fab_rx_data[639:480],
+      $display("  detail   : vld=%0b flit0=%h last_flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b txlv=%0b",
+               fab_rx_vld, fab_rx_data[639:480], last_flit0,
                u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail, u_p.deskew_ok,
                u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.txlv);
-      $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_amctl_idle=%0d saw_am_word=%0d (during wait)",
-               saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_amctl_idle, saw_am_word);
+      $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d saw_amctl_idle=%0d (during wait)",
+               saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew, saw_amctl_idle);
       fail_at("rxdata=txdata after accepted NW packet; wait 20000 clk_fab",
               "fab_rx_vld with CFG=3 RT=00 SCNA=A11A DCNA=B22B (TP-PHY-012)",
               "see detail line",
@@ -170,9 +180,9 @@ module tc_nw_pkt_pma_loopback;
 
     $display("PASS tc_nw_pkt_pma_loopback");
     $display("  scored : fab_rx LPH+payload after PMA loopback");
-    $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_amctl_idle=%0d saw_am_word=%0d afrv_end=%0b%0b%0b%0b am_lock_end=%04b fab_rx_vld=%0b",
-             saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_amctl_idle, saw_am_word,
-             u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.am_locked, fab_rx_vld);
+    $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d afrv_end=%0b%0b%0b%0b am_lock_end=%04b fab_rx_vld=%0b flit0=%h",
+             saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew,
+             u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.am_locked, fab_rx_vld, last_flit0);
     $finish;
   end
 endmodule
