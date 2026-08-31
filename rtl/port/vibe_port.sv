@@ -179,14 +179,18 @@ module vibe_port (
       rx_got <= 4'b1111;
     end
   end
+  // Write all four lanes when any 128 changes. Per-lane compare desynchronized
+  // the 128→160 gears when one lane repeated (structured packet) and the AND
+  // of afrv dropped 160s; idle scramble almost never repeats a lane.
   wire want0 = p_rxv && (p_rx0 !== rxh0);
   wire want1 = p_rxv && (p_rx1 !== rxh1);
   wire want2 = p_rxv && (p_rx2 !== rxh2);
   wire want3 = p_rxv && (p_rx3 !== rxh3);
-  wire wr0 = want0 && !wf0;
-  wire wr1 = want1 && !wf1;
-  wire wr2 = want2 && !wf2;
-  wire wr3 = want3 && !wf3;
+  wire any_chg = want0 | want1 | want2 | want3;
+  wire wr0 = any_chg && !wf0;
+  wire wr1 = any_chg && !wf1;
+  wire wr2 = any_chg && !wf2;
+  wire wr3 = any_chg && !wf3;
 
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar0 (
     .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr0), .wdata(p_rx0),
@@ -213,10 +217,10 @@ module vibe_port (
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) ovf_l <= 4'd0;
     else begin
-      ovf_l[0] <= want0 && wf0;
-      ovf_l[1] <= want1 && wf1;
-      ovf_l[2] <= want2 && wf2;
-      ovf_l[3] <= want3 && wf3;
+      ovf_l[0] <= any_chg && wf0;
+      ovf_l[1] <= any_chg && wf1;
+      ovf_l[2] <= any_chg && wf2;
+      ovf_l[3] <= any_chg && wf3;
     end
   end
 
