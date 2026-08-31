@@ -1,4 +1,5 @@
 // AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2).
+// 4×640 = 2560b = 5×512. Must emit the fifth beat or later CWs mispair.
 module vibe_pcs_rx_unpack (
   input  logic         clk,
   input  logic         rst_n,
@@ -35,17 +36,20 @@ module vibe_pcs_rx_unpack (
         n    <= 3'd0;
         have <= 1'b0;
       end
+      // n is 4 after a full group (5×512 still in acc). Each emit shifts 512.
+      // Keep have while n!=0 so the fifth beat (n=0, leftover 512) is emitted.
       if (have && beat_ready && !am_gap) begin
         acc  <= {512'd0, acc[2559:512]};
-        have <= (n > 3'd1);
-        if (n > 3'd0) n <= n - 3'd1;
+        have <= (n != 3'd0);
+        if (n != 3'd0) n <= n - 3'd1;
       end
-      if (lane_vld && !skip && !am_gap) begin
+      // Do not write a new 640 over a group that still has 512s to emit.
+      if (lane_vld && !skip && !am_gap && !have) begin
         acc[640*n +: 640] <= {lane3, lane2, lane1, lane0};
         if (n == 3'd3) begin
           n    <= 3'd4;
           have <= 1'b1;
-        end else if (!have) begin
+        end else begin
           n <= n + 3'd1;
         end
       end
