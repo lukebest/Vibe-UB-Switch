@@ -101,15 +101,15 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **FAIL** after retest vs PR4 RTL `263aec6b` (sim-only, not on this TB branch). Same expected LPH (CFG=3 RT=00 SCNA=A11A DCNA=B22B). Checker not relaxed. **Not patched.** |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **FAIL** after retest vs PR4 RTL `ebd16712` (sim-only, not on this TB branch). Same expected LPH (CFG=3 RT=00 SCNA=A11A DCNA=B22B). Checker not relaxed. **Not patched.** |
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
 
-`tc_nw_pkt_to_pma_tx` **PASS** (Icarus) vs `263aec6b`: DLL LPH + 260 PMA pack + 104 PCS-lane golden + 260 gear golden (score not relaxed).
+`tc_nw_pkt_to_pma_tx` **PASS** (Icarus) vs `ebd16712`: DLL LPH + 260 PMA pack + 104 PCS-lane golden + 260 gear golden (score not relaxed).
 
 `tc_nw_pkt_pma_loopback` **FAIL** (Icarus). Reproduce: `make -C tb/vibe units` (or the `run1 tc_nw_pkt_pma_loopback` compile in `scripts/run_units.sh`).
 
-Retest vs PR4 RTL `263aec6bb28818276b6f6f281f4f9c74a0288f60` (`cursor/as01-rtl-82c7` HEAD; drop failed FEC windows + dual-buffer RX unpack; not committed on this TB branch): still **FAIL**. Expected LPH unchanged. `fab_rx_vld` never rose (no first/last beat).
+Retest vs PR4 RTL `ebd167122bfc96a0e2caa41579aeffd482863841` (`cursor/as01-rtl-82c7` HEAD; unpack/FEC during AM hunt + AMCTL-aligned windowing; not committed on this TB branch): still **FAIL**. Expected LPH unchanged. `fab_rx_vld` never rose (no first/last beat). Same peak/end as `263aec6b`.
 
 | Probe | Peak (during 20000 `clk_fab`) | End |
 |---|---|---|
