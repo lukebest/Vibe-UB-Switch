@@ -101,7 +101,7 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **FAIL** after retest vs PR4 RTL `4117a6d` (sim-only; not on this TB branch). Same expected LPH. During 20000 `clk_fab`: `txdata` went nonzero and `afrv` was 1, but `am_locked` stayed 0, `pcs_rx_v` stayed 0, `fab_rx_vld` stayed 0. Checker not relaxed. **Not patched.** |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **FAIL** after retest vs PR4 RTL `adcc207d` (includes `1c338b04`; sim-only, not on this TB branch). Same expected LPH (CFG=3 RT=00 SCNA=A11A DCNA=B22B). Checker not relaxed. **Not patched.** |
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
 
@@ -109,7 +109,18 @@ DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_
 
 `tc_nw_pkt_pma_loopback` **FAIL** (Icarus). Reproduce: `make -C tb/vibe units` (or the `run1 tc_nw_pkt_pma_loopback` compile in `scripts/run_units.sh`).
 
-Retest vs PR4 RTL `4117a6d` (`cursor/as01-rtl-82c7`, not committed on this TB branch): still **FAIL**. During wait: `txdata` nonzero and `afrv` was 1, but `am_locked` stayed 0, `pcs_rx_v` stayed 0, `fab_rx_vld` stayed 0. Expected LPH unchanged (CFG=3 RT=00 SCNA=A11A DCNA=B22B).
+Retest vs PR4 RTL `adcc207d804e6f8594a29eaaad9208fab7370529` (`cursor/as01-rtl-82c7` HEAD; ancestors `1c338b04` AMCTL-on-timer and `adcc207d` RX change-detect prime; not committed on this TB branch): still **FAIL**. Expected LPH unchanged.
+
+| Probe | Peak (during 20000 `clk_fab`) | End |
+|---|---|---|
+| `fab_rx_vld` | 0 (never) | 0 |
+| `am_locked` | rose (`saw_am=1`) | `1111` |
+| `pcs_rx_v` | 1 (`saw_pcs_rx=1`) | 0 |
+| `afrv` | 1 (`saw_afrv=1`) | `0000` |
+| `saw_txnz` | 1 | — |
+| AMCTL-looking `txdata` while idle | 1 (`saw_amctl_idle=1`, `saw_am_word=1`) | — |
+
+End extras: `fec_fail=1`, `deskew=1`, `txlv=0`. `fab_rx` flit0 was nonzero but not CFG=3/RT=00/SCNA=A11A/DCNA=B22B.
 
 ---
 
