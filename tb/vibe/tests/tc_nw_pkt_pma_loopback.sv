@@ -15,7 +15,7 @@ module tc_nw_pkt_pma_loopback;
   integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
   integer saw_amctl_idle, saw_am_word;
   integer saw_fab_rx, saw_fec_fail, saw_deskew;
-  logic [159:0] last_flit0;
+  logic [159:0] last_flit0, first_flit0;
   logic [639:0] pkt;
 
   initial clk_fab = 0;
@@ -94,7 +94,7 @@ module tc_nw_pkt_pma_loopback;
     saw_afrv = 0; saw_pcs_rx = 0; saw_am = 0; saw_txnz = 0;
     saw_amctl_idle = 0; saw_am_word = 0;
     saw_fab_rx = 0; saw_fec_fail = 0; saw_deskew = 0;
-    last_flit0 = 160'd0;
+    last_flit0 = 160'd0; first_flit0 = 160'd0;
     pkt = vibe_tb_nw_pma_pkt();
     bring_link();
     if (fail) begin
@@ -132,6 +132,8 @@ module tc_nw_pkt_pma_loopback;
       if (u_p.fec_fail) saw_fec_fail = 1;
       if (u_p.deskew_ok) saw_deskew = 1;
       if (fab_rx_vld) begin
+        if (!saw_fab_rx)
+          first_flit0 = fab_rx_data[639:480];
         saw_fab_rx = 1;
         last_flit0 = fab_rx_data[639:480];
       end
@@ -157,10 +159,13 @@ module tc_nw_pkt_pma_loopback;
     end
 
     if (!saw_rx) begin
-      $display("  detail   : vld=%0b flit0=%h last_flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b txlv=%0b",
-               fab_rx_vld, fab_rx_data[639:480], last_flit0,
+      $display("  detail   : vld=%0b flit0=%h first_flit0=%h last_flit0=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b txlv=%0b",
+               fab_rx_vld, fab_rx_data[639:480], first_flit0, last_flit0,
                u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail, u_p.deskew_ok,
                u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3, u_p.txlv);
+      $display("  first_lph: CFG=%0d RT=%02b SCNA=%04h DCNA=%04h (expected CFG=3 RT=00 SCNA=A11A DCNA=B22B)",
+               vibe_lph_cfg(first_flit0), vibe_lph_rt(first_flit0),
+               vibe_nth_scna(first_flit0), vibe_nth_dcna(first_flit0));
       $display("  peak     : saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d saw_amctl_idle=%0d (during wait)",
                saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew, saw_amctl_idle);
       fail_at("rxdata=txdata after accepted NW packet; wait 20000 clk_fab",
