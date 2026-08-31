@@ -17,6 +17,8 @@ module vibe_pcs_rx (
   output logic         lid_bad,
   output logic         deskew_ok
 );
+  `include "vibe_ub_fn.vh"
+
   logic [159:0] d0, d1, d2, d3;
   logic         dv;
   logic         am0, am1, am2, am3;
@@ -125,9 +127,22 @@ module vibe_pcs_rx (
     .fec_fail(fec_fail)
   );
 
-  // 960b (6 flits) → 640b. First window: 4 flits + 320b rem.
-  // rem+next 960 = 1280b = two 640s; the old path kept 320 and dropped 320
-  // so CFG=3 in the low half never became a first-flit beat for dll_rx.
+  // Inverse T2. A Null remainder must not prefix the next SOP (verification
+  // scored {2 Null, first 320 of pkt} as CFG=6). Pad Nulls are discarded.
+  function automatic logic flit_null;
+    input logic [159:0] f;
+    begin
+      flit_null = (f == 160'd0) || (vibe_lph_cfg(f) == 4'd0);
+    end
+  endfunction
+
+  wire win_null = flit_null(win[959:800]) && flit_null(win[799:640]) &&
+                  flit_null(win[639:480]) && flit_null(win[479:320]) &&
+                  flit_null(win[319:160]) && flit_null(win[159:0]);
+  wire pad_null = flit_null(win[319:160]) && flit_null(win[159:0]);
+  wire rem_null = flit_null(rem[319:160]) && flit_null(rem[159:0]);
+  wire am_skip  = am0_d | am1_d | am2_d | am3_d;
+
   assign wr = dll_ready && !dll_vld && !pend_vld;
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -140,23 +155,51 @@ module vibe_pcs_rx (
     end else begin
       if (dll_vld && dll_ready)
         dll_vld <= 1'b0;
-      if (pend_vld && !dll_vld && dll_ready) begin
-        dll_data <= pend;
+
+      // AMCTL is skipped before unpack. Do not carry rem across the marker.
+      if (am_skip) begin
+        rem      <= 320'd0;
+        remv     <= 1'b0;
+        pend     <= 640'd0;
         pend_vld <= 1'b0;
-        dll_vld  <= 1'b1;
-      end else if (wv && wr && !dll_vld) begin
-        if (!remv) begin
-          dll_data <= win[959:320];
-          rem      <= win[319:0];
-          remv     <= 1'b1;
+      end
+
+      if (pend_vld && !dll_vld && dll_ready && !am_skip) begin
+        if (!flit_null(pend[639:480])) begin
+          dll_data <= pend;
           dll_vld  <= 1'b1;
-        end else begin
-          dll_data <= {rem, win[959:640]};
-          pend     <= {win[639:320], win[319:0]};
-          pend_vld <= 1'b1;
-          remv     <= 1'b0;
+        end
+        pend_vld <= 1'b0;
+      end else if (wv && wr && !dll_vld && !am_skip) begin
+        if (win_null) begin
           rem      <= 320'd0;
-          dll_vld  <= 1'b1;
+          remv     <= 1'b0;
+        end else if (!remv || rem_null) begin
+          // 4-flit packet + 2-Null pad in the same 960: emit the 640, drop pad.
+          // True 1.5-beat rem only when the low 320 is non-null data.
+          if (!flit_null(win[959:800])) begin
+            dll_data <= win[959:320];
+            dll_vld  <= 1'b1;
+          end
+          if (pad_null) begin
+            rem  <= 320'd0;
+            remv <= 1'b0;
+          end else begin
+            rem  <= win[319:0];
+            remv <= 1'b1;
+          end
+        end else begin
+          // rem is non-null data from a second 640 of a multi-beat packet.
+          if (!flit_null(rem[319:160])) begin
+            dll_data <= {rem, win[959:640]};
+            dll_vld  <= 1'b1;
+          end
+          if (!flit_null(win[639:480])) begin
+            pend     <= {win[639:320], win[319:0]};
+            pend_vld <= 1'b1;
+          end
+          rem  <= 320'd0;
+          remv <= 1'b0;
         end
       end
     end
