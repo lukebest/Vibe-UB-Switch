@@ -65,7 +65,11 @@ module vibe_pcs_tx_pack (
       pack_vld <= 1'b0;
       emit_idx <= 2'd0;
     end else begin
-      if (insert_am && am_phase == 2'd0 && !beat_vld) begin
+      // AMCTL on the 640 (SDF) / 512 (other) symbol timer even if beat_vld.
+      // G1 idle-fills Null Blocks while link_up, so beat_vld stays 1; requiring
+      // !beat_vld meant AMCTL never went on the wire and PMA held stale txdata.
+      // am_phase!=0 already drops beat_ready: pause data, emit 2×160b/lane, resume.
+      if (insert_am && am_phase == 2'd0) begin
         am_phase <= 2'd1;
       end else if (am_phase == 2'd1 && lane_ready && !afifo_afull) begin
         am_phase <= 2'd2;
