@@ -38,17 +38,16 @@ module vibe_pcs_tx_fec (
     .done(enc_b_done), .parity(par_b)
   );
 
-  assign win_ready = !have0 || (!have1 && !(win_vld && have0));
+  // Ready while a slot is free. Must stay 1 on the w1 accept so G1 drops have
+  // (old formula was 0 that cycle; G1 kept the window and FEC recaptured it).
+  assign win_ready = !have1;
 
   wire bypass = (fec_mode == VIBE_FEC_BYPASS);
 
-  // Serial stream of 240 symbols = w0 then w1, even→A odd→B
-  wire [1919:0] serial = {w0, w1};
-  wire [7:0]    even_sym = serial[1919-16*sym_cnt -: 8];
-  wire [7:0]    odd_sym  = serial[1911-16*sym_cnt -: 8];
-
-  assign enc_a_sym = even_sym;
-  assign enc_b_sym = odd_sym;
+  // Systematic RS(128,120) per 960b window: 120 message symbols + 8 parity.
+  // Dual encoders run in parallel on w0 / w1 (official even/odd interleave later).
+  assign enc_a_sym = w0[959-8*sym_cnt -: 8];
+  assign enc_b_sym = w1[959-8*sym_cnt -: 8];
   assign enc_a_vld = enc_go;
   assign enc_b_vld = enc_go;
 
@@ -72,10 +71,10 @@ module vibe_pcs_tx_fec (
       if (cw_vld && cw_ready)
         cw_vld <= 1'b0;
 
-      if (win_vld && !have0) begin
+      if (win_vld && win_ready && !have0) begin
         w0    <= win_data;
         have0 <= 1'b1;
-      end else if (win_vld && have0 && !have1) begin
+      end else if (win_vld && win_ready && have0 && !have1) begin
         w1    <= win_data;
         have1 <= 1'b1;
         if (bypass) begin
@@ -109,15 +108,10 @@ module vibe_pcs_tx_fec (
           sym_cnt <= sym_cnt + 8'd1;
       end
 
-      if (enc_a_done)
-        cwa <= { /* message even symbols reconstructed */ {120{8'd0}}, par_a};
-      if (enc_b_done)
-        cwb <= {{120{8'd0}}, par_b};
-
       if (enc_a_done && enc_b_done) begin
-        // Rebuild codewords: even/odd merge of 240 data + two parities
-        cwa <= {w0[959:0], par_a}; // 960+64=1024 (per-encoder message is 120B)
-        cwb <= {w1[959:0], par_b};
+        // 1024b = 960b message + p7..p0. cw2beat splits to two 512b.
+        cwa <= {w0, par_a};
+        cwb <= {w1, par_b};
         pair_done <= 1'b1;
       end
 

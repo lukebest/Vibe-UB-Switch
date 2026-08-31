@@ -1,8 +1,10 @@
-// AS-0.1 §5: scramble LTB and DLL data; not AMCTL/EEIB. Per-lane additive PRBS23.
+// AS-0.1 §5 / UB 3.2.2.4: scramble LTB and DLL data; not AMCTL/EEIB.
+// Seed from AMCTL.LID (lane_id). Reset seed on AMCTL+EDF when LMSM is not
+// Send_NullBlock/Link_Active; do not reset on SDF in those states.
 module vibe_pcs_scramble (
   input  logic         clk,
   input  logic         rst_n,
-  input  logic [1:0]   lane_id,
+  input  logic [1:0]   lane_id,   // AMCTL.LID (physical=logical this rev)
   input  logic         seed_load,
   input  logic         en,       // 0 = pass-through (AMCTL/EEIB)
   input  logic         in_vld,

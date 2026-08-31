@@ -50,6 +50,7 @@ module vibe_port (
   logic [3:0]  af_tx, af_rx, afr_e;
   logic [159:0] afr0, afr1, afr2, afr3;
   logic        afrv0, afrv1, afrv2, afrv3;
+  wire         all_rv = afrv0 & afrv1 & afrv2 & afrv3;
   logic [2:0]  fec_mode;
   assign fec_mode = VIBE_FEC_T4;
   logic [3:0]  ovf_l;
@@ -94,9 +95,9 @@ module vibe_port (
   );
 
   vibe_pcs_rx u_prx (
-    .clk(clk_fab), .rst_n(rst_n), .fec_mode(fec_mode),
+    .clk(clk_fab), .rst_n(rst_n), .link_up(link_up), .fec_mode(fec_mode),
     .lane0(afr0), .lane1(afr1), .lane2(afr2), .lane3(afr3),
-    .lane_vld(afrv0 & afrv1 & afrv2 & afrv3),
+    .lane_vld(all_rv),
     .dll_data(pcs_rx_d), .dll_vld(pcs_rx_v), .dll_ready(pcs_rx_r),
     .fec_fail(fec_fail), .am_locked(am_locked), .lid_bad(lid_bad),
     .deskew_ok(deskew_ok)
@@ -129,26 +130,34 @@ module vibe_port (
     .rclk(txclk), .rrst_n(txrst_n), .ren(tren3), .rdata(tq3), .rempty(te3)
   );
 
+  // All four 160→128 must fire as one 512. Using only lane0 out_vld
+  // captured a new lane0 128 with stale lane1-3 (PMA has no per-lane valid).
+  logic gv0, gv1, gv2, gv3;
+  assign p_txv = gv0 & gv1 & gv2 & gv3;
+  // A gear that is not yet holding must not eat the next 160 while a
+  // sibling waits for p_txv. That would mix 512s the same as dropping.
+  wire tx_hold_wait = (gv0 | gv1 | gv2 | gv3) && !p_txv;
+
   vibe_gear_160_128 u_g0 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te0), .in_ready(g0r), .in_data(tq0),
-    .out_vld(p_txv), .out_ready(1'b1), .out_data(p_tx0)
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te0 && !tx_hold_wait), .in_ready(g0r), .in_data(tq0),
+    .out_vld(gv0), .out_ready(p_txv), .out_data(p_tx0)
   );
-  assign tren0 = g0r && !te0;
+  assign tren0 = g0r && !te0 && !tx_hold_wait;
   vibe_gear_160_128 u_g1 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te1), .in_ready(g1r), .in_data(tq1),
-    .out_vld(), .out_ready(1'b1), .out_data(p_tx1)
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te1 && !tx_hold_wait), .in_ready(g1r), .in_data(tq1),
+    .out_vld(gv1), .out_ready(p_txv), .out_data(p_tx1)
   );
-  assign tren1 = g1r && !te1;
+  assign tren1 = g1r && !te1 && !tx_hold_wait;
   vibe_gear_160_128 u_g2 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te2), .in_ready(g2r), .in_data(tq2),
-    .out_vld(), .out_ready(1'b1), .out_data(p_tx2)
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te2 && !tx_hold_wait), .in_ready(g2r), .in_data(tq2),
+    .out_vld(gv2), .out_ready(p_txv), .out_data(p_tx2)
   );
-  assign tren2 = g2r && !te2;
+  assign tren2 = g2r && !te2 && !tx_hold_wait;
   vibe_gear_160_128 u_g3 (
-    .clk(txclk), .rst_n(txrst_n), .in_vld(!te3), .in_ready(g3r), .in_data(tq3),
-    .out_vld(), .out_ready(1'b1), .out_data(p_tx3)
+    .clk(txclk), .rst_n(txrst_n), .in_vld(!te3 && !tx_hold_wait), .in_ready(g3r), .in_data(tq3),
+    .out_vld(gv3), .out_ready(p_txv), .out_data(p_tx3)
   );
-  assign tren3 = g3r && !te3;
+  assign tren3 = g3r && !te3 && !tx_hold_wait;
 
   vibe_pma_bnd u_pma (
     .txclk(txclk), .rxclk(rxclk),
@@ -164,23 +173,51 @@ module vibe_port (
   logic         rren0, rren1, rren2, rren3;
   logic         wf0, wf1, wf2, wf3;
 
+  // PMA has no valid: TX holds last txdata when idle. Writing every rxclk
+  // duplicates 128b beats and makes 128→160 unrestorable. Change-detect only.
+  logic [127:0] rxh0, rxh1, rxh2, rxh3;
+  logic [3:0]   rx_got;
+  always @(posedge rxclk or negedge rxrst_n) begin
+    if (!rxrst_n) begin
+      // Prime hold=0 / got=1: do not write the power-on 0/X 128b. That extra
+      // beat slips the 128→160 grouping by 32b and AMCTL never matches.
+      rx_got <= 4'b1111;
+      rxh0 <= 128'd0; rxh1 <= 128'd0; rxh2 <= 128'd0; rxh3 <= 128'd0;
+    end else if (p_rxv) begin
+      rxh0 <= p_rx0; rxh1 <= p_rx1; rxh2 <= p_rx2; rxh3 <= p_rx3;
+      rx_got <= 4'b1111;
+    end
+  end
+  // Write all four lanes when any 128 changes. Per-lane compare desynchronized
+  // the 128→160 gears when one lane repeated (structured packet) and the AND
+  // of afrv dropped 160s; idle scramble almost never repeats a lane.
+  wire want0 = p_rxv && (p_rx0 !== rxh0);
+  wire want1 = p_rxv && (p_rx1 !== rxh1);
+  wire want2 = p_rxv && (p_rx2 !== rxh2);
+  wire want3 = p_rxv && (p_rx3 !== rxh3);
+  wire any_chg = want0 | want1 | want2 | want3;
+  wire wr0 = any_chg && !wf0;
+  wire wr1 = any_chg && !wf1;
+  wire wr2 = any_chg && !wf2;
+  wire wr3 = any_chg && !wf3;
+
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar0 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf0), .wdata(p_rx0),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr0), .wdata(p_rx0),
     .wfull(wf0), .almost_full(af_rx[0]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren0), .rdata(rq0), .rempty(re0)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar1 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf1), .wdata(p_rx1),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr1), .wdata(p_rx1),
     .wfull(wf1), .almost_full(af_rx[1]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren1), .rdata(rq1), .rempty(re1)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar2 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf2), .wdata(p_rx2),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr2), .wdata(p_rx2),
     .wfull(wf2), .almost_full(af_rx[2]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren2), .rdata(rq2), .rempty(re2)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar3 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf3), .wdata(p_rx3),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr3), .wdata(p_rx3),
     .wfull(wf3), .almost_full(af_rx[3]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren3), .rdata(rq3), .rempty(re3)
   );
@@ -189,10 +226,10 @@ module vibe_port (
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) ovf_l <= 4'd0;
     else begin
-      ovf_l[0] <= p_rxv && wf0;
-      ovf_l[1] <= p_rxv && wf1;
-      ovf_l[2] <= p_rxv && wf2;
-      ovf_l[3] <= p_rxv && wf3;
+      ovf_l[0] <= any_chg && wf0;
+      ovf_l[1] <= any_chg && wf1;
+      ovf_l[2] <= any_chg && wf2;
+      ovf_l[3] <= any_chg && wf3;
     end
   end
 
@@ -210,24 +247,30 @@ module vibe_port (
   end
 
   logic gr0, gr1, gr2, gr3;
+  // Hold each 160 until all four gears have one. out_ready=1 dropped a
+  // lane whose sibling was a cycle late; PCS AND of afrv then skipped
+  // that beat and 128→160 grouping slipped (every later CW failed).
+  // Also stall 128 ingress while any lane holds: a late gear must not
+  // consume the next 128 before the current 160 quartet is taken.
+  wire rx_hold_wait = (afrv0 | afrv1 | afrv2 | afrv3) && !all_rv;
   vibe_gear_128_160 u_rg0 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re0), .in_ready(gr0), .in_data(rq0),
-    .out_vld(afrv0), .out_ready(1'b1), .out_data(afr0)
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re0 && !rx_hold_wait), .in_ready(gr0), .in_data(rq0),
+    .out_vld(afrv0), .out_ready(all_rv), .out_data(afr0)
   );
-  assign rren0 = gr0 && !re0;
+  assign rren0 = gr0 && !re0 && !rx_hold_wait;
   vibe_gear_128_160 u_rg1 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re1), .in_ready(gr1), .in_data(rq1),
-    .out_vld(afrv1), .out_ready(1'b1), .out_data(afr1)
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re1 && !rx_hold_wait), .in_ready(gr1), .in_data(rq1),
+    .out_vld(afrv1), .out_ready(all_rv), .out_data(afr1)
   );
-  assign rren1 = gr1 && !re1;
+  assign rren1 = gr1 && !re1 && !rx_hold_wait;
   vibe_gear_128_160 u_rg2 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re2), .in_ready(gr2), .in_data(rq2),
-    .out_vld(afrv2), .out_ready(1'b1), .out_data(afr2)
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re2 && !rx_hold_wait), .in_ready(gr2), .in_data(rq2),
+    .out_vld(afrv2), .out_ready(all_rv), .out_data(afr2)
   );
-  assign rren2 = gr2 && !re2;
+  assign rren2 = gr2 && !re2 && !rx_hold_wait;
   vibe_gear_128_160 u_rg3 (
-    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re3), .in_ready(gr3), .in_data(rq3),
-    .out_vld(afrv3), .out_ready(1'b1), .out_data(afr3)
+    .clk(clk_fab), .rst_n(rst_n), .in_vld(!re3 && !rx_hold_wait), .in_ready(gr3), .in_data(rq3),
+    .out_vld(afrv3), .out_ready(all_rv), .out_data(afr3)
   );
-  assign rren3 = gr3 && !re3;
+  assign rren3 = gr3 && !re3 && !rx_hold_wait;
 endmodule

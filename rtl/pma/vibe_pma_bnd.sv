@@ -16,6 +16,9 @@ module vibe_pma_bnd (
   output logic [127:0] rx_lane3,
   output logic         rx_lane_vld
 );
+  // Power-on 0 so loopback RX does not sample X before the first tx_lane_vld.
+  initial txdata = 512'd0;
+
   always @(posedge txclk) begin
     if (tx_lane_vld)
       txdata <= {tx_lane3, tx_lane2, tx_lane1, tx_lane0};
