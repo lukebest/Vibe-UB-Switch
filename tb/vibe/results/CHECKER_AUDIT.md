@@ -92,6 +92,21 @@ Compute/check as **sender/receiver**. Transit does **not** recompute.
 
 ---
 
+## NW packet → PMA `txdata[511:0]` (FS-0.2.4 §1.4 / U26, AS-0.1 TX path)
+
+Product boundary: `txdata[511:0]`, no extra handshake; `[127:0]=lane0` … `[511:384]=lane3`.
+
+Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `txdata`. `tc_top_smoke` notes no packet BFM. PHY units use synthetic DLL/lane patterns.
+
+| Checker | Spec | Verdict |
+|---|---|---|
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **ADDED** — same DUT/packet; `rxdata=txdata`. Scores LPH (CFG/RT/SCNA/DCNA) **and** payload `[479:32]` (not just `fab_rx_vld`). |
+
+DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4. If either TC FAILs after bring-up, that is an RTL gap (verification does not patch `rtl/`).
+
+---
+
 ## Unit checkers (PHY / DLL / FEC / LMSM / retry)
 
 All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCRC, VL0–15 RR, retry 256, GBN, AFIFO, named negatives). New stimulus TCs (`tc_lmsm_walk`, `tc_retry_wait_retrain`, PCS RX wrappers, SAF/route/cna/irq/mgmt clusters) **add coverage**, they do not change the locked rules.
