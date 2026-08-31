@@ -33,6 +33,8 @@ module vibe_pcs_rx (
   logic         wv, wr;
   logic [319:0] rem;
   logic         remv;
+  logic [639:0] pend;
+  logic         pend_vld;
 
   // Lock on RAW 160b (AMCTL is not scrambled). AS-0.1 §5/§6.
   vibe_pcs_rx_amctl_lock u_l0 (.clk(clk), .rst_n(rst_n), .in_vld(lane_vld), .in_data(lane0),
@@ -123,20 +125,26 @@ module vibe_pcs_rx (
     .fec_fail(fec_fail)
   );
 
-  // 960b (6 flits) → 640b beats (4 flits) with 320b remainder (AS-0.1 inverse T2).
-  // Hold FEC while dll_vld is still 1 so the rem-aligned next 640 (CFG=3 in
-  // the first flit) is not dropped on win_ready.
-  assign wr = dll_ready && !dll_vld;
+  // 960b (6 flits) → 640b. First window: 4 flits + 320b rem.
+  // rem+next 960 = 1280b = two 640s; the old path kept 320 and dropped 320
+  // so CFG=3 in the low half never became a first-flit beat for dll_rx.
+  assign wr = dll_ready && !dll_vld && !pend_vld;
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      rem     <= 320'd0;
-      remv    <= 1'b0;
-      dll_data<= 640'd0;
-      dll_vld <= 1'b0;
+      rem      <= 320'd0;
+      remv     <= 1'b0;
+      pend     <= 640'd0;
+      pend_vld <= 1'b0;
+      dll_data <= 640'd0;
+      dll_vld  <= 1'b0;
     end else begin
       if (dll_vld && dll_ready)
         dll_vld <= 1'b0;
-      if (wv && wr && !dll_vld) begin
+      if (pend_vld && !dll_vld && dll_ready) begin
+        dll_data <= pend;
+        pend_vld <= 1'b0;
+        dll_vld  <= 1'b1;
+      end else if (wv && wr && !dll_vld) begin
         if (!remv) begin
           dll_data <= win[959:320];
           rem      <= win[319:0];
@@ -144,9 +152,11 @@ module vibe_pcs_rx (
           dll_vld  <= 1'b1;
         end else begin
           dll_data <= {rem, win[959:640]};
-          rem      <= win[639:320];
+          pend     <= {win[639:320], win[319:0]};
+          pend_vld <= 1'b1;
+          remv     <= 1'b0;
+          rem      <= 320'd0;
           dll_vld  <= 1'b1;
-          // leftover 320 of this window kept
         end
       end
     end
