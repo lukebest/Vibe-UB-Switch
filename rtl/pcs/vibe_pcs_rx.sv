@@ -112,6 +112,7 @@ module vibe_pcs_rx (
     .clk(clk), .rst_n(rst_n), .fec_mode(fec_mode),
     .beat_data(beat), .beat_vld(bv), .beat_ready(br),
     .win_data(win), .win_vld(wv), .win_ready(wr),
+    .am_gap(am0_d | am1_d | am2_d | am3_d),
     .fec_fail(fec_fail)
   );
 

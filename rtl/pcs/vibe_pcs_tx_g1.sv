@@ -61,7 +61,12 @@ module vibe_pcs_tx_g1 (
         rem_vld      <= 1'b0;
         nflit        <= 3'd6;
         have         <= 1'b1;
-      end else if (!have && !in_vld && link_up && win_ready) begin
+      end else if (!have && !in_vld && link_up && win_ready && nflit == 3'd4) begin
+        // Complete a 4-flit packet with 2 Nulls; do not overwrite it.
+        acc[319:0] <= {NULL_FLIT, NULL_FLIT};
+        nflit      <= 3'd6;
+        have       <= 1'b1;
+      end else if (!have && !in_vld && link_up && win_ready && nflit == 3'd0 && !rem_vld) begin
         // Idle fill: 6 Null Blocks
         acc   <= {NULL_FLIT, NULL_FLIT, NULL_FLIT, NULL_FLIT, NULL_FLIT, NULL_FLIT};
         nflit <= 3'd6;

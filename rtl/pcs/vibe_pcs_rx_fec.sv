@@ -9,6 +9,7 @@ module vibe_pcs_rx_fec (
   output logic [959:0] win_data,
   output logic         win_vld,
   input  logic         win_ready,
+  input  logic         am_gap = 1'b0, // 1: drop half-CW so 1024b does not straddle AMCTL
   output logic         fec_fail
 );
   `include "vibe_ub_params.vh"
@@ -51,6 +52,10 @@ module vibe_pcs_rx_fec (
       start <= 1'b0;
       if (win_vld && win_ready)
         win_vld <= 1'b0;
+
+      // AMCTL is outside FEC. A leftover 512b must not pair across the gap.
+      if (am_gap && !feeding)
+        have_hi <= 1'b0;
 
       if (beat_vld && beat_ready) begin
         if (!have_hi) begin
