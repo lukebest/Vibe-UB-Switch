@@ -42,13 +42,12 @@ module vibe_pcs_rx_unpack (
       e        <= 3'd0;
       have     <= 1'b0;
       nxt_full <= 1'b0;
-    end else if (am_gap) begin
-      // New 4×640 group after a lock/AMCTL hold; do not keep a partial.
-      n        <= 3'd0;
-      e        <= 3'd0;
-      have     <= 1'b0;
-      nxt_full <= 1'b0;
     end else begin
+      // One-cycle AMCTL-gap reset: next 4×640 starts at n=0. Keep an
+      // in-flight emit (have/acc) so draining 5×512 is not wiped.
+      if (am_gap)
+        n <= 3'd0;
+
       // Emit one 512. Last beat (e==0) frees acc, or swaps in nxt.
       if (have && beat_ready) begin
         if (e != 3'd0) begin

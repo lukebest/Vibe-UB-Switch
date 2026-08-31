@@ -72,8 +72,8 @@ module vibe_pcs_rx_fec (
       if (win_vld && win_ready)
         win_vld <= 1'b0;
 
-      // AMCTL is outside FEC. Default wiring is 0: a leftover 512 after a
-      // 5-beat pack group must pair with the next group's first 512.
+      // AMCTL-gap pulse: start the post-AM 512 run with have_hi=0 (hunt
+      // and locked). TX inserts AM only between 5×512 groups.
       if (am_gap)
         have_hi <= 1'b0;
 

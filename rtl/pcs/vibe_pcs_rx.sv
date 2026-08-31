@@ -108,25 +108,31 @@ module vibe_pcs_rx (
   );
   assign deskew_ok = aligned;
 
-  // Do not XOR 512s into FEC (or present 640s to DLL) until every lane is
-  // locked and deskewed. Start at an AMCTL group boundary so 5×512 pairing
-  // matches TX pack. am_gap holds unpack/FEC empty while hunting — do not
-  // pulse it from am*_d (one beat late, splits a live group).
-  wire rx_ok = &am_locked && aligned;
+  // Collect 4×640 / 5×512 / RS during hunt. Holding unpack/FEC empty
+  // until lock dropped the TB packet (injected right after the LMSM
+  // am_locked force is released; real lock is later). Align groups on
+  // the AMCTL gap: one-cycle pair_rst so post-AM runs start n=0 / have_hi=0.
+  wire am_now   = am0_d | am1_d | am2_d | am3_d;
+  logic am_seen;
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) am_seen <= 1'b0;
+    else        am_seen <= am_now;
+  end
+  wire pair_rst = am_now && !am_seen;
 
   vibe_pcs_rx_unpack u_un (
     .clk(clk), .rst_n(rst_n),
-    .lane0(u0), .lane1(u1), .lane2(u2), .lane3(u3), .lane_vld(uv && rx_ok),
+    .lane0(u0), .lane1(u1), .lane2(u2), .lane3(u3), .lane_vld(uv),
     .am0(1'b0), .am1(1'b0), .am2(1'b0), .am3(1'b0),
-    .am_gap(!rx_ok),
+    .am_gap(pair_rst),
     .beat_data(beat), .beat_vld(bv), .beat_ready(br)
   );
 
   vibe_pcs_rx_fec u_fec (
     .clk(clk), .rst_n(rst_n), .fec_mode(fec_mode),
-    .beat_data(beat), .beat_vld(bv && rx_ok), .beat_ready(br),
+    .beat_data(beat), .beat_vld(bv), .beat_ready(br),
     .win_data(win), .win_vld(wv), .win_ready(wr),
-    .am_gap(!rx_ok),
+    .am_gap(pair_rst),
     .fec_fail(fec_fail)
   );
 
@@ -159,24 +165,22 @@ module vibe_pcs_rx (
       if (dll_vld && dll_ready)
         dll_vld <= 1'b0;
 
-      // AMCTL is skipped before unpack. Do not carry rem across the marker
-      // or present a 640 before lock+deskew (and only from a passing CW).
-      if (am_skip || !rx_ok) begin
+      // AMCTL is skipped before unpack. Do not carry rem across the marker.
+      // A syndrome-0 non-null window must raise dll_vld even during hunt.
+      if (am_skip) begin
         rem      <= 320'd0;
         remv     <= 1'b0;
         pend     <= 640'd0;
         pend_vld <= 1'b0;
-        if (!rx_ok)
-          dll_vld <= 1'b0;
       end
 
-      if (pend_vld && !dll_vld && dll_ready && !am_skip && rx_ok) begin
+      if (pend_vld && !dll_vld && dll_ready && !am_skip) begin
         if (!flit_null(pend[639:480])) begin
           dll_data <= pend;
           dll_vld  <= 1'b1;
         end
         pend_vld <= 1'b0;
-      end else if (wv && wr && !dll_vld && !am_skip && rx_ok) begin
+      end else if (wv && wr && !dll_vld && !am_skip) begin
         if (win_null) begin
           rem      <= 320'd0;
           remv     <= 1'b0;

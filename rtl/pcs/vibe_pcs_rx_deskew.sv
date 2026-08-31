@@ -28,7 +28,9 @@ module vibe_pcs_rx_deskew (
   logic         am0_r, am1_r, am2_r, am3_r;
 
   assign aligned = saw0 & saw1 & saw2 & saw3;
-  assign out_vld = in_vld && aligned && !(am0|am1|am2|am3);
+  // Factory physical=logical: pass data during hunt (lock/aligned come later).
+  // AMCTL is still dropped so unpack sees a gap between 4×640 groups.
+  assign out_vld = in_vld && !(am0|am1|am2|am3);
   // Factory physical=logical (U24): no delay once aligned. FIFO pointers
   // only record first-AMCTL lock; feeding them as out would leak the second
   // AMCTL 160b into the 512b stream after each marker.
