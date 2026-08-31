@@ -19,6 +19,7 @@ module vibe_pcs_rx (
   logic [159:0] d0, d1, d2, d3;
   logic         dv;
   logic         am0, am1, am2, am3;
+  logic         am0_d, am1_d, am2_d, am3_d;
   logic         sdf0;
   logic [1:0]   lid0, lid1, lid2, lid3;
   logic         bad0, bad1, bad2, bad3;
@@ -30,24 +31,41 @@ module vibe_pcs_rx (
   logic         wv, wr;
   logic [319:0] rem;
   logic         remv;
+  logic         seed_go;
 
-  vibe_pcs_scramble u_d0 (.clk(clk), .rst_n(rst_n), .lane_id(2'd0), .seed_load(1'b0),
-    .en(1'b1), .in_vld(lane_vld), .in_data(lane0), .out_vld(dv), .out_data(d0));
-  vibe_pcs_scramble u_d1 (.clk(clk), .rst_n(rst_n), .lane_id(2'd1), .seed_load(1'b0),
-    .en(1'b1), .in_vld(lane_vld), .in_data(lane1), .out_vld(), .out_data(d1));
-  vibe_pcs_scramble u_d2 (.clk(clk), .rst_n(rst_n), .lane_id(2'd2), .seed_load(1'b0),
-    .en(1'b1), .in_vld(lane_vld), .in_data(lane2), .out_vld(), .out_data(d2));
-  vibe_pcs_scramble u_d3 (.clk(clk), .rst_n(rst_n), .lane_id(2'd3), .seed_load(1'b0),
-    .en(1'b1), .in_vld(lane_vld), .in_data(lane3), .out_vld(), .out_data(d3));
-
-  vibe_pcs_rx_amctl_lock u_l0 (.clk(clk), .rst_n(rst_n), .in_vld(dv), .in_data(d0),
+  // Lock on RAW 160b (AMCTL is not scrambled). AS-0.1 §5/§6.
+  vibe_pcs_rx_amctl_lock u_l0 (.clk(clk), .rst_n(rst_n), .in_vld(lane_vld), .in_data(lane0),
     .locked(am_locked[0]), .lid(lid0), .lid_bad(bad0), .is_amctl(am0), .sdf(sdf0));
-  vibe_pcs_rx_amctl_lock u_l1 (.clk(clk), .rst_n(rst_n), .in_vld(dv), .in_data(d1),
+  vibe_pcs_rx_amctl_lock u_l1 (.clk(clk), .rst_n(rst_n), .in_vld(lane_vld), .in_data(lane1),
     .locked(am_locked[1]), .lid(lid1), .lid_bad(bad1), .is_amctl(am1), .sdf());
-  vibe_pcs_rx_amctl_lock u_l2 (.clk(clk), .rst_n(rst_n), .in_vld(dv), .in_data(d2),
+  vibe_pcs_rx_amctl_lock u_l2 (.clk(clk), .rst_n(rst_n), .in_vld(lane_vld), .in_data(lane2),
     .locked(am_locked[2]), .lid(lid2), .lid_bad(bad2), .is_amctl(am2), .sdf());
-  vibe_pcs_rx_amctl_lock u_l3 (.clk(clk), .rst_n(rst_n), .in_vld(dv), .in_data(d3),
+  vibe_pcs_rx_amctl_lock u_l3 (.clk(clk), .rst_n(rst_n), .in_vld(lane_vld), .in_data(lane3),
     .locked(am_locked[3]), .lid(lid3), .lid_bad(bad3), .is_amctl(am3), .sdf());
+
+  // Same seed as TX (`{19'd1, lane_id, 2'b01}` after !link_up seed_load).
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) seed_go <= 1'b1;
+    else        seed_go <= 1'b0;
+  end
+
+  // Descramble LTB only; pass-through AMCTL (do not advance LFSR).
+  vibe_pcs_scramble u_d0 (.clk(clk), .rst_n(rst_n), .lane_id(2'd0), .seed_load(seed_go),
+    .en(lane_vld && !am0), .in_vld(lane_vld), .in_data(lane0), .out_vld(dv), .out_data(d0));
+  vibe_pcs_scramble u_d1 (.clk(clk), .rst_n(rst_n), .lane_id(2'd1), .seed_load(seed_go),
+    .en(lane_vld && !am1), .in_vld(lane_vld), .in_data(lane1), .out_vld(), .out_data(d1));
+  vibe_pcs_scramble u_d2 (.clk(clk), .rst_n(rst_n), .lane_id(2'd2), .seed_load(seed_go),
+    .en(lane_vld && !am2), .in_vld(lane_vld), .in_data(lane2), .out_vld(), .out_data(d2));
+  vibe_pcs_scramble u_d3 (.clk(clk), .rst_n(rst_n), .lane_id(2'd3), .seed_load(seed_go),
+    .en(lane_vld && !am3), .in_vld(lane_vld), .in_data(lane3), .out_vld(), .out_data(d3));
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      am0_d <= 1'b0; am1_d <= 1'b0; am2_d <= 1'b0; am3_d <= 1'b0;
+    end else begin
+      am0_d <= am0; am1_d <= am1; am2_d <= am2; am3_d <= am3;
+    end
+  end
 
   assign lid_bad = bad0 | bad1 | bad2 | bad3 |
                    (am_locked[0] && lid0 != 2'd0) |
@@ -58,7 +76,7 @@ module vibe_pcs_rx (
   vibe_pcs_rx_deskew u_dsk (
     .clk(clk), .rst_n(rst_n),
     .in0(d0), .in1(d1), .in2(d2), .in3(d3), .in_vld(dv),
-    .am0(am0), .am1(am1), .am2(am2), .am3(am3),
+    .am0(am0_d), .am1(am1_d), .am2(am2_d), .am3(am3_d),
     .out0(u0), .out1(u1), .out2(u2), .out3(u3),
     .out_vld(uv), .aligned(aligned)
   );
@@ -67,7 +85,7 @@ module vibe_pcs_rx (
   vibe_pcs_rx_unpack u_un (
     .clk(clk), .rst_n(rst_n),
     .lane0(u0), .lane1(u1), .lane2(u2), .lane3(u3), .lane_vld(uv),
-    .am0(1'b0), .am1(1'b0), .am2(1'b0), .am3(1'b0),
+    .am0(1'b0), .am1(1'b0), .am2(1'b0), .am3(1'b0), // deskew already drops AMCTL
     .beat_data(beat), .beat_vld(bv), .beat_ready(br)
   );
 

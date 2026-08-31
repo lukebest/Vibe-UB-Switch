@@ -12,7 +12,8 @@ module vibe_pcs_tx_pack (
   output logic [159:0] lane2,
   output logic [159:0] lane3,
   output logic         lane_vld,
-  input  logic         lane_ready
+  input  logic         lane_ready,
+  output logic         am_word
 );
   `include "vibe_ub_params.vh"
 
@@ -40,6 +41,7 @@ module vibe_pcs_tx_pack (
 
   assign beat_ready = !afifo_afull && lane_ready && (am_phase == 2'd0) && !pack_vld;
   assign lane_vld   = pack_vld || (am_phase != 2'd0);
+  assign am_word    = (am_phase != 2'd0);
   assign lane0 = (am_phase == 2'd1) ? am0[319:160] :
                  (am_phase == 2'd2) ? am0[159:0]   :
                  pack[640*emit_idx + 159 -: 160];

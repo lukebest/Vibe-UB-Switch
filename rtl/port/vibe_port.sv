@@ -164,23 +164,45 @@ module vibe_port (
   logic         rren0, rren1, rren2, rren3;
   logic         wf0, wf1, wf2, wf3;
 
+  // PMA has no valid: TX holds last txdata when idle. Writing every rxclk
+  // duplicates 128b beats and makes 128→160 unrestorable. Change-detect only.
+  logic [127:0] rxh0, rxh1, rxh2, rxh3;
+  logic [3:0]   rx_got;
+  always @(posedge rxclk or negedge rxrst_n) begin
+    if (!rxrst_n) begin
+      rx_got <= 4'd0;
+      rxh0 <= 128'd0; rxh1 <= 128'd0; rxh2 <= 128'd0; rxh3 <= 128'd0;
+    end else if (p_rxv) begin
+      rxh0 <= p_rx0; rxh1 <= p_rx1; rxh2 <= p_rx2; rxh3 <= p_rx3;
+      rx_got <= 4'b1111;
+    end
+  end
+  wire want0 = p_rxv && (!rx_got[0] || (p_rx0 !== rxh0));
+  wire want1 = p_rxv && (!rx_got[1] || (p_rx1 !== rxh1));
+  wire want2 = p_rxv && (!rx_got[2] || (p_rx2 !== rxh2));
+  wire want3 = p_rxv && (!rx_got[3] || (p_rx3 !== rxh3));
+  wire wr0 = want0 && !wf0;
+  wire wr1 = want1 && !wf1;
+  wire wr2 = want2 && !wf2;
+  wire wr3 = want3 && !wf3;
+
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar0 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf0), .wdata(p_rx0),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr0), .wdata(p_rx0),
     .wfull(wf0), .almost_full(af_rx[0]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren0), .rdata(rq0), .rempty(re0)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar1 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf1), .wdata(p_rx1),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr1), .wdata(p_rx1),
     .wfull(wf1), .almost_full(af_rx[1]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren1), .rdata(rq1), .rempty(re1)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar2 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf2), .wdata(p_rx2),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr2), .wdata(p_rx2),
     .wfull(wf2), .almost_full(af_rx[2]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren2), .rdata(rq2), .rempty(re2)
   );
   vibe_afifo #(.W(128), .DEPTH(VIBE_AFIFO_DEPTH)) u_ar3 (
-    .wclk(rxclk), .wrst_n(rxrst_n), .wen(p_rxv && !wf3), .wdata(p_rx3),
+    .wclk(rxclk), .wrst_n(rxrst_n), .wen(wr3), .wdata(p_rx3),
     .wfull(wf3), .almost_full(af_rx[3]), .wocc(),
     .rclk(clk_fab), .rrst_n(rst_n), .ren(rren3), .rdata(rq3), .rempty(re3)
   );
@@ -189,10 +211,10 @@ module vibe_port (
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) ovf_l <= 4'd0;
     else begin
-      ovf_l[0] <= p_rxv && wf0;
-      ovf_l[1] <= p_rxv && wf1;
-      ovf_l[2] <= p_rxv && wf2;
-      ovf_l[3] <= p_rxv && wf3;
+      ovf_l[0] <= want0 && wf0;
+      ovf_l[1] <= want1 && wf1;
+      ovf_l[2] <= want2 && wf2;
+      ovf_l[3] <= want3 && wf3;
     end
   end
 

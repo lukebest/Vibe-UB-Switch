@@ -25,6 +25,7 @@ module vibe_pcs_tx (
   logic          p_vld, p_rdy;
   logic [159:0]  s0, s1, s2, s3;
   logic          s_vld;
+  logic          am_word;
 
   vibe_pcs_tx_g1 u_g1 (
     .clk(clk), .rst_n(rst_n), .link_up(link_up),
@@ -46,16 +47,11 @@ module vibe_pcs_tx (
     .afifo_afull(afifo_afull),
     .beat_data(beat), .beat_vld(beat_vld), .beat_ready(beat_rdy),
     .lane0(p0), .lane1(p1), .lane2(p2), .lane3(p3),
-    .lane_vld(p_vld), .lane_ready(p_rdy)
+    .lane_vld(p_vld), .lane_ready(p_rdy), .am_word(am_word)
   );
 
-  // Scramble data words; AMCTL insert sets a sideband via pack am_phase — treat
-  // all packed data as scrambled LTB/DLL; AMCTL words generated unscrambled
-  // inside pack and identified by leaving scramble en=1 only for data.
-  // AS-0.1 §5: scramble LTB not AMCTL/EEIB.
-  logic am_word;
-  assign am_word = 1'b0; // pack emits AMCTL as separate phase; scramble after pack on data only
-  assign p_rdy   = 1'b1;
+  // AS-0.1 §5: scramble LTB, not AMCTL/EEIB. Pack emits AMCTL on am_word.
+  assign p_rdy = 1'b1;
 
   vibe_pcs_scramble u_s0 (.clk(clk), .rst_n(rst_n), .lane_id(2'd0), .seed_load(!link_up),
     .en(!am_word), .in_vld(p_vld), .in_data(p0), .out_vld(s_vld), .out_data(s0));

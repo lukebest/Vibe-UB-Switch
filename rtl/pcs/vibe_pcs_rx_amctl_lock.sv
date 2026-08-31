@@ -1,4 +1,7 @@
 // AS-0.1 §6 / §14: AMCTL lock per lane. CONFIRM_N = UNLOCK_N = 3.
+// Lock on RAW 160b (AMCTL is not scrambled). Hunt with 1-beat slip.
+// TX amctl_40B: BODY {3{cw21,cw28}} at [319:224] so [319:304]=cw21;
+// END cw22,cw22 at [223:192] = first 160b [63:32]; LID at [191:128].
 // If LID not {0,1,2,3} → fail (U24: do not swap lanes).
 module vibe_pcs_rx_amctl_lock (
   input  logic         clk,
@@ -22,61 +25,82 @@ module vibe_pcs_rx_amctl_lock (
   vibe_ebch16 u9  (.cw_sel(5'd9),  .cw(cw9));
   vibe_ebch16 u10 (.cw_sel(5'd10), .cw(cw10));
 
-  logic [1:0] conf;
-  logic [1:0] unlk;
-  logic [319:0] win;
+  logic [1:0]   conf;
+  logic [1:0]   unlk;
+  logic [159:0] prev;
   logic         have;
+  logic         via_leg;
 
-  wire [15:0] w_end = win[127:112];
-  wire match_body = (win[319:304] == cw21) || (win[319:304] == cw28);
-  wire match_end  = (w_end == cw22);
+  // Word0 of TX AMCTL (am[319:160]): BODY at [159:144], END at [63:32].
+  wire match_w0 = ((in_data[159:144] == cw21) || (in_data[159:144] == cw28)) &&
+                  (in_data[63:32] == {cw22, cw22});
+  wire match_body = (prev[159:144] == cw21) || (prev[159:144] == cw28);
+  wire match_end_tx  = (prev[63:32] == {cw22, cw22});
+  wire match_end_leg = (in_data[127:112] == cw22);
+  wire match_pair = have && match_body && (match_end_tx || match_end_leg);
+
+  // Combo so descramble en=!is_amctl sees the same beat (pass-through AMCTL).
+  assign is_amctl = in_vld && (match_pair || match_w0);
+
+  function automatic [1:0] dec_lid;
+    input [15:0] s;
+    begin
+      if (s == cw3)       dec_lid = 2'd0;
+      else if (s == cw8)  dec_lid = 2'd1;
+      else if (s == cw9)  dec_lid = 2'd2;
+      else if (s == cw10) dec_lid = 2'd3;
+      else                dec_lid = 2'd0;
+    end
+  endfunction
+
+  wire [15:0] lid_sym = match_end_tx ? prev[15:0] : in_data[79:64];
+  wire        lid_ok  = (lid_sym == cw3) || (lid_sym == cw8) ||
+                        (lid_sym == cw9) || (lid_sym == cw10);
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       locked  <= 1'b0;
       lid     <= 2'd0;
       lid_bad <= 1'b0;
-      is_amctl<= 1'b0;
       sdf     <= 1'b0;
       conf    <= 2'd0;
       unlk    <= 2'd0;
-      win     <= 320'd0;
+      prev    <= 160'd0;
       have    <= 1'b0;
+      via_leg <= 1'b0;
     end else begin
-      is_amctl <= 1'b0;
+      sdf <= 1'b0;
       if (in_vld) begin
-        if (!have) begin
-          win[319:160] <= in_data;
+        if (match_pair) begin
+          sdf <= 1'b1;
+          if (lid_ok)
+            lid <= dec_lid(lid_sym);
+          else
+            lid_bad <= 1'b1;
+          // 3 AMCTL detections then locked. TX-layout lock is sticky through data.
+          if (conf >= (VIBE_AMCTL_CONFIRM_N[1:0] - 2'd1))
+            locked <= 1'b1;
+          else
+            conf <= conf + 2'd1;
+          via_leg <= match_end_leg && !match_end_tx;
+          unlk    <= 2'd0;
+          have    <= 1'b0;
+        end else if (!have) begin
+          prev <= in_data;
           have <= 1'b1;
         end else begin
-          win[159:0] <= in_data;
-          have <= 1'b0;
-          if (match_body && (in_data[127:112] == cw22 || match_end)) begin
-            is_amctl <= 1'b1;
-            if (conf < VIBE_AMCTL_CONFIRM_N[1:0])
-              conf <= conf + 2'd1;
-            else
-              locked <= 1'b1;
-            unlk <= 2'd0;
-            // LID in symbols 16-23 of 40: second word bits
-            if (in_data[79:64] == cw3)
-              lid <= 2'd0;
-            else if (in_data[79:64] == cw8)
-              lid <= 2'd1;
-            else if (in_data[79:64] == cw9)
-              lid <= 2'd2;
-            else if (in_data[79:64] == cw10)
-              lid <= 2'd3;
-            else
-              lid_bad <= 1'b1;
-            sdf <= 1'b1;
-          end else if (locked) begin
-            if (unlk < VIBE_AMCTL_UNLOCK_N[1:0])
+          // Slip one 160b (AS Slip) instead of committing a bad pair.
+          prev <= in_data;
+          have <= 1'b1;
+          // UNLOCK_N only for legacy pair-slot hunt (unit TB); not TX-layout data.
+          if (locked && via_leg) begin
+            if (unlk >= (VIBE_AMCTL_UNLOCK_N[1:0] - 2'd1)) begin
+              locked  <= 1'b0;
+              conf    <= 2'd0;
+              unlk    <= 2'd0;
+              via_leg <= 1'b0;
+            end else
               unlk <= unlk + 2'd1;
-            else begin
-              locked <= 1'b0;
-              conf   <= 2'd0;
-            end
           end
         end
       end
