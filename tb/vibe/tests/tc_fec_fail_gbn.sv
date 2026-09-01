@@ -1,4 +1,4 @@
-// TP-FEC-005 / AS-0.1 §6/§12: FEC fail → Go-Back-N (start_retry), not irq-must.
+// TP-PHY-015: FEC decode >T fail → DLL start_retry (Go-Back-N). TP-RTY-001 maps to tc_retry_req_gbn.
 `timescale 1ns/1ps
 module tc_fec_fail_gbn;
   `include "vibe_tb_defs.svh"

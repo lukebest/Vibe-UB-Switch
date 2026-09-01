@@ -1,4 +1,4 @@
-// TP-FAB-004 / AS-0.1 §8: default all-0 → port 0; port 0 Down → drop+count, no flood.
+// TP-NW-003 / TP-NW-006: bitmap AND Status_Up; port0 Down → drop+count, no flood.
 `timescale 1ns/1ps
 module tc_p0_down_drop;
   logic        clk, rst_n;

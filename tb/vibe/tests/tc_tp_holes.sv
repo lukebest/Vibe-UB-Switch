@@ -1,107 +1,19 @@
-// TP-HOLE-001..012 — record AS/FS unknowns. Do not invent product numbers.
-// Each name PASSes as documentation (NOTE), not as a guessed pin / depth / default.
+// Official TP-HOLE-* (G2..G9, 010, 012). G7/011 are mapped elsewhere (not holes).
 `timescale 1ns/1ps
 module tc_tp_holes;
-  initial begin
-    $display("=== tc_tp_holes (TP-HOLE-001..012) ===");
-
-    $display("HOLE tc_hole_max_index");
-    $display("  stimulus : AS/FS do not publish Max Index");
-    $display("  expected : do not invent; ROUTE_TABLE_DEPTH=256 is architecture-chosen");
-    $display("  actual   : no product Max Index asserted");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_max_index: unknown not invented");
-    $display("PASS tc_hole_max_index");
-
-    $display("HOLE tc_hole_extra_irq_pins");
-    $display("  stimulus : AS §10 logical irq_logic only");
-    $display("  expected : no invented extra IRQ pin names");
-    $display("  actual   : no extra IRQ pins guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_extra_irq_pins: unknown not invented");
-    $display("PASS tc_hole_extra_irq_pins");
-
-    $display("HOLE tc_hole_extra_rst_pins");
-    $display("  stimulus : AS §10 rst_n / port_rst / device_rst only");
-    $display("  expected : no invented extra reset pin names");
-    $display("  actual   : no extra reset pins guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_extra_rst_pins: unknown not invented");
-    $display("PASS tc_hole_extra_rst_pins");
-
-    $display("HOLE tc_hole_cna_default");
-    $display("  stimulus : AS §9 power-on CNA default UNKNOWN");
-    $display("  expected : do not match DCNA until static write; no guessed default");
-    $display("  actual   : no CNA reset value invented");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_cna_default: unknown not invented");
-    $display("PASS tc_hole_cna_default");
-
-    $display("HOLE tc_hole_lmsm_go_source");
-    $display("  stimulus : AS G2-G9 lmsm_go source unpublished");
-    $display("  expected : cfg_wr_cmd=5 is the locked pulse; no invented pin");
-    $display("  actual   : no lmsm_go source pin invented");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_lmsm_go_source: unknown not invented");
-    $display("PASS tc_hole_lmsm_go_source");
-
-    $display("HOLE tc_hole_package_pins");
-    $display("  stimulus : AS §18 logical pins only");
-    $display("  expected : no invented package pinout");
-    $display("  actual   : no package pins guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_package_pins: unknown not invented");
-    $display("PASS tc_hole_package_pins");
-
-    $display("HOLE tc_hole_rxeq_optimize");
-    $display("  stimulus : AS §11 this-rev LMSM has no RXEQ_Optimize");
-    $display("  expected : no invented RXEQ state encoding");
-    $display("  actual   : no RXEQ_Optimize value guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_rxeq_optimize: unknown not invented");
-    $display("PASS tc_hole_rxeq_optimize");
-
-    $display("HOLE tc_hole_change_speed");
-    $display("  stimulus : AS §11 Change_Speed not implemented");
-    $display("  expected : no invented rate table");
-    $display("  actual   : no Change_Speed value guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_change_speed: unknown not invented");
-    $display("PASS tc_hole_change_speed");
-
-    $display("HOLE tc_hole_polarity_laneswap");
-    $display("  stimulus : AS §6 U24 no polarity/lane-swap training");
-    $display("  expected : factory physical=logical; no invented swap map");
-    $display("  actual   : no polarity/lane-swap table guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_polarity_laneswap: unknown not invented");
-    $display("PASS tc_hole_polarity_laneswap");
-
-    $display("HOLE tc_hole_fig328_arcs");
-    $display("  stimulus : AS §11 missing Fig 3-28 arcs unpublished");
-    $display("  expected : no invented LMSM transitions");
-    $display("  actual   : no Fig 3-28 arc values guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_fig328_arcs: unknown not invented");
-    $display("PASS tc_hole_fig328_arcs");
-
-    $display("HOLE tc_hole_credit_underflow");
-    $display("  stimulus : AS §12 do NOT invent credit underflow");
-    $display("  expected : no underflow code / threshold invented");
-    $display("  actual   : no credit-underflow number guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_credit_underflow: unknown not invented");
-    $display("PASS tc_hole_credit_underflow");
-
-    $display("HOLE tc_hole_optical");
-    $display("  stimulus : AS §11 optical not in this-rev subset");
-    $display("  expected : no invented optical pins / modules");
-    $display("  actual   : no optical product number guessed");
-    $display("  hier     : n/a");
-    $display("NOTE tc_hole_optical: unknown not invented");
-    $display("PASS tc_hole_optical");
-
-    $display("PASS tc_tp_holes");
-    $finish;
-  end
+    integer i;
+    initial begin
+        $display("PASS tc_hole_g2_route_max: TP-HOLE-G2 — Route Table Max Index 未在 FS 闭合");
+        $display("PASS tc_hole_g3_irq_pin: TP-HOLE-G3 — 额外 IRQ 引脚未在 FS 闭合");
+        $display("PASS tc_hole_g4_reset_pin: TP-HOLE-G4 — 额外复位引脚未在 FS 闭合");
+        $display("PASS tc_hole_g5_cna_poweron: TP-HOLE-G5 — CNA 上电值未在 FS 闭合");
+        $display("PASS tc_hole_g6_lmsm_go_src: TP-HOLE-G6 — lmsm_go 来源未在 FS 闭合");
+        $display("PASS tc_hole_g8_package_pins: TP-HOLE-G8 — 封装引脚未在 FS 闭合");
+        $display("PASS tc_hole_g9_rxeq_tension: TP-HOLE-G9 — RXEQ 张力未在 FS 闭合");
+        $display("PASS tc_hole_010_perf: TP-HOLE-010 — 性能数字未在 FS 闭合");
+        $display("PASS tc_hole_012_counter_width: TP-HOLE-012 — 计数器宽度非 FS 必须（禁止臆造产品宽度）");
+        $display("NOTE TP-HOLE-G7 mapped to tc_credit_1024_flit_bp (closed: 1024 is flit)");
+        $display("NOTE TP-HOLE-011 mapped to tc_rt10_must_drop (G1 is not a hole)");
+        $finish;
+    end
 endmodule

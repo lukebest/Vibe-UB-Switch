@@ -808,6 +808,37 @@ module vibe_suite;
     end
   endtask
 
+  // TP-CFG-002: CFG 3/4/5/7/9 + reserved 1/2/8/10/15 all forward (not terminate).
+  task automatic tc_cfg_fwd_class;
+    integer i, nfail;
+    reg [3:0] cfgs [0:9];
+    begin
+      $display("=== tc_cfg_fwd_class ===");
+      cfgs[0] = 4'd3; cfgs[1] = 4'd4; cfgs[2] = 4'd5; cfgs[3] = 4'd7; cfgs[4] = 4'd9;
+      cfgs[5] = 4'd1; cfgs[6] = 4'd2; cfgs[7] = 4'd8; cfgs[8] = 4'd10; cfgs[9] = 4'd15;
+      nfail = 0;
+      for (i = 0; i < 10; i = i + 1) begin
+        h.tb_reset();
+        h.tb_wr_route(16'h0001, 4'b1111);
+        h.tb_clr_mon();
+        h.tb_inject_hdr(0, cfgs[i], 2'b00, 4'd0, 16'h0001, 16'h0001,
+                        vibe_tb_plen_nflit(5), 3'd0, 8'd0);
+        h.tb_cycles(14);
+        if (h.u_fab.cfg6_hit[0] ||
+            (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
+          nfail = nfail + 1;
+      end
+      if (nfail) begin
+        h.tb_fail("tc_cfg_fwd_class",
+          "CFG 3/4/5/7/9 + reserved 1/2/8/10/15 RT=00 dest=1",
+          "each forwarded (x_in_v or egr) and cfg6_hit=0",
+          "one or more CFGs terminated or dropped",
+          "h.u_fab.x_in_v / cfg6_hit");
+      end else
+        h.tb_pass("tc_cfg_fwd_class");
+    end
+  endtask
+
   // CFG0 is terminated in DLL, not fabric. Fabric presents it like other CFGs.
   task automatic tc_cfg0_fabric_no_special;
     begin
@@ -929,6 +960,7 @@ module vibe_suite;
         "tc_cfg7_fwd":                 tc_cfg7_fwd();
         "tc_cfg9_fwd":                 tc_cfg9_fwd();
         "tc_cfg_reserved_fwd":         tc_cfg_reserved_fwd();
+        "tc_cfg_fwd_class":            tc_cfg_fwd_class();
         "tc_cfg0_fabric_no_special":   tc_cfg0_fabric_no_special();
         "tc_port_rst_via_cfg":         tc_port_rst_via_cfg();
         "tc_device_rst_via_cfg":       tc_device_rst_via_cfg();
@@ -962,6 +994,7 @@ module vibe_suite;
       run_named("tc_cfg7_fwd");
       run_named("tc_cfg9_fwd");
       run_named("tc_cfg_reserved_fwd");
+      run_named("tc_cfg_fwd_class");
       run_named("tc_cfg0_fabric_no_special");
       run_named("tc_port_rst_via_cfg");
       run_named("tc_device_rst_via_cfg");

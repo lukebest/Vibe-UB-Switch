@@ -174,6 +174,14 @@ run1 tc_neg_no_optical      "$T/tc_neg_no_optical.sv"
 run1 tc_tp_holes            "$T/tc_tp_holes.sv"
 run1 tc_fec_fail_gbn        "$T/tc_fec_fail_gbn.sv"      "$RTL/dll/vibe_dll_rx.sv"
 run1 tc_p0_down_drop        "$T/tc_p0_down_drop.sv"      "$RTL/fabric/vibe_port_sel.sv"
+run1 tc_id_nports_entity0   "$T/tc_id_nports_entity0.sv"
+run1 tc_cna_16bit           "$T/tc_cna_16bit.sv"         "$RTL/mgmt/vibe_cfg_space.sv"
+run1 tc_rt_g1_official      "$T/tc_rt_g1_official.sv" \
+  "$RTL/fabric/vibe_route_lu.sv" "$RTL/fabric/vibe_port_sel.sv"
+run1 tc_credit_grain_n      "$T/tc_credit_grain_n.sv"    "$RTL/dll/vibe_dll_credit.sv"
+run1 tc_credit_no_underflow "$T/tc_credit_no_underflow.sv"
+run1 tc_timers_indep        "$T/tc_timers_indep.sv"
+run1 tc_neg_official        "$T/tc_neg_official.sv"
 run1 tc_cfg9_no_icrc        "$T/tc_cfg9_no_icrc.sv" \
   "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
   "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
