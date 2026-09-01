@@ -2,19 +2,21 @@
 
 Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR4 HEAD rtl** (sim-only checkout; not committed).
 
+Matrix IDs are the **official 159** in [`TP-0.3.md`](TP-0.3.md). No reconstructed `TP-FEC-*`, `TP-CFG-008..012`, or `TP-HOLE-001..009`.
+
 | Item | Value |
 |------|--------|
 | RTL compiled SHA | `7a4abe2f1832603b52b5ae36c65f5b580c942661` |
-| RTL ref | `origin/cursor/as01-rtl-82c7` (PR #4 lineage; commit message: merge of PR #5) |
+| RTL ref | `origin/cursor/as01-rtl-82c7` (PR #4 lineage; merge of PR #5) |
 | Gate | `make -C tb/vibe sim` (suite + units + top + neg) |
 | `SIM_EXIT` | **0** |
-| `summarize.sh` | **TOTAL_PASS_LINES=134  TOTAL_FAIL_LINES=0** (excl. `cov.log`) |
-| Suite | **26/26 PASS** (`SUITE_RESULT PASS`) |
-| Units | **all `run1` files PASS** (`fail_n=0`; includes new hole/gap TCs) |
+| `summarize.sh` | **TOTAL_PASS_LINES=162  TOTAL_FAIL_LINES=0** (excl. `cov.log`) |
+| Suite | **27/27 PASS** (`SUITE_RESULT PASS`; includes `tc_cfg_fwd_class`) |
+| Units | **all `run1` files PASS** (`fail_n=0`) |
 | Top | `PASS tc_top_smoke` |
-| Neg scan | 10/10 PASS (incl. new `neg_optical`) |
+| Neg scan | 10/10 PASS (incl. `neg_optical`) |
 
-Checkers were **not** weakened. G1 still DROP + `rt_shortest_unimpl` + sticky `irq_logic`. Credit threshold **1024 is flit**. Credit 1 µs and VOQ deadlock 1 µs are independent. CFG6 three terminate classes else FORWARD.
+Checkers were **not** weakened. G1 still DROP + `rt_shortest_unimpl` + sticky `irq_logic`. Credit threshold **1024 is flit**. Credit 1 µs and VOQ deadlock 1 µs are independent. CFG6 three terminate classes else FORWARD. CNA is **16-bit**.
 
 ## FAIL list (handoff to 设计)
 
@@ -24,24 +26,39 @@ There is no stimulus / expected / actual / hier / reproduce block to quote. If a
 
 Stale `tb/vibe/results/cov.log` (Verilator coverage, not part of `make sim`) still contains historical FAIL lines and is **excluded**.
 
-## New TCs this pass (all PASS vs `7a4abe2`)
+## Official remaps (kept TCs)
 
-| TC | TP | Notes |
-|----|----|--------|
-| `tc_p0_down_drop` | TP-FAB-004 | default all-0 → port 0; port 0 Down → drop+count |
-| `tc_cfg9_no_icrc` | TP-CFG-011 / TP-ICRC-003 | CFG9 no ICRC; CCI/LBF unchanged; forward |
-| `tc_fec_fail_gbn` | TP-FEC-005 | `fec_fail` → `start_retry` |
-| `tc_tp_holes` | TP-HOLE-001..012 | PASS + NOTE; no invented values |
-| `tc_neg_no_optical` | NEG companion | optical absent |
+| TC | Official TP | Notes |
+|----|-------------|--------|
+| `tc_p0_down_drop` | TP-NW-003 (also TP-NW-006) | port0 Down → drop+count; no flood |
+| `tc_cfg9_no_icrc` | TP-ICRC-004 (also TP-NEG-004) | CFG9 no ICRC; forward |
+| `tc_fec_fail_gbn` | TP-PHY-015 | `fec_fail` → `start_retry`; TP-RTY-001 → `tc_retry_req_gbn` |
+| `tc_tp_holes` | TP-HOLE-G2..G6, G8, G9, 010, 012 | split PASS notes; G7/011 mapped elsewhere |
+| `tc_neg_no_optical` | TP-PHY-005 | optical absent |
+
+## New MUST TCs this pass (all PASS vs `7a4abe2`)
+
+| TC | Official TP | Notes |
+|----|-------------|--------|
+| `tc_id_nports_entity0` | TP-ID-002 / TP-NEG-010 | N_PORTS=4; no fifth port |
+| `tc_cna_16bit` | TP-CFG-007 | write `00ABCDEF` → `cna=16'hCDEF` |
+| `tc_rt_g1_official` | TP-RT-010/012/014/015/016 | RT=11 not as 01; unique/default still DROP |
+| `tc_credit_grain_n` | TP-CRD-001/002 | n=8 → +1 cell; sat 65535 → `fc_ovf` |
+| `tc_credit_no_underflow` | TP-CRD-008 | no invented underflow code |
+| `tc_timers_indep` | TP-TIM-002 | `VIBE_US_CYC=1250`; two modules |
+| `tc_neg_official` | TP-NEG-* / ID-005/006 / … | compile-time absence |
+| `tc_cfg_fwd_class` | TP-CFG-002 | suite: CFG 3/4/5/7/9 + reserved fwd |
 
 ## Notable existing TCs vs this SHA
 
 | TC | Result |
 |----|--------|
 | `tc_nw_pkt_to_pma_tx` | PASS |
-| `tc_nw_pkt_pma_loopback` | PASS — `fab_rx` LPH+payload; `am_lock_end=1111`; `saw_fec_fail=0` |
+| `tc_nw_pkt_pma_loopback` | PASS |
 | `tc_rt10_must_drop` / `tc_rt11_must_drop` | PASS |
+| `tc_rt_irq_logic_sticky` | PASS (official TP-RT-007) |
 | `tc_cfg6_term_vs_fwd` | PASS |
+| `tc_credit_1024_flit_bp` | PASS (official TP-HOLE-G7 closed) |
 
 ## Reproduce
 
@@ -56,4 +73,5 @@ git checkout HEAD -- rtl
 
 ## Matrix
 
-See `TP_TC_MATRIX.md`: **159/159** TPs. Verdicts: MAPPED=130, ADDED=4, HOLE=12, NEG=13.
+See [`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) vs [`TP-0.3.md`](TP-0.3.md): **ID sets equal, 159/159**.
+Verdicts: MAPPED=106, ADDED=16, HOLE=9, NEG=28.
