@@ -10,13 +10,29 @@ Matrix IDs are the **official 159** in [`TP-0.3.md`](TP-0.3.md). No reconstructe
 | RTL ref | `origin/cursor/as01-rtl-82c7` (PR #4 lineage; merge of PR #5) |
 | Gate | `make -C tb/vibe sim` (suite + units + top + neg) |
 | `SIM_EXIT` | **0** |
-| `summarize.sh` | **TOTAL_PASS_LINES=162  TOTAL_FAIL_LINES=0** (excl. `cov.log`) |
+| `summarize.sh` | **TOTAL_PASS_LINES=162  TOTAL_FAIL_LINES=0** (excl. `cov.log`; leftover `tc_credit.log` removed) |
 | Suite | **27/27 PASS** (`SUITE_RESULT PASS`; includes `tc_cfg_fwd_class`) |
 | Units | **all `run1` files PASS** (`fail_n=0`) |
 | Top | `PASS tc_top_smoke` |
 | Neg scan | 10/10 PASS (incl. `neg_optical`) |
 
 Checkers were **not** weakened. G1 still DROP + `rt_shortest_unimpl` + sticky `irq_logic`. Credit threshold **1024 is flit**. Credit 1 µs and VOQ deadlock 1 µs are independent. CFG6 three terminate classes else FORWARD. CNA is **16-bit**.
+
+## SHELL → REAL (this pass)
+
+Seven former shells now compare stimulus / expected / actual / hier and can FAIL. `tc_tp_holes` stays HOLE documentation (no invented Max Index / pin / CNA default).
+
+| TC | Result vs `7a4abe2` |
+|----|---------------------|
+| `tc_port_smoke` | PASS — PMA lane-pack + RX LPH (TP-PHY-001) |
+| `tc_pcs_tx` | PASS — `lane_vld` + golden lanes |
+| `tc_pcs_rx` | PASS — TX→RX T=4 `dll_vld` + LPH |
+| `tc_fabric_line_holes` | PASS — CFG6 hit + G1 sat |
+| `tc_neg_official` | PASS — 19 official NEG scans + summary (rtl grep) |
+| `tc_credit_1024_hole` | PASS — 1023→1024 `bp_nw` (G7 closed) |
+| `tc_top_smoke` | PASS — RT=10 on `rxdata_0` → `irq_logic` |
+
+Optional: `tc_credit_no_underflow` PASS; `tc_timers_indep` PASS.
 
 ## FAIL list (handoff to 设计)
 
@@ -44,9 +60,9 @@ Stale `tb/vibe/results/cov.log` (Verilator coverage, not part of `make sim`) sti
 | `tc_cna_16bit` | TP-CFG-007 | write `00ABCDEF` → `cna=16'hCDEF` |
 | `tc_rt_g1_official` | TP-RT-010/012/014/015/016 | RT=11 not as 01; unique/default still DROP |
 | `tc_credit_grain_n` | TP-CRD-001/002 | n=8 → +1 cell; sat 65535 → `fc_ovf` |
-| `tc_credit_no_underflow` | TP-CRD-008 | no invented underflow code |
-| `tc_timers_indep` | TP-TIM-002 | `VIBE_US_CYC=1250`; two modules |
-| `tc_neg_official` | TP-NEG-* / ID-005/006 / … | compile-time absence |
+| `tc_credit_no_underflow` | TP-CRD-008 | scan + return-without-consume |
+| `tc_timers_indep` | TP-TIM-002 | credit expiry must not set VOQ drop |
+| `tc_neg_official` | TP-NEG-* / ID-005/006 / … | `scan_official_neg.py` on `vibe_*.sv` |
 | `tc_cfg_fwd_class` | TP-CFG-002 | suite: CFG 3/4/5/7/9 + reserved fwd |
 
 ## Notable existing TCs vs this SHA
