@@ -170,6 +170,15 @@ run1 tc_neg_ubfm            "$T/tc_neg_ubfm.sv"
 run1 tc_neg_hi_fec_ber      "$T/tc_neg_hi_fec_ber.sv"
 run1 tc_neg_probe           "$T/tc_neg_probe.sv"
 run1 tc_neg_dijkstra        "$T/tc_neg_dijkstra.sv"
+run1 tc_neg_no_optical      "$T/tc_neg_no_optical.sv"
+run1 tc_tp_holes            "$T/tc_tp_holes.sv"
+run1 tc_fec_fail_gbn        "$T/tc_fec_fail_gbn.sv"      "$RTL/dll/vibe_dll_rx.sv"
+run1 tc_p0_down_drop        "$T/tc_p0_down_drop.sv"      "$RTL/fabric/vibe_port_sel.sv"
+run1 tc_cfg9_no_icrc        "$T/tc_cfg9_no_icrc.sv" \
+  "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
+  "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
+  "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
+  "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv"
 
 echo "UNITS pass_files=$pass_n fail_files=$fail_n compile_fail=$compile_fail"
 if [ "$fail_n" -ne 0 ]; then
