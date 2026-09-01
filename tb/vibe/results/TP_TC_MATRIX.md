@@ -8,6 +8,15 @@ Verdict: **MAPPED** existing TC scores this official rule;
 **ADDED** new TC this pass; **HOLE** unknown not invented;
 **NEG** absent-feature / scan.
 
+SHELL→REAL (same 159 IDs): `tc_port_smoke` scores PMA lane-pack + RX LPH
+(TP-PHY-001). `tc_pcs_tx` / `tc_pcs_rx` score `lane_vld` / `dll_vld` vs golden.
+`tc_fabric_line_holes` scores CFG6 hit + TP-RT-013 sat (not a hole punch).
+`tc_neg_official` greps `rtl/vibe_*.sv` (one PASS per official NEG after clean).
+`tc_credit_1024_hole` is a thin 1023→1024 `bp_nw` wrapper (G7 closed;
+TP-HOLE-G7 / TP-CRD-004 stay on `tc_credit_1024_flit_bp`).
+`tc_top_smoke` drives a real RT=10 packet on `rxdata_0` and scores `irq_logic`.
+`tc_tp_holes` remains HOLE documentation — do not invent Max Index / pins.
+
 Counts: MAPPED=106 ADDED=16 HOLE=9 NEG=28 (sum=159)
 
 | TP | rule (short) | TC name | file | verdict |

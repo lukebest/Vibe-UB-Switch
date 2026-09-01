@@ -1,45 +1,58 @@
-// Official TP-NEG-* / ID-005/006 / VL-003 / FECN-002 / QOS-001 / FAB-004 /
-// IRQ-003 / ERR-003 — compile-time absence. Do not invent features.
+// Official TP-NEG-* / ID-005/006 / … — RTL scan (generated include).
+// FAIL if a forbidden identifier appears in vibe_*.sv code (not prohibition comments).
 `timescale 1ns/1ps
 module tc_neg_official;
+  `include "neg_official_scan.inc"
+  integer fail;
+
+  task automatic one;
+    input integer hit;
+    input [8*40-1:0] name;
+    input [8*60-1:0] token;
+    begin
+      if (hit) begin
+        $display("FAIL %0s", name);
+        $display("  stimulus : scan rtl/vibe_*.sv for %0s", token);
+        $display("  expected : identifier absent from code (comments citing ban OK)");
+        $display("  actual   : token present in RTL");
+        $display("  hier     : rtl/**/vibe_*.sv");
+        $display("  reproduce: python3 tb/vibe/scripts/scan_official_neg.py rtl --inc /tmp/n.inc");
+        fail = 1;
+      end else
+        $display("PASS %0s", name);
+    end
+  endtask
+
   initial begin
-    $display("NEG TP-ID-005: protocol follows UB Base 2.0 only (AS-0.1). PASS");
-    $display("PASS tc_id_spec_2_0_only");
-    $display("NEG TP-ID-006: appendix D beyond named subset not implemented. PASS");
-    $display("PASS tc_id_appendix_d_subset");
-    $display("NEG TP-VL-003: no SL. PASS");
-    $display("PASS tc_vl_no_sl");
-    $display("NEG TP-FECN-002: not CAQM. PASS");
-    $display("PASS tc_fecn_no_caqm");
-    $display("NEG TP-QOS-001: NPI datapath disabled. PASS");
-    $display("PASS tc_qos_npi_disabled");
-    $display("NEG TP-NW-008: no UPI / Port IP routing. PASS");
-    $display("PASS tc_nw_no_upi_port_ip");
-    $display("NEG TP-FAB-004: no hop/qdepth MUST. PASS");
-    $display("PASS tc_fab_no_hop_qdepth_must");
-    $display("NEG TP-IRQ-003: no hotplug IRQ. PASS");
-    $display("PASS tc_irq_no_hotplug");
-    $display("NEG TP-ERR-003: no attack requirement. PASS");
-    $display("PASS tc_err_no_attack_req");
-    $display("NEG TP-NEG-001: no Transport/Transaction/Function endpoint. PASS");
-    $display("PASS tc_neg_no_transport_ep");
-    $display("NEG TP-NEG-002: no UMMU. PASS");
-    $display("PASS tc_neg_no_ummu");
-    $display("NEG TP-NEG-003: no UBoE. PASS");
-    $display("PASS tc_neg_no_uboe");
-    $display("NEG TP-NEG-005: no analog PMA. PASS");
-    $display("PASS tc_neg_no_analog_pma");
-    $display("NEG TP-NEG-006: no secret IP. PASS");
-    $display("PASS tc_neg_no_secret_ip");
-    $display("NEG TP-NEG-007: no host CSR pins. PASS");
-    $display("PASS tc_neg_no_host_csr");
-    $display("NEG TP-NEG-008: no off-chip APB/AXI/I2C/JTAG. PASS");
-    $display("PASS tc_neg_no_offchip_mgmt");
-    $display("NEG TP-NEG-009: old README numbers are void. PASS");
-    $display("PASS tc_neg_no_readme_numbers");
-    $display("NEG TP-NEG-011: no FS-7 bundle. PASS");
-    $display("PASS tc_neg_no_fs7_bundle");
-    $display("PASS tc_neg_official");
+    fail = 0;
+    if (NEG_SCAN_OPEN_FAIL) begin
+      $display("FAIL tc_neg_official");
+      $display("  stimulus : scan_official_neg.py --inc");
+      $display("  expected : rtl/ readable, include generated");
+      $display("  actual   : NEG_SCAN_OPEN_FAIL=1");
+      $display("  hier     : tb/vibe/scripts/scan_official_neg.py");
+      fail = 1;
+    end
+    one(HIT_UB3,     "tc_id_spec_2_0_only",        "UB_BASE_3 / ub_base_3");
+    one(HIT_APXD,    "tc_id_appendix_d_subset",    "QDLWS / APPENDIX_D_FULL");
+    one(HIT_SL,      "tc_vl_no_sl",                "SL_MAP / sl_to_vl");
+    one(HIT_CAQM,    "tc_fecn_no_caqm",            "CAQM");
+    one(HIT_NPI,     "tc_qos_npi_disabled",        "npi_filter / npi_en");
+    one(HIT_UPI,     "tc_nw_no_upi_port_ip",       "UPI_ROUTE / port_ip_lu");
+    one(HIT_HOP,     "tc_fab_no_hop_qdepth_must",  "hop_cnt / qdepth_must");
+    one(HIT_HOTPLUG, "tc_irq_no_hotplug",          "hotplug");
+    one(HIT_ATTACK,  "tc_err_no_attack_req",       "attack_detect");
+    one(HIT_XPORT,   "tc_neg_no_transport_ep",     "transport_ep / function_ep");
+    one(HIT_UMMU,    "tc_neg_no_ummu",             "UMMU");
+    one(HIT_UBOE,    "tc_neg_no_uboe",             "UBoE");
+    one(HIT_ANA,     "tc_neg_no_analog_pma",       "gray_map / precoder / serdes_ana");
+    one(HIT_SECRET,  "tc_neg_no_secret_ip",        "secret_ip");
+    one(HIT_HCSR,    "tc_neg_no_host_csr",         "apb_paddr / axi4_ / host_csr_");
+    one(HIT_OFFCHIP, "tc_neg_no_offchip_mgmt",     "i2c_sda / jtag_tck");
+    one(HIT_README,  "tc_neg_no_readme_numbers",   "OLD_README / ub_v0_nport");
+    one(HIT_FS7,     "tc_neg_no_fs7_bundle",       "FS7_ / fs7_bundle");
+    one(HIT_P5,      "tc_neg_no_fifth_port",       "txdata_4 / vibe_port_4");
+    if (!fail) $display("PASS tc_neg_official");
     $finish;
   end
 endmodule
