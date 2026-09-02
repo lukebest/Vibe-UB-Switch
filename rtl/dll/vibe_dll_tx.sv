@@ -1,6 +1,9 @@
 // AS-0.1.2 / FS-0.2.7 overlay B: 512b NW byte stream → 20B flits with
-// cross-beat remainder (64B beat, 20B flit, rem 4B). When 4 flits are
-// ready, emit one 640b beat to PCS with BCRC (CRC30, last 32b of the 640).
+// cross-beat remainder (64B beat, 20B flit, rem 4B). Emit one 640b beat
+// (4 flits + BCRC in last 32b) when a group is ready. A short EOP that
+// leaves fq_n % 4 != 0 is Null-padded to the next 4-flit group (UB T2 /
+// AS T1); otherwise a 1-flit packet sits forever and idle AMCTL still
+// makes PMA txdata nonzero. Credit consume counts data flits only.
 // Backpressure if credit low / retry full / REQ|WAIT dropping data /
 // pending >= 1024 cell. CFG0 does not consume credit.
 module vibe_dll_tx (
@@ -143,6 +146,21 @@ module vibe_dll_tx (
       if (n_flits >= 3'd3) fq_nxt[fq_n_nxt + 4'd2] = nf2;
       if (n_flits >= 3'd4) fq_nxt[fq_n_nxt + 4'd3] = nf3;
       fq_n_nxt = fq_n_nxt + {1'b0, n_flits};
+      // EOP: pad leftover data flits with Null Blocks to a 4-flit group.
+      if (cur_left <= {9'b0, val_b}) begin
+        if (fq_n_nxt[1:0] != 2'b00) begin
+          fq_nxt[fq_n_nxt] = 160'd0;
+          fq_n_nxt = fq_n_nxt + 4'd1;
+        end
+        if (fq_n_nxt[1:0] != 2'b00) begin
+          fq_nxt[fq_n_nxt] = 160'd0;
+          fq_n_nxt = fq_n_nxt + 4'd1;
+        end
+        if (fq_n_nxt[1:0] != 2'b00) begin
+          fq_nxt[fq_n_nxt] = 160'd0;
+          fq_n_nxt = fq_n_nxt + 4'd1;
+        end
+      end
     end
   end
 

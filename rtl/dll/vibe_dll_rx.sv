@@ -1,7 +1,9 @@
 // AS-0.1.2 / FS-0.2.7 overlay B: 640b PCS → 4 flits, unBCRC (wire flits
 // including CRC in last 32b of the group), pack to 512b NW beats with
 // remainder. LPH is the first 160b flit of the assembled packet.
-// CFG0 terminate. FEC/BCRC fail → Go-Back-N. dll_rxbuf = 1024 flit/VL.
+// After EOP, drop intra-group leftover (Null pad + BCRC tail) so it
+// cannot prefix the next SOP. CFG0 terminate. FEC/BCRC fail → Go-Back-N.
+// dll_rxbuf = 1024 flit/VL.
 module vibe_dll_rx #(
   parameter int RXBUF = 1024
 ) (
@@ -116,6 +118,9 @@ module vibe_dll_rx #(
         if (left_now <= {8'b0, emit_n}) begin
           pkt_act  <= 1'b0;
           pkt_left <= 16'd0;
+          // EOP: TX Null-pads the 4-flit group; leftover is pad/BCRC.
+          by_lj    <= 1280'd0;
+          by_n     <= 8'd0;
         end else begin
           pkt_act  <= 1'b1;
           pkt_left <= left_now - {8'b0, emit_n};
