@@ -60,7 +60,7 @@ module tc_cfg9_no_icrc;
     ing_vld[0] = 0;
     repeat (16) @(posedge clk);
 
-    saf_f = u_fab.saf_d[0][511:352];
+    saf_f = vibe_nw512_flit0(u_fab.saf_d[0]);
     if (cfg6_hit[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 (not terminate class)");

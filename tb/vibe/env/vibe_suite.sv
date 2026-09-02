@@ -730,14 +730,14 @@ module vibe_suite;
       out_f = 160'd0;
       if (h.saw_egr[3]) begin
         got   = 1;
-        out_f = h.egr_last[3][511:352];
-      end else if (h.saw_egr[0]) begin got = 1; out_f = h.egr_last[0][511:352]; end
-      else if (h.saw_egr[1]) begin got = 1; out_f = h.egr_last[1][511:352]; end
-      else if (h.saw_egr[2]) begin got = 1; out_f = h.egr_last[2][511:352]; end
+        out_f = vibe_nw512_flit0(h.egr_last[3]);
+      end else if (h.saw_egr[0]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[0]); end
+      else if (h.saw_egr[1]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[1]); end
+      else if (h.saw_egr[2]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[2]); end
       // iverilog: xbar 512b unpacked data is X so egr may never rise.
       // Score transit on SAF header (no ICRC instance in fabric).
-      if (vibe_nth_cci(h.u_fab.saf_d[0][511:352]) !== vibe_nth_cci(in_f) ||
-          vibe_nth_lbf(h.u_fab.saf_d[0][511:352]) !== vibe_nth_lbf(in_f)) begin
+      if (vibe_nth_cci(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_cci(in_f) ||
+          vibe_nth_lbf(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_lbf(in_f)) begin
         h.tb_fail("tc_icrc_transit_no_recompute",
           "transit CFG3 sitting in SAF",
           "CCI/LBF unchanged (fabric has no vibe_icrc)",
