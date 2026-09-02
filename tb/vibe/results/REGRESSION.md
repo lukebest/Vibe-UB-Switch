@@ -4,7 +4,7 @@ Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 HEAD** (sim-only; **no
 
 Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged.
 - NW↔DLL `data[511:0]` must match a unique 512-bit GOLDEN (TX and RX), not width-only.
-- GOLDEN is not all-zero and not `old640[511:0]`. No LPH/NTH extract on the 512 bus.
+- GOLDEN is not all-zero and not `old640[511:0]`. SOP LPH is `[511:352]` (设计); not README `[511:496]`.
 - 640-bit DUT pin cannot PASS by matching `[511:0]`.
 
 | Item | Value |
@@ -35,7 +35,7 @@ Checkers compare full 512-bit GOLDEN **and** SOP LPH fields from GOLDEN[511:352]
 
 ```bash
 git fetch origin cursor/as01-rtl-82c7
-git checkout a3ecec9 -- rtl
+git checkout a3ecec9f40e987e2dc49f586c34092c3ede5baa5 -- rtl
 git restore --staged rtl
 make -C tb/vibe units
 git checkout HEAD -- rtl
