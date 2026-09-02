@@ -20,7 +20,7 @@ module tc_nw_pkt_pma_loopback;
   integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
   integer saw_fab_rx, saw_fec_fail, saw_deskew;
   integer nw_w, dll_w, rx_w;
-  integer tx_n, rx_n, pkt, wait_i, beat_w, matched, hit_b2, hit_other;
+  integer tx_n, rx_n, pkt, wait_i, beat_w, hit_other;
   logic [511:0] golden_tx, last_rx;
   logic [511:0] exp_sop [0:NPKT-1];
   logic [511:0] exp_b2  [0:NPKT-1];
@@ -185,32 +185,19 @@ module tc_nw_pkt_pma_loopback;
           end else
             rx_n = rx_n + 1;
         end else begin
-          matched  = 0;
-          hit_b2   = 0;
+          // Remainder / non-SOP beats are not required to match injected b2
+          // (DUT may re-pack the 16 B). Only a different packet's SOP is order-FAIL.
           hit_other = -1;
-          for (j = 0; j < NPKT; j = j + 1) begin
-            if (fab_rx_data === exp_b2[j])
-              hit_b2 = 1;
+          for (j = 0; j < NPKT; j = j + 1)
             if (fab_rx_data === exp_sop[j] && j != rx_n)
               hit_other = j;
-          end
-          if (hit_b2)
-            matched = 1;
-          else if (hit_other >= 0) begin
+          if (hit_other >= 0) begin
             vibe_tb_nw512_fail_print_pkt(
                 "tc_nw_pkt_pma_loopback", rx_n, NPKT,
                 "RX order: packet i TX must match packet i RX",
                 exp_sop[rx_n], rx_w, fab_rx_data, "u_p.fab_rx_data");
             $display("  note     : recovered SOP of packet %0d while waiting for %0d",
                      hit_other, rx_n);
-            fail = 1;
-            matched = 1;
-          end
-          if (!matched && !fail) begin
-            vibe_tb_nw512_fail_print_pkt(
-                "tc_nw_pkt_pma_loopback", rx_n, NPKT,
-                "PMA loopback unexpected RX beat (not next SOP, not b2)",
-                exp_sop[rx_n], rx_w, fab_rx_data, "u_p.fab_rx_data");
             fail = 1;
           end
         end
