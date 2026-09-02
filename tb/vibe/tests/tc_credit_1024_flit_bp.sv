@@ -1,5 +1,7 @@
-// FS-0.2.4 / G7: credit return threshold 1024 is FLIT (not cell). No divide-by-n.
-// pending >= 1024 flit → bp_nw and force Crd_Ack.
+// FS-0.2.6 / 0.2.7 / G7: credit return threshold 1024 is CELL (not flit).
+// Official unit is cell; this instance does not convert 1024 into 1024×n flit.
+// pending >= 1024 cell → bp_nw and force Crd_Ack.
+// Filename is historical; the score is cell.
 `timescale 1ns/1ps
 
 module tc_credit_1024_flit_bp;
@@ -47,7 +49,7 @@ module tc_credit_1024_flit_bp;
     rst_n = 1;
     repeat (2) @(posedge clk);
 
-    // 1023 flit: must NOT backpressure
+    // 1023 cell: must NOT backpressure
     @(negedge clk);
     credit_ret = 1; credit_ret_n = 16'd1023;
     @(posedge clk);
@@ -56,8 +58,8 @@ module tc_credit_1024_flit_bp;
     @(posedge clk);
     if (pending !== 16'd1023) begin
       $display("FAIL tc_credit_1024_flit_bp");
-      $display("  stimulus : credit_ret_n=1023 flit (no consume, no /n)");
-      $display("  expected : pending==1023 (flit count, not ceil_div)");
+      $display("  stimulus : credit_ret_n=1023 cell (already cells, no ×n / no /n)");
+      $display("  expected : pending==1023 cell (not 1023 flit, not ceil_div)");
       $display("  actual   : pending=%0d", pending);
       $display("  hier     : u_crd.pend");
       $display("  reproduce: make -C tb/vibe units");
@@ -65,14 +67,14 @@ module tc_credit_1024_flit_bp;
     end
     if (bp_nw) begin
       $display("FAIL tc_credit_1024_flit_bp");
-      $display("  stimulus : pending=1023 flit");
-      $display("  expected : bp_nw=0 (threshold is 1024 flit)");
+      $display("  stimulus : pending=1023 cell");
+      $display("  expected : bp_nw=0 (threshold is 1024 cell)");
       $display("  actual   : bp_nw=1");
       $display("  hier     : u_crd.bp_nw");
       fail = 1;
     end
 
-    // +1 flit → 1024
+    // +1 cell → 1024
     @(negedge clk);
     credit_ret = 1; credit_ret_n = 16'd1;
     @(posedge clk);
@@ -81,8 +83,8 @@ module tc_credit_1024_flit_bp;
     @(posedge clk);
     if (pending !== 16'd1024 || !bp_nw || !force_crd_ack) begin
       $display("FAIL tc_credit_1024_flit_bp");
-      $display("  stimulus : pending reaches 1024 flit via credit_ret_n (no /n)");
-      $display("  expected : pending=1024 bp_nw=1 force_crd_ack=1");
+      $display("  stimulus : pending reaches 1024 cell via credit_ret_n (not ×n flit)");
+      $display("  expected : pending=1024 cell bp_nw=1 force_crd_ack=1");
       $display("  actual   : pending=%0d bp=%0b ack=%0b", pending, bp_nw, force_crd_ack);
       $display("  hier     : u_crd.pend / bp_nw / force_crd_ack");
       $display("  reproduce: make -C tb/vibe units");

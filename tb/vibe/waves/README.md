@@ -12,10 +12,10 @@ Clock in these dumps is Icarus `#1` with `timescale 1ns/1ps` → VCD unit **1 ps
 |---|---------|------|-----|-----|----------------|
 | 1 | `tc_rt10_must_drop` (suite) | AS-0.1 G1 / TP-RT-003: RT=10 DROP, `rt_shortest_unimpl` +1, sticky `irq_logic`, egress stays 0 | [`g1_rt10.png`](g1_rt10.png) | [`g1_rt10.vcd`](g1_rt10.vcd) | `PASS tc_rt10_must_drop` |
 | 2 | `tc_cfg6_term_vs_fwd` (suite) | AS-0.1 §9: terminate local-CNA / NLP=1 / opc `0x10` targeting-us; else FORWARD | [`cfg6_term_vs_fwd.png`](cfg6_term_vs_fwd.png) | [`cfg6_term_vs_fwd.vcd`](cfg6_term_vs_fwd.vcd) | `PASS tc_cfg6_term_vs_fwd` |
-| 3 | `tc_credit_1024_flit_bp` (unit) | FS-0.2.4 / G7: threshold **1024 is FLIT**, no divide-by-n on `pending` | [`credit_1024_flit.png`](credit_1024_flit.png) | [`credit_1024_flit.vcd`](credit_1024_flit.vcd) | `PASS tc_credit_1024_flit_bp` |
+| 3 | `tc_credit_1024_flit_bp` (unit) | FS-0.2.7 / G7: threshold **1024 is CELL** (filename historical) | [`credit_1024_flit.png`](credit_1024_flit.png) | [`credit_1024_flit.vcd`](credit_1024_flit.vcd) | `PASS tc_credit_1024_flit_bp` |
 | 4 | `tc_credit_timeout_1us` (unit) | 1 µs credit-return timeout → `proto_err` (`vibe_dll_credit.to`) | [`credit_timeout_1us.png`](credit_timeout_1us.png) | [`credit_timeout_1us.vcd`](credit_timeout_1us.vcd) | `PASS tc_credit_timeout_1us` |
 | 5 | `tc_deadlock_timeout_1us` (unit) | 1 µs VOQ deadlock (`vibe_voq_egr.age`) — **not** the credit counter | [`voq_deadlock_1us.png`](voq_deadlock_1us.png) | [`voq_deadlock_1us.vcd`](voq_deadlock_1us.vcd) | `PASS tc_deadlock_timeout_1us` |
-| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012: NW → PMA `txdata` looped to `rxdata` → `fab_rx` LPH+payload | [`nw_pkt_pma_loopback.png`](nw_pkt_pma_loopback.png) | [`nw_pkt_pma_loopback.vcd`](nw_pkt_pma_loopback.vcd) | `PASS tc_nw_pkt_pma_loopback` |
+| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012: recover full 512b GOLDEN_TX + SOP LPH `[511:352]` after PMA loopback. vs `a3ecec9f`: **PASS** | [`nw_pkt_pma_loopback.png`](nw_pkt_pma_loopback.png) | [`nw_pkt_pma_loopback.vcd`](nw_pkt_pma_loopback.vcd) | `PASS tc_nw_pkt_pma_loopback` |
 
 Each PNG is one annotated window (CFG6 / both 1 µs timeouts use a load+fire pair on one image): signal names, 0/1 or dec/hex values, a vertical marker at the score event, and expected-vs-actual caption.
 

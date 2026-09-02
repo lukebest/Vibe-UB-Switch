@@ -1,4 +1,4 @@
-// G7 closed: 1024 is flit. Same 1023→1024 bp_nw score as tc_credit_1024_flit_bp.
+// G7 closed: 1024 is cell. Same 1023→1024 cell bp_nw score as tc_credit_1024_flit_bp.
 `timescale 1ns/1ps
 module tc_credit_1024_hole;
   `include "vibe_ub_params.vh"
@@ -39,8 +39,8 @@ module tc_credit_1024_hole;
     @(posedge clk);
     if (pending !== 16'd1023 || bp_nw) begin
       $display("FAIL tc_credit_1024_hole");
-      $display("  stimulus : credit_ret_n=1023 flit (no /n)");
-      $display("  expected : pending=1023 bp_nw=0");
+      $display("  stimulus : credit_ret_n=1023 cell (no ×n / no /n)");
+      $display("  expected : pending=1023 cell bp_nw=0");
       $display("  actual   : pending=%0d bp_nw=%0b", pending, bp_nw);
       $display("  hier     : u_crd.pend / bp_nw");
       $display("  reproduce: make -C tb/vibe units");
@@ -54,8 +54,8 @@ module tc_credit_1024_hole;
     @(posedge clk);
     if (pending !== 16'd1024 || !bp_nw || !force_crd_ack) begin
       $display("FAIL tc_credit_1024_hole");
-      $display("  stimulus : pending reaches 1024 flit via credit_ret_n");
-      $display("  expected : pending=1024 bp_nw=1 force_crd_ack=1");
+      $display("  stimulus : pending reaches 1024 cell via credit_ret_n");
+      $display("  expected : pending=1024 cell bp_nw=1 force_crd_ack=1");
       $display("  actual   : pending=%0d bp=%0b ack=%0b", pending, bp_nw, force_crd_ack);
       $display("  hier     : u_crd.pend / bp_nw / force_crd_ack");
       $display("  reproduce: make -C tb/vibe units");

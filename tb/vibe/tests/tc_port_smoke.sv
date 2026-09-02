@@ -1,18 +1,19 @@
-// TP-PHY-001: full-duplex port. After a legal NW/LPH beat is accepted,
-// PMA txdata[511:0] is nonzero and lane-packed. RX scored via txdata loopback.
+// TP-PHY-001: full-duplex port. Overlay B: 512-bit GOLDEN TX NW→DLL and
+// RX DLL→NW after PMA loopback. Width is a gate; content is the must.
 `timescale 1ns/1ps
 module tc_port_smoke;
   `include "vibe_tb_defs.svh"
-  `include "vibe_tb_nw_pma.svh"
+  `include "vibe_tb_nw512.svh"
   logic clk_fab, rst_n, port_rst, device_rst, lmsm_go, txclk, rxclk;
   logic [511:0] txdata, rxdata;
-  logic [639:0] fab_tx_data, fab_rx_data, mgmt_tx_data, cfg0_data;
+  logic [511:0] fab_tx_data, fab_rx_data, mgmt_tx_data;
+  logic [639:0] cfg0_data;
   logic fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready;
   logic mgmt_tx_vld, mgmt_tx_ready, status_up, disabled, retry_error;
   logic proto_err, fc_ovf, rx_ovf, afifo_ovf, cfg0_hit;
-  integer fail, i, accepted, saw_tx, pack_ok, saw_rx, last_v;
-  logic [511:0] last_pack;
-  logic [639:0] pkt;
+  integer fail, i, accepted, saw_tx, pack_ok, saw_rx, last_v, nw_w, dll_w, rx_w;
+  logic [511:0] last_pack, last_rx;
+  logic [511:0] golden_tx;
 
   initial clk_fab = 0;
   always #1 clk_fab = ~clk_fab;
@@ -51,7 +52,11 @@ module tc_port_smoke;
 
   initial begin
     fail = 0; accepted = 0; saw_tx = 0; pack_ok = 1; saw_rx = 0; last_v = 0;
-    pkt = vibe_tb_nw_pma_pkt();
+    last_rx = 512'd0;
+    golden_tx = vibe_tb_nw512_golden_tx();
+    nw_w  = $bits(u_p.fab_tx_data);
+    dll_w = $bits(u_p.dll_tx_d);
+    rx_w  = $bits(u_p.fab_rx_data);
     rst_n = 0; port_rst = 0; device_rst = 0; lmsm_go = 0;
     fab_tx_vld = 0; fab_rx_ready = 1; mgmt_tx_vld = 0;
     fab_tx_data = 0; mgmt_tx_data = 0;
@@ -84,13 +89,40 @@ module tc_port_smoke;
     release u_p.u_lmsm.lid_bad;
     @(posedge clk_fab);
 
-    fab_tx_data = pkt;
+    fab_tx_data = golden_tx;
     for (i = 0; i < 32; i = i + 1) begin
       @(negedge clk_fab);
       fab_tx_vld = 1;
       if (fab_tx_ready) begin
         @(posedge clk_fab);
         accepted = 1;
+        if (vibe_tb_nw512_vec_fail(dll_w, golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_fail_print(
+              "tc_port_smoke",
+              "TX NW→DLL accepted beat GOLDEN_TX",
+              golden_tx, dll_w, u_p.dll_tx_d,
+              "u_p.dll_tx_d");
+          $finish;
+        end
+        if (vibe_tb_nw512_sop_lph_fail(golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_sop_lph_print(
+              "tc_port_smoke",
+              "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+              golden_tx, u_p.dll_tx_d, "u_p.dll_tx_d[511:352]");
+          $finish;
+        end
+        fab_tx_vld = 0;
+        i = 32;
+      end else
+        @(posedge clk_fab);
+    end
+    fab_tx_vld = 0;
+    fab_tx_data = vibe_tb_nw512_golden_tx_b2();
+    for (i = 0; i < 32; i = i + 1) begin
+      @(negedge clk_fab);
+      fab_tx_vld = 1;
+      if (fab_tx_ready) begin
+        @(posedge clk_fab);
         fab_tx_vld = 0;
         i = 32;
       end else
@@ -98,28 +130,43 @@ module tc_port_smoke;
     end
     fab_tx_vld = 0;
     if (!accepted) begin
-      fail_at("fab_tx_vld legal RT=00 1-beat after LinkReady+cells=64",
+      fail_at("fab_tx_vld GOLDEN_TX after LinkReady+cells=64",
               "fab_tx_ready handshake (packet accepted)",
               "not accepted",
               "u_p.u_nw.fab_tx_ready / u_p.u_dll.u_tx.nw_ready");
       $finish;
     end
 
-    for (i = 0; i < 20000; i = i + 1) begin
-      @(posedge txclk);
-      if (last_v) begin
-        saw_tx = 1;
-        if (txdata === 512'd0)
-          pack_ok = 0;
-        if (txdata !== last_pack)
-          pack_ok = 0;
+    // RX is a clk_fab beat; do not sample only on txclk (misses fab_rx_vld).
+    fork
+      begin : pma_watch
+        integer t;
+        for (t = 0; t < 20000; t = t + 1) begin
+          @(posedge txclk);
+          if (last_v) begin
+            saw_tx = 1;
+            if (txdata === 512'd0)
+              pack_ok = 0;
+            if (txdata !== last_pack)
+              pack_ok = 0;
+          end
+          last_v    = u_p.p_txv;
+          last_pack = {u_p.p_tx3, u_p.p_tx2, u_p.p_tx1, u_p.p_tx0};
+        end
       end
-      last_v    = u_p.p_txv;
-      last_pack = {u_p.p_tx3, u_p.p_tx2, u_p.p_tx1, u_p.p_tx0};
-      @(negedge clk_fab);
-      if (fab_rx_vld && vibe_tb_nw_pma_lph_ok(fab_rx_data))
-        saw_rx = 1;
-    end
+      begin : rx_watch
+        integer r;
+        for (r = 0; r < 20000; r = r + 1) begin
+          @(negedge clk_fab);
+          if (fab_rx_vld) begin
+            last_rx = fab_rx_data;
+            if (!vibe_tb_nw512_vec_fail(rx_w, golden_tx, fab_rx_data) &&
+                !vibe_tb_nw512_sop_lph_fail(golden_tx, fab_rx_data))
+              saw_rx = 1;
+          end
+        end
+      end
+    join
 
     if (!saw_tx) begin
       fail_at("legal NW beat accepted; watch PMA txdata",
@@ -136,10 +183,13 @@ module tc_port_smoke;
       $finish;
     end
     if (!saw_rx) begin
-      fail_at("rxdata=txdata after accepted NW packet (RX half)",
-              "fab_rx_vld with CFG=3 RT=00 SCNA=A11A DCNA=B22B",
-              "RX never delivered matching LPH",
-              "u_p.u_prx / u_p.u_dll.u_rx / u_p.u_nw.fab_rx");
+      vibe_tb_nw512_fail_print(
+          "tc_port_smoke",
+          "PMA loopback; recover NW RX data[511:0] === GOLDEN_TX",
+          golden_tx, rx_w, last_rx,
+          "u_p.fab_rx_data");
+      $display("  actual   : fab_rx_vld=%0b fec_fail=%0b am_locked=%04b last_rx=%h",
+               fab_rx_vld, u_p.fec_fail, u_p.am_locked, last_rx);
       $finish;
     end
     $display("PASS tc_port_smoke");
