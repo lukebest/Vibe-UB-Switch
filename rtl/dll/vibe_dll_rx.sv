@@ -109,9 +109,9 @@ module vibe_dll_rx #(
         by_n  <= by_n + 8'd80;
         have  <= 1'b0;
       end else if (can_emit) begin
-        nw_data <= by_lj[1279:768] & ({512{1'b1}} << (9'd512 - {1'b0, emit_n} * 9'd8));
+        nw_data <= by_lj[1279:768] & ({512{1'b1}} << (16'd512 - emit_n * 16'd8));
         nw_vld  <= 1'b1;
-        by_lj   <= by_lj << (emit_n * 8);
+        by_lj   <= by_lj << (emit_n * 16'd8);
         by_n    <= by_n - emit_n;
         if (left_now <= {8'b0, emit_n}) begin
           pkt_act  <= 1'b0;

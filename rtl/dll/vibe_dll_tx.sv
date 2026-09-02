@@ -84,19 +84,19 @@ module vibe_dll_tx (
   reg  [671:0] stream;
   reg  [159:0] rem_c;
   reg  [511:0] nw_c;
-  reg  [8:0]   rem_bits, val_bits, gap;
+  integer      rem_bits, val_bits, gap;
   always @* begin
-    rem_bits = {4'b0, rem_b} * 9'd8;
-    val_bits = {2'b0, val_b} * 9'd8;
+    rem_bits = rem_b * 8;
+    val_bits = val_b * 8;
     if (rem_b == 5'd0)
       rem_c = 160'd0;
     else
-      rem_c = rem_lj & ({160{1'b1}} << (9'd160 - rem_bits));
+      rem_c = rem_lj & ({160{1'b1}} << (160 - rem_bits));
     if (val_b == 7'd0)
       nw_c = 512'd0;
     else
-      nw_c = nw_data & ({512{1'b1}} << (9'd512 - val_bits));
-    gap    = 9'd160 - rem_bits;
+      nw_c = nw_data & ({512{1'b1}} << (512 - val_bits));
+    gap    = 160 - rem_bits;
     stream = {rem_c, 512'b0} | ({160'b0, nw_c} << gap);
   end
 
@@ -104,7 +104,7 @@ module vibe_dll_tx (
   wire [159:0] nf1 = stream[511:352];
   wire [159:0] nf2 = stream[351:192];
   wire [159:0] nf3 = stream[191:32];
-  wire [671:0] stream_sh = stream << (n_flits * 8'd160);
+  wire [671:0] stream_sh = stream << (n_flits * 16'd160);
   wire [159:0] new_rem_lj = stream_sh[671:512];
 
   wire [29:0] crc0 = crc30_flit({30{1'b1}}, fq[0]);
