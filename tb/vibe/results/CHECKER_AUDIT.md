@@ -102,7 +102,7 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 | Checker | Spec | Verdict |
 |---|---|---|
 | `tc_nw_pkt_to_pma_tx` | TX NW→DLL: accepted beat `dll_tx_data[511:0] === GOLDEN_TX`; then PMA pack | **FIXED** — unique 512b GOLDEN (not a 640 slice, no LPH extract). Width≠512 cannot PASS. |
-| `tc_nw_pkt_pma_loopback` | E2E: inject GOLDEN_TX; recover `fab_rx_data[511:0] === GOLDEN_TX` | **FIXED** — full 512-bit compare. `fec_fail=0` / `am_locked` supporting only. |
+| `tc_nw_pkt_pma_loopback` | E2E: **100** unique GOLDEN packets; each TX + RX `data[511:0]` in order | **FIXED** — 100 distinct SOP beats (LPH `[511:352]`, unique `[351:0]`). `fec_fail=0`. |
 | `tc_phy_nw_dll_512b` | TX `dll_tx===GOLDEN_TX` and RX `fab_rx===GOLDEN_RX` | **FIXED** — beat-by-beat 512b content both directions. Width gate kept; PASS illegal without content. |
 | `tc_nw_adapt_linkready` | Same 512b TX+RX GOLDEN + LinkReady / mgmt pri | **FIXED** — content compare always attempted. |
 

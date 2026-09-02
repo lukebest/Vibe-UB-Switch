@@ -1,46 +1,69 @@
-# TP-0.3 regression — FS-0.2.7 Overlay B **content** compare
+# TP-0.3 regression — 100-packet Overlay B loopback + full gate
 
-Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 HEAD** (sim-only; **not** committed).
-
-Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged.
-- NW↔DLL `data[511:0]` must match a unique 512-bit GOLDEN (TX and RX), not width-only.
-- GOLDEN is not all-zero and not `old640[511:0]`. SOP LPH is `[511:352]` (设计); not README `[511:496]`.
-- 640-bit DUT pin cannot PASS by matching `[511:0]`.
+Compiled **TB** on `cursor/vibe-tb-loopback-100-6065` against **`origin/main`** (no RTL overlay; `rtl/` not committed).
 
 | Item | Value |
 |------|--------|
-| RTL compiled SHA | `a3ecec9f40e987e2dc49f586c34092c3ede5baa5` |
+| `origin/main` | `aa5d91c0480d5810a83f81086ff58718200ab4e2` |
+| RTL SHA (files) | `a3ecec9f40e987e2dc49f586c34092c3ede5baa5` |
 | RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode |
-| Overlay B in this SHA? | **Yes** — NW `fab_tx`/`fab_rx`/`dll_*` are `[511:0]`; DLL↔PCS stays 640 |
-| SOP LPH (设计) | `[511:352]` (160b); `[351:0]` packet data. Not README `[511:496]`. |
-| Gate | five Overlay-B TCs via `iverilog`/`vvp` (`make -C tb/vibe units` path) |
+| Gate | `make -C tb/vibe sim` (suite compile-failed; units + top + neg still run) |
 
-Checkers compare full 512-bit GOLDEN **and** SOP LPH fields from GOLDEN[511:352] vs DUT[511:352]. Do not patch `rtl/`.
+Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged. SOP LPH is `[511:352]`.
 
-## Five Overlay-B content TCs vs `a3ecec9f`
+## `tc_nw_pkt_pma_loopback`
 
-| TC | Result | What was compared |
-|----|--------|-------------------|
-| `tc_phy_nw_dll_512b` | **PASS** | TX `dll_tx===GOLDEN_TX` + SOP LPH; RX `fab_rx===GOLDEN_RX` + SOP LPH |
-| `tc_nw_adapt_linkready` | **PASS** | same GOLDEN TX+RX + SOP LPH; LinkReady / mgmt pri |
-| `tc_nw_pkt_to_pma_tx` | **PASS** | accepted-beat `dll_tx===GOLDEN_TX` + SOP LPH; PMA pack |
-| `tc_port_smoke` | **PASS** | TX GOLDEN + SOP LPH; recovered `fab_rx===GOLDEN_TX`; PMA pack |
-| `tc_nw_pkt_pma_loopback` | **PASS** | recovered RX 512b === TX GOLDEN; `fec_fail=0`; `am_locked=1111` |
+**PASS — 100 / 100 packets scored.**
 
-## FAIL list (handoff to 设计)
+- Each packet: unique `data[511:0]` (packet 0 = existing GOLDEN; others unique `[351:0]`).
+- TX accepted `dll_tx` === that GOLDEN; RX `fab_rx_data[511:0]` === same GOLDEN, in order.
+- `fec_fail=0`, `am_locked=1111`, `saw_deskew=1`.
+- Reproduce: `make -C tb/vibe units` (or compile `tc_nw_pkt_pma_loopback.sv` + PORT_RTL).
 
-**None** vs `a3ecec9f` on these five TCs.
+## Full regression counts
 
-## Reproduce
+| Bucket | pass | fail | compile_fail |
+|--------|------|------|----------------|
+| suite (`make suite`) | 0 | 0 | **1** (harness; 7 width errors) |
+| units (`make units`) | **78** | **7** | **6** (included in the 7) |
+| top (`make top`) | 0 | **1** | 0 |
+| neg (`make neg`) | **10** | 0 | 0 |
 
-```bash
-git fetch origin cursor/as01-rtl-82c7
-git checkout a3ecec9f40e987e2dc49f586c34092c3ede5baa5 -- rtl
-git restore --staged rtl
-make -C tb/vibe units
-git checkout HEAD -- rtl
-```
+`make sim` exits at suite compile. Units/top/neg were run separately after that.
 
-## Matrix
+## FAIL list
 
-[`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) / [`TP-0.3.md`](TP-0.3.md) / [`docs/Vibe-UB-Switch-testpoints.md`](../../../docs/Vibe-UB-Switch-testpoints.md): **159/159**.
+**Not RTL data bugs on the 100-packet path.** The 100-packet loopback PASSed. Remaining FAILs are leftover **640-bit TB wires** vs Overlay B **512-bit** fabric/mgmt ports on main. Do **not** widen RTL back to 640.
+
+### compile_fail (TB width)
+
+| TC | Expected | Actual | hier | reproduce |
+|----|----------|--------|------|-----------|
+| suite (`vibe_fabric_harness` / `vibe_suite`) | TB `ing_data`/`egr_data`/`cfg6_*` match DUT `[511:0]` | TB still `[639:0]` | `vibe_fabric.ing_data` / `vibe_mgmt.cfg6_data` / `vibe_cna_ep` | `make -C tb/vibe suite` |
+| `tc_xbar_unit` | TB `in_data`/`out_data` `[511:0]` | TB `[639:0]` | `vibe_xbar.in_data` | `make -C tb/vibe units` |
+| `tc_fabric_line_holes` | fabric arrays `[511:0]` | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
+| `tc_fabric_g1` | same | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
+| `tc_cna_ep` | `cfg6_data`/`reply_data` `[511:0]` | TB `[639:0]` | `vibe_cna_ep.cfg6_data` | `make -C tb/vibe units` |
+| `tc_mgmt` | same | TB `[639:0]` | `vibe_mgmt.cfg6_data` | `make -C tb/vibe units` |
+| `tc_cfg9_no_icrc` | fabric arrays `[511:0]` | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
+
+### runtime FAIL (TB still drives 640; iverilog prunes `[639:512]`)
+
+| TC | stimulus | expected | actual | hier | reproduce |
+|----|----------|----------|--------|------|-----------|
+| `tc_saf_ing` | 1 of 2 declared beats (`vibe_tb_mk_beat` 640b) | `pkt_vld=0` (SAF) | `1` | `u_s.pkt_vld` | `make -C tb/vibe units` |
+| `tc_saf_ing` | oversize PLEN | `len_err` | `0` | `u_s.len_err` | `make -C tb/vibe units` |
+| `tc_saf_ing` | 2 of 3 declared beats | `pkt_vld=0` | (finish) | `u_s.pkt_vld` | `make -C tb/vibe units` |
+| `tc_top_smoke` | `rxdata_0` = peer txdata (RT=10 LPH) | `irq_logic=1` | `irq_logic` stayed 0 | `dut.irq_logic` / `dut.u_fab.drop_g1` | `make -C tb/vibe top` |
+
+`tc_saf_ing` / `tc_top_smoke` LPH lives in the pruned high bits when TB is 640 and DUT is 512. Retarget those TCs to Overlay B (`[511:0]` + SOP `[511:352]`) before treating them as 设计 RTL FAILs.
+
+## Overlay B content TCs (still PASS)
+
+| TC | Result |
+|----|--------|
+| `tc_phy_nw_dll_512b` | PASS |
+| `tc_nw_adapt_linkready` | PASS |
+| `tc_nw_pkt_to_pma_tx` | PASS |
+| `tc_port_smoke` | PASS |
+| `tc_nw_pkt_pma_loopback` | **PASS 100/100** |
