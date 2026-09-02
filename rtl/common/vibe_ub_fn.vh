@@ -99,6 +99,35 @@ function automatic integer vibe_decl_flits;
   end
 endfunction
 
+// FS-0.2.7 overlay B: first 20B of a 512b NW beat is flit0 (LPH/NTH).
+// Not old640[511:0] — LPH lives at beat[511:352], not a slice of a 640 NW beat.
+function automatic logic [159:0] vibe_nw512_flit0;
+  input logic [511:0] beat;
+  begin
+    vibe_nw512_flit0 = beat[511:352];
+  end
+endfunction
+
+function automatic logic [15:0] vibe_pkt_bytes;
+  input logic [159:0] flit;
+  integer n;
+  begin
+    n = vibe_decl_flits(vibe_lph_plength(flit));
+    vibe_pkt_bytes = n * 16'd20;
+  end
+endfunction
+
+function automatic logic [7:0] vibe_nw512_decl_beats;
+  input logic [159:0] flit;
+  logic [15:0] b;
+  begin
+    b = vibe_pkt_bytes(flit);
+    vibe_nw512_decl_beats = (b + 16'd63) >> 6;
+    if (vibe_nw512_decl_beats == 8'd0)
+      vibe_nw512_decl_beats = 8'd1;
+  end
+endfunction
+
 function automatic logic [4:0] vibe_bin2gray5;
   input logic [4:0] b;
   begin

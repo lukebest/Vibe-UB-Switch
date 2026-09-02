@@ -1,10 +1,13 @@
 // AS-0.1 §14/§17: shared parameters. Protocol constants unknown in AS stay parameters.
 // Included per-module (no ifndef): localparam must be visible in every including scope.
 
-// Widths (AS-0.1 §3)
-localparam int VIBE_FLIT_W      = 160;   // 20-byte flit, never 640-bit
-localparam int VIBE_BEAT_W      = 640;   // 4 flits @ clk_fab
+// Widths (AS-0.1 §3 / FS-0.2.7 overlay B)
+localparam int VIBE_FLIT_W      = 160;   // 20-byte flit
+localparam int VIBE_NW_W        = 512;   // NW/fabric/cna packet body (byte stream)
+localparam int VIBE_BEAT_W      = 640;   // DLL↔PCS only: 4 flits @ clk_fab
 localparam int VIBE_FLITS_BEAT  = 4;
+localparam int VIBE_NW_BYTES    = 64;
+localparam int VIBE_FLIT_BYTES  = 20;
 localparam int VIBE_LANE_FAB_W  = 160;
 localparam int VIBE_LANE_PMA_W  = 128;
 localparam int VIBE_PMA_W       = 512;

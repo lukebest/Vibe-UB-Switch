@@ -5,10 +5,10 @@ module vibe_saf_ing #(
 ) (
   input  logic         clk,
   input  logic         rst_n,
-  input  logic [639:0] in_data,
+  input  logic [511:0] in_data,
   input  logic         in_vld,
   output logic         in_ready,
-  output logic [639:0] pkt_data,
+  output logic [511:0] pkt_data,
   output logic         pkt_vld,
   input  logic         pkt_ready,
   output logic         pkt_sop,
@@ -19,7 +19,7 @@ module vibe_saf_ing #(
   `include "vibe_ub_params.vh"
   `include "vibe_ub_fn.vh"
 
-  logic [639:0] mem [0:DEPTH-1];
+  logic [511:0] mem [0:DEPTH-1];
   logic [6:0]   wptr, rptr;
   logic [6:0]   beat_cnt, decl_beats;
   logic [15:0]  bytes;
@@ -51,9 +51,9 @@ module vibe_saf_ing #(
         wptr      <= wptr + 7'd1;
         if (!assembling) begin
           assembling <= 1'b1;
-          plen       = vibe_lph_plength(in_data[639:480]);
+          plen       = vibe_lph_plength(vibe_nw512_flit0(in_data));
           dflits     = vibe_decl_flits(plen);
-          decl_beats <= ((dflits + 3) >> 2);
+          decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
           bytes      <= dflits * 20;
           beat_cnt   <= 7'd1;
           if ((dflits * 20) < VIBE_PKT_LEN_MIN || (dflits * 20) > VIBE_PKT_LEN_MAX) begin
@@ -61,8 +61,8 @@ module vibe_saf_ing #(
             assembling <= 1'b0;
             wptr       <= wptr; // drop: rewind
             wptr       <= rptr;
-          end else if (((dflits + 3) >> 2) == 1) begin
-            // 1-beat (min 16 B / 1 flit): complete on SOP so pkt_sop && pkt_eop coincide
+          end else if (vibe_nw512_decl_beats(vibe_nw512_flit0(in_data)) == 8'd1) begin
+            // 1-beat (≤64 B): complete on SOP so pkt_sop && pkt_eop coincide
             assembling <= 1'b0;
             done       <= 1'b1;
           end

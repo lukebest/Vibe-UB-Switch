@@ -1,17 +1,17 @@
-// AS-0.1 §14: mgmt bypass FIFO 16×640b. Does not enter xbar.
+// AS-0.1 §14: mgmt bypass FIFO 16×512b. Does not enter xbar.
 module vibe_mgmt_byp #(
   parameter int DEPTH = 16
 ) (
   input  logic         clk,
   input  logic         rst_n,
-  input  logic [639:0] in_data,
+  input  logic [511:0] in_data,
   input  logic         in_vld,
   output logic         in_ready,
-  output logic [639:0] out_data,
+  output logic [511:0] out_data,
   output logic         out_vld,
   input  logic         out_ready
 );
-  logic [639:0] mem [0:DEPTH-1];
+  logic [511:0] mem [0:DEPTH-1];
   logic [4:0]   wptr, rptr;
   assign in_ready = ((wptr + 5'd1) != rptr);
   assign out_vld  = (wptr != rptr);

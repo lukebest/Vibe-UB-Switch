@@ -6,13 +6,13 @@ module vibe_voq_egr #(
   input  logic         rst_n,
   input  logic [3:0]   wr_vl,
   input  logic         wr_en,
-  input  logic [639:0] wr_data,
+  input  logic [511:0] wr_data,
   input  logic         wr_sop,
   input  logic         wr_eop,
   output logic         wr_ready,
   input  logic [3:0]   rd_vl,
   input  logic         rd_en,
-  output logic [639:0] rd_data,
+  output logic [511:0] rd_data,
   output logic         rd_sop,
   output logic         rd_eop,
   output logic [15:0]  nonempty,
@@ -22,7 +22,7 @@ module vibe_voq_egr #(
 );
   `include "vibe_ub_params.vh"
 
-  logic [639:0] mem [0:15][0:DEPTH-1];
+  logic [511:0] mem [0:15][0:DEPTH-1];
   logic         sopm [0:15][0:DEPTH-1];
   logic         eopm [0:15][0:DEPTH-1];
   logic [5:0]   wptr [0:15];
