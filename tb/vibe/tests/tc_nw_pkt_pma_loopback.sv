@@ -306,27 +306,26 @@ module tc_nw_pkt_pma_loopback;
         send_beat(exp_sop[pkt], 1, pkt);
         if (!fail)
           send_beat(exp_b2[pkt], 0, pkt);
+        wait_i = 0;
+        while (rx_n <= pkt && !fail && wait_i < WAIT_MAX) begin
+          @(negedge clk_fab);
+          peek_rx();
+          wait_i = wait_i + 1;
+        end
+        if (!fail && rx_n <= pkt) begin
+          $display("  detail   : vld=%0b last_rx=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b",
+                   fab_rx_vld, last_rx, u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail,
+                   u_p.deskew_ok);
+          vibe_tb_nw512_fail_print_pkt(
+              "tc_nw_pkt_pma_loopback", pkt, NPKT,
+              "PMA loopback; recover this packet GOLDEN (timeout, not a pass)",
+              exp_sop[pkt], rx_w, last_rx, "u_p.fab_rx_data");
+          fail = 1;
+        end
         if (!fail && ((pkt % 10) == 9))
           $display("  progress : tx_n=%0d rx_n=%0d (after packet %0d)",
                    tx_n, rx_n, pkt);
       end
-    end
-    if (fail) begin
-      $finish;
-    end
-    if (tx_n !== NPKT) begin
-      vibe_tb_nw512_fail_print_pkt(
-          "tc_nw_pkt_pma_loopback", tx_n, NPKT,
-          "TX accepted count after injecting 100 packets",
-          exp_sop[0], 32, tx_n, "u_p.dll_tx_d");
-      $finish;
-    end
-
-    wait_i = 0;
-    while (rx_n < NPKT && !fail && wait_i < WAIT_MAX) begin
-      @(negedge clk_fab);
-      peek_rx();
-      wait_i = wait_i + 1;
     end
 
     if (fail) begin
