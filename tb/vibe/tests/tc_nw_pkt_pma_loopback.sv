@@ -11,7 +11,7 @@ module tc_nw_pkt_pma_loopback;
   logic fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready;
   logic mgmt_tx_vld, mgmt_tx_ready, status_up, disabled, retry_error;
   logic proto_err, fc_ovf, rx_ovf, afifo_ovf, cfg0_hit;
-  integer fail, i, k, accepted, saw_rx, payload_ok;
+  integer fail, i, k, accepted, saw_rx, payload_ok, dump_hold;
   integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
   integer saw_amctl_idle, saw_am_word;
   integer saw_fab_rx, saw_fec_fail, saw_deskew;
@@ -25,6 +25,32 @@ module tc_nw_pkt_pma_loopback;
   assign rxclk  = txclk;
   assign rxdata = txdata;
 
+  // TB-only wave probes (not RTL). Narrow names for +DUMP / PNG.
+  logic [3:0]  wav_tx_cfg, wav_rx_cfg, wav_am;
+  logic [1:0]  wav_tx_rt, wav_rx_rt;
+  logic [15:0] wav_tx_scna, wav_tx_dcna, wav_rx_scna, wav_rx_dcna;
+  logic        wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_pcs_rx, wav_fec;
+  logic        wav_ptxv, wav_txlv, wav_rx_lph_ok;
+  logic [31:0] wav_lane0, wav_lane3;
+
+  initial begin
+    if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
+      begin : dump_open
+        reg [8*256-1:0] dump_fn;
+        dump_fn = "nw_pkt_pma_loopback.vcd";
+        if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
+        $dumpfile(dump_fn);
+        $dumpvars(0, clk_fab, txclk, rxclk, rst_n,
+                  fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready,
+                  wav_tx_cfg, wav_tx_rt, wav_tx_scna, wav_tx_dcna,
+                  wav_rx_cfg, wav_rx_rt, wav_rx_scna, wav_rx_dcna,
+                  wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_lane0, wav_lane3,
+                  wav_ptxv, wav_txlv, wav_am, wav_pcs_rx, wav_fec,
+                  wav_rx_lph_ok, txdata, rxdata);
+      end
+    end
+  end
+
   vibe_port u_p (
     .clk_fab(clk_fab), .rst_n(rst_n), .port_rst(port_rst), .device_rst(device_rst),
     .lmsm_go(lmsm_go), .txclk(txclk), .rxclk(rxclk),
@@ -34,8 +60,28 @@ module tc_nw_pkt_pma_loopback;
     .mgmt_tx_data(mgmt_tx_data), .mgmt_tx_vld(mgmt_tx_vld), .mgmt_tx_ready(mgmt_tx_ready),
     .status_up(status_up), .disabled(disabled),
     .retry_error(retry_error), .proto_err(proto_err), .fc_ovf(fc_ovf),
-    .rx_ovf(rx_ovf), .afifo_ovf(afifo_ovf), .cfg0_hit(cfg0_hit), .cfg0_data(cfg0_data)
+    .rx_ovf(rx_ovf), .afifo_ovf(afifo_ovf),     .cfg0_hit(cfg0_hit), .cfg0_data(cfg0_data)
   );
+
+  assign wav_tx_cfg  = vibe_lph_cfg(fab_tx_data[639:480]);
+  assign wav_tx_rt   = vibe_lph_rt(fab_tx_data[639:480]);
+  assign wav_tx_scna = vibe_nth_scna(fab_tx_data[639:480]);
+  assign wav_tx_dcna = vibe_nth_dcna(fab_tx_data[639:480]);
+  assign wav_rx_cfg  = vibe_lph_cfg(fab_rx_data[639:480]);
+  assign wav_rx_rt   = vibe_lph_rt(fab_rx_data[639:480]);
+  assign wav_rx_scna = vibe_nth_scna(fab_rx_data[639:480]);
+  assign wav_rx_dcna = vibe_nth_dcna(fab_rx_data[639:480]);
+  assign wav_tx_nz   = |txdata;
+  assign wav_rx_nz   = |rxdata;
+  assign wav_lb_eq   = (rxdata === txdata);
+  assign wav_lane0   = txdata[31:0];
+  assign wav_lane3   = txdata[511:480];
+  assign wav_am      = u_p.am_locked;
+  assign wav_pcs_rx  = u_p.pcs_rx_v;
+  assign wav_fec     = u_p.fec_fail;
+  assign wav_ptxv    = u_p.p_txv;
+  assign wav_txlv    = u_p.txlv;
+  assign wav_rx_lph_ok = fab_rx_vld && vibe_tb_nw_pma_lph_ok(fab_rx_data);
 
   task automatic fail_at;
     input [8*80-1:0] stimulus;
@@ -90,7 +136,7 @@ module tc_nw_pkt_pma_loopback;
   endtask
 
   initial begin
-    fail = 0; accepted = 0; saw_rx = 0; payload_ok = 0;
+    fail = 0; accepted = 0; saw_rx = 0; payload_ok = 0; dump_hold = 0;
     saw_afrv = 0; saw_pcs_rx = 0; saw_am = 0; saw_txnz = 0;
     saw_amctl_idle = 0; saw_am_word = 0;
     saw_fab_rx = 0; saw_fec_fail = 0; saw_deskew = 0;
@@ -155,6 +201,14 @@ module tc_nw_pkt_pma_loopback;
             fab_rx_data[319:160] === pkt[319:160] &&
             fab_rx_data[159:32]  === pkt[159:32])
           payload_ok = 1;
+      end
+      // +DUMP only: stop ~32 clk_fab after the same LPH+payload score so the
+      // VCD window stays inspectable. Non-DUMP path still waits 20000.
+      if (saw_rx && payload_ok &&
+          ($test$plusargs("DUMP") || $test$plusargs("VCD"))) begin
+        dump_hold = dump_hold + 1;
+        if (dump_hold >= 32)
+          i = 20000;
       end
     end
 

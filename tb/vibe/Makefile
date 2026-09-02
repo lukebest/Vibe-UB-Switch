@@ -62,7 +62,8 @@ help:
 	@echo "make sim            - suite + units + top (gate)"
 	@echo "make cov            - verilator line/toggle coverage on vibe_* (if supported)"
 	@echo "make neg            - static absent-feature scan (no RTL change)"
-	@echo "make waves          - +DUMP VCD + PNG for 5 audit TCs (tb/vibe/waves/)"
+	@echo "make waves          - +DUMP VCD + PNG (G1/CFG6/credit/loopback)"
+	@echo "make waves TC=name  - one wave TC (e.g. tc_nw_pkt_pma_loopback)"
 
 $(RES):
 	mkdir -p $(RES)
@@ -89,7 +90,7 @@ sim: suite units top neg
 	@$(TB)/scripts/summarize.sh $(RES)
 
 waves: $(RES)
-	$(TB)/scripts/run_waves.sh
+	TC="$(TC)" $(TB)/scripts/run_waves.sh
 
 cov: $(RES)
 	$(TB)/scripts/run_verilator_cov.sh | tee $(RES)/cov.log
