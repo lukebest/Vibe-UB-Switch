@@ -1,5 +1,5 @@
 // AS-0.1 §5 T1 / §12: slice 640b=4 flits + BCRC.
-// Backpressure if credit low / retry full / REQ|WAIT dropping data / pending >= 1024.
+// Backpressure if credit low / retry full / REQ|WAIT dropping data / pending >= 1024 cell.
 // DLLDP >32 flits split into ≤16 DLLDB of ≤32 flits. CFG0 does not consume credit.
 module vibe_dll_tx (
   input  logic         clk,
