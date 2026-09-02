@@ -8,9 +8,9 @@ module tc_cfg9_no_icrc;
   logic [3:0] len_err, deadlock_drop, cfg6_hit;
   logic [15:0] rt_wr_idx, cna;
   logic [31:0] rt_wr_data, rt_shortest_unimpl, drop_down_cnt;
-  logic [639:0] ing_data [0:3];
-  logic [639:0] egr_data [0:3];
-  logic [639:0] cfg6_data [0:3];
+  logic [511:0] ing_data [0:3];
+  logic [511:0] egr_data [0:3];
+  logic [511:0] cfg6_data [0:3];
   integer fail, p;
   reg [159:0] in_f, saf_f;
 
@@ -35,7 +35,7 @@ module tc_cfg9_no_icrc;
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
     default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
-    for (p = 0; p < 4; p = p + 1) ing_data[p] = 640'd0;
+    for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
     repeat (4) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
@@ -54,13 +54,13 @@ module tc_cfg9_no_icrc;
     ing_vld[0] = 1;
     @(posedge clk);
     @(negedge clk);
-    ing_data[0] = 640'h2;
+    ing_data[0] = 512'h2;
     @(posedge clk);
     @(negedge clk);
     ing_vld[0] = 0;
     repeat (16) @(posedge clk);
 
-    saf_f = u_fab.saf_d[0][639:480];
+    saf_f = vibe_nw512_flit0(u_fab.saf_d[0]);
     if (cfg6_hit[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 (not terminate class)");

@@ -16,10 +16,10 @@ module vibe_suite;
   wire        wav_ing0    = h.ing_vld[0];
   wire        wav_egr0    = h.egr_vld[0];
   wire [3:0]  wav_egr     = h.egr_vld;
-  wire [1:0]  wav_rt      = vibe_lph_rt(h.ing_data[0][639:480]);
-  wire [3:0]  wav_cfg     = vibe_lph_cfg(h.ing_data[0][639:480]);
-  wire [2:0]  wav_nlp     = vibe_nth_nlp(h.ing_data[0][639:480]);
-  wire [7:0]  wav_opc     = h.ing_data[0][583:576];  // opcode in first flit
+  wire [1:0]  wav_rt      = vibe_lph_rt(vibe_nw512_flit0(h.ing_data[0]));
+  wire [3:0]  wav_cfg     = vibe_lph_cfg(vibe_nw512_flit0(h.ing_data[0]));
+  wire [2:0]  wav_nlp     = vibe_nth_nlp(vibe_nw512_flit0(h.ing_data[0]));
+  wire [7:0]  wav_opc     = vibe_nw512_flit0(h.ing_data[0])[103:96];
   wire        wav_irq     = h.irq_logic;
   wire        wav_g1      = h.drop_g1;
   wire [31:0] wav_g1cnt   = h.rt_shortest_unimpl;
@@ -28,14 +28,14 @@ module vibe_suite;
 
   // CFG6 unit (cna_ep) — fabric cfg6_hit is combo on stuck SAF
   logic [3:0]   c6_hit, c6_cons, c6_rready, c6_rvld;
-  logic [639:0] c6_data [0:3];
-  logic [639:0] c6_reply [0:3];
+  logic [511:0] c6_data [0:3];
+  logic [511:0] c6_reply [0:3];
   logic [15:0]  c6_cna;
   logic         c6_written, c6_icrc;
   integer       ci;
   initial begin
     c6_cna = 16'd0; c6_written = 0; c6_hit = 0; c6_rready = 4'b1111;
-    for (ci = 0; ci < 4; ci = ci + 1) c6_data[ci] = 640'd0;
+    for (ci = 0; ci < 4; ci = ci + 1) c6_data[ci] = 512'd0;
   end
   vibe_cna_ep u_c6 (
     .clk(h.clk), .rst_n(h.rst_n), .cna(c6_cna), .cna_written(c6_written),
@@ -330,7 +330,7 @@ module vibe_suite;
           "RT=00 forwarded packet",
           "egress LPH.RT still 00",
           "RT field rewritten",
-          "egr_data[639:480] flit[23:22]");
+          "egr_data[511:352] flit[23:22]");
       end else if (bad == 2) begin
         h.tb_fail("tc_rt_no_rewrite",
           "RT=10 (must drop; if anything leaked)",
@@ -677,7 +677,7 @@ module vibe_suite;
       early = |h.u_fab.saf_v;
       // complete packet
       @(negedge h.clk);
-      h.ing_data[0] = 640'd0;
+      h.ing_data[0] = 512'd0;
       h.ing_vld[0] = 1'b1;
       @(posedge h.clk);
       @(negedge h.clk);
@@ -727,14 +727,14 @@ module vibe_suite;
       out_f = 160'd0;
       if (h.saw_egr[3]) begin
         got   = 1;
-        out_f = h.egr_last[3][639:480];
-      end else if (h.saw_egr[0]) begin got = 1; out_f = h.egr_last[0][639:480]; end
-      else if (h.saw_egr[1]) begin got = 1; out_f = h.egr_last[1][639:480]; end
-      else if (h.saw_egr[2]) begin got = 1; out_f = h.egr_last[2][639:480]; end
-      // iverilog: xbar 640b unpacked data is X so egr may never rise.
+        out_f = vibe_nw512_flit0(h.egr_last[3]);
+      end else if (h.saw_egr[0]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[0]); end
+      else if (h.saw_egr[1]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[1]); end
+      else if (h.saw_egr[2]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[2]); end
+      // iverilog: xbar 512b unpacked data is X so egr may never rise.
       // Score transit on SAF header (no ICRC instance in fabric).
-      if (vibe_nth_cci(h.u_fab.saf_d[0][639:480]) !== vibe_nth_cci(in_f) ||
-          vibe_nth_lbf(h.u_fab.saf_d[0][639:480]) !== vibe_nth_lbf(in_f)) begin
+      if (vibe_nth_cci(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_cci(in_f) ||
+          vibe_nth_lbf(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_lbf(in_f)) begin
         h.tb_fail("tc_icrc_transit_no_recompute",
           "transit CFG3 sitting in SAF",
           "CCI/LBF unchanged (fabric has no vibe_icrc)",

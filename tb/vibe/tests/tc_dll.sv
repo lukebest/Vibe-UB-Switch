@@ -3,7 +3,8 @@
 module tc_dll;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, port_rst, device_rst, link_up, fec_fail;
-  logic [639:0] nw_tx_data, nw_rx_data, pcs_tx_data, pcs_rx_data, cfg0_data;
+  logic [511:0] nw_tx_data, nw_rx_data;
+  logic [639:0] pcs_tx_data, pcs_rx_data, cfg0_data;
   logic nw_tx_vld, nw_tx_ready, nw_rx_vld, nw_rx_ready;
   logic pcs_tx_vld, pcs_tx_ready, pcs_rx_vld, pcs_rx_ready;
   logic status_up, disabled, retrain_req, retry_error, proto_err, fc_ovf, rx_ovf, cfg0_hit;
@@ -46,7 +47,7 @@ module tc_dll;
       @(posedge clk);
     end
     nw_tx_vld = 0;
-    pcs_rx_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    pcs_rx_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
         4'd0, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     @(negedge clk);

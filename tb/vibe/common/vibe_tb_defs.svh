@@ -77,19 +77,31 @@ function automatic [159:0] vibe_tb_mk_flit;
   end
 endfunction
 
-function automatic [639:0] vibe_tb_mk_beat;
+// Overlay B NW/fabric beat: SOP LPH is [511:352]; [351:0] is payload.
+// Not {flit0, 480'd0} (old 640) and not README DCNA=[511:496].
+function automatic [511:0] vibe_tb_mk_beat;
   input [159:0] flit0;
   begin
-    vibe_tb_mk_beat = {flit0, 480'd0};
+    vibe_tb_mk_beat = {flit0, 352'd0};
   end
 endfunction
 
+// DLL↔PCS is still 640 (4×160). Do not use this on fabric/NW pins.
+function automatic [639:0] vibe_tb_mk_pcs_beat;
+  input [159:0] flit0;
+  begin
+    vibe_tb_mk_pcs_beat = {flit0, 480'd0};
+  end
+endfunction
+
+// Overlay B: ceil(packet_bytes / 64), matching vibe_nw512_decl_beats.
 function automatic integer vibe_tb_decl_beats;
   input [13:0] plen;
-  integer dflits;
+  integer dflits, bytes;
   begin
     dflits = vibe_decl_flits(plen);
-    vibe_tb_decl_beats = (dflits + 3) >> 2;
+    bytes  = dflits * 20;
+    vibe_tb_decl_beats = (bytes + 63) >> 6;
     if (vibe_tb_decl_beats < 1) vibe_tb_decl_beats = 1;
   end
 endfunction

@@ -5,7 +5,8 @@ module tc_cfg0_term_not_fabric;
   `include "vibe_tb_defs.svh"
 
   logic         clk, rst_n, port_rst, link_up, fec_fail;
-  logic [639:0] pcs_data, nw_data, cfg0_data;
+  logic [639:0] pcs_data, cfg0_data;
+  logic [511:0] nw_data;
   logic         pcs_vld, pcs_ready, nw_vld, nw_ready;
   logic         cfg0_hit, bcrc_fail, start_retry, rx_ovf, start_ack;
   logic         saw_cfg0, saw_nw, saw_nw_during_cfg0;
@@ -28,7 +29,7 @@ module tc_cfg0_term_not_fabric;
     input [3:0] cfg;
     begin
       @(negedge clk);
-      pcs_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
           cfg, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
           16'd0, 8'd0, 3'd0, 8'd0));
       pcs_vld = 1'b1;
@@ -108,7 +109,7 @@ module tc_cfg0_term_not_fabric;
     // and consumed on the next posedge if link_up stays 1 — drop link_up
     // on the intervening negedge (no extra cycle).
     @(negedge clk);
-    pcs_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
         4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     pcs_vld = 1'b1;

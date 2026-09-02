@@ -3,7 +3,8 @@
 module tc_fec_fail_gbn;
   `include "vibe_tb_defs.svh"
   logic         clk, rst_n, port_rst, link_up, fec_fail;
-  logic [639:0] pcs_data, nw_data, cfg0_data;
+  logic [639:0] pcs_data, cfg0_data;
+  logic [511:0] nw_data;
   logic         pcs_vld, pcs_ready, nw_vld, nw_ready;
   logic         cfg0_hit, bcrc_fail, start_retry, rx_ovf, start_ack;
   integer       fail;

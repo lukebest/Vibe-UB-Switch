@@ -5,7 +5,8 @@
 module tc_dll_rx_errflag;
   `include "vibe_tb_defs.svh"
   logic         clk, rst_n, port_rst, link_up, fec_fail;
-  logic [639:0] pcs_data, nw_data, cfg0_data;
+  logic [639:0] pcs_data, cfg0_data;
+  logic [511:0] nw_data;
   logic         pcs_vld, pcs_ready, nw_vld, nw_ready;
   logic         cfg0_hit, bcrc_fail, start_retry, rx_ovf, start_ack;
   integer       fail;
@@ -29,7 +30,7 @@ module tc_dll_rx_errflag;
     repeat (2) @(posedge clk);
 
     @(negedge clk);
-    pcs_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
         4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     pcs_vld = 1;
