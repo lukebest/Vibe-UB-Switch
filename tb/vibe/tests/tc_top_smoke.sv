@@ -16,7 +16,8 @@ module tc_top_smoke;
 
   logic prst, pdrst, plgo, ptxc, prxc;
   logic [511:0] ptx, prx;
-  logic [639:0] p_fab_tx, p_fab_rx, p_mgmt, p_cfg0;
+  logic [511:0] p_fab_tx, p_fab_rx, p_mgmt;
+  logic [639:0] p_cfg0;
   logic p_ftv, p_ftr, p_frv, p_frr, p_mv, p_mr, p_up, p_dis;
   logic p_rty, p_pe, p_fc, p_rxo, p_afo, p_c0;
 

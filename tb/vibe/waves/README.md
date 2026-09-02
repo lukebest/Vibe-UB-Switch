@@ -17,7 +17,7 @@ Clock in these dumps is Icarus `#1` with `timescale 1ns/1ps` → VCD unit **1 ps
 | 3 | `tc_credit_1024_flit_bp` (unit) | FS-0.2.7 / G7: 1024 is **CELL** | [`credit_1024_flit.png`](credit_1024_flit.png) | [`credit_1024_flit.vcd`](credit_1024_flit.vcd) | `PASS tc_credit_1024_flit_bp` |
 | 4 | `tc_credit_timeout_1us` (unit) | 1 µs credit-return timeout | [`credit_timeout_1us.png`](credit_timeout_1us.png) | [`credit_timeout_1us.vcd`](credit_timeout_1us.vcd) | `PASS tc_credit_timeout_1us` |
 | 5 | `tc_deadlock_timeout_1us` (unit) | 1 µs VOQ deadlock (not credit) | [`voq_deadlock_1us.png`](voq_deadlock_1us.png) | [`voq_deadlock_1us.vcd`](voq_deadlock_1us.vcd) | `PASS tc_deadlock_timeout_1us` |
-| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012 Overlay B: NW `data[511:0]` GOLDEN + SOP LPH `[511:352]` | [`nw_pkt_pma_loopback_data512.png`](nw_pkt_pma_loopback_data512.png) | [`nw_pkt_pma_loopback_data512.vcd`](nw_pkt_pma_loopback_data512.vcd) | `PASS tc_nw_pkt_pma_loopback` |
+| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012 Overlay B: **100** unique NW `data[511:0]` packets + SOP LPH `[511:352]` | [`nw_pkt_pma_loopback_data512.png`](nw_pkt_pma_loopback_data512.png) | [`nw_pkt_pma_loopback_data512.vcd`](nw_pkt_pma_loopback_data512.vcd) | `PASS tc_nw_pkt_pma_loopback` |
 
 ## Overlay B loopback (512-bit NW data) — copy-paste
 

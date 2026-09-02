@@ -5,8 +5,8 @@ module tc_cna_ep;
   logic clk, rst_n, cna_written, icrc_fail;
   logic [15:0] cna;
   logic [3:0] cfg6_hit, consume, reply_vld, reply_ready;
-  logic [639:0] cfg6_data [0:3];
-  logic [639:0] reply_data [0:3];
+  logic [511:0] cfg6_data [0:3];
+  logic [511:0] reply_data [0:3];
   integer fail, p;
   initial clk = 0;
   always #1 clk = ~clk;
@@ -19,7 +19,7 @@ module tc_cna_ep;
   initial begin
     fail = 0;
     rst_n = 0; cna = 16'h1111; cna_written = 1; cfg6_hit = 0; reply_ready = 4'b1111;
-    for (p = 0; p < 4; p = p + 1) cfg6_data[p] = 640'd0;
+    for (p = 0; p < 4; p = p + 1) cfg6_data[p] = 512'd0;
     repeat (2) @(posedge clk);
     rst_n = 1;
     // 本CNA

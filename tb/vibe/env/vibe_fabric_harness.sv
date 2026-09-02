@@ -1,5 +1,5 @@
-// Hierarchical fabric+mgmt harness (AS-0.1).
-// Drives 640b NW beats into vibe_fabric; observes egress, G1 counter, irq_logic.
+// Hierarchical fabric+mgmt harness (AS-0.1 / FS-0.2.7 Overlay B).
+// Drives 512b NW beats (SOP LPH [511:352]) into vibe_fabric.
 // PMA 512b is not used here — full-stack packet BFMs are out of scope for G1.
 
 `timescale 1ns/1ps
@@ -31,22 +31,23 @@ module vibe_fabric_harness (
   logic [15:0]  cna;
   logic         cna_written;
 
-  logic [639:0] ing_data [0:3];
+  logic [511:0] ing_data [0:3];
   logic [3:0]   ing_vld;
-  logic [639:0] egr_data [0:3];
+  logic [511:0] egr_data [0:3];
   logic [3:0]   egr_ready;
   logic [31:0]  drop_down;
   logic [3:0]   deadlock_drop;
   logic [3:0]   cfg6_hit, cfg6_cons;
-  logic [639:0] cfg6_d [0:3];
-  logic [639:0] reply_d [0:3];
+  logic [511:0] cfg6_d [0:3];
+  logic [511:0] reply_d [0:3];
   logic [3:0]   reply_v, reply_r;
 
   logic         saw_drop_g1;
   logic [3:0]   saw_len_err;
   logic [3:0]   saw_egr;
+  logic [3:0]   saw_xin;
   integer       egr_cnt [0:3];
-  logic [639:0] egr_last [0:3];
+  logic [511:0] egr_last [0:3];
   logic [1:0]   last_rt_egr [0:3];
   integer       fail_count = 0;
   integer       pass_count = 0;
@@ -92,20 +93,22 @@ module vibe_fabric_harness (
       saw_drop_g1 <= 1'b0;
       saw_len_err <= 4'd0;
       saw_egr     <= 4'd0;
+      saw_xin     <= 4'd0;
       for (mi = 0; mi < 4; mi = mi + 1) begin
         egr_cnt[mi]     <= 0;
-        egr_last[mi]    <= 640'd0;
+        egr_last[mi]    <= 512'd0;
         last_rt_egr[mi] <= 2'd0;
       end
     end else begin
       if (drop_g1) saw_drop_g1 <= 1'b1;
       saw_len_err <= saw_len_err | len_err;
+      saw_xin     <= saw_xin | u_fab.x_in_v;
       for (mi = 0; mi < 4; mi = mi + 1) begin
         if (egr_vld[mi] && egr_ready[mi]) begin
           saw_egr[mi]     <= 1'b1;
           egr_cnt[mi]     <= egr_cnt[mi] + 1;
           egr_last[mi]    <= egr_data[mi];
-          last_rt_egr[mi] <= vibe_lph_rt(egr_data[mi][639:480]);
+          last_rt_egr[mi] <= vibe_lph_rt(vibe_nw512_flit0(egr_data[mi]));
         end
       end
     end
@@ -116,9 +119,12 @@ module vibe_fabric_harness (
       saw_drop_g1 = 1'b0;
       saw_len_err = 4'd0;
       saw_egr     = 4'd0;
+      saw_xin     = 4'd0;
       egr_cnt[0] = 0; egr_cnt[1] = 0; egr_cnt[2] = 0; egr_cnt[3] = 0;
-      egr_last[0] = 640'd0; egr_last[1] = 640'd0;
-      egr_last[2] = 640'd0; egr_last[3] = 640'd0;
+      egr_last[0] = 512'd0; egr_last[1] = 512'd0;
+      egr_last[2] = 512'd0; egr_last[3] = 512'd0;
+      last_rt_egr[0] = 2'd0; last_rt_egr[1] = 2'd0;
+      last_rt_egr[2] = 2'd0; last_rt_egr[3] = 2'd0;
     end
   endtask
 
@@ -142,10 +148,17 @@ module vibe_fabric_harness (
       ing_vld     = 4'd0;
       egr_ready   = 4'b1111;
       // pass/fail accumulate across TCs; do not clear here
-      for (p = 0; p < 4; p = p + 1) ing_data[p] = 640'd0;
+      for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
       tb_cycles(4);
       rst_n = 1'b1;
       tb_cycles(4);
+      // Icarus: vibe_lph_vl(vibe_nw512_flit0(xb_d)) on VOQ wr_vl combo-feeds
+      // xbar out_ready and delta-storms on the first RT=00 xbar grant.
+      // Pin wr_vl so Overlay B forward TCs can score x_in_v / SAF headers.
+      force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
       tb_clr_mon;
     end
   endtask
@@ -179,7 +192,7 @@ module vibe_fabric_harness (
   // SAF completes on the last declared beat (1-beat when decl_flits<=4).
   task automatic tb_inject;
     input integer     port;
-    input [639:0]     beat0;
+    input [511:0]     beat0;
     input integer     extra_beats;
     integer           n, b;
     begin
@@ -188,7 +201,8 @@ module vibe_fabric_harness (
       for (b = 0; b < n; b = b + 1) begin
         @(negedge clk);
         while (!ing_ready[port]) @(posedge clk);
-        ing_data[port] = (b == 0) ? beat0 : {160'd0, beat0[479:0]};
+        // Continuation: no SOP LPH. Payload window [351:0] only.
+        ing_data[port] = (b == 0) ? beat0 : {160'd0, beat0[351:0]};
         ing_vld[port]  = 1'b1;
         @(posedge clk);
       end

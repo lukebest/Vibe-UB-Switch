@@ -3,7 +3,7 @@
 module tc_saf_ing;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, in_vld, in_ready, pkt_vld, pkt_ready, pkt_sop, pkt_eop, len_err;
-  logic [639:0] in_data, pkt_data;
+  logic [511:0] in_data, pkt_data;
   logic [15:0] pkt_bytes;
   integer fail, early, i, nbeat;
   initial clk = 0;
@@ -44,7 +44,7 @@ module tc_saf_ing;
     end
     // second beat
     @(negedge clk);
-    in_data = 640'hB;
+    in_data = 512'hB;
     in_vld = 1;
     @(posedge clk);
     @(negedge clk);
@@ -86,7 +86,7 @@ module tc_saf_ing;
     in_vld = 1; pkt_ready = 0;
     @(posedge clk);
     @(negedge clk);
-    in_data = 640'hC1;
+    in_data = 512'hC1;
     @(posedge clk);
     @(negedge clk);
     if (pkt_vld) begin
@@ -95,7 +95,7 @@ module tc_saf_ing;
       $display("  expected : pkt_vld=0 (still assembling)");
       fail = 1;
     end
-    in_data = 640'hC2;
+    in_data = 512'hC2;
     @(posedge clk);
     @(negedge clk);
     in_vld = 0;

@@ -3,7 +3,7 @@
 module tc_voq_rd;
   logic clk, rst_n, wr_en, wr_sop, wr_eop, wr_ready, rd_en, rd_sop, rd_eop;
   logic [3:0] wr_vl, rd_vl;
-  logic [639:0] wr_data, rd_data;
+  logic [511:0] wr_data, rd_data;
   logic [15:0] nonempty;
   logic [5:0] occ_vl0;
   logic deadlock_drop;
@@ -22,7 +22,7 @@ module tc_voq_rd;
   initial begin
     fail = 0;
     rst_n = 0; wr_en = 0; rd_en = 0; wr_vl = 0; rd_vl = 0;
-    wr_data = 640'hA5; wr_sop = 1; wr_eop = 1;
+    wr_data = 512'hA5; wr_sop = 1; wr_eop = 1;
     repeat (3) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
@@ -45,7 +45,7 @@ module tc_voq_rd;
     rd_en = 0;
     @(negedge clk);
     // second write/read on VL3
-    wr_vl = 4'd3; wr_data = 640'h33; wr_en = 1;
+    wr_vl = 4'd3; wr_data = 512'h33; wr_en = 1;
     @(posedge clk);
     @(negedge clk);
     wr_en = 0;

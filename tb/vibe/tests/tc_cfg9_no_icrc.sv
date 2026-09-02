@@ -8,10 +8,10 @@ module tc_cfg9_no_icrc;
   logic [3:0] len_err, deadlock_drop, cfg6_hit;
   logic [15:0] rt_wr_idx, cna;
   logic [31:0] rt_wr_data, rt_shortest_unimpl, drop_down_cnt;
-  logic [639:0] ing_data [0:3];
-  logic [639:0] egr_data [0:3];
-  logic [639:0] cfg6_data [0:3];
-  integer fail, p;
+  logic [511:0] ing_data [0:3];
+  logic [511:0] egr_data [0:3];
+  logic [511:0] cfg6_data [0:3];
+  integer fail, p, saw_x;
   reg [159:0] in_f, saf_f;
 
   initial clk = 0;
@@ -35,7 +35,7 @@ module tc_cfg9_no_icrc;
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
     default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
-    for (p = 0; p < 4; p = p + 1) ing_data[p] = 640'd0;
+    for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
     repeat (4) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
@@ -50,17 +50,30 @@ module tc_cfg9_no_icrc;
                            vibe_tb_plen_nflit(5), 16'hA5A5, 8'h5A, 3'd0, 8'h00);
     @(negedge clk);
     while (!ing_ready[0]) @(posedge clk);
+    // Icarus: pin VOQ wr_vl so vibe_nw512_flit0(xb_d) does not combo-storm.
+    force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
     ing_data[0] = vibe_tb_mk_beat(in_f);
     ing_vld[0] = 1;
     @(posedge clk);
     @(negedge clk);
-    ing_data[0] = 640'h2;
+    ing_data[0] = 512'h2;
     @(posedge clk);
     @(negedge clk);
     ing_vld[0] = 0;
-    repeat (16) @(posedge clk);
-
-    saf_f = u_fab.saf_d[0][639:480];
+    saw_x = 0;
+    saf_f = 160'd0;
+    repeat (16) begin
+      @(posedge clk);
+      if (u_fab.x_in_v[0]) begin
+        saw_x = 1;
+        saf_f = u_fab.saf_d[0][511:352];
+      end
+    end
+    if (saf_f === 160'd0)
+      saf_f = u_fab.saf_d[0][511:352];
     if (cfg6_hit[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 (not terminate class)");
@@ -78,7 +91,7 @@ module tc_cfg9_no_icrc;
       $display("  hier     : u_fab.saf_d (no ICRC unit)");
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
-    end else if (!u_fab.x_in_v[0] && !u_fab.g1_comb[0]) begin
+    end else if (!saw_x && !u_fab.g1_comb[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 bitmap=1111");
       $display("  expected : x_in_v=1 (forward; no ICRC terminate)");

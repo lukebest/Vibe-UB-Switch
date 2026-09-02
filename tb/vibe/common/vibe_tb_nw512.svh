@@ -55,6 +55,50 @@ function automatic [511:0] vibe_tb_nw512_golden_tx_b2;
   end
 endfunction
 
+// Packet n SOP GOLDEN: same 设计 LPH [511:352] (CFG=3 RT=00 plen=4-flit);
+// [351:0] unique per n. n=0 is vibe_tb_nw512_golden_tx(). Never all-zero.
+function automatic [511:0] vibe_tb_nw512_golden_tx_n;
+  input integer n;
+  reg [31:0]  k;
+  reg [351:0] pld;
+  begin
+    k = n;
+    if (n == 0)
+      vibe_tb_nw512_golden_tx_n = vibe_tb_nw512_golden_tx();
+    else begin
+      pld = {
+        32'hA5A55A5A ^ k,
+        32'h01234567 + k,
+        32'h89ABCDEF ^ {k[7:0], k[7:0], k[7:0], k[7:0]},
+        32'hFEDCBA98 + (k << 8),
+        32'h76543210 ^ (k * 32'h00010001),
+        32'h11112222 + k,
+        32'h33334444 ^ k,
+        32'h55556666 + (k << 16),
+        32'h77778888 ^ {16'h0000, k[15:0]},
+        32'h99AABBCC + k,
+        32'h00000100 + k
+      };
+      vibe_tb_nw512_golden_tx_n = {
+        vibe_tb_nw512_sop(4'd3, 2'b00, 16'hA11A, 16'hB22B, vibe_tb_nw512_plen4()),
+        pld
+      };
+    end
+  end
+endfunction
+
+function automatic [511:0] vibe_tb_nw512_golden_tx_b2_n;
+  input integer n;
+  reg [31:0] k;
+  begin
+    k = n;
+    if (n == 0)
+      vibe_tb_nw512_golden_tx_b2_n = vibe_tb_nw512_golden_tx_b2();
+    else
+      vibe_tb_nw512_golden_tx_b2_n = {96'hB2B2C3C3_D4D4E5E5, k, 384'd0};
+  end
+endfunction
+
 function automatic integer vibe_tb_nw512_vec_fail;
   input integer dut_w;
   input [511:0] exp;
@@ -95,6 +139,26 @@ task automatic vibe_tb_nw512_fail_print;
   input [8*72-1:0] hier;
   begin
     $display("FAIL %0s", tc);
+    $display("  stimulus : %0s", stim);
+    $display("  expected : width=512 data=%h", exp);
+    $display("  actual   : width=%0d data=%h", act_w, act);
+    $display("  hier     : %0s", hier);
+    $display("  reproduce: make -C tb/vibe units");
+  end
+endtask
+
+task automatic vibe_tb_nw512_fail_print_pkt;
+  input [8*40-1:0] tc;
+  input integer    pkt_i;
+  input integer    npkt;
+  input [8*96-1:0] stim;
+  input [511:0]    exp;
+  input integer    act_w;
+  input [511:0]    act;
+  input [8*72-1:0] hier;
+  begin
+    $display("FAIL %0s", tc);
+    $display("  packet   : %0d / %0d", pkt_i, npkt);
     $display("  stimulus : %0s", stim);
     $display("  expected : width=512 data=%h", exp);
     $display("  actual   : width=%0d data=%h", act_w, act);

@@ -1,46 +1,65 @@
-# TP-0.3 regression — FS-0.2.7 Overlay B **content** compare
+# TP-0.3 regression — Overlay B 512-bit TB retarget + 100-packet loopback
 
-Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 HEAD** (sim-only; **not** committed).
-
-Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged.
-- NW↔DLL `data[511:0]` must match a unique 512-bit GOLDEN (TX and RX), not width-only.
-- GOLDEN is not all-zero and not `old640[511:0]`. SOP LPH is `[511:352]` (设计); not README `[511:496]`.
-- 640-bit DUT pin cannot PASS by matching `[511:0]`.
+Compiled **TB** on `cursor/vibe-tb-loopback-100-6065` against **`origin/main`**. **Zero `rtl/` diffs.** `rtl/` was not committed.
 
 | Item | Value |
 |------|--------|
-| RTL compiled SHA | `a3ecec9f40e987e2dc49f586c34092c3ede5baa5` |
-| RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode |
-| Overlay B in this SHA? | **Yes** — NW `fab_tx`/`fab_rx`/`dll_*` are `[511:0]`; DLL↔PCS stays 640 |
-| SOP LPH (设计) | `[511:352]` (160b); `[351:0]` packet data. Not README `[511:496]`. |
-| Gate | five Overlay-B TCs via `iverilog`/`vvp` (`make -C tb/vibe units` path) |
+| `origin/main` | `aa5d91c0480d5810a83f81086ff58718200ab4e2` |
+| RTL tree SHA | `9d6f7f06354b43f4a3087451195dc1bea70eed78` |
+| RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode (`a3ecec9f`) |
+| Gate | `make -C tb/vibe sim` (suite + units + top + neg) |
 
-Checkers compare full 512-bit GOLDEN **and** SOP LPH fields from GOLDEN[511:352] vs DUT[511:352]. Do not patch `rtl/`.
+Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged. SOP LPH is `[511:352]` (`vibe_tb_mk_beat`). DLL↔PCS stays 640 (`vibe_tb_mk_pcs_beat`). Fabric/mgmt/NW pins are 512. Do not ask RTL to go back to 640.
 
-## Five Overlay-B content TCs vs `a3ecec9f`
+## `make -C tb/vibe sim` (this revision)
 
-| TC | Result | What was compared |
-|----|--------|-------------------|
-| `tc_phy_nw_dll_512b` | **PASS** | TX `dll_tx===GOLDEN_TX` + SOP LPH; RX `fab_rx===GOLDEN_RX` + SOP LPH |
-| `tc_nw_adapt_linkready` | **PASS** | same GOLDEN TX+RX + SOP LPH; LinkReady / mgmt pri |
-| `tc_nw_pkt_to_pma_tx` | **PASS** | accepted-beat `dll_tx===GOLDEN_TX` + SOP LPH; PMA pack |
-| `tc_port_smoke` | **PASS** | TX GOLDEN + SOP LPH; recovered `fab_rx===GOLDEN_TX`; PMA pack |
-| `tc_nw_pkt_pma_loopback` | **PASS** | recovered RX 512b === TX GOLDEN; `fec_fail=0`; `am_locked=1111` |
+| Bucket | pass | fail | compile_fail |
+|--------|------|------|----------------|
+| suite (`make suite`) | **27** | 0 | 0 |
+| units (`make units`) | **85** | 0 | 0 |
+| top (`make top`) | 0 | **1** | 0 |
+| neg (`make neg`) | **10** | 0 | 0 |
 
-## FAIL list (handoff to 设计)
+Previously compile-fail / prune-FAIL TCs are **TB-fixed** (width mismatches were TB bugs):
 
-**None** vs `a3ecec9f` on these five TCs.
+| TC | Was | Now |
+|----|-----|-----|
+| suite (`vibe_fabric_harness` / `vibe_suite`) | compile_fail `[639:0]` | **27/27 PASS** |
+| `tc_xbar_unit` | compile_fail | **PASS** |
+| `tc_fabric_line_holes` | compile_fail | **PASS** |
+| `tc_fabric_g1` | compile_fail | **PASS** |
+| `tc_cna_ep` | compile_fail | **PASS** |
+| `tc_mgmt` | compile_fail | **PASS** |
+| `tc_cfg9_no_icrc` | compile_fail | **PASS** |
+| `tc_saf_ing` | runtime (LPH pruned) | **PASS** |
 
-## Reproduce
+Icarus note (TB-only, not an RTL widen): VOQ `wr_vl = vibe_lph_vl(vibe_nw512_flit0(xb_d))` combo-feeds xbar `out_ready` and delta-storms on the first RT=00 grant. Harness / `tc_cfg9_no_icrc` pin `wr_vl` so forward TCs can score `x_in_v` / SAF headers. G1/RT=10 still drop+count+sticky irq on the fabric cluster.
 
-```bash
-git fetch origin cursor/as01-rtl-82c7
-git checkout a3ecec9f40e987e2dc49f586c34092c3ede5baa5 -- rtl
-git restore --staged rtl
-make -C tb/vibe units
-git checkout HEAD -- rtl
-```
+## `tc_nw_pkt_pma_loopback`
 
-## Matrix
+**PASS — 100 / 100 packets scored.**
 
-[`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) / [`TP-0.3.md`](TP-0.3.md) / [`docs/Vibe-UB-Switch-testpoints.md`](../../../docs/Vibe-UB-Switch-testpoints.md): **159/159**.
+- Each packet: unique `data[511:0]` (packet 0 = existing GOLDEN; others unique `[351:0]`).
+- TX accepted `dll_tx` === that GOLDEN; RX `fab_rx_data[511:0]` === same GOLDEN, in order.
+- `fec_fail=0`, `am_locked=1111`, `saw_deskew=1`.
+- Reproduce: `make -C tb/vibe units` (or compile `tc_nw_pkt_pma_loopback.sv` + PORT_RTL).
+
+## FAIL list (after Overlay B 512 + SOP LPH `[511:352]`)
+
+These are **not** leftover 640-bit TB / iverilog `[639:512]` prune. Width is correct. Filed to **设计**.
+
+| TC | stimulus | expected | actual | hier | reproduce |
+|----|----------|----------|--------|------|-----------|
+| `tc_top_smoke` | peer `fab_tx` = `vibe_tb_mk_beat` CFG3 **RT=10** SOP LPH `[511:352]`; `rxdata_0 = peer txdata`; wait 20000 `clk_fab` | `irq_logic=1` (G1 drop+count+sticky at top pin) | `irq_logic` stayed 0 (peer PMA `txdata` did go nonzero) | `dut.irq_logic` / `dut.u_fab.drop_g1` / `dut.u_mgmt` | `make -C tb/vibe top` |
+
+Fabric-cluster G1 (`tc_fabric_g1`, suite `tc_rt10_must_drop` / `tc_rt_irq_logic_sticky`) **PASS**. Same-port Overlay B PMA loopback **PASS**. Cross-port top pin did not raise `irq_logic` with this stimulus.
+
+## Overlay B content TCs (PASS)
+
+| TC | Result |
+|----|--------|
+| `tc_phy_nw_dll_512b` | PASS |
+| `tc_nw_adapt_linkready` | PASS |
+| `tc_nw_pkt_to_pma_tx` | PASS |
+| `tc_port_smoke` | PASS |
+| `tc_nw_pkt_pma_loopback` | **PASS 100/100** |
