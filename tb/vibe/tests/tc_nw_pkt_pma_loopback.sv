@@ -142,6 +142,15 @@ module tc_nw_pkt_pma_loopback;
     saw_fab_rx = 0; saw_fec_fail = 0; saw_deskew = 0;
     last_flit0 = 160'd0; first_flit0 = 160'd0;
     pkt = vibe_tb_nw_pma_pkt();
+    if ($bits(u_p.fab_tx_data) !== 512) begin
+      fail_at("FS-0.2.7 Overlay B: NW pin is data[511:0]",
+              "NW width 512",
+              "DUT NW pin is not 512 (see $bits)",
+              "u_p.fab_tx_data");
+      $display("  actual   : $bits(u_p.fab_tx_data)=%0d $bits(u_p.fab_rx_data)=%0d",
+               $bits(u_p.fab_tx_data), $bits(u_p.fab_rx_data));
+      $finish;
+    end
     bring_link();
     if (fail) begin
       $finish;

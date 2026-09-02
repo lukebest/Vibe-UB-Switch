@@ -168,6 +168,14 @@ module tc_nw_pkt_to_pma_tx;
     pack_ok = 1; gold_ok = 1; gold_n = 0; pack_n = 0;
     lane_n = 0; lane_mis = 0; last_v = 0; last_gv = 0;
     pkt = vibe_tb_nw_pma_pkt();
+    if ($bits(u_p.fab_tx_data) !== 512) begin
+      fail_at("FS-0.2.7 Overlay B: NW pin is data[511:0]",
+              "NW width 512",
+              "DUT NW pin is not 512",
+              "u_p.fab_tx_data");
+      $display("  actual   : $bits=%0d", $bits(u_p.fab_tx_data));
+      $finish;
+    end
     bring_link();
     if (fail) begin
       $finish;

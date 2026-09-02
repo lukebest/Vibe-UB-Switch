@@ -52,6 +52,14 @@ module tc_port_smoke;
   initial begin
     fail = 0; accepted = 0; saw_tx = 0; pack_ok = 1; saw_rx = 0; last_v = 0;
     pkt = vibe_tb_nw_pma_pkt();
+    if ($bits(u_p.fab_tx_data) !== 512) begin
+      fail_at("FS-0.2.7 Overlay B: NW pin is data[511:0]",
+              "NW width 512",
+              "DUT NW pin is not 512",
+              "u_p.fab_tx_data");
+      $display("  actual   : $bits=%0d", $bits(u_p.fab_tx_data));
+      $finish;
+    end
     rst_n = 0; port_rst = 0; device_rst = 0; lmsm_go = 0;
     fab_tx_vld = 0; fab_rx_ready = 1; mgmt_tx_vld = 0;
     fab_tx_data = 0; mgmt_tx_data = 0;

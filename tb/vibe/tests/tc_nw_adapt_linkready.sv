@@ -19,6 +19,16 @@ module tc_nw_adapt_linkready;
   initial begin
     fail = 0;
     rst_n = 1; link_ready = 0;
+    if ($bits(u_n.fab_tx_data) !== 512) begin
+      $display("FAIL tc_nw_adapt_linkready");
+      $display("  stimulus : FS-0.2.7 Overlay B NW↔DLL data[511:0]");
+      $display("  expected : $bits(fab_tx_data)=512");
+      $display("  actual   : %0d", $bits(u_n.fab_tx_data));
+      $display("  hier     : u_n.fab_tx_data");
+      $display("  reproduce: make -C tb/vibe units");
+      fail = 1;
+      $finish;
+    end
     fab_tx_data = 640'h1; mgmt_tx_data = 640'h2; dll_rx_data = 640'h3;
     fab_tx_vld = 1; mgmt_tx_vld = 0; dll_tx_ready = 1; dll_rx_vld = 1; fab_rx_ready = 1;
     #1;

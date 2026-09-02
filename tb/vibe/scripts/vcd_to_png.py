@@ -493,10 +493,10 @@ def render_credit_1024(waves: str) -> None:
             ("force_crd_ack", "force_crd_ack", "bit"),
         ],
         t0, t1,
-        [(t_mark, "pending 1023->1024; bp_nw=0->1 (flit, no /n)", "#c0392b")],
-        "Credit threshold 1024 is FLIT — tc_credit_1024_flit_bp  (FS-0.2.4 / G7)",
-        "Expected: pending=1023 and bp_nw=0, then +1 flit -> pending=1024 and bp_nw=1 "
-        "(no divide-by-n on pending).  Actual: 1023/0 then 1024/1 (PASS tc_credit_1024_flit_bp).  "
+        [(t_mark, "pending 1023->1024 cell; bp_nw=0->1 (not ×n flit)", "#c0392b")],
+        "Credit threshold 1024 is CELL — tc_credit_1024_flit_bp  (FS-0.2.7 / G7)",
+        "Expected: pending=1023 cell and bp_nw=0, then +1 cell -> pending=1024 and bp_nw=1 "
+        "(credit_ret_n is cells; not 1024×n flit).  Actual: 1023/0 then 1024/1.  "
         "Note: force_crd_ack is also 1 whenever pending!=0 (RTL); the G7 threshold is bp_nw.",
         notes=[((t_1023 or t0), "pending=1023, no bp")],
     )

@@ -1,6 +1,6 @@
-# Checker audit — `tb/vibe` vs FS-0.2.4 + AS-0.1
+# Checker audit — `tb/vibe` vs FS-0.2.7 / AS-0.1.2
 
-Audit of every named checker in `tb/vibe`. Spec is **FS-0.2.4** (credit, timeouts, G7) and **AS-0.1** (CFG6, ICRC, G1 RT=10/11, negatives). Old README / `tb/ub_*` are **void**. RTL is frozen (`rtl/` not patched).
+Audit of every named checker in `tb/vibe`. Spec is **FS-0.2.7 / AS-0.1.2** (Overlay B: NW `data[511:0]`; 640b is DLL↔PCS; credit **1024 = cell**) plus locked G1 / CFG6 / ICRC. Old README / `tb/ub_*` are **void**. RTL is frozen (`rtl/` not patched).
 
 Verdict: **OK** = checker already scored the locked rule. **FIXED** = checker was wrong or incomplete vs spec and was corrected in this revision.
 
@@ -39,13 +39,14 @@ Terminate **only** if: (a) 本CNA = statically written CNA **and** DCNA==mgmt CN
 
 ---
 
-## Credit (FS-0.2.4 / G7 closed)
+## Credit (FS-0.2.6 / 0.2.7 / G7 closed)
 
-Threshold **1024 is FLIT**. Pending path `pend += credit_ret_n` with **no divide-by-n**. Consume path may `ceil_div` by `grain_n` (cell accounting) — that is **not** the G7 unit.
+Threshold **1024 is CELL**. Official unit is cell; this instance does **not** convert 1024 into 1024×n flit. `credit_ret_n` is already cells. Consume path may `ceil_div` by `grain_n` (cell accounting from flits) — that is **not** the G7 threshold unit.
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_credit_1024_flit_bp` | `pending=1023` + 1 return → `credit_low`/`bp_nw`; 2-flit return does **not** `ceil_div` | OK |
+| `tc_credit_1024_flit_bp` | `pending=1023` cell + 1 return → `bp_nw` at 1024 cell (filename historical) | **FIXED** — score is cell, not flit |
+| `tc_credit_1024_hole` | same 1023→1024 cell `bp_nw` | **FIXED** |
 | `tc_cfg0_no_credit` | CFG0 does not consume | OK |
 
 ---
@@ -92,7 +93,7 @@ Compute/check as **sender/receiver**. Transit does **not** recompute.
 
 ---
 
-## NW packet → PMA `txdata[511:0]` (FS-0.2.4 §1.4 / U26, AS-0.1 TX path)
+## NW packet → PMA `txdata[511:0]` (FS-0.2.7 Overlay B / AS-0.1.2)
 
 Product boundary: `txdata[511:0]`, no extra handshake; `[127:0]=lane0` … `[511:384]=lane3`.
 
@@ -100,14 +101,14 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat accepted, then `txdata` contents | **ADDED** — bring-up: `lmsm_go` + hierarchical `force am_locked=1111` / `lid_bad=0` (peer AM) and one-cycle `force cells=64` (peer credit; power-on `credit_low` would otherwise block `nw_ready`). Scores: (1) `fab_tx_ready` handshake; (2) injected LPH on `u_p.pcs_tx_d` (DLL wrap; BCRC may replace `[31:0]`); (3) every `p_txv` beat `txdata=={lane3,lane2,lane1,lane0}`; (4) TB-only `vibe_pcs_tx` (DUT `fec_mode=T=4`, not bypass — RTL hardcodes `VIBE_FEC_T4`) + AFIFO + `vibe_gear_160_128` + pack vs DUT `txdata` (AMCTL in both). |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse, NW packet on `fab_rx` | **PASS** vs PR4 RTL `4bfac60c` (sim-only; not on this TB branch). Same expected LPH (CFG=3 RT=00 SCNA=A11A DCNA=B22B). Checker not relaxed. |
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat on **512-bit** `data`, then PMA `txdata` | **FIXED** — first scores `$bits(fab_tx_data)==512`. vs `d6549521`: **FAIL** (DUT NW still 640). Do not patch RTL. When Overlay B lands, LPH on 512b `data` is scored; packing of 512 vs LPH fields not invented. |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse; recover LPH+payload on NW `data[511:0]` | **FIXED** — same 512-width gate. vs `d6549521`: **FAIL** (640). Expected LPH still CFG=3 RT=00 SCNA=A11A DCNA=B22B if Overlay B is legal on 512b. |
+| `tc_phy_nw_dll_512b` | TP-PHY-008: NW↔DLL `data[511:0]` @ 1.25 GHz + vld/ready | **ADDED** — FAIL if NW `$bits!==512`. Compiles on 640 DUT pins. 640 is allowed only as DLL↔PCS. |
+| `tc_nw_adapt_linkready` | Overlay B width + LinkReady handshake | **FIXED** — FAIL-first if NW not 512; link_ready/mgmt-pri scored only after width matches. |
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
 
-`tc_nw_pkt_to_pma_tx` **PASS** (Icarus) vs `4bfac60c`: DLL LPH + 260 PMA pack + 104 PCS-lane golden + 260 gear golden (score not relaxed).
-
-`tc_nw_pkt_pma_loopback` **PASS** (Icarus) vs PR4 RTL `4bfac60c3f1780d99ea93aebed238a09865ebc27` (`cursor/as01-rtl-82c7` HEAD; RX scramble seed from physical lane 0..3; not committed on this TB branch). Expected LPH unchanged. `fab_rx` LPH+payload scored. Reproduce: `make -C tb/vibe units` (or the `run1` compile in `scripts/run_units.sh`) with PR4 `rtl/` checked out for sim.
+vs overlay `d6549521` (1024-cell comparator; Overlay B **not** wired): both TCs **FAIL** on NW width 512 vs DUT 640. Historical PASS vs PR4 `4bfac60c` / `7a4abe2` was against a 640-bit NW pin that FS-0.2.7 retired. Reproduce: sim-only `git checkout d6549521 -- rtl` then `make -C tb/vibe units`. Do not patch `rtl/`.
 
 ---
 
@@ -123,12 +124,13 @@ Each of these can FAIL with stimulus / expected / actual / hier. No `$display("P
 
 | Checker | Was | Now |
 |---|---|---|
-| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | After legal NW/LPH accept: previous-`txclk` `{p_tx3..0}` vs `txdata` (nonzero + lane pack). RX: `rxdata=txdata`, `fab_rx` LPH via `vibe_tb_nw_pma_lph_ok`. |
+| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | Width gate first (`$bits==512`). Then PMA lane-pack + RX LPH. vs `d6549521`: **FAIL** width 640. |
 | `tc_pcs_tx` | PASS if no `lane_vld` | FAIL if no `lane_vld` after legal dll + `link_up`. Lane words vs second `vibe_pcs_tx` golden (bypass). |
 | `tc_pcs_rx` | force `wv`/`win`/`remv`; `fail` never set | TX→RX T=4 (port pin). Score `dll_vld` + LPH vs injected pack. No coverage-only force as pass. |
 | `tc_fabric_line_holes` | coverage stimulus, FAIL=0 | CFG6 1-beat + 2-beat `cfg6_hit[0]`; G1 sat `FFFFFFFE`→`FFFFFFFF` then stay. |
 | `tc_neg_official` | 19 PASS, no RTL scan | `scan_official_neg.py` → include; FAIL if forbidden id in `vibe_*.sv` code. One PASS per official NEG after clean scan. |
-| `tc_credit_1024_hole` | NOTE+PASS stub | Same 1023→1024 `bp_nw`/`force_crd_ack` as `tc_credit_1024_flit_bp` (G7 closed). |
+| `tc_credit_1024_hole` | NOTE+PASS stub | Same 1023→1024 **cell** `bp_nw` as `tc_credit_1024_flit_bp` (G7 closed as cell). |
+| `tc_phy_nw_dll_512b` | (new Overlay B) | FAIL if `$bits(fab_tx_data)!==512`. Compiles against 640 DUT; FAIL goes to 设计. |
 | `tc_top_smoke` | reset/CNA only, no packet BFM | Peer encodes RT=10 onto `rxdata_0`; score top `irq_logic`. FAIL if no packet / no irq (no NOTE skip). |
 
 Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for underflow tokens + exercises return-without-consume. `tc_timers_indep` instantiates credit + VOQ; credit expiry must not set VOQ drop.
@@ -141,5 +143,6 @@ Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for under
 |---|---|
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
-| ADDED | `tc_nw_pkt_to_pma_tx` PASS; `tc_nw_pkt_pma_loopback` PASS vs PR4 RTL `4bfac60c` |
+| ADDED | `tc_phy_nw_dll_512b` (TP-PHY-008 Overlay B) |
+| FIXED | credit 1024 **cell**; NW pin 512 (FAIL vs `d6549521` 640 — 设计) |
 | SHELL→REAL | seven files above; checkers not weakened |

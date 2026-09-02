@@ -8,12 +8,16 @@ Verdict: **MAPPED** existing TC scores this official rule;
 **ADDED** new TC this pass; **HOLE** unknown not invented;
 **NEG** absent-feature / scan.
 
+FS-0.2.7 / AS-0.1.2: NW↔DLL is `data[511:0]` (TP-PHY-008); 640b is DLL↔PCS.
+1024 credit threshold is **cell** (TP-CRD-004 / TP-HOLE-G7). Filename
+`tc_credit_1024_flit_bp` is historical — the score is cell, not flit.
+512-vs-LPH packing inside the NW word is **not** invented (HOLE if FS silent).
+
 SHELL→REAL (same 159 IDs): `tc_port_smoke` scores PMA lane-pack + RX LPH
 (TP-PHY-001). `tc_pcs_tx` / `tc_pcs_rx` score `lane_vld` / `dll_vld` vs golden.
 `tc_fabric_line_holes` scores CFG6 hit + TP-RT-013 sat (not a hole punch).
 `tc_neg_official` greps `rtl/vibe_*.sv` (one PASS per official NEG after clean).
-`tc_credit_1024_hole` is a thin 1023→1024 `bp_nw` wrapper (G7 closed;
-TP-HOLE-G7 / TP-CRD-004 stay on `tc_credit_1024_flit_bp`).
+`tc_credit_1024_hole` is a thin 1023→1024 **cell** `bp_nw` wrapper.
 `tc_top_smoke` drives a real RT=10 packet on `rxdata_0` and scores `irq_logic`.
 `tc_tp_holes` remains HOLE documentation — do not invent Max Index / pins.
 
@@ -32,13 +36,13 @@ Counts: MAPPED=106 ADDED=16 HOLE=9 NEG=28 (sum=159)
 | TP-PHY-003 | 仅 Mode-2 PAM4 106.25G | `tc_identity_cfg_space` | `tb/vibe/tests/tc_identity_cfg_space.sv` | MAPPED |
 | TP-PHY-004 | TX 侧全部车道同频 | `tc_pma_922mhz` | `tb/vibe/tests/tc_pma_922mhz.sv` | MAPPED |
 | TP-PHY-005 | 光通路不实现 | `tc_neg_no_optical` | `tb/vibe/tests/tc_neg_no_optical.sv` | NEG |
-| TP-PHY-006 | Flit 20 字节，不得把 640b 当 flit | `tc_pkt_len_legal_16_4300` | `tb/vibe/env/vibe_suite.sv` | MAPPED |
+| TP-PHY-006 | Flit 20 字节；640b 是 DLL↔PCS 窗，不是 flit | `tc_pkt_len_legal_16_4300` | `tb/vibe/env/vibe_suite.sv` | MAPPED |
 | TP-PHY-007 | txdata/rxdata[511:0] @922MHz 无额外握手 | `tc_pma_512b_slice` | `tb/vibe/tests/tc_pma_512b_slice.sv` | MAPPED |
-| TP-PHY-008 | NW↔DLL 640b @1.25GHz | `tc_nw_adapt_linkready` | `tb/vibe/tests/tc_nw_adapt_linkready.sv` | MAPPED |
+| TP-PHY-008 | NW↔DLL 仅 data[511:0] @1.25GHz（vld/ready） | `tc_phy_nw_dll_512b` | `tb/vibe/tests/tc_phy_nw_dll_512b.sv` | MAPPED |
 | TP-PHY-009 | FEC 1024b = 两拍 512 | `tc_pcs_cw2beat` | `tb/vibe/tests/tc_pcs_cw2beat.sv` | MAPPED |
-| TP-PHY-010 | 4×160 AFIFO → 4×128=512 | `tc_phy_u26_chain` | `tb/vibe/tests/tc_phy_u26_chain.sv` | MAPPED |
+| TP-PHY-010 | 4×160 AFIFO → 4×128=512（640b 在 DLL↔PCS） | `tc_phy_u26_chain` | `tb/vibe/tests/tc_phy_u26_chain.sv` | MAPPED |
 | TP-PHY-011 | TX 可逐级向 NW 反压 | `tc_nw_pkt_to_pma_tx` | `tb/vibe/tests/tc_nw_pkt_to_pma_tx.sv` | MAPPED |
-| TP-PHY-012 | RX 为 TX 逆过程 | `tc_nw_pkt_pma_loopback` | `tb/vibe/tests/tc_nw_pkt_pma_loopback.sv` | MAPPED |
+| TP-PHY-012 | RX 为 TX 逆过程；NW 脚 data[511:0] 上回收 LPH | `tc_nw_pkt_pma_loopback` | `tb/vibe/tests/tc_nw_pkt_pma_loopback.sv` | MAPPED |
 | TP-PHY-013 | FEC T=4/T=2/bypass 双编码交织 | `tc_pcs_fec_dual_enc` | `tb/vibe/tests/tc_pcs_fec_dual_enc.sv` | MAPPED |
 | TP-PHY-014 | 不实现 hi_FEC_BER | `tc_neg_hi_fec_ber` | `tb/vibe/tests/tc_neg_hi_fec_ber.sv` | NEG |
 | TP-PHY-015 | >T 失败→DLL 重传，失败→Retrain | `tc_fec_fail_gbn` | `tb/vibe/tests/tc_fec_fail_gbn.sv` | ADDED |
@@ -72,7 +76,7 @@ Counts: MAPPED=106 ADDED=16 HOLE=9 NEG=28 (sum=159)
 | TP-CRD-001 | consume ceil(flits/n)，n 默认 8 | `tc_credit_grain_n` | `tb/vibe/tests/tc_credit_grain_n.sv` | ADDED |
 | TP-CRD-002 | max 65535 cells，再加 → fc_ovf | `tc_credit_grain_n` | `tb/vibe/tests/tc_credit_grain_n.sv` | ADDED |
 | TP-CRD-003 | 无 DLLDP 但 pending → Crd_Ack | `tc_credit_1024_flit_bp` | `tb/vibe/tests/tc_credit_1024_flit_bp.sv` | MAPPED |
-| TP-CRD-004 | pending≥1024 flit → 反压 NW + Crd_Ack | `tc_credit_1024_flit_bp` | `tb/vibe/tests/tc_credit_1024_flit_bp.sv` | MAPPED |
+| TP-CRD-004 | pending≥1024 cell → 反压 NW + Crd_Ack（不是 flit，不×n） | `tc_credit_1024_flit_bp` | `tb/vibe/tests/tc_credit_1024_flit_bp.sv` | MAPPED |
 | TP-CRD-005 | credit return 超时 1µs → proto_err | `tc_credit_timeout_1us` | `tb/vibe/tests/tc_credit_timeout_1us.sv` | MAPPED |
 | TP-CRD-006 | RX buf overflow → irq | `tc_irq_agg` | `tb/vibe/tests/tc_irq_agg.sv` | MAPPED |
 | TP-CRD-007 | FC overflow → irq | `tc_irq_agg` | `tb/vibe/tests/tc_irq_agg.sv` | MAPPED |
@@ -174,7 +178,7 @@ Counts: MAPPED=106 ADDED=16 HOLE=9 NEG=28 (sum=159)
 | TP-HOLE-G4 | 额外 reset 脚名未发布 | `tc_hole_g4_reset_pin` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |
 | TP-HOLE-G5 | 上电 CNA 默认未发布 | `tc_hole_g5_cna_poweron` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |
 | TP-HOLE-G6 | lmsm_go 来源未发布 | `tc_hole_g6_lmsm_go_src` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |
-| TP-HOLE-G7 | G7 已关闭：1024 单位是 flit | `tc_credit_1024_flit_bp` | `tb/vibe/tests/tc_credit_1024_flit_bp.sv` | MAPPED |
+| TP-HOLE-G7 | G7 已关闭：1024 单位是 cell | `tc_credit_1024_flit_bp` | `tb/vibe/tests/tc_credit_1024_flit_bp.sv` | MAPPED |
 | TP-HOLE-G8 | 封装脚未发布 | `tc_hole_g8_package_pins` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |
 | TP-HOLE-G9 | RXEQ 张力/Optimize 未发布 | `tc_hole_g9_rxeq_tension` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |
 | TP-HOLE-010 | 性能数字未发布 | `tc_hole_010_perf` | `tb/vibe/tests/tc_tp_holes.sv` | HOLE |

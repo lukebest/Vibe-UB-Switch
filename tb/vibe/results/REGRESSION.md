@@ -1,88 +1,114 @@
-# TP-0.3 regression (Icarus gate)
+# TP-0.3 regression (Icarus gate) — FS-0.2.7 / AS-0.1.2
 
-Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR4 HEAD rtl** (sim-only checkout; not committed).
+Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 / `origin/cursor/as01-rtl-82c7` HEAD** (sim-only checkout; **not** committed).
 
-Matrix IDs are the **official 159** in [`TP-0.3.md`](TP-0.3.md). No reconstructed `TP-FEC-*`, `TP-CFG-008..012`, or `TP-HOLE-001..009`.
+Spec this pass: **FS-0.2.7 Overlay B** + **AS-0.1.2**. Official IDs stay **159**.
+- NW↔DLL is ONLY `data[511:0]` @ 1.25 GHz + vld/ready. No 640-bit window on the NW pin.
+- 640-bit / 4×160 AFIFO is **DLL↔PCS**.
+- Credit threshold **1024 is cell** (Luke 2026-09-02). Not flit. Not 1024×n.
+- RT=10/11 still drop+count+irq. 512-vs-LPH field packing not invented.
 
 | Item | Value |
 |------|--------|
-| RTL compiled SHA | `7a4abe2f1832603b52b5ae36c65f5b580c942661` |
-| RTL ref | `origin/cursor/as01-rtl-82c7` (PR #4 lineage; merge of PR #5) |
-| Gate | `make -C tb/vibe sim` (suite + units + top + neg) |
-| `SIM_EXIT` | **0** |
-| `summarize.sh` | **TOTAL_PASS_LINES=162  TOTAL_FAIL_LINES=0** (excl. `cov.log`; leftover `tc_credit.log` removed) |
-| Suite | **27/27 PASS** (`SUITE_RESULT PASS`; includes `tc_cfg_fwd_class`) |
-| Units | **all `run1` files PASS** (`fail_n=0`) |
-| Top | `PASS tc_top_smoke` |
-| Neg scan | 10/10 PASS (incl. `neg_optical`) |
+| RTL compiled SHA | `d6549521f56d6517a3bf0a25cbd8a1d5f614046a` |
+| RTL message | Count credit pending-to-return in cells, threshold 1024 cell |
+| RTL ref | `origin/cursor/as01-rtl-82c7` (PR #8 lineage) |
+| Overlay B (512b NW) in this SHA? | **No** — `vibe_nw_adapt` / `vibe_port` still `fab_tx_data[639:0]` |
+| 1024-cell comparator in this SHA? | **Yes** |
+| Gate | `make -C tb/vibe units` (+ suite `last_run.txt`) |
+| Units | **80 pass_files / 5 fail_files / 0 compile_fail** (`run1` count now 85 incl. `tc_phy_nw_dll_512b`) |
+| Suite | **27/27 PASS** (`SUITE_RESULT PASS`) |
+| Official matrix | 159 IDs; MAPPED=106 ADDED=16 HOLE=9 NEG=28 |
 
-Checkers were **not** weakened. G1 still DROP + `rt_shortest_unimpl` + sticky `irq_logic`. Credit threshold **1024 is flit**. Credit 1 µs and VOQ deadlock 1 µs are independent. CFG6 three terminate classes else FORWARD. CNA is **16-bit**.
+Checkers were **not** weakened. Width FAILs are expected-vs-actual for 设计 (do not patch `rtl/`).
 
-## SHELL → REAL (this pass)
+## Affected units this pass
 
-Seven former shells now compare stimulus / expected / actual / hier and can FAIL. `tc_tp_holes` stays HOLE documentation (no invented Max Index / pin / CNA default).
-
-| TC | Result vs `7a4abe2` |
-|----|---------------------|
-| `tc_port_smoke` | PASS — PMA lane-pack + RX LPH (TP-PHY-001) |
-| `tc_pcs_tx` | PASS — `lane_vld` + golden lanes |
-| `tc_pcs_rx` | PASS — TX→RX T=4 `dll_vld` + LPH |
-| `tc_fabric_line_holes` | PASS — CFG6 hit + G1 sat |
-| `tc_neg_official` | PASS — 19 official NEG scans + summary (rtl grep) |
-| `tc_credit_1024_hole` | PASS — 1023→1024 `bp_nw` (G7 closed) |
-| `tc_top_smoke` | PASS — RT=10 on `rxdata_0` → `irq_logic` |
-
-Optional: `tc_credit_no_underflow` PASS; `tc_timers_indep` PASS.
+| TC | Result vs `d6549521` | Notes |
+|----|----------------------|--------|
+| `tc_credit_1024_flit_bp` | **PASS** | 1023 cell no `bp_nw`; 1024 cell `bp_nw`+`force_crd_ack`. Filename historical. |
+| `tc_credit_1024_hole` | **PASS** | same 1023→1024 **cell** score (G7 closed as cell) |
+| `tc_credit_grain_n` | **PASS** | consume `ceil_div` flits→cells; sat `fc_ovf` |
+| `tc_credit_timeout_1us` | **PASS** | 1 µs still independent of VOQ |
+| `tc_tp_holes` | **PASS** | G7 note: 1024 is cell |
+| `tc_phy_nw_dll_512b` | **FAIL** | expected NW 512; DUT 640 |
+| `tc_nw_adapt_linkready` | **FAIL** | same width gate (link_ready path not reached) |
+| `tc_nw_pkt_pma_loopback` | **FAIL** | same; LPH score not reached |
+| `tc_nw_pkt_to_pma_tx` | **FAIL** | same |
+| `tc_port_smoke` | **FAIL** | same |
 
 ## FAIL list (handoff to 设计)
 
-**None.** No Icarus `FAIL` block in suite, units, top, or `scan_absent` for this SHA.
+Overlay B is **not** in `d6549521`. All five FAILs are NW width 512 vs DUT 640.
+Do **not** “fix” RTL from this TB branch.
 
-There is no stimulus / expected / actual / hier / reproduce block to quote. If a later RTL drop cannot implement a MUST TP, the existing TC must FAIL with that print — do not patch RTL from this TB branch.
+### `tc_phy_nw_dll_512b` (TP-PHY-008)
 
-Stale `tb/vibe/results/cov.log` (Verilator coverage, not part of `make sim`) still contains historical FAIL lines and is **excluded**.
+```
+FAIL tc_phy_nw_dll_512b
+  stimulus : FS-0.2.7 Overlay B — NW↔DLL data[511:0] @1.25GHz
+  expected : $bits(fab_tx_data)=512 (and fab_rx_data=512)
+  actual   : NW fab_tx_data=640 fab_rx_data=640
+  hier     : u_n.fab_tx_data / vibe_nw_adapt / vibe_port
+  reproduce: make -C tb/vibe units
+```
 
-## Official remaps (kept TCs)
+### `tc_nw_adapt_linkready`
 
-| TC | Official TP | Notes |
-|----|-------------|--------|
-| `tc_p0_down_drop` | TP-NW-003 (also TP-NW-006) | port0 Down → drop+count; no flood |
-| `tc_cfg9_no_icrc` | TP-ICRC-004 (also TP-NEG-004) | CFG9 no ICRC; forward |
-| `tc_fec_fail_gbn` | TP-PHY-015 | `fec_fail` → `start_retry`; TP-RTY-001 → `tc_retry_req_gbn` |
-| `tc_tp_holes` | TP-HOLE-G2..G6, G8, G9, 010, 012 | split PASS notes; G7/011 mapped elsewhere |
-| `tc_neg_no_optical` | TP-PHY-005 | optical absent |
+```
+FAIL tc_nw_adapt_linkready
+  stimulus : FS-0.2.7 Overlay B NW↔DLL data[511:0]
+  expected : $bits(fab_tx_data)=512
+  actual   : 640
+  hier     : u_n.fab_tx_data
+  reproduce: make -C tb/vibe units
+```
 
-## New MUST TCs this pass (all PASS vs `7a4abe2`)
+### `tc_nw_pkt_pma_loopback` (TP-PHY-012)
 
-| TC | Official TP | Notes |
-|----|-------------|--------|
-| `tc_id_nports_entity0` | TP-ID-002 / TP-NEG-010 | N_PORTS=4; no fifth port |
-| `tc_cna_16bit` | TP-CFG-007 | write `00ABCDEF` → `cna=16'hCDEF` |
-| `tc_rt_g1_official` | TP-RT-010/012/014/015/016 | RT=11 not as 01; unique/default still DROP |
-| `tc_credit_grain_n` | TP-CRD-001/002 | n=8 → +1 cell; sat 65535 → `fc_ovf` |
-| `tc_credit_no_underflow` | TP-CRD-008 | scan + return-without-consume |
-| `tc_timers_indep` | TP-TIM-002 | credit expiry must not set VOQ drop |
-| `tc_neg_official` | TP-NEG-* / ID-005/006 / … | `scan_official_neg.py` on `vibe_*.sv` |
-| `tc_cfg_fwd_class` | TP-CFG-002 | suite: CFG 3/4/5/7/9 + reserved fwd |
+```
+FAIL tc_nw_pkt_pma_loopback
+  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
+  expected : NW width 512
+  actual   : DUT NW pin is not 512 (see $bits)
+  hier     : u_p.fab_tx_data
+  reproduce: make -C tb/vibe units
+  actual   : $bits(u_p.fab_tx_data)=640 $bits(u_p.fab_rx_data)=640
+```
 
-## Notable existing TCs vs this SHA
+### `tc_nw_pkt_to_pma_tx`
 
-| TC | Result |
-|----|--------|
-| `tc_nw_pkt_to_pma_tx` | PASS |
-| `tc_nw_pkt_pma_loopback` | PASS |
-| `tc_rt10_must_drop` / `tc_rt11_must_drop` | PASS |
-| `tc_rt_irq_logic_sticky` | PASS (official TP-RT-007) |
-| `tc_cfg6_term_vs_fwd` | PASS |
-| `tc_credit_1024_flit_bp` | PASS (official TP-HOLE-G7 closed) |
+```
+FAIL tc_nw_pkt_to_pma_tx
+  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
+  expected : NW width 512
+  actual   : DUT NW pin is not 512
+  hier     : u_p.fab_tx_data
+  reproduce: make -C tb/vibe units
+  actual   : $bits=640
+```
+
+### `tc_port_smoke`
+
+```
+FAIL tc_port_smoke
+  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
+  expected : NW width 512
+  actual   : DUT NW pin is not 512
+  hier     : u_p.fab_tx_data
+  reproduce: make -C tb/vibe units
+  actual   : $bits=640
+```
+
+Credit 1024-cell TCs **PASS** on this SHA — no credit FAIL to hand off.
 
 ## Reproduce
 
 ```bash
 git fetch origin cursor/as01-rtl-82c7
-git checkout origin/cursor/as01-rtl-82c7 -- rtl
+git checkout d6549521f56d6517a3bf0a25cbd8a1d5f614046a -- rtl
 git restore --staged rtl
-make -C tb/vibe sim
+make -C tb/vibe units
 # restore TB-branch rtl before any commit:
 git checkout HEAD -- rtl
 ```
@@ -90,4 +116,5 @@ git checkout HEAD -- rtl
 ## Matrix
 
 See [`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) vs [`TP-0.3.md`](TP-0.3.md): **ID sets equal, 159/159**.
+Also [`docs/Vibe-UB-Switch-testpoints.md`](../../../docs/Vibe-UB-Switch-testpoints.md) (same table).
 Verdicts: MAPPED=106, ADDED=16, HOLE=9, NEG=28.

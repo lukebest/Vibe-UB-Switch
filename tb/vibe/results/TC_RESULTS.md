@@ -1,12 +1,11 @@
-# TC results (this PR)
+# TC results (historical table)
 
-Simulator: Icarus Verilog 12.0. TB does not modify `rtl/`. FS-0.2.4 G7:
-credit threshold 1024 is **flit**. Old `tb/ub_*` not run.
+Simulator: Icarus Verilog 12.0. TB does not modify `rtl/`. **Current gate**
+is FS-0.2.7 / AS-0.1.2 vs overlay `d6549521` — see [`REGRESSION.md`](REGRESSION.md).
+Credit threshold 1024 is **cell**. NW pin must be `data[511:0]`.
 
-**Counts (this revision):** suite **26/26 PASS** + units **70 files PASS / 0 FAIL**
-+ top **1 PASS** + `make neg` **9 PASS**. **Icarus: 0 FAIL.** No new TC failed
-RTL (do not patch `rtl/`). Rebased onto `79ac9592`. Verilator `tc_lmsm_walk`
-FAIL lines are `--cc` same-timeslot sampling; Icarus walk PASSes.
+Rows below are a prior revision (640-bit NW, 1024-flit wording). Do not treat
+them as the FS-0.2.7 result. Official 159 IDs are in [`TP-0.3.md`](TP-0.3.md).
 
 Verilator unique LINE: **628/636 = 98.7%**. **100% of remaining hittable.**
 Only `tmr_load :101–108` (8) are 0 — **tool, not a hole**. See
