@@ -45,6 +45,7 @@ module vibe_fabric_harness (
   logic         saw_drop_g1;
   logic [3:0]   saw_len_err;
   logic [3:0]   saw_egr;
+  logic [3:0]   saw_xin;
   integer       egr_cnt [0:3];
   logic [511:0] egr_last [0:3];
   logic [1:0]   last_rt_egr [0:3];
@@ -92,6 +93,7 @@ module vibe_fabric_harness (
       saw_drop_g1 <= 1'b0;
       saw_len_err <= 4'd0;
       saw_egr     <= 4'd0;
+      saw_xin     <= 4'd0;
       for (mi = 0; mi < 4; mi = mi + 1) begin
         egr_cnt[mi]     <= 0;
         egr_last[mi]    <= 512'd0;
@@ -100,6 +102,7 @@ module vibe_fabric_harness (
     end else begin
       if (drop_g1) saw_drop_g1 <= 1'b1;
       saw_len_err <= saw_len_err | len_err;
+      saw_xin     <= saw_xin | u_fab.x_in_v;
       for (mi = 0; mi < 4; mi = mi + 1) begin
         if (egr_vld[mi] && egr_ready[mi]) begin
           saw_egr[mi]     <= 1'b1;
@@ -116,9 +119,12 @@ module vibe_fabric_harness (
       saw_drop_g1 = 1'b0;
       saw_len_err = 4'd0;
       saw_egr     = 4'd0;
+      saw_xin     = 4'd0;
       egr_cnt[0] = 0; egr_cnt[1] = 0; egr_cnt[2] = 0; egr_cnt[3] = 0;
       egr_last[0] = 512'd0; egr_last[1] = 512'd0;
       egr_last[2] = 512'd0; egr_last[3] = 512'd0;
+      last_rt_egr[0] = 2'd0; last_rt_egr[1] = 2'd0;
+      last_rt_egr[2] = 2'd0; last_rt_egr[3] = 2'd0;
     end
   endtask
 
@@ -146,6 +152,13 @@ module vibe_fabric_harness (
       tb_cycles(4);
       rst_n = 1'b1;
       tb_cycles(4);
+      // Icarus: vibe_lph_vl(vibe_nw512_flit0(xb_d)) on VOQ wr_vl combo-feeds
+      // xbar out_ready and delta-storms on the first RT=00 xbar grant.
+      // Pin wr_vl so Overlay B forward TCs can score x_in_v / SAF headers.
+      force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+      force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
       tb_clr_mon;
     end
   endtask

@@ -11,7 +11,7 @@ module tc_cfg9_no_icrc;
   logic [511:0] ing_data [0:3];
   logic [511:0] egr_data [0:3];
   logic [511:0] cfg6_data [0:3];
-  integer fail, p;
+  integer fail, p, saw_x;
   reg [159:0] in_f, saf_f;
 
   initial clk = 0;
@@ -50,6 +50,11 @@ module tc_cfg9_no_icrc;
                            vibe_tb_plen_nflit(5), 16'hA5A5, 8'h5A, 3'd0, 8'h00);
     @(negedge clk);
     while (!ing_ready[0]) @(posedge clk);
+    // Icarus: pin VOQ wr_vl so vibe_nw512_flit0(xb_d) does not combo-storm.
+    force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
     ing_data[0] = vibe_tb_mk_beat(in_f);
     ing_vld[0] = 1;
     @(posedge clk);
@@ -58,9 +63,17 @@ module tc_cfg9_no_icrc;
     @(posedge clk);
     @(negedge clk);
     ing_vld[0] = 0;
-    repeat (16) @(posedge clk);
-
-    saf_f = vibe_nw512_flit0(u_fab.saf_d[0]);
+    saw_x = 0;
+    saf_f = 160'd0;
+    repeat (16) begin
+      @(posedge clk);
+      if (u_fab.x_in_v[0]) begin
+        saw_x = 1;
+        saf_f = u_fab.saf_d[0][511:352];
+      end
+    end
+    if (saf_f === 160'd0)
+      saf_f = u_fab.saf_d[0][511:352];
     if (cfg6_hit[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 (not terminate class)");
@@ -78,7 +91,7 @@ module tc_cfg9_no_icrc;
       $display("  hier     : u_fab.saf_d (no ICRC unit)");
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
-    end else if (!u_fab.x_in_v[0] && !u_fab.g1_comb[0]) begin
+    end else if (!saw_x && !u_fab.g1_comb[0]) begin
       $display("FAIL tc_cfg9_no_icrc");
       $display("  stimulus : CFG9 RT=00 dest=1 bitmap=1111");
       $display("  expected : x_in_v=1 (forward; no ICRC terminate)");

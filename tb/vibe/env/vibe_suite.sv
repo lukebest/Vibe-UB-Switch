@@ -105,7 +105,7 @@ module vibe_suite;
           "sticky same egr",
           "egr changed",
           "p.u_ps.sticky");
-      end else if (!h.u_fab.x_in_v[0] || h.u_fab.g1_comb[0]) begin
+      end else if (!h.saw_xin[0] || h.u_fab.g1_comb[0]) begin
         h.tb_fail("tc_rt00_per_flow_rr_fwd",
           "fabric inject RT=00",
           "x_in_v[0]=1 and not G1 (presented to xbar)",
@@ -317,6 +317,9 @@ module vibe_suite;
             h.last_rt_egr[2] !== 2'b00 && h.last_rt_egr[3] !== 2'b00)
           bad = 1;
       end
+      // New reset so VOQ is empty; leftover RT=00 must not score the G1 half.
+      h.tb_reset();
+      h.tb_wr_route(16'h000A, 4'b0010);
       h.tb_clr_mon();
       h.tb_inject_hdr(0, 4'd3, 2'b10, 4'd0, 16'h1, 16'h000A,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
@@ -376,7 +379,7 @@ module vibe_suite;
           "port_sel.drop=1 (not RT=00 path)",
           "drop=0 — treated as implemented RT",
           "p.u_rt.drop_g1 / p.u_ps.drop");
-      end else if (h.u_fab.x_in_v[0] || |h.saw_egr) begin
+      end else if (h.saw_xin[0] || |h.saw_egr) begin
         h.tb_fail("tc_rt10_not_as_rt00",
           "fabric RT=10 same dest",
           "x_in_v=0 and no egress (not as RT=00)",
@@ -499,8 +502,11 @@ module vibe_suite;
       h.tb_reset();
       h.tb_wr_route(16'h0001, 4'b1111);
       h.tb_clr_mon();
-      h.tb_inject_hdr(0, 4'd3, 2'b00, 4'd0, 16'h1, 16'h0001,
-                      vibe_tb_plen_oversize(), 3'd0, 8'd0);
+      // One SOP only. Decl-beats of the illegal PLEN would be extra SOPs
+      // (continuation window [511:352]=0 → 1-flit legal packets).
+      h.tb_inject(0, vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h0001, vibe_tb_plen_oversize(),
+          16'd0, 8'd0, 3'd0, 8'd0)), 1);
       h.tb_cycles(12);
       fwd = |h.saw_egr;
       if (!h.saw_len_err[0]) begin
@@ -644,7 +650,7 @@ module vibe_suite;
           "consume=0 (do not match until write)",
           "consume=1",
           "u_c6.us / cna_written");
-      end else if (h.u_fab.cfg6_hit[0] && !h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0]) begin
+      end else if (h.u_fab.cfg6_hit[0] && !h.saw_xin[0] && !h.u_fab.g1_comb[0]) begin
         h.tb_fail("tc_cfg6_term_vs_fwd",
           "fabric CFG6 DCNA!=CNA (must forward per AS-0.1 s9)",
           "x_in_v=1 (forward path)",
@@ -765,7 +771,7 @@ module vibe_suite;
           "cfg6_hit=0 (not terminate-class CFG6)",
           "cfg6_hit=1",
           "h.u_fab.cfg6_hit / x_in_v");
-      end else if (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)) begin
+      end else if (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)) begin
         h.tb_fail(name,
           "inject non-term CFG RT=00",
           "x_in_v=1 (forward / xbar)",
@@ -797,7 +803,7 @@ module vibe_suite;
                         vibe_tb_plen_nflit(5), 3'd0, 8'd0);
         h.tb_cycles(14);
         if (h.u_fab.cfg6_hit[0] ||
-            (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
+            (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
           nfail = nfail + 1;
       end
       if (nfail) begin
@@ -828,7 +834,7 @@ module vibe_suite;
                         vibe_tb_plen_nflit(5), 3'd0, 8'd0);
         h.tb_cycles(14);
         if (h.u_fab.cfg6_hit[0] ||
-            (!h.u_fab.x_in_v[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
+            (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
           nfail = nfail + 1;
       end
       if (nfail) begin
