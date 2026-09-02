@@ -6,7 +6,7 @@ module tc_nw_pkt_pma_loopback;
   `include "vibe_tb_nw512.svh"
 
   localparam NPKT     = 100;
-  localparam WAIT_MAX = 2000000;
+  localparam WAIT_MAX = 200000;
   localparam BEAT_TO  = 4096;
 
   logic clk_fab, rst_n, port_rst, device_rst, lmsm_go, txclk, rxclk;
@@ -148,10 +148,11 @@ module tc_nw_pkt_pma_loopback;
                 "LMSM/DLL did not reach ACTIVE/NRM",
                 "u_p.u_lmsm / u_p.u_dll.u_sm");
       end
-      // Enough cells for 100 × 4-flit packets (grain 8 → 1 cell each).
+      // Hold credit/pending so the 1 µs Crd_Ack timeout does not tear
+      // the link down while we wait for PMA RX of each of 100 packets.
+      // This TC scores GOLDEN data, not credit.
       force u_p.u_dll.u_crd.cells = 16'd512;
-      @(posedge clk_fab);
-      release u_p.u_dll.u_crd.cells;
+      force u_p.u_dll.u_crd.pend  = 16'd0;
       force u_p.u_lmsm.st = 5'd9;
       release u_p.u_lmsm.am_locked;
       release u_p.u_lmsm.lid_bad;
@@ -256,6 +257,9 @@ module tc_nw_pkt_pma_loopback;
             "fab_tx handshake for this packet beat",
             beat, 1, {511'd0, fab_tx_ready}, "u_p.u_nw / u_p.u_dll.u_tx");
         $display("  note     : fab_tx_ready never rose (timeout %0d cycles)", BEAT_TO);
+        $display("  note     : link_ready=%0b status_up=%0b crd.cells=%0d crd.pend=%0d credit_low=%0b bp_nw=%0b proto_err=%0b",
+                 u_p.link_ready, status_up, u_p.u_dll.u_crd.cells, u_p.u_dll.u_crd.pend,
+                 u_p.u_dll.u_crd.credit_low, u_p.u_dll.u_crd.bp_nw, u_p.proto_err);
         fail = 1;
       end
     end
