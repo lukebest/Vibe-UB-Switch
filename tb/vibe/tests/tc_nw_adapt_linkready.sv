@@ -66,6 +66,12 @@ module tc_nw_adapt_linkready;
           "u_n.dll_tx_data");
       $display("  actual   : dll_tx_vld=%0b", dll_tx_vld);
       fail = 1;
+    end else if (vibe_tb_nw512_sop_lph_fail(golden_tx, dll_tx_data)) begin
+      vibe_tb_nw512_sop_lph_print(
+          "tc_nw_adapt_linkready",
+          "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+          golden_tx, dll_tx_data, "u_n.dll_tx_data[511:352]");
+      fail = 1;
     end
     if (vibe_tb_nw512_vec_fail(rx_w, golden_rx, fab_rx_data) ||
         !fab_rx_vld) begin
@@ -74,6 +80,12 @@ module tc_nw_adapt_linkready;
           "RX DLL→NW dll_rx=GOLDEN_RX",
           golden_rx, rx_w, fab_rx_data,
           "u_n.fab_rx_data");
+      fail = 1;
+    end else if (vibe_tb_nw512_sop_lph_fail(golden_rx, fab_rx_data)) begin
+      vibe_tb_nw512_sop_lph_print(
+          "tc_nw_adapt_linkready",
+          "RX SOP LPH GOLDEN_RX[511:352] vs DUT[511:352]",
+          golden_rx, fab_rx_data, "u_n.fab_rx_data[511:352]");
       fail = 1;
     end
     mgmt_tx_vld = 1;

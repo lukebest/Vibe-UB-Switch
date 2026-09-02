@@ -9,53 +9,27 @@ Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged.
 
 | Item | Value |
 |------|--------|
-| RTL compiled SHA | `a3ecec9f` + parents `f7192ea` (overlay B 512b NW) |
-| Full SHA | `a3ecec9` — Fix overlay-B remainder shift width and CNA first-flit opcode |
-| Overlay B in this SHA? | **Yes** — `vibe_nw_adapt` / `vibe_port` `fab_*` / `dll_*` are `[511:0]`; DLL↔PCS stays 640 |
-| Gate | `make -C tb/vibe units` (five Overlay-B TCs named below) |
+| RTL compiled SHA | `a3ecec9f40e987e2dc49f586c34092c3ede5baa5` |
+| RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode |
+| Overlay B in this SHA? | **Yes** — NW `fab_tx`/`fab_rx`/`dll_*` are `[511:0]`; DLL↔PCS stays 640 |
+| SOP LPH (设计) | `[511:352]` (160b); `[351:0]` packet data. Not README `[511:496]`. |
+| Gate | five Overlay-B TCs via `iverilog`/`vvp` (`make -C tb/vibe units` path) |
 
-Checkers not weakened. Loopback/port_smoke RX FAILs go to 设计. Do not patch `rtl/`.
+Checkers compare full 512-bit GOLDEN **and** SOP LPH fields from GOLDEN[511:352] vs DUT[511:352]. Do not patch `rtl/`.
 
-## Five Overlay-B content TCs vs `a3ecec9`
+## Five Overlay-B content TCs vs `a3ecec9f`
 
 | TC | Result | What was compared |
 |----|--------|-------------------|
-| `tc_phy_nw_dll_512b` | **PASS** | TX `dll_tx_data===GOLDEN_TX`; RX `fab_rx_data===GOLDEN_RX`; handshake |
-| `tc_nw_adapt_linkready` | **PASS** | same GOLDEN TX+RX; LinkReady=0 blocks; mgmt pri uses GOLDEN_RX |
-| `tc_nw_pkt_to_pma_tx` | **PASS** | accepted-beat `u_p.dll_tx_d===GOLDEN_TX`; PMA pack / lane / gear still scored |
-| `tc_port_smoke` | **FAIL** | TX GOLDEN matched; RX `fab_rx_vld=0`, data=0 (not GOLDEN) |
-| `tc_nw_pkt_pma_loopback` | **FAIL** | TX GOLDEN matched; recover `fab_rx===GOLDEN_TX` never happened |
+| `tc_phy_nw_dll_512b` | **PASS** | TX `dll_tx===GOLDEN_TX` + SOP LPH; RX `fab_rx===GOLDEN_RX` + SOP LPH |
+| `tc_nw_adapt_linkready` | **PASS** | same GOLDEN TX+RX + SOP LPH; LinkReady / mgmt pri |
+| `tc_nw_pkt_to_pma_tx` | **PASS** | accepted-beat `dll_tx===GOLDEN_TX` + SOP LPH; PMA pack |
+| `tc_port_smoke` | **PASS** | TX GOLDEN + SOP LPH; recovered `fab_rx===GOLDEN_TX`; PMA pack |
+| `tc_nw_pkt_pma_loopback` | **PASS** | recovered RX 512b === TX GOLDEN; `fec_fail=0`; `am_locked=1111` |
 
 ## FAIL list (handoff to 设计)
 
-TX NW→DLL content is good on this SHA. PMA loopback does **not** deliver the same 512-bit GOLDEN on NW RX (`fab_rx_vld` stayed 0). Supporting: `fec_fail=0`, `am_locked=1111`, `deskew=1`, `saw_txnz=1`, `saw_pcs_rx=0`.
-
-### `tc_nw_pkt_pma_loopback` (TP-PHY-012)
-
-```
-  detail   : vld=0 last_rx=0...0 pcs_rx_v=0 am_lock=1111 fec_fail=0 deskew=1 afrv=0000
-  peak     : saw_txnz=1 saw_afrv=1 saw_am=1 saw_pcs_rx=0 saw_fab_rx=0 saw_fec_fail=0 saw_deskew=1
-FAIL tc_nw_pkt_pma_loopback
-  stimulus : PMA loopback; recover NW RX data[511:0] === GOLDEN_TX
-  expected : width=512 data=4e57353154582121a5a5a5a55a5a5a5a0123456789abcdeffedcba98765432101111111122222222333333334444444455555555666666667777777788888888
-  actual   : width=512 data=00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  hier     : u_p.fab_rx_data
-  reproduce: make -C tb/vibe units
-```
-
-### `tc_port_smoke`
-
-```
-FAIL tc_port_smoke
-  stimulus : PMA loopback; recover NW RX data[511:0] === GOLDEN_TX
-  expected : width=512 data=4e57353154582121a5a5a5a55a5a5a5a0123456789abcdeffedcba98765432101111111122222222333333334444444455555555666666667777777788888888
-  actual   : width=512 data=0000...0000
-  hier     : u_p.fab_rx_data
-  reproduce: make -C tb/vibe units
-  actual   : fab_rx_vld=0 fec_fail=0 am_locked=1111
-```
-
-GOLDEN_TX lives in `tb/vibe/common/vibe_tb_nw512.svh`. TB does not invent LPH packing to force a PASS.
+**None** vs `a3ecec9f` on these five TCs.
 
 ## Reproduce
 

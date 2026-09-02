@@ -108,7 +108,7 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
 
-GOLDEN is a unique 512-bit constant (`vibe_tb_nw512.svh`). Checkers do **not** extract LPH/NTH from the 512 bus and do **not** PASS by matching `[511:0]` of a 640-bit DUT pin. Overlay RTL for sim only; do not patch `rtl/`.
+GOLDEN is a unique 512-bit constant (`vibe_tb_nw512.svh`) with SOP LPH at `[511:352]` (设计). Checkers score full 512 bits **and** CFG/RT/SCNA/DCNA from that 160b window (not README `[511:496]`). A 640-bit DUT pin cannot PASS. Overlay RTL for sim only; do not patch `rtl/`.
 
 ---
 
@@ -143,6 +143,6 @@ Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for under
 |---|---|
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
-| ADDED | `tc_phy_nw_dll_512b` 512b TX+RX GOLDEN (PASS vs `a3ecec9`) |
-| FIXED | 512b content compare; loopback/port_smoke RX **FAIL** vs `a3ecec9` (fab_rx_vld=0) |
+| ADDED | `tc_phy_nw_dll_512b` 512b TX+RX GOLDEN + SOP LPH `[511:352]` |
+| FIXED | all five Overlay-B content TCs **PASS** vs `a3ecec9f` |
 | SHELL→REAL | seven files above; checkers not weakened |

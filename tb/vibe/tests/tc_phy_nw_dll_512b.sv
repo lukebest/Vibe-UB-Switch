@@ -62,10 +62,16 @@ module tc_phy_nw_dll_512b;
       $display("  actual   : ready=%0b dll_tx_vld=%0b (must handshake + 512b match)",
                fab_tx_ready, dll_tx_vld);
       fail = 1;
+    end else if (vibe_tb_nw512_sop_lph_fail(golden_tx, dll_tx_data)) begin
+      vibe_tb_nw512_sop_lph_print(
+          "tc_phy_nw_dll_512b",
+          "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+          golden_tx, dll_tx_data, "u_n.dll_tx_data[511:352]");
+      fail = 1;
     end
     fab_tx_vld = 0;
 
-    // RX DLL→NW: drive GOLDEN_RX, score fab_rx === GOLDEN_RX.
+    // RX DLL→NW: drive GOLDEN_RX, score fab_rx === GOLDEN_RX + SOP LPH.
     dll_rx_data = golden_rx;
     dll_rx_vld = 1; fab_rx_ready = 1;
     #1;
@@ -77,6 +83,12 @@ module tc_phy_nw_dll_512b;
           golden_rx, rx_w, fab_rx_data,
           "u_n.fab_rx_data");
       $display("  actual   : fab_rx_vld=%0b", fab_rx_vld);
+      fail = 1;
+    end else if (vibe_tb_nw512_sop_lph_fail(golden_rx, fab_rx_data)) begin
+      vibe_tb_nw512_sop_lph_print(
+          "tc_phy_nw_dll_512b",
+          "RX SOP LPH GOLDEN_RX[511:352] vs DUT[511:352]",
+          golden_rx, fab_rx_data, "u_n.fab_rx_data[511:352]");
       fail = 1;
     end
     dll_rx_vld = 0;

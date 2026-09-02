@@ -193,6 +193,13 @@ module tc_nw_pkt_to_pma_tx;
               "u_p.dll_tx_d / u_p.u_nw.dll_tx_data");
           $finish;
         end
+        if (vibe_tb_nw512_sop_lph_fail(golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_sop_lph_print(
+              "tc_nw_pkt_to_pma_tx",
+              "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+              golden_tx, u_p.dll_tx_d, "u_p.dll_tx_d[511:352]");
+          $finish;
+        end
         fab_tx_vld = 0;
         i = 32;
       end else
@@ -211,6 +218,20 @@ module tc_nw_pkt_to_pma_tx;
     end
 
     saw_dll = 1;
+
+    // Second beat completes the 80 B / 4-flit packet (DLL emits 640b to PCS).
+    fab_tx_data = vibe_tb_nw512_golden_tx_b2();
+    for (i = 0; i < 32; i = i + 1) begin
+      @(negedge clk_fab);
+      fab_tx_vld = 1;
+      if (fab_tx_ready) begin
+        @(posedge clk_fab);
+        fab_tx_vld = 0;
+        i = 32;
+      end else
+        @(posedge clk_fab);
+    end
+    fab_tx_vld = 0;
 
     // PMA txdata is registered: compare to the previous txclk's p_tx / golden.
     for (i = 0; i < 4000; i = i + 1) begin

@@ -15,7 +15,7 @@ Clock in these dumps is Icarus `#1` with `timescale 1ns/1ps` → VCD unit **1 ps
 | 3 | `tc_credit_1024_flit_bp` (unit) | FS-0.2.7 / G7: threshold **1024 is CELL** (filename historical) | [`credit_1024_flit.png`](credit_1024_flit.png) | [`credit_1024_flit.vcd`](credit_1024_flit.vcd) | `PASS tc_credit_1024_flit_bp` |
 | 4 | `tc_credit_timeout_1us` (unit) | 1 µs credit-return timeout → `proto_err` (`vibe_dll_credit.to`) | [`credit_timeout_1us.png`](credit_timeout_1us.png) | [`credit_timeout_1us.vcd`](credit_timeout_1us.vcd) | `PASS tc_credit_timeout_1us` |
 | 5 | `tc_deadlock_timeout_1us` (unit) | 1 µs VOQ deadlock (`vibe_voq_egr.age`) — **not** the credit counter | [`voq_deadlock_1us.png`](voq_deadlock_1us.png) | [`voq_deadlock_1us.vcd`](voq_deadlock_1us.vcd) | `PASS tc_deadlock_timeout_1us` |
-| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012: recover full 512b GOLDEN_TX on NW RX after PMA loopback (not LPH). vs `a3ecec9`: **FAIL** `fab_rx_vld=0` | [`nw_pkt_pma_loopback.png`](nw_pkt_pma_loopback.png) | [`nw_pkt_pma_loopback.vcd`](nw_pkt_pma_loopback.vcd) | `FAIL tc_nw_pkt_pma_loopback` (`a3ecec9`) |
+| 6 | `tc_nw_pkt_pma_loopback` (unit) | TP-PHY-012: recover full 512b GOLDEN_TX + SOP LPH `[511:352]` after PMA loopback. vs `a3ecec9f`: **PASS** | [`nw_pkt_pma_loopback.png`](nw_pkt_pma_loopback.png) | [`nw_pkt_pma_loopback.vcd`](nw_pkt_pma_loopback.vcd) | `PASS tc_nw_pkt_pma_loopback` |
 
 Each PNG is one annotated window (CFG6 / both 1 µs timeouts use a load+fire pair on one image): signal names, 0/1 or dec/hex values, a vertical marker at the score event, and expected-vs-actual caption.
 

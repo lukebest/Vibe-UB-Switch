@@ -153,6 +153,25 @@ module tc_nw_pkt_pma_loopback;
               "u_p.dll_tx_d");
           $finish;
         end
+        if (vibe_tb_nw512_sop_lph_fail(golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_sop_lph_print(
+              "tc_nw_pkt_pma_loopback",
+              "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+              golden_tx, u_p.dll_tx_d, "u_p.dll_tx_d[511:352]");
+          $finish;
+        end
+        fab_tx_vld = 0;
+        i = 32;
+      end else
+        @(posedge clk_fab);
+    end
+    fab_tx_vld = 0;
+    fab_tx_data = vibe_tb_nw512_golden_tx_b2();
+    for (i = 0; i < 32; i = i + 1) begin
+      @(negedge clk_fab);
+      fab_tx_vld = 1;
+      if (fab_tx_ready) begin
+        @(posedge clk_fab);
         fab_tx_vld = 0;
         i = 32;
       end else
@@ -178,7 +197,8 @@ module tc_nw_pkt_pma_loopback;
       if (fab_rx_vld) begin
         saw_fab_rx = 1;
         last_rx = fab_rx_data;
-        if (!vibe_tb_nw512_vec_fail(rx_w, golden_tx, fab_rx_data))
+        if (!vibe_tb_nw512_vec_fail(rx_w, golden_tx, fab_rx_data) &&
+            !vibe_tb_nw512_sop_lph_fail(golden_tx, fab_rx_data))
           saw_rx = 1;
       end
       if (saw_rx && ($test$plusargs("DUMP") || $test$plusargs("VCD"))) begin
