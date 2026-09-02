@@ -49,25 +49,25 @@ add("TP-PHY-005", "tc_phy_no_optical",
     "光通路不实现",
     "tc_neg_no_optical", "tb/vibe/tests/tc_neg_no_optical.sv", "NEG")
 add("TP-PHY-006", "tc_phy_flit_20b",
-    "Flit 20 字节，不得把 640b 当 flit",
+    "Flit 20 字节；640b 是 DLL↔PCS 窗，不是 flit",
     "tc_pkt_len_legal_16_4300", "tb/vibe/env/vibe_suite.sv", "MAPPED")
 add("TP-PHY-007", "tc_phy_pma_pcs_boundary",
     "txdata/rxdata[511:0] @922MHz 无额外握手",
     "tc_pma_512b_slice", "tb/vibe/tests/tc_pma_512b_slice.sv", "MAPPED")
-add("TP-PHY-008", "tc_phy_nw_dll_640b",
-    "NW↔DLL 640b @1.25GHz",
-    "tc_nw_adapt_linkready", "tb/vibe/tests/tc_nw_adapt_linkready.sv", "MAPPED")
+add("TP-PHY-008", "tc_phy_nw_dll_512b",
+    "NW↔DLL 仅 data[511:0] @1.25GHz（vld/ready）",
+    "tc_phy_nw_dll_512b", "tb/vibe/tests/tc_phy_nw_dll_512b.sv", "MAPPED")
 add("TP-PHY-009", "tc_phy_tx_fec_1024_two_beats",
     "FEC 1024b = 两拍 512",
     "tc_pcs_cw2beat", "tb/vibe/tests/tc_pcs_cw2beat.sv", "MAPPED")
 add("TP-PHY-010", "tc_phy_tx_4x160_afifo_4x128",
-    "4×160 AFIFO → 4×128=512",
+    "4×160 AFIFO → 4×128=512（640b 在 DLL↔PCS）",
     "tc_phy_u26_chain", "tb/vibe/tests/tc_phy_u26_chain.sv", "MAPPED")
 add("TP-PHY-011", "tc_phy_tx_backpressure_chain",
     "TX 可逐级向 NW 反压",
     "tc_nw_pkt_to_pma_tx", "tb/vibe/tests/tc_nw_pkt_to_pma_tx.sv", "MAPPED")
 add("TP-PHY-012", "tc_phy_rx_inverse_chain",
-    "RX 为 TX 逆过程",
+    "RX 为 TX 逆过程；NW 脚 data[511:0] 上回收 LPH",
     "tc_nw_pkt_pma_loopback", "tb/vibe/tests/tc_nw_pkt_pma_loopback.sv", "MAPPED")
 add("TP-PHY-013", "tc_phy_fec_modes_interleave",
     "FEC T=4/T=2/bypass 双编码交织",
@@ -174,8 +174,8 @@ add("TP-CRD-002", "tc_crd_max_65535",
 add("TP-CRD-003", "tc_crd_ack_no_dp",
     "无 DLLDP 但 pending → Crd_Ack",
     "tc_credit_1024_flit_bp", "tb/vibe/tests/tc_credit_1024_flit_bp.sv", "MAPPED")
-add("TP-CRD-004", "tc_crd_1024_flit_bp",
-    "pending≥1024 flit → 反压 NW + Crd_Ack",
+add("TP-CRD-004", "tc_crd_1024_cell_bp",
+    "pending≥1024 cell → 反压 NW + Crd_Ack（不是 flit，不×n）",
     "tc_credit_1024_flit_bp", "tb/vibe/tests/tc_credit_1024_flit_bp.sv", "MAPPED")
 add("TP-CRD-005", "tc_crd_1us_timeout",
     "credit return 超时 1µs → proto_err",
@@ -500,8 +500,8 @@ add("TP-HOLE-G5", "tc_hole_g5_cna_poweron",
 add("TP-HOLE-G6", "tc_hole_g6_lmsm_go_src",
     "lmsm_go 来源未发布",
     "tc_hole_g6_lmsm_go_src", "tb/vibe/tests/tc_tp_holes.sv", "HOLE")
-add("TP-HOLE-G7", "tc_hole_g7_closed_flit",
-    "G7 已关闭：1024 单位是 flit",
+add("TP-HOLE-G7", "tc_hole_g7_closed_cell",
+    "G7 已关闭：1024 单位是 cell",
     "tc_credit_1024_flit_bp", "tb/vibe/tests/tc_credit_1024_flit_bp.sv", "MAPPED")
 add("TP-HOLE-G8", "tc_hole_g8_package_pins",
     "封装脚未发布",
@@ -545,8 +545,9 @@ def main():
     official = [
         "# TP-0.3 official test points (159)",
         "",
-        "Locked ID set. Do not invent `TP-FEC-*` or `TP-CFG-008`..`012`.",
+        "Locked ID set (FS-0.2.7 / AS-0.1.2). Do not invent `TP-FEC-*` or `TP-CFG-008`..`012`.",
         "Column 2 is the planned name (file may differ).",
+        "Overlay B: NW↔DLL is `data[511:0]`; 640b window is DLL↔PCS. 1024 credit = cell.",
         "",
         "| ID | planned_name | rule |",
         "|----|--------------|------|",
@@ -555,6 +556,10 @@ def main():
         official.append(f"| {tid} | `{planned}` | {rule} |")
     official.append("")
     (root / "TP-0.3.md").write_text("\n".join(official), encoding="utf-8")
+    docs = Path(__file__).resolve().parents[3] / "docs"
+    docs.mkdir(parents=True, exist_ok=True)
+    (docs / "Vibe-UB-Switch-testpoints.md").write_text(
+        "\n".join(official), encoding="utf-8")
 
     matrix = [
         "# TP-0.3 ↔ testcase matrix (official IDs only)",
@@ -567,12 +572,16 @@ def main():
         "**ADDED** new TC this pass; **HOLE** unknown not invented;",
         "**NEG** absent-feature / scan.",
         "",
+        "FS-0.2.7 / AS-0.1.2: NW↔DLL is `data[511:0]` (TP-PHY-008); 640b is DLL↔PCS.",
+        "1024 credit threshold is **cell** (TP-CRD-004 / TP-HOLE-G7). Filename",
+        "`tc_credit_1024_flit_bp` is historical — the score is cell, not flit.",
+        "512-vs-LPH packing inside the NW word is **not** invented (HOLE if FS silent).",
+        "",
         "SHELL→REAL (same 159 IDs): `tc_port_smoke` scores PMA lane-pack + RX LPH",
         "(TP-PHY-001). `tc_pcs_tx` / `tc_pcs_rx` score `lane_vld` / `dll_vld` vs golden.",
         "`tc_fabric_line_holes` scores CFG6 hit + TP-RT-013 sat (not a hole punch).",
         "`tc_neg_official` greps `rtl/vibe_*.sv` (one PASS per official NEG after clean).",
-        "`tc_credit_1024_hole` is a thin 1023→1024 `bp_nw` wrapper (G7 closed;",
-        "TP-HOLE-G7 / TP-CRD-004 stay on `tc_credit_1024_flit_bp`).",
+        "`tc_credit_1024_hole` is a thin 1023→1024 **cell** `bp_nw` wrapper.",
         "`tc_top_smoke` drives a real RT=10 packet on `rxdata_0` and scores `irq_logic`.",
         "`tc_tp_holes` remains HOLE documentation — do not invent Max Index / pins.",
         "",

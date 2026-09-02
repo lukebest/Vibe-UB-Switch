@@ -51,6 +51,7 @@ run1 tc_vl_rr               "$T/tc_vl_rr.sv"               "$RTL/fabric/vibe_vl_
 run1 tc_vl_rr_0_15          "$T/tc_vl_rr_0_15.sv"          "$RTL/fabric/vibe_vl_rr.sv"
 run1 tc_credit_1024_hole    "$T/tc_credit_1024_hole.sv" "$RTL/dll/vibe_dll_credit.sv"
 run1 tc_credit_1024_flit_bp "$T/tc_credit_1024_flit_bp.sv" "$RTL/dll/vibe_dll_credit.sv"
+run1 tc_phy_nw_dll_512b     "$T/tc_phy_nw_dll_512b.sv"  "$RTL/nw/vibe_nw_adapt.sv"
 run1 tc_credit_timeout_1us  "$T/tc_credit_timeout_1us.sv"  "$RTL/dll/vibe_dll_credit.sv"
 run1 tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fabric/vibe_voq_egr.sv"
 run1 tc_cfg0_no_credit      "$T/tc_cfg0_no_credit.sv"      "$RTL/dll/vibe_dll_credit.sv"

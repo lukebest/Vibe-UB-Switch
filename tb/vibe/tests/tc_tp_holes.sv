@@ -12,7 +12,7 @@ module tc_tp_holes;
         $display("PASS tc_hole_g9_rxeq_tension: TP-HOLE-G9 — RXEQ 张力未在 FS 闭合");
         $display("PASS tc_hole_010_perf: TP-HOLE-010 — 性能数字未在 FS 闭合");
         $display("PASS tc_hole_012_counter_width: TP-HOLE-012 — 计数器宽度非 FS 必须（禁止臆造产品宽度）");
-        $display("NOTE TP-HOLE-G7 mapped to tc_credit_1024_flit_bp (closed: 1024 is flit)");
+        $display("NOTE TP-HOLE-G7 mapped to tc_credit_1024_flit_bp (closed: 1024 is cell)");
         $display("NOTE TP-HOLE-011 mapped to tc_rt10_must_drop (G1 is not a hole)");
         $finish;
     end
