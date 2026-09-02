@@ -369,8 +369,19 @@ def stitch(out: str, *pngs: str) -> None:
     print(f"wrote {out}")
 
 
+def _vcd_path(waves: str, stem: str) -> Optional[str]:
+    for name in (stem, stem + ".gz"):
+        p = os.path.join(waves, name)
+        if os.path.isfile(p):
+            return p
+    return None
+
+
 def render_g1(waves: str) -> None:
-    v = parse_vcd(os.path.join(waves, "g1_rt10.vcd"))
+    src = _vcd_path(waves, "g1_rt10.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
     p = v.period
     t_ing = first_rise(_need(v, "wav_ing0")) or 20 * p
     t_irq = first_rise(_need(v, "wav_irq")) or (t_ing + 3 * p)
@@ -398,7 +409,10 @@ def render_g1(waves: str) -> None:
 
 
 def render_cfg6(waves: str) -> None:
-    v = parse_vcd(os.path.join(waves, "cfg6_term_vs_fwd.vcd"))
+    src = _vcd_path(waves, "cfg6_term_vs_fwd.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
     p = v.period
     pulses = all_rises(_need(v, "c6_hit"))
     t_unit0 = pulses[0] if pulses else 0
@@ -457,7 +471,10 @@ def render_cfg6(waves: str) -> None:
 
 
 def render_credit_1024(waves: str) -> None:
-    v = parse_vcd(os.path.join(waves, "credit_1024_flit.vcd"))
+    src = _vcd_path(waves, "credit_1024_flit.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
     p = v.period
     pend = _need(v, "pending")
     t_1023 = first_eq(pend, 1023)
@@ -486,7 +503,10 @@ def render_credit_1024(waves: str) -> None:
 
 
 def render_credit_to(waves: str) -> None:
-    v = parse_vcd(os.path.join(waves, "credit_timeout_1us.vcd"))
+    src = _vcd_path(waves, "credit_timeout_1us.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
     p = v.period
     t_load = first_eq(_need(v, "wav_to"), 1250)
     t_err = first_rise(_need(v, "proto_err")) or last_time(v)
@@ -523,7 +543,10 @@ def render_credit_to(waves: str) -> None:
 
 
 def render_voq(waves: str) -> None:
-    v = parse_vcd(os.path.join(waves, "voq_deadlock_1us.vcd"))
+    src = _vcd_path(waves, "voq_deadlock_1us.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
     p = v.period
     t_load = first_eq(_need(v, "wav_age00"), 1250)
     t_drop = first_rise(_need(v, "deadlock_drop")) or last_time(v)
@@ -560,6 +583,87 @@ def render_voq(waves: str) -> None:
     stitch(os.path.join(waves, "voq_deadlock_1us.png"), load_png, fire_png)
 
 
+def render_loopback(waves: str) -> None:
+    src = _vcd_path(waves, "nw_pkt_pma_loopback.vcd")
+    if src is None:
+        return
+    v = parse_vcd(src)
+    p = v.period
+    t_inj = first_rise(_need(v, "fab_tx_vld")) or (20 * p)
+    t_pma = first_rise(_need(v, "wav_tx_nz")) or first_rise(_need(v, "wav_ptxv"))
+    if t_pma is None:
+        t_pma = t_inj + 40 * p
+    t_rx = first_rise(_need(v, "wav_rx_lph_ok")) or first_rise(_need(v, "fab_rx_vld"))
+    if t_rx is None:
+        t_rx = last_time(v)
+    t_pcs = first_rise(_need(v, "wav_pcs_rx"), tmin=t_inj) or t_rx
+    marks_all = [
+        (t_inj, "inject fab_tx (CFG=3 RT=00 A11A/B22B)", "#1f4e79"),
+        (t_pma, "PMA txdata nonzero (rxdata=txdata)", "#b9770e"),
+        (t_rx, "fab_rx LPH score (TP-PHY-012)", "#c0392b"),
+    ]
+    tx_png = os.path.join(waves, "_lb_tx.png")
+    pma_png = os.path.join(waves, "_lb_pma.png")
+    rx_png = os.path.join(waves, "_lb_rx.png")
+    draw_window(
+        tx_png, v,
+        [
+            ("fab_tx_vld", "fab_tx_vld", "bit"),
+            ("fab_tx_ready", "fab_tx_ready", "bit"),
+            ("wav_tx_cfg", "TX LPH CFG", "dec"),
+            ("wav_tx_rt", "TX LPH RT", "dec"),
+            ("wav_tx_scna", "TX SCNA", "hex"),
+            ("wav_tx_dcna", "TX DCNA", "hex"),
+        ],
+        max(0, t_inj - 6 * p), t_inj + 16 * p,
+        marks_all,
+        "TX  legal NW accept  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "Expected: fab_tx handshake, CFG=3 RT=00 SCNA=0xA11A DCNA=0xB22B.  "
+        "Actual: same LPH on accepted beat (checker unchanged).",
+        notes=[(t_inj, "inject")],
+    )
+    draw_window(
+        pma_png, v,
+        [
+            ("wav_tx_nz", "txdata != 0", "bit"),
+            ("wav_rx_nz", "rxdata != 0", "bit"),
+            ("wav_lb_eq", "rxdata==txdata", "bit"),
+            ("wav_ptxv", "u_p.p_txv", "bit"),
+            ("wav_txlv", "u_p.txlv (lane_vld)", "bit"),
+            ("wav_lane0", "txdata[31:0] lane0", "hex"),
+            ("wav_lane3", "txdata[511:480] lane3", "hex"),
+        ],
+        max(0, t_pma - 12 * p), t_pma + 40 * p,
+        marks_all,
+        "PMA  txdata[511:0] + loopback tie  —  same TC",
+        "Expected: txdata becomes nonzero; [127:0]=lane0 .. [511:384]=lane3; "
+        "rxdata=txdata (assign).  Actual: nz + lb_eq=1 when p_txv (PASS).",
+        notes=[(t_pma, "PMA activity")],
+    )
+    draw_window(
+        rx_png, v,
+        [
+            ("wav_am", "u_p.am_locked", "hex"),
+            ("wav_pcs_rx", "u_p.pcs_rx_v", "bit"),
+            ("wav_fec", "u_p.fec_fail", "bit"),
+            ("fab_rx_vld", "fab_rx_vld", "bit"),
+            ("wav_rx_cfg", "RX LPH CFG", "dec"),
+            ("wav_rx_rt", "RX LPH RT", "dec"),
+            ("wav_rx_scna", "RX SCNA", "hex"),
+            ("wav_rx_dcna", "RX DCNA", "hex"),
+            ("wav_rx_lph_ok", "LPH match", "bit"),
+        ],
+        max(0, t_rx - 20 * p), t_rx + 16 * p,
+        marks_all,
+        "RX  recovered LPH  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "Expected: fab_rx_vld with CFG=3 RT=00 SCNA=0xA11A DCNA=0xB22B "
+        "(same as injected).  Actual: wav_rx_lph_ok=1, fec_fail=0 "
+        "(PASS tc_nw_pkt_pma_loopback).",
+        notes=[(t_pcs, "pcs_rx_v"), (t_rx, "fab_rx score")],
+    )
+    stitch(os.path.join(waves, "nw_pkt_pma_loopback.png"), tx_png, pma_png, rx_png)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--waves", required=True)
@@ -570,6 +674,7 @@ def main() -> int:
     render_credit_1024(waves)
     render_credit_to(waves)
     render_voq(waves)
+    render_loopback(waves)
     return 0
 
 

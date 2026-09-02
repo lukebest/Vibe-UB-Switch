@@ -117,6 +117,24 @@ All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCR
 
 ---
 
+## SHELL → REAL (seven files; official 159 IDs unchanged)
+
+Each of these can FAIL with stimulus / expected / actual / hier. No `$display("PASS")` after a wait with `fail` stuck 0. No NOTE-then-PASS when the score missed. HOLE TCs in `tc_tp_holes` stay documentation.
+
+| Checker | Was | Now |
+|---|---|---|
+| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | After legal NW/LPH accept: previous-`txclk` `{p_tx3..0}` vs `txdata` (nonzero + lane pack). RX: `rxdata=txdata`, `fab_rx` LPH via `vibe_tb_nw_pma_lph_ok`. |
+| `tc_pcs_tx` | PASS if no `lane_vld` | FAIL if no `lane_vld` after legal dll + `link_up`. Lane words vs second `vibe_pcs_tx` golden (bypass). |
+| `tc_pcs_rx` | force `wv`/`win`/`remv`; `fail` never set | TX→RX T=4 (port pin). Score `dll_vld` + LPH vs injected pack. No coverage-only force as pass. |
+| `tc_fabric_line_holes` | coverage stimulus, FAIL=0 | CFG6 1-beat + 2-beat `cfg6_hit[0]`; G1 sat `FFFFFFFE`→`FFFFFFFF` then stay. |
+| `tc_neg_official` | 19 PASS, no RTL scan | `scan_official_neg.py` → include; FAIL if forbidden id in `vibe_*.sv` code. One PASS per official NEG after clean scan. |
+| `tc_credit_1024_hole` | NOTE+PASS stub | Same 1023→1024 `bp_nw`/`force_crd_ack` as `tc_credit_1024_flit_bp` (G7 closed). |
+| `tc_top_smoke` | reset/CNA only, no packet BFM | Peer encodes RT=10 onto `rxdata_0`; score top `irq_logic`. FAIL if no packet / no irq (no NOTE skip). |
+
+Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for underflow tokens + exercises return-without-consume. `tc_timers_indep` instantiates credit + VOQ; credit expiry must not set VOQ drop.
+
+---
+
 ## Summary
 
 | Verdict | Count |
@@ -124,3 +142,4 @@ All OK vs FS-0.2.4 / AS-0.1 as previously locked (FEC T=4/T=2/bypass, AMCTL, BCR
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
 | ADDED | `tc_nw_pkt_to_pma_tx` PASS; `tc_nw_pkt_pma_loopback` PASS vs PR4 RTL `4bfac60c` |
+| SHELL→REAL | seven files above; checkers not weakened |
