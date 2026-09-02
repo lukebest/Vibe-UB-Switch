@@ -73,7 +73,7 @@ No UBFM, no CAQM, no NPI filter datapath, no Transport/Transaction/Function endp
 | Stage | Function |
 |-------|----------|
 | T0 | `nw_adapt` 640b `vld`/`ready` |
-| T1 | `dll_tx`: slice 640b = 4 flits + BCRC; backpressure if credit low / retry full / REQ\|WAIT dropping data / pending credit ≥ 1024 |
+| T1 | `dll_tx`: slice 640b = 4 flits + BCRC; backpressure if credit low / retry full / REQ\|WAIT dropping data / pending credit ≥ 1024. Short EOP remainder is Null-padded to the next 4-flit group so the beat can emit; `dll_rx` drops that leftover after delivering the declared packet. |
 | T2 | `pcs_tx_g1`: collect 6 flits (640b = 4 flits so 1.5 beats + 320b remainder). Idle: insert Null Block to fill FEC window. |
 | T3 | `pcs_tx_fec`: two RS(128,120) interleaved; T=4 default / T=2 / bypass (`3'b010` / `3'b001` / `3'b000`). Bypass skips encoder, still 6-flit align. |
 | T4 | `pcs_tx_cw2beat`: 1024b codeword as two 512b beats. |
