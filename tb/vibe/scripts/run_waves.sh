@@ -100,20 +100,24 @@ PORT_RTL="\
   $RTL/nw/vibe_nw_adapt.sv $RTL/port/vibe_port.sv"
 
 if want tc_nw_pkt_pma_loopback; then
-echo "== unit tc_nw_pkt_pma_loopback (TP-PHY-012) =="
+echo "== unit tc_nw_pkt_pma_loopback (TP-PHY-012) 512b data =="
 # shellcheck disable=SC2086
 run_unit tc_nw_pkt_pma_loopback "$TB/tests/tc_nw_pkt_pma_loopback.sv" \
-    "$WAVES/nw_pkt_pma_loopback.vcd" "$WAVES/nw_pkt_pma_loopback.log" \
+    "$WAVES/nw_pkt_pma_loopback_data512.vcd" "$WAVES/nw_pkt_pma_loopback_data512.log" \
     $PORT_RTL
-pass_or_die "$WAVES/nw_pkt_pma_loopback.log" tc_nw_pkt_pma_loopback
+pass_or_die "$WAVES/nw_pkt_pma_loopback_data512.log" tc_nw_pkt_pma_loopback
 fi
 
 echo "== render PNGs =="
 python3 "$TB/scripts/vcd_to_png.py" --waves "$WAVES"
 
-# Keep PNGs uncompressed for GitHub; gzip only large VCDs.
+# Keep PNGs uncompressed. Gzip large VCDs except the Luke 512b dump
+# (README documents the .vcd path; do not rename it to .vcd.gz).
 shopt -s nullglob
 for vcd in "$WAVES"/*.vcd; do
+    case "$(basename "$vcd")" in
+      nw_pkt_pma_loopback_data512.vcd) continue ;;
+    esac
     sz=$(wc -c < "$vcd")
     if [ "$sz" -gt 1000000 ]; then
         gzip -f "$vcd"

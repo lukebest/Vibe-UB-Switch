@@ -29,17 +29,25 @@ module tc_nw_pkt_pma_loopback;
   logic        wav_ptxv, wav_txlv, wav_rx_eq;
   logic [3:0]  wav_am;
   logic [31:0] wav_lane0, wav_lane3;
+  logic [159:0] wav_tx_sop, wav_rx_sop;
+  logic [351:0] wav_tx_pld, wav_rx_pld;
+  logic [3:0]   wav_tx_cfg, wav_rx_cfg;
+  logic [1:0]   wav_tx_rt, wav_rx_rt;
+  logic [15:0]  wav_tx_scna, wav_tx_dcna, wav_rx_scna, wav_rx_dcna;
 
   initial begin
     if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
       begin : dump_open
         reg [8*256-1:0] dump_fn;
-        dump_fn = "nw_pkt_pma_loopback.vcd";
+        dump_fn = "nw_pkt_pma_loopback_data512.vcd";
         if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
         $dumpfile(dump_fn);
         $dumpvars(0, clk_fab, txclk, rxclk, rst_n,
                   fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready,
                   fab_tx_data, fab_rx_data, golden_tx,
+                  wav_tx_sop, wav_tx_pld, wav_rx_sop, wav_rx_pld,
+                  wav_tx_cfg, wav_tx_rt, wav_tx_scna, wav_tx_dcna,
+                  wav_rx_cfg, wav_rx_rt, wav_rx_scna, wav_rx_dcna,
                   wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_lane0, wav_lane3,
                   wav_ptxv, wav_txlv, wav_am, wav_pcs_rx, wav_fec,
                   wav_rx_eq, txdata, rxdata);
@@ -71,6 +79,19 @@ module tc_nw_pkt_pma_loopback;
   assign wav_txlv    = u_p.txlv;
   assign wav_rx_eq   = fab_rx_vld && (fab_rx_data === golden_tx) &&
                        ($bits(u_p.fab_rx_data) === 512);
+  // 设计: SOP LPH is [511:352] (160b); [351:0] is payload. Not [511:496].
+  assign wav_tx_sop  = fab_tx_data[511:352];
+  assign wav_tx_pld  = fab_tx_data[351:0];
+  assign wav_rx_sop  = fab_rx_data[511:352];
+  assign wav_rx_pld  = fab_rx_data[351:0];
+  assign wav_tx_cfg  = wav_tx_sop[11:8];
+  assign wav_tx_rt   = wav_tx_sop[23:22];
+  assign wav_tx_scna = wav_tx_sop[47:32];
+  assign wav_tx_dcna = wav_tx_sop[63:48];
+  assign wav_rx_cfg  = wav_rx_sop[11:8];
+  assign wav_rx_rt   = wav_rx_sop[23:22];
+  assign wav_rx_scna = wav_rx_sop[47:32];
+  assign wav_rx_dcna = wav_rx_sop[63:48];
 
   task automatic fail_at;
     input [8*80-1:0] stimulus;
