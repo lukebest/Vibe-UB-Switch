@@ -29,8 +29,9 @@ Credit return threshold **1024 is cell**. `credit_ret_n` is already cells
 `bp_nw`; 1024 cell → `bp_nw` and `force_crd_ack`. Consume still uses `ceil_div`
 by grain (flits→cells) — that is not the G7 threshold unit.
 
-NW↔DLL is `data[511:0]` @ 1.25 GHz. The 640b window is DLL↔PCS. If the DUT
-NW pin is still 640, `tc_phy_nw_dll_512b` / loopback FAIL (设计, not a TB patch).
+NW↔DLL is `data[511:0]` @ 1.25 GHz. Checkers compare the **512-bit GOLDEN**
+on TX (`dll_tx`) and RX (`fab_rx`), not width alone and not LPH fields.
+640b is DLL↔PCS. Loopback FAIL on this SHA is 设计 (not a TB patch).
 
 ## Run
 

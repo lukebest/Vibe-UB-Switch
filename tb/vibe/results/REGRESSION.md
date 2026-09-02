@@ -1,120 +1,72 @@
-# TP-0.3 regression (Icarus gate) — FS-0.2.7 / AS-0.1.2
+# TP-0.3 regression — FS-0.2.7 Overlay B **content** compare
 
-Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 / `origin/cursor/as01-rtl-82c7` HEAD** (sim-only checkout; **not** committed).
+Compiled **TB** on `cursor/vibe-tb-g1-6065` against **PR8 HEAD** (sim-only; **not** committed).
 
-Spec this pass: **FS-0.2.7 Overlay B** + **AS-0.1.2**. Official IDs stay **159**.
-- NW↔DLL is ONLY `data[511:0]` @ 1.25 GHz + vld/ready. No 640-bit window on the NW pin.
-- 640-bit / 4×160 AFIFO is **DLL↔PCS**.
-- Credit threshold **1024 is cell** (Luke 2026-09-02). Not flit. Not 1024×n.
-- RT=10/11 still drop+count+irq. 512-vs-LPH field packing not invented.
+Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged.
+- NW↔DLL `data[511:0]` must match a unique 512-bit GOLDEN (TX and RX), not width-only.
+- GOLDEN is not all-zero and not `old640[511:0]`. No LPH/NTH extract on the 512 bus.
+- 640-bit DUT pin cannot PASS by matching `[511:0]`.
 
 | Item | Value |
 |------|--------|
-| RTL compiled SHA | `d6549521f56d6517a3bf0a25cbd8a1d5f614046a` |
-| RTL message | Count credit pending-to-return in cells, threshold 1024 cell |
-| RTL ref | `origin/cursor/as01-rtl-82c7` (PR #8 lineage) |
-| Overlay B (512b NW) in this SHA? | **No** — `vibe_nw_adapt` / `vibe_port` still `fab_tx_data[639:0]` |
-| 1024-cell comparator in this SHA? | **Yes** |
-| Gate | `make -C tb/vibe units` (+ suite `last_run.txt`) |
-| Units | **80 pass_files / 5 fail_files / 0 compile_fail** (`run1` count now 85 incl. `tc_phy_nw_dll_512b`) |
-| Suite | **27/27 PASS** (`SUITE_RESULT PASS`) |
-| Official matrix | 159 IDs; MAPPED=106 ADDED=16 HOLE=9 NEG=28 |
+| RTL compiled SHA | `a3ecec9f` + parents `f7192ea` (overlay B 512b NW) |
+| Full SHA | `a3ecec9` — Fix overlay-B remainder shift width and CNA first-flit opcode |
+| Overlay B in this SHA? | **Yes** — `vibe_nw_adapt` / `vibe_port` `fab_*` / `dll_*` are `[511:0]`; DLL↔PCS stays 640 |
+| Gate | `make -C tb/vibe units` (five Overlay-B TCs named below) |
 
-Checkers were **not** weakened. Width FAILs are expected-vs-actual for 设计 (do not patch `rtl/`).
+Checkers not weakened. Loopback/port_smoke RX FAILs go to 设计. Do not patch `rtl/`.
 
-## Affected units this pass
+## Five Overlay-B content TCs vs `a3ecec9`
 
-| TC | Result vs `d6549521` | Notes |
-|----|----------------------|--------|
-| `tc_credit_1024_flit_bp` | **PASS** | 1023 cell no `bp_nw`; 1024 cell `bp_nw`+`force_crd_ack`. Filename historical. |
-| `tc_credit_1024_hole` | **PASS** | same 1023→1024 **cell** score (G7 closed as cell) |
-| `tc_credit_grain_n` | **PASS** | consume `ceil_div` flits→cells; sat `fc_ovf` |
-| `tc_credit_timeout_1us` | **PASS** | 1 µs still independent of VOQ |
-| `tc_tp_holes` | **PASS** | G7 note: 1024 is cell |
-| `tc_phy_nw_dll_512b` | **FAIL** | expected NW 512; DUT 640 |
-| `tc_nw_adapt_linkready` | **FAIL** | same width gate (link_ready path not reached) |
-| `tc_nw_pkt_pma_loopback` | **FAIL** | same; LPH score not reached |
-| `tc_nw_pkt_to_pma_tx` | **FAIL** | same |
-| `tc_port_smoke` | **FAIL** | same |
+| TC | Result | What was compared |
+|----|--------|-------------------|
+| `tc_phy_nw_dll_512b` | **PASS** | TX `dll_tx_data===GOLDEN_TX`; RX `fab_rx_data===GOLDEN_RX`; handshake |
+| `tc_nw_adapt_linkready` | **PASS** | same GOLDEN TX+RX; LinkReady=0 blocks; mgmt pri uses GOLDEN_RX |
+| `tc_nw_pkt_to_pma_tx` | **PASS** | accepted-beat `u_p.dll_tx_d===GOLDEN_TX`; PMA pack / lane / gear still scored |
+| `tc_port_smoke` | **FAIL** | TX GOLDEN matched; RX `fab_rx_vld=0`, data=0 (not GOLDEN) |
+| `tc_nw_pkt_pma_loopback` | **FAIL** | TX GOLDEN matched; recover `fab_rx===GOLDEN_TX` never happened |
 
 ## FAIL list (handoff to 设计)
 
-Overlay B is **not** in `d6549521`. All five FAILs are NW width 512 vs DUT 640.
-Do **not** “fix” RTL from this TB branch.
-
-### `tc_phy_nw_dll_512b` (TP-PHY-008)
-
-```
-FAIL tc_phy_nw_dll_512b
-  stimulus : FS-0.2.7 Overlay B — NW↔DLL data[511:0] @1.25GHz
-  expected : $bits(fab_tx_data)=512 (and fab_rx_data=512)
-  actual   : NW fab_tx_data=640 fab_rx_data=640
-  hier     : u_n.fab_tx_data / vibe_nw_adapt / vibe_port
-  reproduce: make -C tb/vibe units
-```
-
-### `tc_nw_adapt_linkready`
-
-```
-FAIL tc_nw_adapt_linkready
-  stimulus : FS-0.2.7 Overlay B NW↔DLL data[511:0]
-  expected : $bits(fab_tx_data)=512
-  actual   : 640
-  hier     : u_n.fab_tx_data
-  reproduce: make -C tb/vibe units
-```
+TX NW→DLL content is good on this SHA. PMA loopback does **not** deliver the same 512-bit GOLDEN on NW RX (`fab_rx_vld` stayed 0). Supporting: `fec_fail=0`, `am_locked=1111`, `deskew=1`, `saw_txnz=1`, `saw_pcs_rx=0`.
 
 ### `tc_nw_pkt_pma_loopback` (TP-PHY-012)
 
 ```
+  detail   : vld=0 last_rx=0...0 pcs_rx_v=0 am_lock=1111 fec_fail=0 deskew=1 afrv=0000
+  peak     : saw_txnz=1 saw_afrv=1 saw_am=1 saw_pcs_rx=0 saw_fab_rx=0 saw_fec_fail=0 saw_deskew=1
 FAIL tc_nw_pkt_pma_loopback
-  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
-  expected : NW width 512
-  actual   : DUT NW pin is not 512 (see $bits)
-  hier     : u_p.fab_tx_data
+  stimulus : PMA loopback; recover NW RX data[511:0] === GOLDEN_TX
+  expected : width=512 data=4e57353154582121a5a5a5a55a5a5a5a0123456789abcdeffedcba98765432101111111122222222333333334444444455555555666666667777777788888888
+  actual   : width=512 data=00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  hier     : u_p.fab_rx_data
   reproduce: make -C tb/vibe units
-  actual   : $bits(u_p.fab_tx_data)=640 $bits(u_p.fab_rx_data)=640
-```
-
-### `tc_nw_pkt_to_pma_tx`
-
-```
-FAIL tc_nw_pkt_to_pma_tx
-  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
-  expected : NW width 512
-  actual   : DUT NW pin is not 512
-  hier     : u_p.fab_tx_data
-  reproduce: make -C tb/vibe units
-  actual   : $bits=640
 ```
 
 ### `tc_port_smoke`
 
 ```
 FAIL tc_port_smoke
-  stimulus : FS-0.2.7 Overlay B: NW pin is data[511:0]
-  expected : NW width 512
-  actual   : DUT NW pin is not 512
-  hier     : u_p.fab_tx_data
+  stimulus : PMA loopback; recover NW RX data[511:0] === GOLDEN_TX
+  expected : width=512 data=4e57353154582121a5a5a5a55a5a5a5a0123456789abcdeffedcba98765432101111111122222222333333334444444455555555666666667777777788888888
+  actual   : width=512 data=0000...0000
+  hier     : u_p.fab_rx_data
   reproduce: make -C tb/vibe units
-  actual   : $bits=640
+  actual   : fab_rx_vld=0 fec_fail=0 am_locked=1111
 ```
 
-Credit 1024-cell TCs **PASS** on this SHA — no credit FAIL to hand off.
+GOLDEN_TX lives in `tb/vibe/common/vibe_tb_nw512.svh`. TB does not invent LPH packing to force a PASS.
 
 ## Reproduce
 
 ```bash
 git fetch origin cursor/as01-rtl-82c7
-git checkout d6549521f56d6517a3bf0a25cbd8a1d5f614046a -- rtl
+git checkout a3ecec9 -- rtl
 git restore --staged rtl
 make -C tb/vibe units
-# restore TB-branch rtl before any commit:
 git checkout HEAD -- rtl
 ```
 
 ## Matrix
 
-See [`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) vs [`TP-0.3.md`](TP-0.3.md): **ID sets equal, 159/159**.
-Also [`docs/Vibe-UB-Switch-testpoints.md`](../../../docs/Vibe-UB-Switch-testpoints.md) (same table).
-Verdicts: MAPPED=106, ADDED=16, HOLE=9, NEG=28.
+[`TP_TC_MATRIX.md`](TP_TC_MATRIX.md) / [`TP-0.3.md`](TP-0.3.md) / [`docs/Vibe-UB-Switch-testpoints.md`](../../../docs/Vibe-UB-Switch-testpoints.md): **159/159**.

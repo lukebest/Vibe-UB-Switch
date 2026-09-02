@@ -593,14 +593,14 @@ def render_loopback(waves: str) -> None:
     t_pma = first_rise(_need(v, "wav_tx_nz")) or first_rise(_need(v, "wav_ptxv"))
     if t_pma is None:
         t_pma = t_inj + 40 * p
-    t_rx = first_rise(_need(v, "wav_rx_lph_ok")) or first_rise(_need(v, "fab_rx_vld"))
+    t_rx = first_rise(_need(v, "wav_rx_eq")) or first_rise(_need(v, "fab_rx_vld"))
     if t_rx is None:
         t_rx = last_time(v)
     t_pcs = first_rise(_need(v, "wav_pcs_rx"), tmin=t_inj) or t_rx
     marks_all = [
-        (t_inj, "inject fab_tx (CFG=3 RT=00 A11A/B22B)", "#1f4e79"),
+        (t_inj, "inject GOLDEN_TX 512b", "#1f4e79"),
         (t_pma, "PMA txdata nonzero (rxdata=txdata)", "#b9770e"),
-        (t_rx, "fab_rx LPH score (TP-PHY-012)", "#c0392b"),
+        (t_rx, "fab_rx === GOLDEN_TX (TP-PHY-012)", "#c0392b"),
     ]
     tx_png = os.path.join(waves, "_lb_tx.png")
     pma_png = os.path.join(waves, "_lb_pma.png")
@@ -610,16 +610,13 @@ def render_loopback(waves: str) -> None:
         [
             ("fab_tx_vld", "fab_tx_vld", "bit"),
             ("fab_tx_ready", "fab_tx_ready", "bit"),
-            ("wav_tx_cfg", "TX LPH CFG", "dec"),
-            ("wav_tx_rt", "TX LPH RT", "dec"),
-            ("wav_tx_scna", "TX SCNA", "hex"),
-            ("wav_tx_dcna", "TX DCNA", "hex"),
+            ("wav_rx_eq", "RX==GOLDEN", "bit"),
         ],
         max(0, t_inj - 6 * p), t_inj + 16 * p,
         marks_all,
-        "TX  legal NW accept  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
-        "Expected: fab_tx handshake, CFG=3 RT=00 SCNA=0xA11A DCNA=0xB22B.  "
-        "Actual: same LPH on accepted beat (checker unchanged).",
+        "TX  GOLDEN_TX 512b accept  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "Expected: fab_tx handshake of unique 512-bit GOLDEN (not a 640 slice).  "
+        "Must: dll_tx_data === GOLDEN_TX.",
         notes=[(t_inj, "inject")],
     )
     draw_window(
@@ -647,18 +644,14 @@ def render_loopback(waves: str) -> None:
             ("wav_pcs_rx", "u_p.pcs_rx_v", "bit"),
             ("wav_fec", "u_p.fec_fail", "bit"),
             ("fab_rx_vld", "fab_rx_vld", "bit"),
-            ("wav_rx_cfg", "RX LPH CFG", "dec"),
-            ("wav_rx_rt", "RX LPH RT", "dec"),
-            ("wav_rx_scna", "RX SCNA", "hex"),
-            ("wav_rx_dcna", "RX DCNA", "hex"),
-            ("wav_rx_lph_ok", "LPH match", "bit"),
+            ("wav_rx_eq", "RX==GOLDEN_TX", "bit"),
+            ("wav_fec", "u_p.fec_fail", "bit"),
         ],
         max(0, t_rx - 20 * p), t_rx + 16 * p,
         marks_all,
-        "RX  recovered LPH  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
-        "Expected: fab_rx_vld with CFG=3 RT=00 SCNA=0xA11A DCNA=0xB22B "
-        "(same as injected).  Actual: wav_rx_lph_ok=1, fec_fail=0 "
-        "(PASS tc_nw_pkt_pma_loopback).",
+        "RX  recovered 512b GOLDEN  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "Expected: fab_rx_data[511:0] === GOLDEN_TX (full vector, not LPH).  "
+        "Supporting: fec_fail=0.",
         notes=[(t_pcs, "pcs_rx_v"), (t_rx, "fab_rx score")],
     )
     stitch(os.path.join(waves, "nw_pkt_pma_loopback.png"), tx_png, pma_png, rx_png)

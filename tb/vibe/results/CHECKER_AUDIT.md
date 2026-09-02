@@ -101,14 +101,14 @@ Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `t
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal RT=00 NW beat on **512-bit** `data`, then PMA `txdata` | **FIXED** — first scores `$bits(fab_tx_data)==512`. vs `d6549521`: **FAIL** (DUT NW still 640). Do not patch RTL. When Overlay B lands, LPH on 512b `data` is scored; packing of 512 vs LPH fields not invented. |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: TX→PMA→RX inverse; recover LPH+payload on NW `data[511:0]` | **FIXED** — same 512-width gate. vs `d6549521`: **FAIL** (640). Expected LPH still CFG=3 RT=00 SCNA=A11A DCNA=B22B if Overlay B is legal on 512b. |
-| `tc_phy_nw_dll_512b` | TP-PHY-008: NW↔DLL `data[511:0]` @ 1.25 GHz + vld/ready | **ADDED** — FAIL if NW `$bits!==512`. Compiles on 640 DUT pins. 640 is allowed only as DLL↔PCS. |
-| `tc_nw_adapt_linkready` | Overlay B width + LinkReady handshake | **FIXED** — FAIL-first if NW not 512; link_ready/mgmt-pri scored only after width matches. |
+| `tc_nw_pkt_to_pma_tx` | TX NW→DLL: accepted beat `dll_tx_data[511:0] === GOLDEN_TX`; then PMA pack | **FIXED** — unique 512b GOLDEN (not a 640 slice, no LPH extract). Width≠512 cannot PASS. |
+| `tc_nw_pkt_pma_loopback` | E2E: inject GOLDEN_TX; recover `fab_rx_data[511:0] === GOLDEN_TX` | **FIXED** — full 512-bit compare. `fec_fail=0` / `am_locked` supporting only. |
+| `tc_phy_nw_dll_512b` | TX `dll_tx===GOLDEN_TX` and RX `fab_rx===GOLDEN_RX` | **FIXED** — beat-by-beat 512b content both directions. Width gate kept; PASS illegal without content. |
+| `tc_nw_adapt_linkready` | Same 512b TX+RX GOLDEN + LinkReady / mgmt pri | **FIXED** — content compare always attempted. |
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
 
-vs overlay `d6549521` (1024-cell comparator; Overlay B **not** wired): both TCs **FAIL** on NW width 512 vs DUT 640. Historical PASS vs PR4 `4bfac60c` / `7a4abe2` was against a 640-bit NW pin that FS-0.2.7 retired. Reproduce: sim-only `git checkout d6549521 -- rtl` then `make -C tb/vibe units`. Do not patch `rtl/`.
+GOLDEN is a unique 512-bit constant (`vibe_tb_nw512.svh`). Checkers do **not** extract LPH/NTH from the 512 bus and do **not** PASS by matching `[511:0]` of a 640-bit DUT pin. Overlay RTL for sim only; do not patch `rtl/`.
 
 ---
 
@@ -124,7 +124,7 @@ Each of these can FAIL with stimulus / expected / actual / hier. No `$display("P
 
 | Checker | Was | Now |
 |---|---|---|
-| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | Width gate first (`$bits==512`). Then PMA lane-pack + RX LPH. vs `d6549521`: **FAIL** width 640. |
+| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | TX `dll_tx===GOLDEN_TX`; RX `fab_rx===GOLDEN_TX` after PMA loopback. PMA pack supporting. |
 | `tc_pcs_tx` | PASS if no `lane_vld` | FAIL if no `lane_vld` after legal dll + `link_up`. Lane words vs second `vibe_pcs_tx` golden (bypass). |
 | `tc_pcs_rx` | force `wv`/`win`/`remv`; `fail` never set | TX→RX T=4 (port pin). Score `dll_vld` + LPH vs injected pack. No coverage-only force as pass. |
 | `tc_fabric_line_holes` | coverage stimulus, FAIL=0 | CFG6 1-beat + 2-beat `cfg6_hit[0]`; G1 sat `FFFFFFFE`→`FFFFFFFF` then stay. |
@@ -143,6 +143,6 @@ Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for under
 |---|---|
 | OK | 30+ (suite + units + static) |
 | FIXED | 2 families: G1 `expect_drop_only`; CFG6 terminate-class completeness |
-| ADDED | `tc_phy_nw_dll_512b` (TP-PHY-008 Overlay B) |
-| FIXED | credit 1024 **cell**; NW pin 512 (FAIL vs `d6549521` 640 — 设计) |
+| ADDED | `tc_phy_nw_dll_512b` 512b TX+RX GOLDEN (PASS vs `a3ecec9`) |
+| FIXED | 512b content compare; loopback/port_smoke RX **FAIL** vs `a3ecec9` (fab_rx_vld=0) |
 | SHELL→REAL | seven files above; checkers not weakened |
