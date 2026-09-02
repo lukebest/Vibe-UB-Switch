@@ -11,10 +11,10 @@ module vibe_fabric #(
   input  logic         rt_wr_en,
   input  logic [15:0]  rt_wr_idx,
   input  logic [31:0]  rt_wr_data,
-  input  logic [639:0] ing_data [0:3],
+  input  logic [511:0] ing_data [0:3],
   input  logic [3:0]   ing_vld,
   output logic [3:0]   ing_ready,
-  output logic [639:0] egr_data [0:3],
+  output logic [511:0] egr_data [0:3],
   output logic [3:0]   egr_vld,
   input  logic [3:0]   egr_ready,
   output logic [3:0]   len_err,
@@ -28,19 +28,25 @@ module vibe_fabric #(
   input  logic         cna_written,
   // to cna_ep: only terminate-class CFG6 (not all CFG6)
   output logic [3:0]   cfg6_hit,
-  output logic [639:0] cfg6_data [0:3]
+  output logic [511:0] cfg6_data [0:3]
 );
   `include "vibe_ub_fn.vh"
   `include "vibe_ub_params.vh"
 
-  logic [639:0] saf_d [0:3];
+  logic [511:0] saf_d [0:3];
   logic [3:0]   saf_v, saf_r, saf_sop, saf_eop;
   logic [15:0]  saf_b [0:3];
+  logic [159:0] hdr_q [0:3];
+  logic [159:0] hdr [0:3];
   logic [3:0]   bm;
   logic         g1;
   logic [1:0]   egr [0:3];
   logic [3:0]   pdrop;
-  logic [639:0] xb_d [0:3];
+  logic [511:0] xb_d [0:3];
+  logic [3:0]   xb_vl_q [0:3];
+  logic [3:0]   egr_sop;
+  logic [159:0] egr_hdr_q [0:3];
+  logic [511:0] cfg6_hold [0:3];
   logic [3:0]   xb_v, xb_sop, xb_eop, xb_r;
   logic [15:0]  ne [0:3];
   logic [3:0]   vl_sel [0:3];
@@ -62,7 +68,23 @@ module vibe_fabric #(
     end
   endgenerate
 
-  wire [159:0] f0 = saf_d[0][639:480];
+  always @* begin
+    for (p = 0; p < 4; p = p + 1)
+      hdr[p] = saf_sop[p] ? vibe_nw512_flit0(saf_d[p]) : hdr_q[p];
+  end
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      for (p = 0; p < 4; p = p + 1)
+        hdr_q[p] <= 160'd0;
+    end else begin
+      for (p = 0; p < 4; p = p + 1)
+        if (saf_v[p] && saf_sop[p])
+          hdr_q[p] <= vibe_nw512_flit0(saf_d[p]);
+    end
+  end
+
+  wire [159:0] f0 = hdr[0];
   wire [3:0]   cfg0 = vibe_lph_cfg(f0);
   wire [1:0]   rt0  = vibe_lph_rt(f0);
   wire [15:0]  src0 = vibe_nth_scna(f0);
@@ -92,20 +114,20 @@ module vibe_fabric #(
       vibe_route_lu #(.DEPTH(ROUTE_TABLE_DEPTH)) u_rti (
         .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
         .wr_en(rt_wr_en), .wr_idx(rt_wr_idx), .wr_data(rt_wr_data),
-        .dest(vibe_nth_dcna(saf_d[gi][639:480])),
-        .rt(vibe_lph_rt(saf_d[gi][639:480])),
+        .dest(vibe_nth_dcna(hdr[gi])),
+        .rt(vibe_lph_rt(hdr[gi])),
         .lu_vld(saf_v[gi]),
         .bitmap(bm_p[gi]), .drop_g1(g1_p[gi])
       );
       vibe_port_sel u_psi (
         .clk(clk), .rst_n(rst_n),
         .bitmap(bm_p[gi]), .status_up(status_up), .default_bm(default_bm),
-        .rt(vibe_lph_rt(saf_d[gi][639:480])), .drop_g1(g1_p[gi]),
+        .rt(vibe_lph_rt(hdr[gi])), .drop_g1(g1_p[gi]),
         .sel_vld(saf_v[gi]),
-        .cfg(vibe_lph_cfg(saf_d[gi][639:480])),
-        .src(vibe_nth_scna(saf_d[gi][639:480])),
-        .dest(vibe_nth_dcna(saf_d[gi][639:480])),
-        .vl(vibe_lph_vl(saf_d[gi][639:480])),
+        .cfg(vibe_lph_cfg(hdr[gi])),
+        .src(vibe_nth_scna(hdr[gi])),
+        .dest(vibe_nth_dcna(hdr[gi])),
+        .vl(vibe_lph_vl(hdr[gi])),
         .egr(egr[gi]), .drop(pdrop[gi]), .drop_down_cnt()
       );
     end
@@ -119,8 +141,8 @@ module vibe_fabric #(
   always @* begin
     for (p = 0; p < 4; p = p + 1) begin
       g1_comb[p] = saf_v[p] &&
-                   ((vibe_lph_rt(saf_d[p][639:480]) == 2'b10) ||
-                    (vibe_lph_rt(saf_d[p][639:480]) == 2'b11));
+                   ((vibe_lph_rt(hdr[p]) == 2'b10) ||
+                    (vibe_lph_rt(hdr[p]) == 2'b11));
       g1_evt[p]  = g1_comb[p] && saf_sop[p] && !g1_seen[p];
     end
   end
@@ -160,10 +182,10 @@ module vibe_fabric #(
   always @* begin
     for (p = 0; p < 4; p = p + 1) begin
       cfg6_term[p] = saf_v[p] &&
-                     (vibe_lph_cfg(saf_d[p][639:480]) == 4'd6) &&
-                     vibe_cfg6_should_term(cna_written, cna, saf_d[p][639:480]);
+                     (vibe_lph_cfg(hdr[p]) == 4'd6) &&
+                     vibe_cfg6_should_term(cna_written, cna, hdr[p]);
       cfg6_hit[p]  = cfg6_term[p] || cfg6_drain[p];
-      cfg6_data[p] = saf_d[p];
+      cfg6_data[p] = saf_sop[p] ? saf_d[p] : cfg6_hold[p];
       // Drain G1 drops and terminate-CFG6; non-term CFG6 uses xbar ready.
       saf_r[p]     = g1_evt[p] || g1_drain[p] || pdrop[p] ||
                      cfg6_term[p] || cfg6_drain[p] ||
@@ -175,8 +197,12 @@ module vibe_fabric #(
     if (!rst_n || device_rst) begin
       cfg6_drain <= 4'd0;
       cfg6_seen  <= 4'd0;
+      for (p = 0; p < 4; p = p + 1)
+        cfg6_hold[p] <= 512'd0;
     end else begin
       for (p = 0; p < 4; p = p + 1) begin
+        if (cfg6_term[p] && saf_sop[p])
+          cfg6_hold[p] <= saf_d[p];
         if (cfg6_drain[p] && saf_v[p] && saf_r[p] && saf_eop[p]) begin
           cfg6_seen[p]  <= 1'b0;
           cfg6_drain[p] <= 1'b0;
@@ -209,15 +235,31 @@ module vibe_fabric #(
     .out_ready(xb_r)
   );
 
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      for (p = 0; p < 4; p = p + 1) begin
+        xb_vl_q[p]   <= 4'd0;
+        egr_hdr_q[p] <= 160'd0;
+      end
+    end else begin
+      for (p = 0; p < 4; p = p + 1) begin
+        if (xb_v[p] && xb_sop[p])
+          xb_vl_q[p] <= vibe_lph_vl(vibe_nw512_flit0(xb_d[p]));
+        if (vl_ok[p] && egr_sop[p])
+          egr_hdr_q[p] <= vibe_nw512_flit0(egr_data[p]);
+      end
+    end
+  end
+
   generate
     for (gi = 0; gi < 4; gi = gi + 1) begin : g_egr
       vibe_voq_egr #(.DEPTH(VIBE_VOQ_DEPTH)) u_voq (
         .clk(clk), .rst_n(rst_n),
-        .wr_vl(vibe_lph_vl(xb_d[gi][639:480])),
+        .wr_vl(xb_sop[gi] ? vibe_lph_vl(vibe_nw512_flit0(xb_d[gi])) : xb_vl_q[gi]),
         .wr_en(xb_v[gi]), .wr_data(xb_d[gi]),
         .wr_sop(xb_sop[gi]), .wr_eop(xb_eop[gi]), .wr_ready(xb_r[gi]),
         .rd_vl(vl_sel[gi]), .rd_en(egr_ready[gi] && vl_ok[gi]),
-        .rd_data(egr_data[gi]), .rd_sop(), .rd_eop(),
+        .rd_data(egr_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
         .nonempty(ne[gi]), .occ_vl0(occ0[gi]),
         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
       );
@@ -227,7 +269,8 @@ module vibe_fabric #(
         .vl_sel(vl_sel[gi]), .valid(vl_ok[gi])
       );
       vibe_fecn_mark #(.FECN_WM(VIBE_FECN_WM)) u_fecn (
-        .cci_in(vibe_nth_cci(egr_data[gi][639:480])),
+        .cci_in(vibe_nth_cci(egr_sop[gi] ? vibe_nw512_flit0(egr_data[gi])
+                                         : egr_hdr_q[gi])),
         .voq_occ(occ0[gi]),
         .cci_out(cci_m[gi]),
         .marked()

@@ -9,13 +9,13 @@ module vibe_port (
   input  logic         rxclk,
   output logic [511:0] txdata,
   input  logic [511:0] rxdata,
-  input  logic [639:0] fab_tx_data,
+  input  logic [511:0] fab_tx_data,
   input  logic         fab_tx_vld,
   output logic         fab_tx_ready,
-  output logic [639:0] fab_rx_data,
+  output logic [511:0] fab_rx_data,
   output logic         fab_rx_vld,
   input  logic         fab_rx_ready,
-  input  logic [639:0] mgmt_tx_data,
+  input  logic [511:0] mgmt_tx_data,
   input  logic         mgmt_tx_vld,
   output logic         mgmt_tx_ready,
   output logic         status_up,
@@ -36,7 +36,8 @@ module vibe_port (
   logic        width_fail;
   logic [3:0]  am_locked;
   logic        lid_bad, deskew_ok, fec_fail, retrain_req;
-  logic [639:0] dll_tx_d, dll_rx_d, pcs_tx_d, pcs_rx_d;
+  logic [511:0] dll_tx_d, dll_rx_d;
+  logic [639:0] pcs_tx_d, pcs_rx_d;
   logic        dll_tx_v, dll_tx_r, dll_rx_v, dll_rx_r;
   logic        pcs_tx_v, pcs_tx_r, pcs_rx_v, pcs_rx_r;
   logic [159:0] txl0, txl1, txl2, txl3;

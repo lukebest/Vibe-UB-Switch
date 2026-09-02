@@ -7,9 +7,9 @@ module vibe_cna_ep (
   input  logic [15:0]  cna,
   input  logic         cna_written,
   input  logic [3:0]   cfg6_hit,
-  input  logic [639:0] cfg6_data [0:3],
+  input  logic [511:0] cfg6_data [0:3],
   output logic [3:0]   consume,
-  output logic [639:0] reply_data [0:3],
+  output logic [511:0] reply_data [0:3],
   output logic [3:0]   reply_vld,
   input  logic [3:0]   reply_ready,
   output logic         icrc_fail
@@ -27,13 +27,13 @@ module vibe_cna_ep (
     consume   = 4'd0;
     icrc_fail = 1'b0;
     for (p = 0; p < 4; p = p + 1) begin
-      reply_data[p] = 640'd0;
+      reply_data[p] = 512'd0;
       reply_vld[p]  = 1'b0;
       if (cfg6_hit[p]) begin
-        cfg  = vibe_lph_cfg(cfg6_data[p][639:480]);
-        dcna = vibe_nth_dcna(cfg6_data[p][639:480]);
-        nlp  = vibe_nth_nlp(cfg6_data[p][639:480]);
-        opc  = cfg6_data[p][583:576]; // opcode slot in first flit (parameterized)
+        cfg  = vibe_lph_cfg(vibe_nw512_flit0(cfg6_data[p]));
+        dcna = vibe_nth_dcna(vibe_nw512_flit0(cfg6_data[p]));
+        nlp  = vibe_nth_nlp(vibe_nw512_flit0(cfg6_data[p]));
+        opc  = vibe_nw512_flit0(cfg6_data[p])[103:96]; // opcode in first assembled flit
         us   = cna_written && (dcna == cna);
         term = us || (nlp == 3'd1) || (opc == 8'h10 && us);
         if (term) begin

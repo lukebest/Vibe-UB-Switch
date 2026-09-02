@@ -4,13 +4,13 @@ module vibe_xbar (
   input  logic         clk,
   input  logic         rst_n,
   input  logic [3:0]   status_up,
-  input  logic [639:0] in_data [0:3],
+  input  logic [511:0] in_data [0:3],
   input  logic [3:0]   in_vld,
   input  logic [3:0]   in_sop,
   input  logic [3:0]   in_eop,
   input  logic [1:0]   in_dst [0:3],
   output logic [3:0]   in_ready,
-  output logic [639:0] out_data [0:3],
+  output logic [511:0] out_data [0:3],
   output logic [3:0]   out_vld,
   output logic [3:0]   out_sop,
   output logic [3:0]   out_eop,
@@ -26,7 +26,7 @@ module vibe_xbar (
   always @* begin
     for (e = 0; e < 4; e = e + 1) begin
       in_ready[e] = 1'b0;
-      out_data[e] = 640'd0;
+      out_data[e] = 512'd0;
       out_vld[e]  = 1'b0;
       out_sop[e]  = 1'b0;
       out_eop[e]  = 1'b0;
