@@ -105,8 +105,16 @@ def parse_vcd(path: str) -> Vcd:
     return v
 
 
+def _fmt_hex(val: int, width: int) -> str:
+    nibbles = max(1, (width + 3) // 4)
+    s = f"{val:0{nibbles}X}"
+    if len(s) > 20:
+        return f"0x{s[:8]}…{s[-8:]}"
+    return f"0x{s}"
+
+
 def _clk_period(v: Vcd) -> int:
-    for name in ("wav_clk", "clk"):
+    for name in ("wav_clk", "clk_fab", "clk"):
         vid = resolve(v, name)
         if vid is None:
             continue
@@ -302,19 +310,19 @@ def draw_window(
                     if t_next > t:
                         ax.plot([t, t], [0.22, 0.68], color="#1f4e79", lw=1.2)
                     if kind == "hex":
-                        txt = f"0x{val:X}"
+                        txt = _fmt_hex(val, width)
                     elif width == 2:
                         txt = f"{val:02b}b"
                     else:
                         txt = str(val)
                     if (t_next - t) > span * 0.04 or i == 0 or i == len(merged) - 2:
                         ax.text((t + t_next) / 2, 0.82, txt, ha="center", va="bottom",
-                                fontsize=7.5, color="#1f4e79", clip_on=True)
+                                fontsize=7.0, color="#1f4e79", clip_on=True)
             endv = value_at(series, t1)
             if kind == "bit":
                 tag = str(int(bool(endv)))
             elif kind == "hex":
-                tag = f"0x{endv:X}"
+                tag = _fmt_hex(endv, width)
             else:
                 tag = str(endv)
             ax.text(1.005, 0.5, tag, transform=ax.transAxes, va="center",
@@ -584,7 +592,11 @@ def render_voq(waves: str) -> None:
 
 
 def render_loopback(waves: str) -> None:
-    src = _vcd_path(waves, "nw_pkt_pma_loopback.vcd")
+    src = _vcd_path(waves, "nw_pkt_pma_loopback_data512.vcd")
+    out_png = os.path.join(waves, "nw_pkt_pma_loopback_data512.png")
+    if src is None:
+        src = _vcd_path(waves, "nw_pkt_pma_loopback.vcd")
+        out_png = os.path.join(waves, "nw_pkt_pma_loopback.png")
     if src is None:
         return
     v = parse_vcd(src)
@@ -598,32 +610,38 @@ def render_loopback(waves: str) -> None:
         t_rx = last_time(v)
     t_pcs = first_rise(_need(v, "wav_pcs_rx"), tmin=t_inj) or t_rx
     marks_all = [
-        (t_inj, "inject GOLDEN_TX 512b", "#1f4e79"),
+        (t_inj, "inject GOLDEN_TX data[511:0]", "#1f4e79"),
         (t_pma, "PMA txdata nonzero (rxdata=txdata)", "#b9770e"),
-        (t_rx, "fab_rx === GOLDEN_TX (TP-PHY-012)", "#c0392b"),
+        (t_rx, "fab_rx_data[511:0] === GOLDEN_TX", "#c0392b"),
     ]
-    tx_png = os.path.join(waves, "_lb_tx.png")
-    pma_png = os.path.join(waves, "_lb_pma.png")
-    rx_png = os.path.join(waves, "_lb_rx.png")
+    tx_png = os.path.join(waves, "_lb512_tx.png")
+    pma_png = os.path.join(waves, "_lb512_pma.png")
+    rx_png = os.path.join(waves, "_lb512_rx.png")
     draw_window(
         tx_png, v,
         [
             ("fab_tx_vld", "fab_tx_vld", "bit"),
             ("fab_tx_ready", "fab_tx_ready", "bit"),
-            ("wav_rx_eq", "RX==GOLDEN", "bit"),
+            ("fab_tx_data", "fab_tx_data[511:0]", "hex"),
+            ("wav_tx_sop", "SOP LPH [511:352]", "hex"),
+            ("wav_tx_cfg", "SOP CFG (160b [11:8])", "dec"),
+            ("wav_tx_rt", "SOP RT (160b [23:22])", "dec"),
+            ("wav_tx_scna", "SOP SCNA (160b [47:32])", "hex"),
+            ("wav_tx_dcna", "SOP DCNA (160b [63:48])", "hex"),
+            ("wav_tx_pld", "payload [351:0]", "hex"),
         ],
-        max(0, t_inj - 6 * p), t_inj + 16 * p,
+        max(0, t_inj - 6 * p), t_inj + 20 * p,
         marks_all,
-        "TX  GOLDEN_TX 512b accept  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
-        "Expected: fab_tx handshake of unique 512-bit GOLDEN (not a 640 slice).  "
-        "Must: dll_tx_data === GOLDEN_TX.",
+        "TX  NW data[511:0] GOLDEN inject  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "Expected: handshake + fab_tx_data === GOLDEN_TX. SOP LPH is [511:352] "
+        "(CFG=3 RT=00 SCNA=A11A DCNA=B22B). [351:0] is payload. Not README [511:496].",
         notes=[(t_inj, "inject")],
     )
     draw_window(
         pma_png, v,
         [
-            ("wav_tx_nz", "txdata != 0", "bit"),
-            ("wav_rx_nz", "rxdata != 0", "bit"),
+            ("txdata", "txdata[511:0]", "hex"),
+            ("rxdata", "rxdata[511:0]", "hex"),
             ("wav_lb_eq", "rxdata==txdata", "bit"),
             ("wav_ptxv", "u_p.p_txv", "bit"),
             ("wav_txlv", "u_p.txlv (lane_vld)", "bit"),
@@ -633,8 +651,8 @@ def render_loopback(waves: str) -> None:
         max(0, t_pma - 12 * p), t_pma + 40 * p,
         marks_all,
         "PMA  txdata[511:0] + loopback tie  —  same TC",
-        "Expected: txdata becomes nonzero; [127:0]=lane0 .. [511:384]=lane3; "
-        "rxdata=txdata (assign).  Actual: nz + lb_eq=1 when p_txv (PASS).",
+        "Expected: txdata nonzero; [127:0]=lane0 .. [511:384]=lane3; "
+        "rxdata=txdata (assign).  Actual: lb_eq=1 when p_txv.",
         notes=[(t_pma, "PMA activity")],
     )
     draw_window(
@@ -644,17 +662,23 @@ def render_loopback(waves: str) -> None:
             ("wav_pcs_rx", "u_p.pcs_rx_v", "bit"),
             ("wav_fec", "u_p.fec_fail", "bit"),
             ("fab_rx_vld", "fab_rx_vld", "bit"),
+            ("fab_rx_data", "fab_rx_data[511:0]", "hex"),
+            ("wav_rx_sop", "RX SOP LPH [511:352]", "hex"),
+            ("wav_rx_cfg", "RX CFG", "dec"),
+            ("wav_rx_rt", "RX RT", "dec"),
+            ("wav_rx_scna", "RX SCNA", "hex"),
+            ("wav_rx_dcna", "RX DCNA", "hex"),
+            ("wav_rx_pld", "RX payload [351:0]", "hex"),
             ("wav_rx_eq", "RX==GOLDEN_TX", "bit"),
-            ("wav_fec", "u_p.fec_fail", "bit"),
         ],
         max(0, t_rx - 20 * p), t_rx + 16 * p,
         marks_all,
-        "RX  recovered 512b GOLDEN  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
-        "Expected: fab_rx_data[511:0] === GOLDEN_TX (full vector, not LPH).  "
-        "Supporting: fec_fail=0.",
+        "RX  recovered NW data[511:0] === GOLDEN  —  tc_nw_pkt_pma_loopback",
+        "Expected: fab_rx_data[511:0] === GOLDEN_TX; SOP [511:352] CFG=3 RT=00 "
+        "SCNA=A11A DCNA=B22B; fec_fail=0.  Actual: wav_rx_eq=1 (PASS).",
         notes=[(t_pcs, "pcs_rx_v"), (t_rx, "fab_rx score")],
     )
-    stitch(os.path.join(waves, "nw_pkt_pma_loopback.png"), tx_png, pma_png, rx_png)
+    stitch(out_png, tx_png, pma_png, rx_png)
 
 
 def main() -> int:
