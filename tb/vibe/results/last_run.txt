@@ -29,7 +29,7 @@ PASS tc_default_rt_all0_port0
 NOTE tc_pkt_len_err_drop: <16 B not reachable (decl_flits clamp to 1 = 20 B)
 PASS tc_pkt_len_err_drop
 === tc_cfg6_term_vs_fwd ===
-  hier cfg6_hit=0000 x_in_v=0001 consume=0000 cna_written=0 cna=0000
+  hier cfg6_hit=0000 x_in_v=0001 consume=0000 cna_written=1 cna=1111
 PASS tc_cfg6_term_vs_fwd
 === tc_saf_full_pkt ===
 PASS tc_saf_full_pkt
@@ -47,6 +47,8 @@ PASS tc_cfg7_fwd
 PASS tc_cfg9_fwd
 === tc_cfg_reserved_fwd ===
 PASS tc_cfg_reserved_fwd
+=== tc_cfg_fwd_class ===
+PASS tc_cfg_fwd_class
 === tc_cfg0_fabric_no_special ===
 PASS tc_cfg0_fabric_no_special
 === tc_port_rst_via_cfg ===
@@ -56,6 +58,6 @@ PASS tc_device_rst_via_cfg
 === tc_pkt_len_legal_16_4300 ===
 NOTE tc_pkt_len_legal_16_4300: 16 B not reachable (1-flit clamp=20 B)
 PASS tc_pkt_len_legal_16_4300
-SUITE pass=26 fail=0 ran=26
+SUITE pass=27 fail=0 ran=27
 SUITE_RESULT PASS
-/workspace/tb/vibe/env/vibe_suite.sv:911: $finish called at 2393000 (1ps)
+/workspace/tb/vibe/env/vibe_suite.sv:1026: $finish called at 3061000 (1ps)

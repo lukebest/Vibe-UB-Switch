@@ -1,7 +1,8 @@
 # Vibe-UB-Switch testbench (new)
 
-Truth sources: `docs/Vibe-UB-Switch-architecture-spec.md` (AS-0.1), FS-0.2.3 G1,
-and FS-0.2.4 credit lock (1024 = **flit**). Old `tb/` (`ub_*`) is void and is
+Truth sources: `docs/Vibe-UB-Switch-architecture-spec.md` (AS-0.1.2), FS-0.2.7
+(Overlay B: NW `data[511:0]`; 640b = DLL↔PCS; credit 1024 = **cell**).
+Old `tb/` (`ub_*`) is void and is
 **not** compiled here.
 
 DUT top: `rtl/top/vibe_ub_switch.sv`. This tree does **not** modify `rtl/`.
@@ -14,19 +15,23 @@ PHY/DLL/PCS MUSTs are unit-tested against the matching `vibe_*` module.
 - **Gate for G1 / routing / SAF / CFG / length / irq / port-device reset:**
   `env/vibe_fabric_harness.sv` (`make suite`, 26 TCs).
 - **Units:** PHY width, FEC T=4/T=2/bypass, AMCTL, LMSM Idle→Discovery, DLL SM,
-  BCRC, VL0–15 RR, retry 256, GBN, credit 1024-flit + 1 µs timeout, VOQ deadlock
+  BCRC, VL0–15 RR, retry 256, GBN, credit 1024-cell + 1 µs timeout, VOQ deadlock
   1 µs (separate), AFIFO, ICRC, CFG0, named negatives (`make units`).
 - **Top:** `tc_top_smoke` — pins, `cfg_wr_*`, hierarchical
   `dut.u_fab.rt_shortest_unimpl` (not a product port).
 
 `rt_shortest_unimpl` is probed as `u_fab.rt_shortest_unimpl` (32-bit saturating).
 
-## FS-0.2.4 / G7 (closed)
+## FS-0.2.7 / G7 (closed)
 
-Credit return threshold **1024 is flit**. Pending path is `pend += credit_ret_n`
-with **no divide-by-n**. `tc_credit_1024_flit_bp`: 1023 flit → no `bp_nw`;
-1024 flit → `bp_nw` and `force_crd_ack`. Consume still uses `ceil_div` by grain
-(cells) — that is not the G7 unit.
+Credit return threshold **1024 is cell**. `credit_ret_n` is already cells
+(not 1024×n flit). `tc_credit_1024_flit_bp` (historical name): 1023 cell → no
+`bp_nw`; 1024 cell → `bp_nw` and `force_crd_ack`. Consume still uses `ceil_div`
+by grain (flits→cells) — that is not the G7 threshold unit.
+
+NW↔DLL is `data[511:0]` @ 1.25 GHz. Checkers compare the **512-bit GOLDEN**
+on TX (`dll_tx`) and RX (`fab_rx`), not width alone and not LPH fields.
+640b is DLL↔PCS. Loopback FAIL on this SHA is 设计 (not a TB patch).
 
 ## Run
 

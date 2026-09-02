@@ -34,19 +34,21 @@ MUST TP where the RTL implements it. Negatives are explicit absent-feature TCs.
 
 PHY/U26, FEC T=4/T=2/bypass + dual enc, AMCTL, eBCH-16, scramble, G1 window,
 cw2beat, PMA 512b + 922 MHz, LMSM Idle→Discovery, DLL SM, BCRC, retry 256,
-GBN, ACK replay, credit 1024-**flit** BP (G7), credit timeout 1 µs, VOQ
+GBN, ACK replay, credit 1024-**cell** BP (G7; filename `tc_credit_1024_flit_bp`
+is historical), credit timeout 1 µs, VOQ
 deadlock 1 µs (**separate**), AFIFO occ≥10, CFG0 no-credit, VL0–15 RR, ICRC
 unit, DLL TX CFG0, mgmt bypass, rst_sync, RS decoder, named negatives
 (QDLWS / Exact Route / Port CNA / cut-through / UBFM / hi_FEC_BER / Probe /
-Dijkstra).
+Dijkstra). Overlay B: `tc_phy_nw_dll_512b` requires NW `data[511:0]`.
 
-`tc_credit_1024_hole` is a stub: G7 closed (flit). See `tc_credit_1024_flit_bp`.
+`tc_credit_1024_hole` scores the same 1023→1024 **cell** `bp_nw` as
+`tc_credit_1024_flit_bp` (G7 closed as cell).
 
 ## NW packet → PMA (`make units`)
 
 | Test | TP / AS |
 |------|---------|
-| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH beat on `fab_tx` → score `txdata[511:0]` (lane0=`[127:0]` … lane3=`[511:384]`) vs TB golden PCS T=4 + AFIFO + 160→128 pack. AMCTL is in both streams. **PASS.** |
-| `tc_nw_pkt_pma_loopback` | TP-PHY-012: `rxdata=txdata`; score `fab_rx` LPH + payload (not merely vld). **FAIL — RTL gap** (RX never AM-locks / `fab_rx_vld=0`). See `CHECKER_AUDIT.md`. |
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH on NW `data[511:0]` → score PMA `txdata[511:0]`. **FAIL vs `d6549521`:** DUT NW pin is still 640 (Overlay B not wired). |
+| `tc_nw_pkt_pma_loopback` | TP-PHY-012: recover LPH+payload on NW `data[511:0]` after PMA loopback. **FAIL vs `d6549521`:** same 512-vs-640 width. LPH values unchanged if Overlay B lands. |
 
 Select one suite test: `make -C tb/vibe suite TC=tc_rt10_must_drop`

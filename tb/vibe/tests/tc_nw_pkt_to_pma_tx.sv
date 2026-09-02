@@ -1,20 +1,21 @@
-// TP-PHY-009/010/018: legal NW/LPH packet → PMA txdata[511:0] content checker.
+// TP-PHY-009/010/018 + Overlay B: GOLDEN 512b NW→DLL, then PMA txdata pack.
 // DUT vibe_port. Hierarchical LMSM/credit bring-up (no rtl/ edit).
 `timescale 1ns/1ps
 module tc_nw_pkt_to_pma_tx;
   `include "vibe_tb_defs.svh"
-  `include "vibe_tb_nw_pma.svh"
+  `include "vibe_tb_nw512.svh"
 
   logic clk_fab, rst_n, port_rst, device_rst, lmsm_go, txclk, rxclk;
   logic [511:0] txdata, rxdata;
-  logic [639:0] fab_tx_data, fab_rx_data, mgmt_tx_data, cfg0_data;
+  logic [511:0] fab_tx_data, fab_rx_data, mgmt_tx_data;
+  logic [639:0] cfg0_data;
   logic fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready;
   logic mgmt_tx_vld, mgmt_tx_ready, status_up, disabled, retry_error;
   logic proto_err, fc_ovf, rx_ovf, afifo_ovf, cfg0_hit;
   integer fail, i, accepted, saw_dll, saw_pma, pack_ok, gold_ok, gold_n, pack_n;
-  integer lane_n, lane_mis, last_v, last_gv;
+  integer lane_n, lane_mis, last_v, last_gv, nw_w, dll_w;
   logic [511:0] last_pack, last_gold;
-  logic [639:0] pkt;
+  logic [511:0] golden_tx;
   logic [511:0] gold_tx;
 
   initial clk_fab = 0;
@@ -167,14 +168,16 @@ module tc_nw_pkt_to_pma_tx;
     fail = 0; accepted = 0; saw_dll = 0; saw_pma = 0;
     pack_ok = 1; gold_ok = 1; gold_n = 0; pack_n = 0;
     lane_n = 0; lane_mis = 0; last_v = 0; last_gv = 0;
-    pkt = vibe_tb_nw_pma_pkt();
+    golden_tx = vibe_tb_nw512_golden_tx();
+    nw_w  = $bits(u_p.fab_tx_data);
+    dll_w = $bits(u_p.dll_tx_d);
     bring_link();
     if (fail) begin
       $finish;
     end
 
-    // Inject one legal RT=00 beat; wait handshake.
-    fab_tx_data = pkt;
+    // Inject unique 512-bit GOLDEN (not a 640 slice); wait handshake.
+    fab_tx_data = golden_tx;
     accepted = 0;
     for (i = 0; i < 32; i = i + 1) begin
       @(negedge clk_fab);
@@ -182,6 +185,21 @@ module tc_nw_pkt_to_pma_tx;
       if (fab_tx_ready) begin
         @(posedge clk_fab);
         accepted = 1;
+        if (vibe_tb_nw512_vec_fail(dll_w, golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_fail_print(
+              "tc_nw_pkt_to_pma_tx",
+              "TX NW→DLL accepted beat GOLDEN_TX",
+              golden_tx, dll_w, u_p.dll_tx_d,
+              "u_p.dll_tx_d / u_p.u_nw.dll_tx_data");
+          $finish;
+        end
+        if (vibe_tb_nw512_sop_lph_fail(golden_tx, u_p.dll_tx_d)) begin
+          vibe_tb_nw512_sop_lph_print(
+              "tc_nw_pkt_to_pma_tx",
+              "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
+              golden_tx, u_p.dll_tx_d, "u_p.dll_tx_d[511:352]");
+          $finish;
+        end
         fab_tx_vld = 0;
         i = 32;
       end else
@@ -192,28 +210,28 @@ module tc_nw_pkt_to_pma_tx;
       $display("  detail   : ready=%0b link_r=%0b status_up=%0b crd_low=%0b can=%0b",
                fab_tx_ready, u_p.link_ready, status_up,
                u_p.u_dll.u_crd.credit_low, u_p.u_dll.can_send);
-      fail_at("fab_tx_vld legal RT=00 1-beat after LinkReady+cells=64",
+      fail_at("fab_tx_vld GOLDEN_TX 1-beat after LinkReady+cells=64",
               "fab_tx_ready handshake (packet accepted)",
               "see detail line",
               "u_p.u_nw.fab_tx_ready / u_p.u_dll.u_tx.nw_ready");
       $finish;
     end
 
-    // Score DLL wrap: injected LPH (and payload[639:32]) appears on pcs_tx.
-    for (i = 0; i < 64; i = i + 1) begin
+    saw_dll = 1;
+
+    // Second beat completes the 80 B / 4-flit packet (DLL emits 640b to PCS).
+    fab_tx_data = vibe_tb_nw512_golden_tx_b2();
+    for (i = 0; i < 32; i = i + 1) begin
       @(negedge clk_fab);
-      if (u_p.pcs_tx_v && vibe_tb_nw_pma_lph_ok(u_p.pcs_tx_d))
-        saw_dll = 1;
+      fab_tx_vld = 1;
+      if (fab_tx_ready) begin
+        @(posedge clk_fab);
+        fab_tx_vld = 0;
+        i = 32;
+      end else
+        @(posedge clk_fab);
     end
-    if (!saw_dll) begin
-      $display("  detail   : pcs_tx_d[639:480]=%h vld=%0b",
-               u_p.pcs_tx_d[639:480], u_p.pcs_tx_v);
-      fail_at("packet accepted; watch u_p.pcs_tx_v/d",
-              "DLL emits beat with CFG=3 RT=00 SCNA=A11A DCNA=B22B",
-              "see detail line",
-              "u_p.u_dll.u_tx.pcs_data");
-      $finish;
-    end
+    fab_tx_vld = 0;
 
     // PMA txdata is registered: compare to the previous txclk's p_tx / golden.
     for (i = 0; i < 4000; i = i + 1) begin
@@ -277,7 +295,7 @@ module tc_nw_pkt_to_pma_tx;
     end
 
     $display("PASS tc_nw_pkt_to_pma_tx");
-    $display("  scored : DLL LPH; %0d PMA pack; %0d PCS-lane golden; %0d gear golden",
+    $display("  scored : dll_tx===GOLDEN_TX; %0d PMA pack; %0d PCS-lane golden; %0d gear golden",
              pack_n, lane_n, gold_n);
     $finish;
   end
