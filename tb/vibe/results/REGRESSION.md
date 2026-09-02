@@ -1,15 +1,39 @@
-# TP-0.3 regression — 100-packet Overlay B loopback + full gate
+# TP-0.3 regression — Overlay B 512-bit TB retarget + 100-packet loopback
 
-Compiled **TB** on `cursor/vibe-tb-loopback-100-6065` against **`origin/main`** (no RTL overlay; `rtl/` not committed).
+Compiled **TB** on `cursor/vibe-tb-loopback-100-6065` against **`origin/main`**. **Zero `rtl/` diffs.** `rtl/` was not committed.
 
 | Item | Value |
 |------|--------|
 | `origin/main` | `aa5d91c0480d5810a83f81086ff58718200ab4e2` |
-| RTL SHA (files) | `a3ecec9f40e987e2dc49f586c34092c3ede5baa5` |
-| RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode |
-| Gate | `make -C tb/vibe sim` (suite compile-failed; units + top + neg still run) |
+| RTL tree SHA | `9d6f7f06354b43f4a3087451195dc1bea70eed78` |
+| RTL message | Fix overlay-B remainder shift width and CNA first-flit opcode (`a3ecec9f`) |
+| Gate | `make -C tb/vibe sim` (suite + units + top + neg) |
 
-Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged. SOP LPH is `[511:352]`.
+Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged. SOP LPH is `[511:352]` (`vibe_tb_mk_beat`). DLL↔PCS stays 640 (`vibe_tb_mk_pcs_beat`). Fabric/mgmt/NW pins are 512. Do not ask RTL to go back to 640.
+
+## `make -C tb/vibe sim` (this revision)
+
+| Bucket | pass | fail | compile_fail |
+|--------|------|------|----------------|
+| suite (`make suite`) | **27** | 0 | 0 |
+| units (`make units`) | **85** | 0 | 0 |
+| top (`make top`) | 0 | **1** | 0 |
+| neg (`make neg`) | **10** | 0 | 0 |
+
+Previously compile-fail / prune-FAIL TCs are **TB-fixed** (width mismatches were TB bugs):
+
+| TC | Was | Now |
+|----|-----|-----|
+| suite (`vibe_fabric_harness` / `vibe_suite`) | compile_fail `[639:0]` | **27/27 PASS** |
+| `tc_xbar_unit` | compile_fail | **PASS** |
+| `tc_fabric_line_holes` | compile_fail | **PASS** |
+| `tc_fabric_g1` | compile_fail | **PASS** |
+| `tc_cna_ep` | compile_fail | **PASS** |
+| `tc_mgmt` | compile_fail | **PASS** |
+| `tc_cfg9_no_icrc` | compile_fail | **PASS** |
+| `tc_saf_ing` | runtime (LPH pruned) | **PASS** |
+
+Icarus note (TB-only, not an RTL widen): VOQ `wr_vl = vibe_lph_vl(vibe_nw512_flit0(xb_d))` combo-feeds xbar `out_ready` and delta-storms on the first RT=00 grant. Harness / `tc_cfg9_no_icrc` pin `wr_vl` so forward TCs can score `x_in_v` / SAF headers. G1/RT=10 still drop+count+sticky irq on the fabric cluster.
 
 ## `tc_nw_pkt_pma_loopback`
 
@@ -20,45 +44,17 @@ Spec: **FS-0.2.7 / AS-0.1.2**. Official 159 IDs unchanged. SOP LPH is `[511:352]
 - `fec_fail=0`, `am_locked=1111`, `saw_deskew=1`.
 - Reproduce: `make -C tb/vibe units` (or compile `tc_nw_pkt_pma_loopback.sv` + PORT_RTL).
 
-## Full regression counts
+## FAIL list (after Overlay B 512 + SOP LPH `[511:352]`)
 
-| Bucket | pass | fail | compile_fail |
-|--------|------|------|----------------|
-| suite (`make suite`) | 0 | 0 | **1** (harness; 7 width errors) |
-| units (`make units`) | **78** | **7** | **6** (included in the 7) |
-| top (`make top`) | 0 | **1** | 0 |
-| neg (`make neg`) | **10** | 0 | 0 |
-
-`make sim` exits at suite compile. Units/top/neg were run separately after that.
-
-## FAIL list
-
-**Not RTL data bugs on the 100-packet path.** The 100-packet loopback PASSed. Remaining FAILs are leftover **640-bit TB wires** vs Overlay B **512-bit** fabric/mgmt ports on main. Do **not** widen RTL back to 640.
-
-### compile_fail (TB width)
-
-| TC | Expected | Actual | hier | reproduce |
-|----|----------|--------|------|-----------|
-| suite (`vibe_fabric_harness` / `vibe_suite`) | TB `ing_data`/`egr_data`/`cfg6_*` match DUT `[511:0]` | TB still `[639:0]` | `vibe_fabric.ing_data` / `vibe_mgmt.cfg6_data` / `vibe_cna_ep` | `make -C tb/vibe suite` |
-| `tc_xbar_unit` | TB `in_data`/`out_data` `[511:0]` | TB `[639:0]` | `vibe_xbar.in_data` | `make -C tb/vibe units` |
-| `tc_fabric_line_holes` | fabric arrays `[511:0]` | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
-| `tc_fabric_g1` | same | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
-| `tc_cna_ep` | `cfg6_data`/`reply_data` `[511:0]` | TB `[639:0]` | `vibe_cna_ep.cfg6_data` | `make -C tb/vibe units` |
-| `tc_mgmt` | same | TB `[639:0]` | `vibe_mgmt.cfg6_data` | `make -C tb/vibe units` |
-| `tc_cfg9_no_icrc` | fabric arrays `[511:0]` | TB `[639:0]` | `vibe_fabric.ing_data` | `make -C tb/vibe units` |
-
-### runtime FAIL (TB still drives 640; iverilog prunes `[639:512]`)
+These are **not** leftover 640-bit TB / iverilog `[639:512]` prune. Width is correct. Filed to **设计**.
 
 | TC | stimulus | expected | actual | hier | reproduce |
 |----|----------|----------|--------|------|-----------|
-| `tc_saf_ing` | 1 of 2 declared beats (`vibe_tb_mk_beat` 640b) | `pkt_vld=0` (SAF) | `1` | `u_s.pkt_vld` | `make -C tb/vibe units` |
-| `tc_saf_ing` | oversize PLEN | `len_err` | `0` | `u_s.len_err` | `make -C tb/vibe units` |
-| `tc_saf_ing` | 2 of 3 declared beats | `pkt_vld=0` | (finish) | `u_s.pkt_vld` | `make -C tb/vibe units` |
-| `tc_top_smoke` | `rxdata_0` = peer txdata (RT=10 LPH) | `irq_logic=1` | `irq_logic` stayed 0 | `dut.irq_logic` / `dut.u_fab.drop_g1` | `make -C tb/vibe top` |
+| `tc_top_smoke` | peer `fab_tx` = `vibe_tb_mk_beat` CFG3 **RT=10** SOP LPH `[511:352]`; `rxdata_0 = peer txdata`; wait 20000 `clk_fab` | `irq_logic=1` (G1 drop+count+sticky at top pin) | `irq_logic` stayed 0 (peer PMA `txdata` did go nonzero) | `dut.irq_logic` / `dut.u_fab.drop_g1` / `dut.u_mgmt` | `make -C tb/vibe top` |
 
-`tc_saf_ing` / `tc_top_smoke` LPH lives in the pruned high bits when TB is 640 and DUT is 512. Retarget those TCs to Overlay B (`[511:0]` + SOP `[511:352]`) before treating them as 设计 RTL FAILs.
+Fabric-cluster G1 (`tc_fabric_g1`, suite `tc_rt10_must_drop` / `tc_rt_irq_logic_sticky`) **PASS**. Same-port Overlay B PMA loopback **PASS**. Cross-port top pin did not raise `irq_logic` with this stimulus.
 
-## Overlay B content TCs (still PASS)
+## Overlay B content TCs (PASS)
 
 | TC | Result |
 |----|--------|
