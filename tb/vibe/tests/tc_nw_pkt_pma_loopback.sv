@@ -222,7 +222,9 @@ module tc_nw_pkt_pma_loopback;
             !vibe_tb_nw512_sop_lph_fail(golden_tx, fab_rx_data))
           saw_rx = 1;
       end
-      if (saw_rx && ($test$plusargs("DUMP") || $test$plusargs("VCD"))) begin
+      // +DUMP: keep the window until GOLDEN match AND am_locked (supporting).
+      // Exiting on saw_rx alone finishes before PCS lock and falsely FAILs.
+      if (saw_rx && saw_am && ($test$plusargs("DUMP") || $test$plusargs("VCD"))) begin
         dump_hold = dump_hold + 1;
         if (dump_hold >= 32)
           i = 20000;
