@@ -16,10 +16,13 @@ module vibe_suite;
   wire        wav_ing0    = h.ing_vld[0];
   wire        wav_egr0    = h.egr_vld[0];
   wire [3:0]  wav_egr     = h.egr_vld;
-  wire [1:0]  wav_rt      = vibe_lph_rt(vibe_nw512_flit0(h.ing_data[0]));
-  wire [3:0]  wav_cfg     = vibe_lph_cfg(vibe_nw512_flit0(h.ing_data[0]));
-  wire [2:0]  wav_nlp     = vibe_nth_nlp(vibe_nw512_flit0(h.ing_data[0]));
-  wire [7:0]  wav_opc     = vibe_nw512_flit0(h.ing_data[0])[103:96];
+  // SOP LPH [511:352]. Use a slice, not a function, so Icarus does not
+  // storm-evaluate vibe_nw512_flit0 on an unpacked array every delta.
+  wire [159:0] wav_flit0  = h.ing_data[0][511:352];
+  wire [1:0]  wav_rt      = wav_flit0[23:22];
+  wire [3:0]  wav_cfg     = wav_flit0[11:8];
+  wire [2:0]  wav_nlp     = wav_flit0[95:93];
+  wire [7:0]  wav_opc     = wav_flit0[103:96];
   wire        wav_irq     = h.irq_logic;
   wire        wav_g1      = h.drop_g1;
   wire [31:0] wav_g1cnt   = h.rt_shortest_unimpl;
@@ -727,14 +730,14 @@ module vibe_suite;
       out_f = 160'd0;
       if (h.saw_egr[3]) begin
         got   = 1;
-        out_f = vibe_nw512_flit0(h.egr_last[3]);
-      end else if (h.saw_egr[0]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[0]); end
-      else if (h.saw_egr[1]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[1]); end
-      else if (h.saw_egr[2]) begin got = 1; out_f = vibe_nw512_flit0(h.egr_last[2]); end
+        out_f = h.egr_last[3][511:352];
+      end else if (h.saw_egr[0]) begin got = 1; out_f = h.egr_last[0][511:352]; end
+      else if (h.saw_egr[1]) begin got = 1; out_f = h.egr_last[1][511:352]; end
+      else if (h.saw_egr[2]) begin got = 1; out_f = h.egr_last[2][511:352]; end
       // iverilog: xbar 512b unpacked data is X so egr may never rise.
       // Score transit on SAF header (no ICRC instance in fabric).
-      if (vibe_nth_cci(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_cci(in_f) ||
-          vibe_nth_lbf(vibe_nw512_flit0(h.u_fab.saf_d[0])) !== vibe_nth_lbf(in_f)) begin
+      if (vibe_nth_cci(h.u_fab.saf_d[0][511:352]) !== vibe_nth_cci(in_f) ||
+          vibe_nth_lbf(h.u_fab.saf_d[0][511:352]) !== vibe_nth_lbf(in_f)) begin
         h.tb_fail("tc_icrc_transit_no_recompute",
           "transit CFG3 sitting in SAF",
           "CCI/LBF unchanged (fabric has no vibe_icrc)",

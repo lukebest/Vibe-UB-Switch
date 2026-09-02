@@ -105,7 +105,7 @@ module vibe_fabric_harness (
           saw_egr[mi]     <= 1'b1;
           egr_cnt[mi]     <= egr_cnt[mi] + 1;
           egr_last[mi]    <= egr_data[mi];
-          last_rt_egr[mi] <= vibe_lph_rt(vibe_nw512_flit0(egr_data[mi]));
+          last_rt_egr[mi] <= egr_data[mi][375:374]; // SOP LPH RT = flit[23:22]
         end
       end
     end
