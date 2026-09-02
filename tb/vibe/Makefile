@@ -48,7 +48,10 @@ TOP_RTL := \
   $(RTL)/port/vibe_port.sv \
   $(RTL)/top/vibe_ub_switch.sv
 
-.PHONY: all sim suite units top cov clean help
+WAVES     := $(TB)/waves
+VVPFLAGS  ?=
+
+.PHONY: all sim suite units top cov clean help waves
 all: sim
 
 help:
@@ -59,6 +62,8 @@ help:
 	@echo "make sim            - suite + units + top (gate)"
 	@echo "make cov            - verilator line/toggle coverage on vibe_* (if supported)"
 	@echo "make neg            - static absent-feature scan (no RTL change)"
+	@echo "make waves          - +DUMP VCD + PNG (G1/CFG6/credit/loopback)"
+	@echo "make waves TC=name  - one wave TC (e.g. tc_nw_pkt_pma_loopback)"
 
 $(RES):
 	mkdir -p $(RES)
@@ -67,7 +72,7 @@ suite: $(RES)
 	$(IVERILOG) -g2012 $(INC) -o $(RES)/vibe_suite.vvp \
 	  $(TB)/env/vibe_fabric_harness.sv $(TB)/env/vibe_psel_harness.sv \
 	  $(TB)/env/vibe_suite.sv $(FAB_RTL)
-	$(VVP) $(RES)/vibe_suite.vvp $(if $(TC),+TC=$(TC),) | tee $(RES)/suite.log
+	$(VVP) $(RES)/vibe_suite.vvp $(VVPFLAGS) $(if $(TC),+TC=$(TC),) | tee $(RES)/suite.log
 	@cp -f $(RES)/suite.log $(RES)/last_run.txt
 
 units: $(RES)
@@ -83,6 +88,9 @@ neg: $(RES)
 
 sim: suite units top neg
 	@$(TB)/scripts/summarize.sh $(RES)
+
+waves: $(RES)
+	TC="$(TC)" $(TB)/scripts/run_waves.sh
 
 cov: $(RES)
 	$(TB)/scripts/run_verilator_cov.sh | tee $(RES)/cov.log

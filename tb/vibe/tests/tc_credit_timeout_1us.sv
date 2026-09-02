@@ -17,6 +17,20 @@ module tc_credit_timeout_1us;
     .pending(pending), .credit_low(credit_low), .force_crd_ack(force_crd_ack),
     .bp_nw(bp_nw), .proto_err(proto_err), .fc_ovf(fc_ovf)
   );
+  wire [10:0] wav_to = u_crd.to;  // credit timer (not VOQ age)
+
+  initial begin
+    if ($test$plusargs("DUMP") || $test$plusargs("VCD")) begin
+      begin : dump_open
+        reg [8*256-1:0] dump_fn;
+        dump_fn = "credit_timeout_1us.vcd";
+        if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
+        $dumpfile(dump_fn);
+        $dumpvars(0, clk, rst_n, pending, proto_err, wav_to,
+                  credit_ret, credit_ret_n);
+      end
+    end
+  end
   initial begin
     fail = 0;
     rst_n = 0; port_rst = 0; link_up = 1; grain_n = 8'd8;

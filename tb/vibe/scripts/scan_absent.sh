@@ -32,6 +32,7 @@ absent cut_through 'cut_through|cutthrough|CUT_THROUGH'
 absent ubfm '\bUBFM\b|ubfm_'
 absent hi_fec_ber 'hi_FEC_BER|hi_fec_ber|HIFECBER'
 absent probe_state 'ST_PROBE|st_probe|Probe_Active'
+absent optical 'optical_pma|OPTICAL_PMA|qdlws_optical|ST_OPTICAL'
 
 # Dijkstra / shortest-path routing must not exist (G1).
 if grep -RIn --include='*.sv' -E 'dijkstra|shortest_path|path_cost' "$RTL" | grep -v 'unimpl' >/dev/null; then

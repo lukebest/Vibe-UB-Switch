@@ -5,7 +5,8 @@ ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TB="$ROOT/tb/vibe"
 RTL="$ROOT/rtl"
 RES="$TB/results"
-INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
+INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests -I$RES"
+python3 "$TB/scripts/scan_official_neg.py" --inc "$RES/neg_official_scan.inc" "$RTL"
 IVERILOG="${IVERILOG:-iverilog}"
 VVP="${VVP:-vvp}"
 mkdir -p "$RES"
@@ -48,7 +49,7 @@ run1 tc_cfg0_term_not_fabric "$T/tc_cfg0_term_not_fabric.sv" "$RTL/dll/vibe_dll_
 run1 tc_icrc_txrx_vs_transit "$T/tc_icrc_txrx_vs_transit.sv" "$RTL/nw/vibe_icrc.sv"
 run1 tc_vl_rr               "$T/tc_vl_rr.sv"               "$RTL/fabric/vibe_vl_rr.sv"
 run1 tc_vl_rr_0_15          "$T/tc_vl_rr_0_15.sv"          "$RTL/fabric/vibe_vl_rr.sv"
-run1 tc_credit_1024_hole    "$T/tc_credit_1024_hole.sv"
+run1 tc_credit_1024_hole    "$T/tc_credit_1024_hole.sv" "$RTL/dll/vibe_dll_credit.sv"
 run1 tc_credit_1024_flit_bp "$T/tc_credit_1024_flit_bp.sv" "$RTL/dll/vibe_dll_credit.sv"
 run1 tc_credit_timeout_1us  "$T/tc_credit_timeout_1us.sv"  "$RTL/dll/vibe_dll_credit.sv"
 run1 tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fabric/vibe_voq_egr.sv"
@@ -108,10 +109,15 @@ run1 tc_pcs_rx_unpack       "$T/tc_pcs_rx_unpack.sv"       "$RTL/pcs/vibe_pcs_rx
 run1 tc_pcs_rx_fec          "$T/tc_pcs_rx_fec.sv" \
   "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
 run1 tc_pcs_rx              "$T/tc_pcs_rx.sv" \
+  "$RTL/pcs/vibe_ebch16.sv" \
+  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
+  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
+  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_amctl.sv" \
   "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_scramble.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv" \
   "$RTL/pcs/vibe_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_fec.sv" \
-  "$RTL/pcs/vibe_rs128_120_dec.sv" "$RTL/pcs/vibe_ebch16.sv"
+  "$RTL/pcs/vibe_rs128_120_dec.sv"
 run1 tc_pcs_tx_pack         "$T/tc_pcs_tx_pack.sv" \
   "$RTL/pcs/vibe_pcs_tx_pack.sv" "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv"
 run1 tc_pcs_tx              "$T/tc_pcs_tx.sv" \
@@ -130,24 +136,30 @@ run1 tc_fabric_g1           "$T/tc_fabric_g1.sv" \
   "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
   "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
   "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv"
-run1 tc_port_smoke          "$T/tc_port_smoke.sv" \
-  "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
-  "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
-  "$RTL/pma/vibe_pma_bnd.sv" \
-  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
-  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
-  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
-  "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv" \
-  "$RTL/pcs/vibe_pcs_scramble.sv" \
-  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" \
-  "$RTL/pcs/vibe_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv" \
-  "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv" \
-  "$RTL/lmsm/vibe_lmsm.sv" \
-  "$RTL/dll/vibe_dll.sv" "$RTL/dll/vibe_dll_sm.sv" "$RTL/dll/vibe_dll_credit.sv" \
-  "$RTL/dll/vibe_dll_retry_buf.sv" "$RTL/dll/vibe_dll_retry_req_sm.sv" \
-  "$RTL/dll/vibe_dll_retry_ack_sm.sv" "$RTL/dll/vibe_dll_tx.sv" \
-  "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv" \
-  "$RTL/nw/vibe_nw_adapt.sv" "$RTL/port/vibe_port.sv"
+PORT_RTL="\
+  $RTL/cdc/vibe_sync2.sv $RTL/cdc/vibe_afifo.sv $RTL/cdc/vibe_rst_sync.sv \
+  $RTL/cdc/vibe_gear_160_128.sv $RTL/cdc/vibe_gear_128_160.sv \
+  $RTL/pma/vibe_pma_bnd.sv \
+  $RTL/pcs/vibe_pcs_tx.sv $RTL/pcs/vibe_pcs_tx_g1.sv \
+  $RTL/pcs/vibe_pcs_tx_fec.sv $RTL/pcs/vibe_rs128_120_enc.sv \
+  $RTL/pcs/vibe_pcs_tx_cw2beat.sv $RTL/pcs/vibe_pcs_tx_pack.sv \
+  $RTL/pcs/vibe_pcs_tx_amctl.sv $RTL/pcs/vibe_ebch16.sv \
+  $RTL/pcs/vibe_pcs_scramble.sv \
+  $RTL/pcs/vibe_pcs_rx.sv $RTL/pcs/vibe_pcs_rx_amctl_lock.sv \
+  $RTL/pcs/vibe_pcs_rx_deskew.sv $RTL/pcs/vibe_pcs_rx_unpack.sv \
+  $RTL/pcs/vibe_pcs_rx_fec.sv $RTL/pcs/vibe_rs128_120_dec.sv \
+  $RTL/lmsm/vibe_lmsm.sv \
+  $RTL/dll/vibe_dll.sv $RTL/dll/vibe_dll_sm.sv $RTL/dll/vibe_dll_credit.sv \
+  $RTL/dll/vibe_dll_retry_buf.sv $RTL/dll/vibe_dll_retry_req_sm.sv \
+  $RTL/dll/vibe_dll_retry_ack_sm.sv $RTL/dll/vibe_dll_tx.sv \
+  $RTL/dll/vibe_dll_rx.sv $RTL/dll/vibe_bcrc.sv \
+  $RTL/nw/vibe_nw_adapt.sv $RTL/port/vibe_port.sv"
+# shellcheck disable=SC2086
+run1 tc_port_smoke          "$T/tc_port_smoke.sv" $PORT_RTL
+# shellcheck disable=SC2086
+run1 tc_nw_pkt_to_pma_tx    "$T/tc_nw_pkt_to_pma_tx.sv" $PORT_RTL
+# shellcheck disable=SC2086
+run1 tc_nw_pkt_pma_loopback "$T/tc_nw_pkt_pma_loopback.sv" $PORT_RTL
 run1 tc_rst_port_device     "$T/tc_rst_port_device.sv"     "$RTL/mgmt/vibe_rst_ctl.sv"
 run1 tc_fecn_mark           "$T/tc_fecn_mark.sv"           "$RTL/fabric/vibe_fecn_mark.sv"
 run1 tc_nw_adapt_linkready  "$T/tc_nw_adapt_linkready.sv"  "$RTL/nw/vibe_nw_adapt.sv"
@@ -164,6 +176,24 @@ run1 tc_neg_ubfm            "$T/tc_neg_ubfm.sv"
 run1 tc_neg_hi_fec_ber      "$T/tc_neg_hi_fec_ber.sv"
 run1 tc_neg_probe           "$T/tc_neg_probe.sv"
 run1 tc_neg_dijkstra        "$T/tc_neg_dijkstra.sv"
+run1 tc_neg_no_optical      "$T/tc_neg_no_optical.sv"
+run1 tc_tp_holes            "$T/tc_tp_holes.sv"
+run1 tc_fec_fail_gbn        "$T/tc_fec_fail_gbn.sv"      "$RTL/dll/vibe_dll_rx.sv"
+run1 tc_p0_down_drop        "$T/tc_p0_down_drop.sv"      "$RTL/fabric/vibe_port_sel.sv"
+run1 tc_id_nports_entity0   "$T/tc_id_nports_entity0.sv"
+run1 tc_cna_16bit           "$T/tc_cna_16bit.sv"         "$RTL/mgmt/vibe_cfg_space.sv"
+run1 tc_rt_g1_official      "$T/tc_rt_g1_official.sv" \
+  "$RTL/fabric/vibe_route_lu.sv" "$RTL/fabric/vibe_port_sel.sv"
+run1 tc_credit_grain_n      "$T/tc_credit_grain_n.sv"    "$RTL/dll/vibe_dll_credit.sv"
+run1 tc_credit_no_underflow "$T/tc_credit_no_underflow.sv" "$RTL/dll/vibe_dll_credit.sv"
+run1 tc_timers_indep        "$T/tc_timers_indep.sv" \
+  "$RTL/dll/vibe_dll_credit.sv" "$RTL/fabric/vibe_voq_egr.sv"
+run1 tc_neg_official        "$T/tc_neg_official.sv"
+run1 tc_cfg9_no_icrc        "$T/tc_cfg9_no_icrc.sv" \
+  "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
+  "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
+  "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \
+  "$RTL/fabric/vibe_fecn_mark.sv" "$RTL/fabric/vibe_fabric.sv"
 
 echo "UNITS pass_files=$pass_n fail_files=$fail_n compile_fail=$compile_fail"
 if [ "$fail_n" -ne 0 ]; then

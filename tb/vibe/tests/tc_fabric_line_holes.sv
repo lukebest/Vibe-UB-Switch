@@ -1,5 +1,4 @@
-// Fabric G1 saturate + multi-beat CFG6 terminate drain (AS-0.1 §8/§9).
-// Do not occupy SAF before the target packet. RTL not patched.
+// TP-RT-013 sat + CFG6 terminate drain. Real expected vs actual (not coverage).
 `timescale 1ns/1ps
 module tc_fabric_line_holes;
   `include "vibe_tb_defs.svh"
@@ -11,9 +10,11 @@ module tc_fabric_line_holes;
   logic [639:0] ing_data [0:3];
   logic [639:0] egr_data [0:3];
   logic [639:0] cfg6_data [0:3];
-  integer fail, p;
+  integer fail, p, saw6, saw6b;
+
   initial clk = 0;
   always #1 clk = ~clk;
+
   vibe_fabric u_fab (
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
     .status_up(status_up), .default_bm(default_bm),
@@ -26,6 +27,22 @@ module tc_fabric_line_holes;
     .cna(cna), .cna_written(cna_written),
     .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_data)
   );
+
+  task automatic fail_at;
+    input [8*80-1:0] stimulus;
+    input [8*80-1:0] expected;
+    input [8*80-1:0] actual;
+    input [8*80-1:0] hier;
+    begin
+      fail = 1;
+      $display("FAIL tc_fabric_line_holes");
+      $display("  stimulus : %0s", stimulus);
+      $display("  expected : %0s", expected);
+      $display("  actual   : %0s", actual);
+      $display("  hier     : %0s", hier);
+      $display("  reproduce: make -C tb/vibe units");
+    end
+  endtask
 
   task automatic send2;
     input integer port;
@@ -49,7 +66,7 @@ module tc_fabric_line_holes;
   endtask
 
   initial begin
-    fail = 0;
+    fail = 0; saw6 = 0; saw6b = 0;
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
     default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
@@ -58,7 +75,7 @@ module tc_fabric_line_holes;
     rst_n = 1;
     @(posedge clk);
 
-    // 1-beat CFG6 terminate (本CNA): SAF sop&&eop same beat → fabric :185
+    // 1-beat CFG6 terminate (本CNA)
     @(negedge clk);
     while (!ing_ready[0]) @(posedge clk);
     ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
@@ -66,44 +83,62 @@ module tc_fabric_line_holes;
         16'd0, 8'd0, 3'd0, 8'd0));
     ing_vld[0] = 1;
     @(posedge clk);
+    if (cfg6_hit[0]) saw6 = 1;
     @(negedge clk);
     ing_vld[0] = 0;
-    repeat (12) @(posedge clk);
+    repeat (12) begin
+      @(posedge clk);
+      if (cfg6_hit[0]) saw6 = 1;
+    end
+    if (!saw6) begin
+      fail_at("1-beat CFG6 DCNA==CNA written",
+              "cfg6_hit[0]=1 (terminate, not xbar)",
+              "cfg6_hit stayed 0",
+              "u_fab.cfg6_hit / cfg6_term");
+    end
 
-    // Multi-beat CFG6 terminate (本CNA): hits cfg6_seen/drain + eop clear
+    // Multi-beat CFG6 terminate
     send2(0, 4'd6, 2'b00, 16'h1111);
-    repeat (20) @(posedge clk);
+    repeat (20) begin
+      @(posedge clk);
+      if (cfg6_hit[0]) saw6b = 1;
+    end
+    if (!fail && !saw6b) begin
+      fail_at("2-beat CFG6 DCNA==CNA (drain)",
+              "cfg6_hit[0]=1 during SOP or drain",
+              "cfg6_hit stayed 0",
+              "u_fab.cfg6_drain");
+    end
 
-    // NLP=1 CFG6 terminate even if DCNA ≠ us (2-beat drain)
-    @(negedge clk);
-    while (!ing_ready[1]) @(posedge clk);
-    ing_data[1] = vibe_tb_mk_beat(vibe_tb_mk_flit(
-        4'd6, 2'b00, 4'd0, 16'h1, 16'h2222, vibe_tb_plen_nflit(5),
-        16'd0, 8'd0, 3'd1, 8'd0));
-    ing_vld[1] = 1;
-    @(posedge clk);
-    @(negedge clk);
-    ing_data[1] = 640'h3;
-    @(posedge clk);
-    @(negedge clk);
-    ing_vld[1] = 0;
-    repeat (20) @(posedge clk);
-
-    // G1 saturate: preload 32-bit counter (no RTL port)
+    // TP-RT-013: sat at 32'hFFFF_FFFF
     force u_fab.rt_shortest_unimpl = 32'hFFFF_FFFE;
     repeat (2) @(posedge clk);
     release u_fab.rt_shortest_unimpl;
     @(posedge clk);
-    send2(2, 4'd3, 2'b10, 16'h0003);
-    repeat (24) @(posedge clk);
-    if (rt_shortest_unimpl !== 32'hFFFF_FFFF &&
-        rt_shortest_unimpl !== 32'hFFFF_FFFE) begin
-      $display("NOTE tc_fabric_line_holes: sat preload not taken cnt=%h",
-               rt_shortest_unimpl);
+    if (rt_shortest_unimpl !== 32'hFFFF_FFFE) begin
+      fail_at("hierarchical preload rt_shortest_unimpl=FFFFFFFE",
+              "counter reads FFFFFFFE after release",
+              "preload did not stick",
+              "u_fab.rt_shortest_unimpl");
+    end else begin
+      send2(2, 4'd3, 2'b10, 16'h0003);
+      repeat (24) @(posedge clk);
+      if (rt_shortest_unimpl !== 32'hFFFF_FFFF) begin
+        fail_at("preload FFFFFFFE + one RT=10",
+                "FFFFFFFF (sat, no wrap)",
+                "counter not FFFFFFFF",
+                "u_fab.rt_shortest_unimpl");
+      end else begin
+        send2(3, 4'd3, 2'b11, 16'h0004);
+        repeat (16) @(posedge clk);
+        if (rt_shortest_unimpl !== 32'hFFFF_FFFF) begin
+          fail_at("second G1 at FFFFFFFF",
+                  "stay FFFFFFFF (no wrap to 0)",
+                  "counter wrapped or changed",
+                  "u_fab.rt_shortest_unimpl");
+        end
+      end
     end
-    send2(3, 4'd3, 2'b11, 16'h0004);
-    repeat (16) @(posedge clk);
-
     if (!fail) $display("PASS tc_fabric_line_holes");
     $finish;
   end
