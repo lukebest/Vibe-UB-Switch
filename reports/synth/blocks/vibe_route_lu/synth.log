@@ -1,0 +1,354 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_route_lu/vibe_route_lu.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/fabric/vibe_route_lu.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/fabric/vibe_route_lu.sv
+Parsing SystemVerilog input from `/workspace/rtl/fabric/vibe_route_lu.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_route_lu'.
+Warning: Replacing memory \tbl with list of registers. See /workspace/rtl/fabric/vibe_route_lu.sv:25
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_route_lu -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_route_lu
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_route_lu
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_route_lu
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 1 dead cases from process $proc$/workspace/rtl/fabric/vibe_route_lu.sv:22$4 in module vibe_route_lu.
+Marked 6 switch rules as full_case in process $proc$/workspace/rtl/fabric/vibe_route_lu.sv:22$4 in module vibe_route_lu.
+Removed a total of 1 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 5 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~6 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_route_lu.$proc$/workspace/rtl/fabric/vibe_route_lu.sv:22$4'.
+     1/270: $4$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_DATA[31:0]$24
+     2/270: $3$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_DATA[31:0]$23
+     3/270: $3$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_ADDR[7:0]$22
+     4/270: $2$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_DATA[31:0]$18
+     5/270: $2$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_ADDR[7:0]$17
+     6/270: $2$mem2reg_wr$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:31$2_ADDR[7:0]$15
+     7/270: $2$mem2reg_wr$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:31$2_DATA[31:0]$16
+     8/270: $0\drop_g1[0:0]
+     9/270: $1\i[31:0]
+    10/270: $1$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_DATA[31:0]$14
+    11/270: $1$mem2reg_rd$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:38$3_ADDR[7:0]$13
+    12/270: $1$mem2reg_wr$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:31$2_DATA[31:0]$12
+    13/270: $1$mem2reg_wr$\tbl$/workspace/rtl/fabric/vibe_route_lu.sv:31$2_ADDR[7:0]$11
+    14/270: $0\tbl[255][31:0]
+    15/270: $0\tbl[254][31:0]
+    16/270: $0\tbl[253][31:0]
+    17/270: $0\tbl[252][31:0]
+    18/270: $0\tbl[251][31:0]
+    19/270: $0\tbl[250][31:0]
+    20/270: $0\tbl[249][31:0]
+    21/270: $0\tbl[248][31:0]
+    22/270: $0\tbl[247][31:0]
+    23/270: $0\tbl[246][31:0]
+    24/270: $0\tbl[245][31:0]
+    25/270: $0\tbl[244][31:0]
+    26/270: $0\tbl[243][31:0]
+    27/270: $0\tbl[242][31:0]
+    28/270: $0\tbl[241][31:0]
+    29/270: $0\tbl[240][31:0]
+    30/270: $0\tbl[239][31:0]
+    31/270: $0\tbl[238][31:0]
+    32/270: $0\tbl[237][31:0]
+    33/270: $0\tbl[236][31:0]
+    34/270: $0\tbl[235][31:0]
+    35/270: $0\tbl[234][31:0]
+    36/270: $0\tbl[233][31:0]
+    37/270: $0\tbl[232][31:0]
+    38/270: $0\tbl[231][31:0]
+    39/270: $0\tbl[230][31:0]
+    40/270: $0\tbl[229][31:0]
+    41/270: $0\tbl[228][31:0]
+    42/270: $0\tbl[227][31:0]
+    43/270: $0\tbl[226][31:0]
+    44/270: $0\tbl[225][31:0]
+    45/270: $0\tbl[224][31:0]
+    46/270: $0\tbl[223][31:0]
+    47/270: $0\tbl[222][31:0]
+    48/270: $0\tbl[221][31:0]
+    49/270: $0\tbl[220][31:0]
+    50/270: $0\tbl[219][31:0]
+    51/270: $0\tbl[218][31:0]
+    52/270: $0\tbl[217][31:0]
+    53/270: $0\tbl[216][31:0]
+    54/270: $0\tbl[215][31:0]
+    55/270: $0\tbl[214][31:0]
+    56/270: $0\tbl[213][31:0]
+    57/270: $0\tbl[212][31:0]
+    58/270: $0\tbl[211][31:0]
+    59/270: $0\tbl[210][31:0]
+    60/270: $0\tbl[209][31:0]
+    61/270: $0\tbl[208][31:0]
+    62/270: $0\tbl[207][31:0]
+    63/270: $0\tbl[206][31:0]
+    64/270: $0\tbl[205][31:0]
+    65/270: $0\tbl[204][31:0]
+    66/270: $0\tbl[203][31:0]
+    67/270: $0\tbl[202][31:0]
+    68/270: $0\tbl[201][31:0]
+    69/270: $0\tbl[200][31:0]
+    70/270: $0\tbl[199][31:0]
+    71/270: $0\tbl[198][31:0]
+    72/270: $0\tbl[197][31:0]
+    73/270: $0\tbl[196][31:0]
+    74/270: $0\tbl[195][31:0]
+    75/270: $0\tbl[194][31:0]
+    76/270: $0\tbl[193][31:0]
+    77/270: $0\tbl[192][31:0]
+    78/270: $0\tbl[191][31:0]
+    79/270: $0\tbl[190][31:0]
+    80/270: $0\tbl[189][31:0]
+    81/270: $0\tbl[188][31:0]
+    82/270: $0\tbl[187][31:0]
+    83/270: $0\tbl[186][31:0]
+    84/270: $0\tbl[185][31:0]
+    85/270: $0\tbl[184][31:0]
+    86/270: $0\tbl[183][31:0]
+    87/270: $0\tbl[182][31:0]
+    88/270: $0\tbl[181][31:0]
+    89/270: $0\tbl[180][31:0]
+    90/270: $0\tbl[179][31:0]
+    91/270: $0\tbl[178][31:0]
+    92/270: $0\tbl[177][31:0]
+    93/270: $0\tbl[176][31:0]
+    94/270: $0\tbl[175][31:0]
+    95/270: $0\tbl[174][31:0]
+    96/270: $0\tbl[173][31:0]
+    97/270: $0\tbl[172][31:0]
+    98/270: $0\tbl[171][31:0]
+    99/270: $0\tbl[170][31:0]
+   100/270: $0\tbl[169][31:0]
+   101/270: $0\tbl[168][31:0]
+   102/270: $0\tbl[167][31:0]
+   103/270: $0\tbl[166][31:0]
+   104/270: $0\tbl[165][31:0]
+   105/270: $0\tbl[164][31:0]
+   106/270: $0\tbl[163][31:0]
+   107/270: $0\tbl[162][31:0]
+   108/270: $0\tbl[161][31:0]
+   109/270: $0\tbl[160][31:0]
+   110/270: $0\tbl[159][31:0]
+   111/270: $0\tbl[158][31:0]
+   112/270: $0\tbl[157][31:0]
+   113/270: $0\tbl[156][31:0]
+   114/270: $0\tbl[155][31:0]
+   115/270: $0\tbl[154][31:0]
+   116/270: $0\tbl[153][31:0]
+   117/270: $0\tbl[152][31:0]
+   118/270: $0\tbl[151][31:0]
+   119/270: $0\tbl[150][31:0]
+   120/270: $0\tbl[149][31:0]
+   121/270: $0\tbl[148][31:0]
+   122/270: $0\tbl[147][31:0]
+   123/270: $0\tbl[146][31:0]
+   124/270: $0\tbl[145][31:0]
+   125/270: $0\tbl[144][31:0]
+   126/270: $0\tbl[143][31:0]
+   127/270: $0\tbl[142][31:0]
+   128/270: $0\tbl[141][31:0]
+   129/270: $0\tbl[140][31:0]
+   130/270: $0\tbl[139][31:0]
+   131/270: $0\tbl[138][31:0]
+   132/270: $0\tbl[137][31:0]
+   133/270: $0\tbl[136][31:0]
+   134/270: $0\tbl[135][31:0]
+   135/270: $0\tbl[134][31:0]
+   136/270: $0\tbl[133][31:0]
+   137/270: $0\tbl[132][31:0]
+   138/270: $0\tbl[131][31:0]
+   139/270: $0\tbl[130][31:0]
+   140/270: $0\tbl[129][31:0]
+   141/270: $0\tbl[128][31:0]
+   142/270: $0\tbl[127][31:0]
+   143/270: $0\tbl[126][31:0]
+   144/270: $0\tbl[125][31:0]
+   145/270: $0\tbl[124][31:0]
+   146/270: $0\tbl[123][31:0]
+   147/270: $0\tbl[122][31:0]
+   148/270: $0\tbl[121][31:0]
+   149/270: $0\tbl[120][31:0]
+   150/270: $0\tbl[119][31:0]
+   151/270: $0\tbl[118][31:0]
+   152/270: $0\tbl[117][31:0]
+   153/270: $0\tbl[116][31:0]
+   154/270: $0\tbl[115][31:0]
+   155/270: $0\tbl[114][31:0]
+   156/270: $0\tbl[113][31:0]
+   157/270: $0\tbl[112][31:0]
+   158/270: $0\tbl[111][31:0]
+   159/270: $0\tbl[110][31:0]
+   160/270: $0\tbl[109][31:0]
+   161/270: $0\tbl[108][31:0]
+   162/270: $0\tbl[107][31:0]
+   163/270: $0\tbl[106][31:0]
+   164/270: $0\tbl[105][31:0]
+   165/270: $0\tbl[104][31:0]
+   166/270: $0\tbl[103][31:0]
+   167/270: $0\tbl[102][31:0]
+   168/270: $0\tbl[101][31:0]
+   169/270: $0\tbl[100][31:0]
+   170/270: $0\tbl[99][31:0]
+   171/270: $0\tbl[98][31:0]
+   172/270: $0\tbl[97][31:0]
+   173/270: $0\tbl[96][31:0]
+   174/270: $0\tbl[95][31:0]
+   175/270: $0\tbl[94][31:0]
+   176/270: $0\tbl[93][31:0]
+   177/270: $0\tbl[92][31:0]
+   178/270: $0\tbl[91][31:0]
+   179/270: $0\tbl[90][31:0]
+   180/270: $0\tbl[89][31:0]
+   181/270: $0\tbl[88][31:0]
+   182/270: $0\tbl[87][31:0]
+   183/270: $0\tbl[86][31:0]
+   184/270: $0\tbl[85][31:0]
+   185/270: $0\tbl[84][31:0]
+   186/270: $0\tbl[83][31:0]
+   187/270: $0\tbl[82][31:0]
+   188/270: $0\tbl[81][31:0]
+   189/270: $0\tbl[80][31:0]
+   190/270: $0\tbl[79][31:0]
+   191/270: $0\tbl[78][31:0]
+   192/270: $0\tbl[77][31:0]
+   193/270: $0\tbl[76][31:0]
+   194/270: $0\tbl[75][31:0]
+   195/270: $0\tbl[74][31:0]
+   196/270: $0\tbl[73][31:0]
+   197/270: $0\tbl[72][31:0]
+   198/270: $0\tbl[71][31:0]
+   199/270: $0\tbl[70][31:0]
+   200/270: $0\tbl[69][31:0]
+   201/270: $0\tbl[68][31:0]
+   202/270: $0\tbl[67][31:0]
+   203/270: $0\tbl[66][31:0]
+   204/270: $0\tbl[65][31:0]
+   205/270: $0\tbl[64][31:0]
+   206/270: $0\tbl[63][31:0]
+   207/270: $0\tbl[62][31:0]
+   208/270: $0\tbl[61][31:0]
+   209/270: $0\tbl[60][31:0]
+   210/270: $0\tbl[59][31:0]
+   211/270: $0\tbl[58][31:0]
+   212/270: $0\tbl[57][31:0]
+   213/270: $0\tbl[56][31:0]
+   214/270: $0\tbl[55][31:0]
+   215/270: $0\tbl[54][31:0]
+   216/270: $0\tbl[53][31:0]
+   217/270: $0\tbl[52][31:0]
+   218/270: $0\tbl[51][31:0]
+   219/270: $0\tbl[50][31:0]
+   220/270: $0\tbl[49][31:0]
+   221/270: $0\tbl[48][31:0]
+   222/270: $0\tbl[47][31:0]
+   223/270: $0\tbl[46][31:0]
+   224/270: $0\tbl[45][31:0]
+   225/270: $0\tbl[44][31:0]
+   226/270: $0\tbl[43][31:0]
+   227/270: $0\tbl[42][31:0]
+   228/270: $0\tbl[41][31:0]
+   229/270: $0\tbl[40][31:0]
+   230/270: $0\tbl[39][31:0]
+   231/270: $0\tbl[38][31:0]
+   232/270: $0\tbl[37][31:0]
+   233/270: $0\tbl[36][31:0]
+   234/270: $0\tbl[35][31:0]
+   235/270: $0\tbl[34][31:0]
+   236/270: $0\tbl[33][31:0]
+   237/270: $0\tbl[32][31:0]
+   238/270: $0\tbl[31][31:0]
+   239/270: $0\tbl[30][31:0]
+   240/270: $0\tbl[29][31:0]
+   241/270: $0\tbl[28][31:0]
+   242/270: $0\tbl[27][31:0]
+   243/270: $0\tbl[26][31:0]
+   244/270: $0\tbl[25][31:0]
+   245/270: $0\tbl[24][31:0]
+   246/270: $0\tbl[23][31:0]
+   247/270: $0\tbl[22][31:0]
+   248/270: $0\tbl[21][31:0]
+   249/270: $0\tbl[20][31:0]
+   250/270: $0\tbl[19][31:0]
+   251/270: $0\tbl[18][31:0]
+   252/270: $0\tbl[17][31:0]
+   253/270: $0\tbl[16][31:0]
+   254/270: $0\tbl[15][31:0]
+   255/270: $0\tbl[14][31:0]
+   256/270: $0\tbl[13][31:0]
+   257/270: $0\tbl[12][31:0]
+   258/270: $0\tbl[11][31:0]
+   259/270: $0\tbl[10][31:0]
+   260/270: $0\tbl[9][31:0]
+   261/270: $0\tbl[8][31:0]
+   262/270: $0\tbl[7][31:0]
+   263/270: $0\tbl[6][31:0]
+   264/270: $0\tbl[5][31:0]
+   265/270: $0\tbl[4][31:0]
+   266/270: $0\tbl[3][31:0]
+   267/270: $0\tbl[2][31:0]
+   268/270: $0\tbl[1][31:0]
+   269/270: $0\tbl[0][31:0]
+   270/270: $0\bitmap[3:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+ERROR: Multiple edge sensitive events found for this signal!

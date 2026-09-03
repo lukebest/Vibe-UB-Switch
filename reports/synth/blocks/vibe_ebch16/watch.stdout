@@ -1,0 +1,1 @@
+synth ok  top=vibe_ebch16  netlist=/workspace/scripts/synth/work/blocks/vibe_ebch16/vibe_ebch16.synth.v  reports=/workspace/reports/synth/blocks/vibe_ebch16

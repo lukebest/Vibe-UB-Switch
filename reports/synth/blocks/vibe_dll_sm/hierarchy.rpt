@@ -1,0 +1,25 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_dll_sm ===
+
+   Number of wires:                 22
+   Number of wire bits:             30
+   Number of public wires:          11
+   Number of public wire bits:      13
+   Number of ports:                 10
+   Number of port bits:             11
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 14
+     $adffe                          1
+     $eq                             3
+     $logic_not                      1
+     $mux                            5
+     $ne                             2
+     $pmux                           1
+     $reduce_and                     1
+

@@ -1,0 +1,4 @@
+STATUS: not_run_by_yosys
+NOTE: Yosys synth does not produce WNS/TNS. OpenSTA was not run (no mapped
+      full-chip netlist). Sky130 cannot close spec 1.25 GHz; that is a
+      known node risk, not a missing report file.

@@ -1,0 +1,1331 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_pcs_rx_amctl_lock/vibe_pcs_rx_amctl_lock.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/pcs/vibe_ebch16.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/pcs/vibe_ebch16.sv
+Parsing SystemVerilog input from `/workspace/rtl/pcs/vibe_ebch16.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_ebch16'.
+Successfully finished Verilog frontend.
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv
+
+2. Executing Verilog-2005 frontend: /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv
+Parsing SystemVerilog input from `/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_pcs_rx_amctl_lock'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_pcs_rx_amctl_lock -run :fine
+
+3. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_pcs_rx_amctl_lock
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \vibe_pcs_rx_amctl_lock
+Used module:     \vibe_ebch16
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \vibe_pcs_rx_amctl_lock
+Used module:     \vibe_ebch16
+Removed 0 unused modules.
+
+yosys> proc
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 11 switch rules as full_case in process $proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31 in module vibe_pcs_rx_amctl_lock.
+Marked 1 switch rules as full_case in process $proc$/workspace/rtl/pcs/vibe_ebch16.sv:6$1 in module vibe_ebch16.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 2 redundant assignments.
+Promoted 3 assignments to connections.
+
+yosys> proc_init
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+
+yosys> proc_rom
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 1 switch.
+<suppressed ~11 debug messages>
+
+yosys> proc_mux
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+     1/22: $8\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$51
+     2/22: $7\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$49
+     3/22: $6\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$47
+     4/22: $5\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$45
+     5/22: $4\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$42
+     6/22: $4\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.s[15:0]$43
+     7/22: $3\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.s[15:0]$40
+     8/22: $3\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$39
+     9/22: $2\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.s[15:0]$38
+    10/22: $2\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$37
+    11/22: $1\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.s[15:0]$36
+    12/22: $1\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$35
+    13/22: $0\edf[0:0]
+    14/22: $0\sdf[0:0]
+    15/22: $0\via_leg[0:0]
+    16/22: $0\have[0:0]
+    17/22: $0\prev[159:0]
+    18/22: $0\unlk[1:0]
+    19/22: $0\conf[1:0]
+    20/22: $0\lid_bad[0:0]
+    21/22: $0\lid[1:0]
+    22/22: $0\locked[0:0]
+Creating decoders for process `\vibe_ebch16.$proc$/workspace/rtl/pcs/vibe_ebch16.sv:6$1'.
+     1/1: $1\cw[15:0]
+
+yosys> proc_dlatch
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\vibe_ebch16.\cw' from process `\vibe_ebch16.$proc$/workspace/rtl/pcs/vibe_ebch16.sv:6$1'.
+
+yosys> proc_dff
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\locked' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$279' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\lid' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$284' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\lid_bad' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$289' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\sdf' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$294' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\edf' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$299' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\conf' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$304' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\unlk' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$309' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\prev' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$314' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\have' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$319' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\via_leg' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$324' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$329' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_amctl_lock.\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.s' using process `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+  created $adff cell `$procdff$334' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 11 empty switches in `\vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+Removing empty process `vibe_pcs_rx_amctl_lock.$proc$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:69$31'.
+Found and cleaned up 1 empty switch in `\vibe_ebch16.$proc$/workspace/rtl/pcs/vibe_ebch16.sv:6$1'.
+Removing empty process `vibe_ebch16.$proc$/workspace/rtl/pcs/vibe_ebch16.sv:6$1'.
+Cleaned up 12 empty switches.
+
+yosys> opt_expr -keepdc
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_amctl_lock.
+<suppressed ~28 debug messages>
+Optimizing module vibe_ebch16.
+
+yosys> opt_expr
+
+3.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_amctl_lock.
+Optimizing module vibe_ebch16.
+
+yosys> opt_clean
+
+3.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Finding unused cells or wires in module \vibe_ebch16..
+Removed 28 unused cells and 147 unused wires.
+<suppressed ~31 debug messages>
+
+yosys> check
+
+3.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_ebch16...
+Checking module vibe_pcs_rx_amctl_lock...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+3.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+3.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+yosys> opt_merge -nomux
+
+3.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+<suppressed ~15 debug messages>
+Removed a total of 5 cells.
+
+yosys> opt_muxtree
+
+3.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$101.
+    dead port 1/2 on $mux $procmux$110.
+    dead port 2/2 on $mux $procmux$112.
+    dead port 2/2 on $mux $procmux$114.
+    dead port 2/2 on $mux $procmux$116.
+    dead port 2/2 on $mux $procmux$124.
+    dead port 2/2 on $mux $procmux$126.
+    dead port 2/2 on $mux $procmux$128.
+    dead port 1/2 on $mux $procmux$71.
+    dead port 1/2 on $mux $procmux$74.
+    dead port 1/2 on $mux $procmux$77.
+    dead port 2/2 on $mux $procmux$79.
+    dead port 2/2 on $mux $procmux$81.
+    dead port 2/2 on $mux $procmux$83.
+    dead port 1/2 on $mux $procmux$92.
+    dead port 1/2 on $mux $procmux$95.
+    dead port 2/2 on $mux $procmux$97.
+    dead port 2/2 on $mux $procmux$99.
+Removed 18 multiplexer ports.
+<suppressed ~11 debug messages>
+
+yosys> opt_reduce
+
+3.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+3.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 0 unused cells and 23 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+3.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+3.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~11 debug messages>
+
+yosys> opt_reduce
+
+3.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+3.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> opt_expr
+
+3.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+3.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+3.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking vibe_pcs_rx_amctl_lock.lid as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+yosys> fsm_extract
+
+3.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+3.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+3.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> fsm_opt
+
+3.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+3.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+3.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+3.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+yosys> opt_merge -nomux
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~11 debug messages>
+
+yosys> opt_reduce
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+3.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$324 ($adff) from module vibe_pcs_rx_amctl_lock (D = $procmux$188_Y, Q = \via_leg).
+Adding EN signal on $procdff$319 ($adff) from module vibe_pcs_rx_amctl_lock (D = $procmux$196_Y, Q = \have).
+Adding EN signal on $procdff$314 ($adff) from module vibe_pcs_rx_amctl_lock (D = \in_data, Q = \prev).
+Adding EN signal on $procdff$309 ($adff) from module vibe_pcs_rx_amctl_lock (D = $procmux$218_Y, Q = \unlk).
+Adding EN signal on $procdff$304 ($adff) from module vibe_pcs_rx_amctl_lock (D = $procmux$235_Y, Q = \conf).
+Adding EN signal on $procdff$289 ($adff) from module vibe_pcs_rx_amctl_lock (D = 1'1, Q = \lid_bad).
+Adding EN signal on $procdff$284 ($adff) from module vibe_pcs_rx_amctl_lock (D = $5\dec_lid$func$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:89$2.$result[1:0]$45, Q = \lid).
+Adding EN signal on $procdff$279 ($adff) from module vibe_pcs_rx_amctl_lock (D = $procmux$270_Y, Q = \locked).
+
+yosys> opt_clean
+
+3.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 13 unused cells and 13 unused wires.
+<suppressed ~14 debug messages>
+
+yosys> opt_expr
+
+3.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+<suppressed ~4 debug messages>
+
+3.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+3.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~9 debug messages>
+
+yosys> opt_reduce
+
+3.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+<suppressed ~33 debug messages>
+Removed a total of 11 cells.
+
+yosys> opt_dff
+
+3.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 0 unused cells and 11 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+3.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+3.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+yosys> opt_reduce
+
+3.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+3.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> opt_expr
+
+3.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 27 address bits (of 32) from memory init port vibe_ebch16.$auto$mem.cc:328:emit$63 ($auto$proc_rom.cc:155:do_switch$61).
+Removed top 1 bits (of 2) from port B of cell vibe_pcs_rx_amctl_lock.$auto$opt_dff.cc:195:make_patterns_logic$384 ($ne).
+Removed top 2 bits (of 3) from port B of cell vibe_pcs_rx_amctl_lock.$auto$opt_dff.cc:195:make_patterns_logic$339 ($ne).
+Removed top 1 bits (of 2) from port B of cell vibe_pcs_rx_amctl_lock.$add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:96$53 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_pcs_rx_amctl_lock.$add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:115$59 ($add).
+Removed top 1 bits (of 4) from port B of cell vibe_pcs_rx_amctl_lock.$auto$opt_dff.cc:195:make_patterns_logic$341 ($ne).
+
+yosys> peepopt
+
+3.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+3.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> alumacc
+
+3.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_ebch16:
+  created 0 $alu and 0 $macc cells.
+Extracting $alu and $macc cells in module vibe_pcs_rx_amctl_lock:
+  creating $macc model for $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:115$59 ($add).
+  creating $macc model for $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:96$53 ($add).
+  creating $alu model for $macc $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:96$53.
+  creating $alu model for $macc $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:115$59.
+  creating $alu model for $ge$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:109$58 ($ge): new $alu
+  creating $alu model for $ge$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:93$52 ($ge): new $alu
+  creating $alu cell for $ge$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:93$52: $auto$alumacc.cc:495:replace_alu$389
+  creating $alu cell for $ge$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:109$58: $auto$alumacc.cc:495:replace_alu$402
+  creating $alu cell for $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:115$59: $auto$alumacc.cc:495:replace_alu$415
+  creating $alu cell for $add$/workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:96$53: $auto$alumacc.cc:495:replace_alu$418
+  created 4 $alu and 0 $macc cells.
+
+yosys> share
+
+3.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+3.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+3.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+yosys> opt_merge -nomux
+
+3.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+3.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+yosys> opt_reduce
+
+3.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+3.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+3.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+3.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_ebch16..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \vibe_pcs_rx_amctl_lock..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+yosys> opt_reduce
+
+3.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_ebch16.
+  Optimizing cells in module \vibe_pcs_rx_amctl_lock.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+3.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+3.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+3.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> opt_expr
+
+3.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+
+3.14.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+3.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+3.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+3.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+3.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+3.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+3.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+Checking read port `$auto$proc_rom.cc:155:do_switch$61'[0] in module `\vibe_ebch16': no output FF found.
+Checking read port address `$auto$proc_rom.cc:155:do_switch$61'[0] in module `\vibe_ebch16': no address FF found.
+
+yosys> opt_clean
+
+3.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> memory_share
+
+3.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+3.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+3.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> memory_collect
+
+3.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+3.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_pcs_rx_amctl_lock/hierarchy.rpt stat
+
+yosys> stat
+
+4. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+=== vibe_pcs_rx_amctl_lock ===
+
+   Number of wires:                112
+   Number of wire bits:            578
+   Number of public wires:          31
+   Number of public wire bits:     472
+   Number of ports:                 10
+   Number of port bits:            170
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                100
+     $adff                           2
+     $adffe                          8
+     $alu                            4
+     $eq                            13
+     $logic_and                      7
+     $logic_not                      2
+     $logic_or                       8
+     $mux                           25
+     $ne                             4
+     $not                            6
+     $or                             2
+     $reduce_and                     9
+     $reduce_bool                    1
+     $reduce_or                      2
+     vibe_ebch16                     7
+
+=== design hierarchy ===
+
+   vibe_pcs_rx_amctl_lock            1
+     vibe_ebch16                     7
+
+   Number of wires:                126
+   Number of wire bits:            725
+   Number of public wires:          45
+   Number of public wire bits:     619
+   Number of ports:                 24
+   Number of port bits:            317
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                100
+     $adff                           2
+     $adffe                          8
+     $alu                            4
+     $eq                            13
+     $logic_and                      7
+     $logic_not                      2
+     $logic_or                       8
+     $mem_v2                         7
+     $mux                           25
+     $ne                             4
+     $not                            6
+     $or                             2
+     $reduce_and                     9
+     $reduce_bool                    1
+     $reduce_or                      2
+
+
+yosys> opt -fast -full
+
+5. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+5.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+<suppressed ~17 debug messages>
+
+yosys> opt_merge
+
+5.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+yosys> opt_dff
+
+5.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+5.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 0 unused cells and 13 unused wires.
+<suppressed ~1 debug messages>
+
+5.5. Finished fast OPT passes.
+
+yosys> techmap
+
+6. Executing TECHMAP pass (map to technology primitives).
+
+6.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+6.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $logic_not.
+Using template $paramod$fc972a7a46956c1788f3cb5257b53c8f1df2d0cc\_90_alu for cells of type $alu.
+Using template $paramod$175e67c02b86e96b1288b9dc100122520d7240d8\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000001 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000010 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~566 debug messages>
+
+yosys> opt -fast
+
+7. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_ebch16.
+Optimizing module vibe_pcs_rx_amctl_lock.
+<suppressed ~76 debug messages>
+
+yosys> opt_merge
+
+7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_ebch16'.
+Finding identical cells in module `\vibe_pcs_rx_amctl_lock'.
+<suppressed ~147 debug messages>
+Removed a total of 49 cells.
+
+yosys> opt_dff
+
+7.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 98 unused cells and 158 unused wires.
+<suppressed ~99 debug messages>
+
+7.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+8.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_ebch16':
+Mapping DFF cells in module `\vibe_pcs_rx_amctl_lock':
+  mapped 76 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+9. Executing ABC pass (technology mapping using ABC).
+
+9.1. Extracting gate netlist of module `\vibe_ebch16' to `<abc-temp-dir>/input.blif'..
+Extracted 0 gates and 0 wires to a netlist network with 0 inputs and 0 outputs.
+Don't call ABC as there is nothing to map.
+Removing temp directory.
+
+9.2. Extracting gate netlist of module `\vibe_pcs_rx_amctl_lock' to `<abc-temp-dir>/input.blif'..
+Extracted 803 gates and 1136 wires to a netlist network with 331 inputs and 77 outputs.
+
+9.2.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+9.2.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a2111oi_0 cells:        9
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21boi_0 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:       15
+ABC RESULTS:   sky130_fd_sc_hd__a221oi_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a2bb2oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31o_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__a41o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:       13
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        9
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__mux2_1 cells:       62
+ABC RESULTS:   sky130_fd_sc_hd__mux2i_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       15
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:       18
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:       22
+ABC RESULTS:   sky130_fd_sc_hd__nand4b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:       20
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:       48
+ABC RESULTS:   sky130_fd_sc_hd__nor4b_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o2111ai_1 cells:       10
+ABC RESULTS:   sky130_fd_sc_hd__o211a_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__o211ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       19
+ABC RESULTS:   sky130_fd_sc_hd__o21bai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o22a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o22ai_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o2bb2ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__or3_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__or4_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__or4b_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:      133
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:      146
+ABC RESULTS:        internal signals:      728
+ABC RESULTS:           input signals:      331
+ABC RESULTS:          output signals:       77
+Removing temp directory.
+
+yosys> opt_clean
+
+10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_ebch16..
+Finding unused cells or wires in module \vibe_pcs_rx_amctl_lock..
+Removed 0 unused cells and 555 unused wires.
+<suppressed ~10 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_pcs_rx_amctl_lock/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+11. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+   Area for cell type $mem_v2 is unknown!
+
+=== vibe_pcs_rx_amctl_lock ===
+
+   Number of wires:                641
+   Number of wire bits:           1067
+   Number of public wires:          22
+   Number of public wire bits:     448
+   Number of ports:                 10
+   Number of port bits:            170
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                703
+     sky130_fd_sc_hd__a2111oi_0      9
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       5
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1       15
+     sky130_fd_sc_hd__a221oi_1       2
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31o_1         3
+     sky130_fd_sc_hd__a31oi_1       12
+     sky130_fd_sc_hd__a41o_1         1
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and4_1         4
+     sky130_fd_sc_hd__clkinv_1      13
+     sky130_fd_sc_hd__dfrtp_1       76
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      9
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      4
+     sky130_fd_sc_hd__mux2_1        62
+     sky130_fd_sc_hd__mux2i_1        3
+     sky130_fd_sc_hd__nand2_1       15
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1       18
+     sky130_fd_sc_hd__nand4_1       22
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1        12
+     sky130_fd_sc_hd__nor3_1        20
+     sky130_fd_sc_hd__nor4_1        48
+     sky130_fd_sc_hd__nor4b_1        3
+     sky130_fd_sc_hd__o2111ai_1     10
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       19
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o22a_1         1
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1      1
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__or3_1          2
+     sky130_fd_sc_hd__or4_1          7
+     sky130_fd_sc_hd__or4b_1         2
+     sky130_fd_sc_hd__xnor2_1      133
+     sky130_fd_sc_hd__xor2_1       146
+     vibe_ebch16                     7
+
+   Area for cell type \vibe_ebch16 is unknown!
+
+   Chip area for module '\vibe_pcs_rx_amctl_lock': 6745.219200
+     of which used for sequential elements: 1901.824000 (28.20%)
+
+=== design hierarchy ===
+
+   vibe_pcs_rx_amctl_lock            1
+     vibe_ebch16                     7
+
+   Number of wires:                655
+   Number of wire bits:           1214
+   Number of public wires:          36
+   Number of public wire bits:     595
+   Number of ports:                 24
+   Number of port bits:            317
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                703
+     $mem_v2                         7
+     sky130_fd_sc_hd__a2111oi_0      9
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       5
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1       15
+     sky130_fd_sc_hd__a221oi_1       2
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31o_1         3
+     sky130_fd_sc_hd__a31oi_1       12
+     sky130_fd_sc_hd__a41o_1         1
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and4_1         4
+     sky130_fd_sc_hd__clkinv_1      13
+     sky130_fd_sc_hd__dfrtp_1       76
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      9
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      4
+     sky130_fd_sc_hd__mux2_1        62
+     sky130_fd_sc_hd__mux2i_1        3
+     sky130_fd_sc_hd__nand2_1       15
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1       18
+     sky130_fd_sc_hd__nand4_1       22
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1        12
+     sky130_fd_sc_hd__nor3_1        20
+     sky130_fd_sc_hd__nor4_1        48
+     sky130_fd_sc_hd__nor4b_1        3
+     sky130_fd_sc_hd__o2111ai_1     10
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       19
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o22a_1         1
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1      1
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__or3_1          2
+     sky130_fd_sc_hd__or4_1          7
+     sky130_fd_sc_hd__or4b_1         2
+     sky130_fd_sc_hd__xnor2_1      133
+     sky130_fd_sc_hd__xor2_1       146
+
+   Area for cell type $mem_v2 is unknown!
+
+   Chip area for top module '\vibe_pcs_rx_amctl_lock': 6745.219200
+     of which used for sequential elements: 1901.824000 (28.20%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_pcs_rx_amctl_lock/vibe_pcs_rx_amctl_lock.synth.v
+
+12. Executing Verilog backend.
+
+yosys> bmuxmap
+
+12.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+12.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_ebch16'.
+Dumping module `\vibe_pcs_rx_amctl_lock'.
+
+End of script. Logfile hash: 98fe2a3e13, CPU: user 0.19s system 0.01s, MEM: 43.83 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 60% 1x abc (0 sec), 9% 1x dfflibmap (0 sec), ...

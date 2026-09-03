@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:                515
+   Chip area for module '\vibe_nw_adapt': 5788.051200
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

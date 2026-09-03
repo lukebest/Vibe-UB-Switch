@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:                 26
+   Chip area for module '\vibe_pcs_rx_deskew': 300.288000
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

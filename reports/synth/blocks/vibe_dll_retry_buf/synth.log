@@ -1,0 +1,2380 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_dll_retry_buf/vibe_dll_retry_buf.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/dll/vibe_dll_retry_buf.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/dll/vibe_dll_retry_buf.sv
+Parsing SystemVerilog input from `/workspace/rtl/dll/vibe_dll_retry_buf.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_dll_retry_buf'.
+Warning: Replacing memory \mem with list of registers. See /workspace/rtl/dll/vibe_dll_retry_buf.sv:51
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_dll_retry_buf -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_dll_retry_buf
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_dll_retry_buf
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_dll_retry_buf
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 1 dead cases from process $proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28 in module vibe_dll_retry_buf.
+Marked 1 switch rules as full_case in process $proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28 in module vibe_dll_retry_buf.
+Marked 5 switch rules as full_case in process $proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4 in module vibe_dll_retry_buf.
+Removed a total of 1 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 3 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~6 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28'.
+     1/1: $1$mem2reg_rd$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:35$1_DATA[159:0]$30
+Creating decoders for process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+     1/267: $3$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_ADDR[7:0]$19
+     2/267: $3$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_DATA[159:0]$20
+     3/267: $2$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_DATA[159:0]$13
+     4/267: $2$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_ADDR[7:0]$12
+     5/267: $1$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_DATA[159:0]$9
+     6/267: $1$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_ADDR[7:0]$8
+     7/267: $0\mem[255][159:0]
+     8/267: $0\mem[254][159:0]
+     9/267: $0\mem[253][159:0]
+    10/267: $0\mem[252][159:0]
+    11/267: $0\mem[251][159:0]
+    12/267: $0\mem[250][159:0]
+    13/267: $0\mem[249][159:0]
+    14/267: $0\mem[248][159:0]
+    15/267: $0\mem[247][159:0]
+    16/267: $0\mem[246][159:0]
+    17/267: $0\mem[245][159:0]
+    18/267: $0\mem[244][159:0]
+    19/267: $0\mem[243][159:0]
+    20/267: $0\mem[242][159:0]
+    21/267: $0\mem[241][159:0]
+    22/267: $0\mem[240][159:0]
+    23/267: $0\mem[239][159:0]
+    24/267: $0\mem[238][159:0]
+    25/267: $0\mem[237][159:0]
+    26/267: $0\mem[236][159:0]
+    27/267: $0\mem[235][159:0]
+    28/267: $0\mem[234][159:0]
+    29/267: $0\mem[233][159:0]
+    30/267: $0\mem[232][159:0]
+    31/267: $0\mem[231][159:0]
+    32/267: $0\mem[230][159:0]
+    33/267: $0\mem[229][159:0]
+    34/267: $0\mem[228][159:0]
+    35/267: $0\mem[227][159:0]
+    36/267: $0\mem[226][159:0]
+    37/267: $0\mem[225][159:0]
+    38/267: $0\mem[224][159:0]
+    39/267: $0\mem[223][159:0]
+    40/267: $0\mem[222][159:0]
+    41/267: $0\mem[221][159:0]
+    42/267: $0\mem[220][159:0]
+    43/267: $0\mem[219][159:0]
+    44/267: $0\mem[218][159:0]
+    45/267: $0\mem[217][159:0]
+    46/267: $0\mem[216][159:0]
+    47/267: $0\mem[215][159:0]
+    48/267: $0\mem[214][159:0]
+    49/267: $0\mem[213][159:0]
+    50/267: $0\mem[212][159:0]
+    51/267: $0\mem[211][159:0]
+    52/267: $0\mem[210][159:0]
+    53/267: $0\mem[209][159:0]
+    54/267: $0\mem[208][159:0]
+    55/267: $0\mem[207][159:0]
+    56/267: $0\mem[206][159:0]
+    57/267: $0\mem[205][159:0]
+    58/267: $0\mem[204][159:0]
+    59/267: $0\mem[203][159:0]
+    60/267: $0\mem[202][159:0]
+    61/267: $0\mem[201][159:0]
+    62/267: $0\mem[200][159:0]
+    63/267: $0\mem[199][159:0]
+    64/267: $0\mem[198][159:0]
+    65/267: $0\mem[197][159:0]
+    66/267: $0\mem[196][159:0]
+    67/267: $0\mem[195][159:0]
+    68/267: $0\mem[194][159:0]
+    69/267: $0\mem[193][159:0]
+    70/267: $0\mem[192][159:0]
+    71/267: $0\mem[191][159:0]
+    72/267: $0\mem[190][159:0]
+    73/267: $0\mem[189][159:0]
+    74/267: $0\mem[188][159:0]
+    75/267: $0\mem[187][159:0]
+    76/267: $0\mem[186][159:0]
+    77/267: $0\mem[185][159:0]
+    78/267: $0\mem[184][159:0]
+    79/267: $0\mem[183][159:0]
+    80/267: $0\mem[182][159:0]
+    81/267: $0\mem[181][159:0]
+    82/267: $0\mem[180][159:0]
+    83/267: $0\mem[179][159:0]
+    84/267: $0\mem[178][159:0]
+    85/267: $0\mem[177][159:0]
+    86/267: $0\mem[176][159:0]
+    87/267: $0\mem[175][159:0]
+    88/267: $0\mem[174][159:0]
+    89/267: $0\mem[173][159:0]
+    90/267: $0\mem[172][159:0]
+    91/267: $0\mem[171][159:0]
+    92/267: $0\mem[170][159:0]
+    93/267: $0\mem[169][159:0]
+    94/267: $0\mem[168][159:0]
+    95/267: $0\mem[167][159:0]
+    96/267: $0\mem[166][159:0]
+    97/267: $0\mem[165][159:0]
+    98/267: $0\mem[164][159:0]
+    99/267: $0\mem[163][159:0]
+   100/267: $0\mem[162][159:0]
+   101/267: $0\mem[161][159:0]
+   102/267: $0\mem[160][159:0]
+   103/267: $0\mem[159][159:0]
+   104/267: $0\mem[158][159:0]
+   105/267: $0\mem[157][159:0]
+   106/267: $0\mem[156][159:0]
+   107/267: $0\mem[155][159:0]
+   108/267: $0\mem[154][159:0]
+   109/267: $0\mem[153][159:0]
+   110/267: $0\mem[152][159:0]
+   111/267: $0\mem[151][159:0]
+   112/267: $0\mem[150][159:0]
+   113/267: $0\mem[149][159:0]
+   114/267: $0\mem[148][159:0]
+   115/267: $0\mem[147][159:0]
+   116/267: $0\mem[146][159:0]
+   117/267: $0\mem[145][159:0]
+   118/267: $0\mem[144][159:0]
+   119/267: $0\mem[143][159:0]
+   120/267: $0\mem[142][159:0]
+   121/267: $0\mem[141][159:0]
+   122/267: $0\mem[140][159:0]
+   123/267: $0\mem[139][159:0]
+   124/267: $0\mem[138][159:0]
+   125/267: $0\mem[137][159:0]
+   126/267: $0\mem[136][159:0]
+   127/267: $0\mem[135][159:0]
+   128/267: $0\mem[134][159:0]
+   129/267: $0\mem[133][159:0]
+   130/267: $0\mem[132][159:0]
+   131/267: $0\mem[131][159:0]
+   132/267: $0\mem[130][159:0]
+   133/267: $0\mem[129][159:0]
+   134/267: $0\mem[128][159:0]
+   135/267: $0\mem[127][159:0]
+   136/267: $0\mem[126][159:0]
+   137/267: $0\mem[125][159:0]
+   138/267: $0\mem[124][159:0]
+   139/267: $0\mem[123][159:0]
+   140/267: $0\mem[122][159:0]
+   141/267: $0\mem[121][159:0]
+   142/267: $0\mem[120][159:0]
+   143/267: $0\mem[119][159:0]
+   144/267: $0\mem[118][159:0]
+   145/267: $0\mem[117][159:0]
+   146/267: $0\mem[116][159:0]
+   147/267: $0\mem[115][159:0]
+   148/267: $0\mem[114][159:0]
+   149/267: $0\mem[113][159:0]
+   150/267: $0\mem[112][159:0]
+   151/267: $0\mem[111][159:0]
+   152/267: $0\mem[110][159:0]
+   153/267: $0\mem[109][159:0]
+   154/267: $0\mem[108][159:0]
+   155/267: $0\mem[107][159:0]
+   156/267: $0\mem[106][159:0]
+   157/267: $0\mem[105][159:0]
+   158/267: $0\mem[104][159:0]
+   159/267: $0\mem[103][159:0]
+   160/267: $0\mem[102][159:0]
+   161/267: $0\mem[101][159:0]
+   162/267: $0\mem[100][159:0]
+   163/267: $0\mem[99][159:0]
+   164/267: $0\mem[98][159:0]
+   165/267: $0\mem[97][159:0]
+   166/267: $0\mem[96][159:0]
+   167/267: $0\mem[95][159:0]
+   168/267: $0\mem[94][159:0]
+   169/267: $0\mem[93][159:0]
+   170/267: $0\mem[92][159:0]
+   171/267: $0\mem[91][159:0]
+   172/267: $0\mem[90][159:0]
+   173/267: $0\mem[89][159:0]
+   174/267: $0\mem[88][159:0]
+   175/267: $0\mem[87][159:0]
+   176/267: $0\mem[86][159:0]
+   177/267: $0\mem[85][159:0]
+   178/267: $0\mem[84][159:0]
+   179/267: $0\mem[83][159:0]
+   180/267: $0\mem[82][159:0]
+   181/267: $0\mem[81][159:0]
+   182/267: $0\mem[80][159:0]
+   183/267: $0\mem[79][159:0]
+   184/267: $0\mem[78][159:0]
+   185/267: $0\mem[77][159:0]
+   186/267: $0\mem[76][159:0]
+   187/267: $0\mem[75][159:0]
+   188/267: $0\mem[74][159:0]
+   189/267: $0\mem[73][159:0]
+   190/267: $0\mem[72][159:0]
+   191/267: $0\mem[71][159:0]
+   192/267: $0\mem[70][159:0]
+   193/267: $0\mem[69][159:0]
+   194/267: $0\mem[68][159:0]
+   195/267: $0\mem[67][159:0]
+   196/267: $0\mem[66][159:0]
+   197/267: $0\mem[65][159:0]
+   198/267: $0\mem[64][159:0]
+   199/267: $0\mem[63][159:0]
+   200/267: $0\mem[62][159:0]
+   201/267: $0\mem[61][159:0]
+   202/267: $0\mem[60][159:0]
+   203/267: $0\mem[59][159:0]
+   204/267: $0\mem[58][159:0]
+   205/267: $0\mem[57][159:0]
+   206/267: $0\mem[56][159:0]
+   207/267: $0\mem[55][159:0]
+   208/267: $0\mem[54][159:0]
+   209/267: $0\mem[53][159:0]
+   210/267: $0\mem[52][159:0]
+   211/267: $0\mem[51][159:0]
+   212/267: $0\mem[50][159:0]
+   213/267: $0\mem[49][159:0]
+   214/267: $0\mem[48][159:0]
+   215/267: $0\mem[47][159:0]
+   216/267: $0\mem[46][159:0]
+   217/267: $0\mem[45][159:0]
+   218/267: $0\mem[44][159:0]
+   219/267: $0\mem[43][159:0]
+   220/267: $0\mem[42][159:0]
+   221/267: $0\mem[41][159:0]
+   222/267: $0\mem[40][159:0]
+   223/267: $0\mem[39][159:0]
+   224/267: $0\mem[38][159:0]
+   225/267: $0\mem[37][159:0]
+   226/267: $0\mem[36][159:0]
+   227/267: $0\mem[35][159:0]
+   228/267: $0\mem[34][159:0]
+   229/267: $0\mem[33][159:0]
+   230/267: $0\mem[32][159:0]
+   231/267: $0\mem[31][159:0]
+   232/267: $0\mem[30][159:0]
+   233/267: $0\mem[29][159:0]
+   234/267: $0\mem[28][159:0]
+   235/267: $0\mem[27][159:0]
+   236/267: $0\mem[26][159:0]
+   237/267: $0\mem[25][159:0]
+   238/267: $0\mem[24][159:0]
+   239/267: $0\mem[23][159:0]
+   240/267: $0\mem[22][159:0]
+   241/267: $0\mem[21][159:0]
+   242/267: $0\mem[20][159:0]
+   243/267: $0\mem[19][159:0]
+   244/267: $0\mem[18][159:0]
+   245/267: $0\mem[17][159:0]
+   246/267: $0\mem[16][159:0]
+   247/267: $0\mem[15][159:0]
+   248/267: $0\mem[14][159:0]
+   249/267: $0\mem[13][159:0]
+   250/267: $0\mem[12][159:0]
+   251/267: $0\mem[11][159:0]
+   252/267: $0\mem[10][159:0]
+   253/267: $0\mem[9][159:0]
+   254/267: $0\mem[8][159:0]
+   255/267: $0\mem[7][159:0]
+   256/267: $0\mem[6][159:0]
+   257/267: $0\mem[5][159:0]
+   258/267: $0\mem[4][159:0]
+   259/267: $0\mem[3][159:0]
+   260/267: $0\mem[2][159:0]
+   261/267: $0\mem[1][159:0]
+   262/267: $0\mem[0][159:0]
+   263/267: $0\freeb[8:0]
+   264/267: $0\rcv[7:0]
+   265/267: $0\tail[7:0]
+   266/267: $0\wrp[7:0]
+   267/267: $0\proto_err[0:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\vibe_dll_retry_buf.$mem2reg_rd$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:35$1_DATA' from process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28'.
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_dll_retry_buf.\proto_err' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$35039' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.\wrp' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$35044' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.\tail' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$35049' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.\rcv' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$35054' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.\freeb' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$35059' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.\mem[0]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35066' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[1]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35073' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[2]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35080' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[3]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35087' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[4]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35094' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[5]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35101' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[6]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35108' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[7]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35115' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[8]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35122' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[9]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35129' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[10]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35136' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[11]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35143' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[12]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35150' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[13]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35157' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[14]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35164' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[15]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35171' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[16]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35178' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[17]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35185' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[18]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35192' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[19]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35199' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[20]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35206' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[21]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35213' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[22]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35220' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[23]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35227' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[24]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35234' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[25]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35241' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[26]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35248' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[27]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35255' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[28]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35262' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[29]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35269' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[30]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35276' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[31]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35283' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[32]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35290' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[33]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35297' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[34]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35304' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[35]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35311' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[36]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35318' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[37]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35325' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[38]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35332' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[39]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35339' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[40]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35346' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[41]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35353' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[42]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35360' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[43]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35367' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[44]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35374' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[45]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35381' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[46]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35388' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[47]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35395' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[48]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35402' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[49]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35409' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[50]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35416' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[51]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35423' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[52]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35430' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[53]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35437' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[54]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35444' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[55]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35451' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[56]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35458' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[57]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35465' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[58]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35472' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[59]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35479' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[60]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35486' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[61]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35493' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[62]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35500' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[63]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35507' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[64]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35514' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[65]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35521' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[66]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35528' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[67]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35535' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[68]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35542' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[69]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35549' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[70]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35556' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[71]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35563' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[72]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35570' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[73]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35577' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[74]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35584' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[75]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35591' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[76]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35598' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[77]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35605' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[78]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35612' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[79]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35619' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[80]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35626' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[81]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35633' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[82]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35640' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[83]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35647' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[84]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35654' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[85]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35661' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[86]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35668' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[87]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35675' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[88]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35682' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[89]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35689' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[90]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35696' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[91]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35703' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[92]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35710' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[93]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35717' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[94]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35724' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[95]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35731' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[96]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35738' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[97]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35745' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[98]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35752' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[99]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35759' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[100]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35766' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[101]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35773' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[102]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35780' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[103]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35787' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[104]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35794' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[105]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35801' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[106]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35808' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[107]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35815' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[108]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35822' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[109]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35829' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[110]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35836' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[111]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35843' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[112]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35850' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[113]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35857' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[114]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35864' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[115]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35871' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[116]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35878' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[117]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35885' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[118]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35892' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[119]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35899' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[120]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35906' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[121]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35913' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[122]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35920' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[123]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35927' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[124]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35934' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[125]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35941' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[126]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35948' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[127]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35955' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[128]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35962' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[129]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35969' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[130]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35976' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[131]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35983' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[132]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35990' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[133]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$35997' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[134]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36004' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[135]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36011' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[136]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36018' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[137]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36025' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[138]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36032' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[139]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36039' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[140]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36046' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[141]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36053' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[142]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36060' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[143]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36067' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[144]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36074' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[145]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36081' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[146]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36088' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[147]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36095' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[148]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36102' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[149]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36109' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[150]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36116' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[151]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36123' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[152]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36130' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[153]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36137' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[154]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36144' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[155]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36151' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[156]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36158' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[157]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36165' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[158]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36172' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[159]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36179' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[160]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36186' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[161]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36193' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[162]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36200' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[163]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36207' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[164]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36214' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[165]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36221' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[166]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36228' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[167]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36235' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[168]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36242' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[169]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36249' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[170]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36256' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[171]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36263' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[172]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36270' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[173]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36277' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[174]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36284' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[175]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36291' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[176]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36298' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[177]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36305' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[178]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36312' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[179]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36319' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[180]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36326' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[181]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36333' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[182]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36340' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[183]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36347' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[184]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36354' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[185]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36361' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[186]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36368' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[187]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36375' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[188]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36382' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[189]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36389' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[190]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36396' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[191]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36403' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[192]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36410' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[193]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36417' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[194]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36424' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[195]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36431' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[196]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36438' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[197]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36445' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[198]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36452' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[199]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36459' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[200]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36466' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[201]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36473' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[202]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36480' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[203]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36487' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[204]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36494' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[205]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36501' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[206]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36508' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[207]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36515' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[208]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36522' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[209]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36529' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[210]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36536' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[211]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36543' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[212]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36550' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[213]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36557' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[214]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36564' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[215]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36571' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[216]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36578' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[217]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36585' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[218]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36592' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[219]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36599' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[220]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36606' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[221]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36613' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[222]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36620' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[223]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36627' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[224]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36634' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[225]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36641' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[226]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36648' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[227]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36655' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[228]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36662' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[229]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36669' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[230]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36676' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[231]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36683' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[232]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36690' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[233]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36697' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[234]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36704' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[235]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36711' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[236]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36718' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[237]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36725' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[238]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36732' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[239]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36739' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[240]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36746' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[241]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36753' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[242]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36760' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[243]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36767' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[244]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36774' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[245]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36781' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[246]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36788' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[247]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36795' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[248]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36802' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[249]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36809' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[250]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36816' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[251]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36823' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[252]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36830' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[253]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36837' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[254]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36844' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.\mem[255]' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $dff cell `$procdff$36851' with positive edge clock.
+Creating register for signal `\vibe_dll_retry_buf.$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_ADDR' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$36856' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_buf.$mem2reg_wr$\mem$/workspace/rtl/dll/vibe_dll_retry_buf.sv:51$2_DATA' using process `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+  created $adff cell `$procdff$36861' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28'.
+Removing empty process `vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:0$28'.
+Found and cleaned up 5 empty switches in `\vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+Removing empty process `vibe_dll_retry_buf.$proc$/workspace/rtl/dll/vibe_dll_retry_buf.sv:37$4'.
+Cleaned up 6 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+<suppressed ~528 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 272 unused cells and 1343 unused wires.
+<suppressed ~273 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_dll_retry_buf...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~263 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~263 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~263 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$36851 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[255]).
+Adding EN signal on $procdff$36844 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[254]).
+Adding EN signal on $procdff$36837 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[253]).
+Adding EN signal on $procdff$36830 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[252]).
+Adding EN signal on $procdff$36823 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[251]).
+Adding EN signal on $procdff$36816 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[250]).
+Adding EN signal on $procdff$36809 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[249]).
+Adding EN signal on $procdff$36802 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[248]).
+Adding EN signal on $procdff$36795 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[247]).
+Adding EN signal on $procdff$36788 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[246]).
+Adding EN signal on $procdff$36781 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[245]).
+Adding EN signal on $procdff$36774 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[244]).
+Adding EN signal on $procdff$36767 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[243]).
+Adding EN signal on $procdff$36760 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[242]).
+Adding EN signal on $procdff$36753 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[241]).
+Adding EN signal on $procdff$36746 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[240]).
+Adding EN signal on $procdff$36739 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[239]).
+Adding EN signal on $procdff$36732 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[238]).
+Adding EN signal on $procdff$36725 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[237]).
+Adding EN signal on $procdff$36718 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[236]).
+Adding EN signal on $procdff$36711 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[235]).
+Adding EN signal on $procdff$36704 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[234]).
+Adding EN signal on $procdff$36697 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[233]).
+Adding EN signal on $procdff$36690 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[232]).
+Adding EN signal on $procdff$36683 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[231]).
+Adding EN signal on $procdff$36676 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[230]).
+Adding EN signal on $procdff$36669 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[229]).
+Adding EN signal on $procdff$36662 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[228]).
+Adding EN signal on $procdff$36655 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[227]).
+Adding EN signal on $procdff$36648 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[226]).
+Adding EN signal on $procdff$36641 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[225]).
+Adding EN signal on $procdff$36634 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[224]).
+Adding EN signal on $procdff$36627 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[223]).
+Adding EN signal on $procdff$36620 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[222]).
+Adding EN signal on $procdff$36613 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[221]).
+Adding EN signal on $procdff$36606 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[220]).
+Adding EN signal on $procdff$36599 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[219]).
+Adding EN signal on $procdff$36592 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[218]).
+Adding EN signal on $procdff$36585 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[217]).
+Adding EN signal on $procdff$36578 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[216]).
+Adding EN signal on $procdff$36571 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[215]).
+Adding EN signal on $procdff$36564 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[214]).
+Adding EN signal on $procdff$36557 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[213]).
+Adding EN signal on $procdff$36550 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[212]).
+Adding EN signal on $procdff$36543 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[211]).
+Adding EN signal on $procdff$36536 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[210]).
+Adding EN signal on $procdff$36529 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[209]).
+Adding EN signal on $procdff$36522 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[208]).
+Adding EN signal on $procdff$36515 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[207]).
+Adding EN signal on $procdff$36508 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[206]).
+Adding EN signal on $procdff$36501 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[205]).
+Adding EN signal on $procdff$36494 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[204]).
+Adding EN signal on $procdff$36487 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[203]).
+Adding EN signal on $procdff$36480 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[202]).
+Adding EN signal on $procdff$36473 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[201]).
+Adding EN signal on $procdff$36466 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[200]).
+Adding EN signal on $procdff$36459 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[199]).
+Adding EN signal on $procdff$36452 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[198]).
+Adding EN signal on $procdff$36445 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[197]).
+Adding EN signal on $procdff$36438 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[196]).
+Adding EN signal on $procdff$36431 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[195]).
+Adding EN signal on $procdff$36424 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[194]).
+Adding EN signal on $procdff$36417 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[193]).
+Adding EN signal on $procdff$36410 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[192]).
+Adding EN signal on $procdff$36403 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[191]).
+Adding EN signal on $procdff$36396 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[190]).
+Adding EN signal on $procdff$36389 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[189]).
+Adding EN signal on $procdff$36382 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[188]).
+Adding EN signal on $procdff$36375 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[187]).
+Adding EN signal on $procdff$36368 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[186]).
+Adding EN signal on $procdff$36361 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[185]).
+Adding EN signal on $procdff$36354 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[184]).
+Adding EN signal on $procdff$36347 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[183]).
+Adding EN signal on $procdff$36340 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[182]).
+Adding EN signal on $procdff$36333 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[181]).
+Adding EN signal on $procdff$36326 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[180]).
+Adding EN signal on $procdff$36319 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[179]).
+Adding EN signal on $procdff$36312 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[178]).
+Adding EN signal on $procdff$36305 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[177]).
+Adding EN signal on $procdff$36298 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[176]).
+Adding EN signal on $procdff$36291 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[175]).
+Adding EN signal on $procdff$36284 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[174]).
+Adding EN signal on $procdff$36277 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[173]).
+Adding EN signal on $procdff$36270 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[172]).
+Adding EN signal on $procdff$36263 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[171]).
+Adding EN signal on $procdff$36256 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[170]).
+Adding EN signal on $procdff$36249 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[169]).
+Adding EN signal on $procdff$36242 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[168]).
+Adding EN signal on $procdff$36235 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[167]).
+Adding EN signal on $procdff$36228 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[166]).
+Adding EN signal on $procdff$36221 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[165]).
+Adding EN signal on $procdff$36214 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[164]).
+Adding EN signal on $procdff$36207 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[163]).
+Adding EN signal on $procdff$36200 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[162]).
+Adding EN signal on $procdff$36193 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[161]).
+Adding EN signal on $procdff$36186 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[160]).
+Adding EN signal on $procdff$36179 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[159]).
+Adding EN signal on $procdff$36172 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[158]).
+Adding EN signal on $procdff$36165 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[157]).
+Adding EN signal on $procdff$36158 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[156]).
+Adding EN signal on $procdff$36151 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[155]).
+Adding EN signal on $procdff$36144 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[154]).
+Adding EN signal on $procdff$36137 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[153]).
+Adding EN signal on $procdff$36130 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[152]).
+Adding EN signal on $procdff$36123 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[151]).
+Adding EN signal on $procdff$36116 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[150]).
+Adding EN signal on $procdff$36109 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[149]).
+Adding EN signal on $procdff$36102 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[148]).
+Adding EN signal on $procdff$36095 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[147]).
+Adding EN signal on $procdff$36088 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[146]).
+Adding EN signal on $procdff$36081 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[145]).
+Adding EN signal on $procdff$36074 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[144]).
+Adding EN signal on $procdff$36067 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[143]).
+Adding EN signal on $procdff$36060 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[142]).
+Adding EN signal on $procdff$36053 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[141]).
+Adding EN signal on $procdff$36046 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[140]).
+Adding EN signal on $procdff$36039 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[139]).
+Adding EN signal on $procdff$36032 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[138]).
+Adding EN signal on $procdff$36025 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[137]).
+Adding EN signal on $procdff$36018 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[136]).
+Adding EN signal on $procdff$36011 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[135]).
+Adding EN signal on $procdff$36004 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[134]).
+Adding EN signal on $procdff$35997 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[133]).
+Adding EN signal on $procdff$35990 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[132]).
+Adding EN signal on $procdff$35983 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[131]).
+Adding EN signal on $procdff$35976 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[130]).
+Adding EN signal on $procdff$35969 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[129]).
+Adding EN signal on $procdff$35962 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[128]).
+Adding EN signal on $procdff$35955 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[127]).
+Adding EN signal on $procdff$35948 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[126]).
+Adding EN signal on $procdff$35941 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[125]).
+Adding EN signal on $procdff$35934 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[124]).
+Adding EN signal on $procdff$35927 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[123]).
+Adding EN signal on $procdff$35920 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[122]).
+Adding EN signal on $procdff$35913 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[121]).
+Adding EN signal on $procdff$35906 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[120]).
+Adding EN signal on $procdff$35899 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[119]).
+Adding EN signal on $procdff$35892 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[118]).
+Adding EN signal on $procdff$35885 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[117]).
+Adding EN signal on $procdff$35878 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[116]).
+Adding EN signal on $procdff$35871 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[115]).
+Adding EN signal on $procdff$35864 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[114]).
+Adding EN signal on $procdff$35857 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[113]).
+Adding EN signal on $procdff$35850 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[112]).
+Adding EN signal on $procdff$35843 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[111]).
+Adding EN signal on $procdff$35836 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[110]).
+Adding EN signal on $procdff$35829 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[109]).
+Adding EN signal on $procdff$35822 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[108]).
+Adding EN signal on $procdff$35815 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[107]).
+Adding EN signal on $procdff$35808 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[106]).
+Adding EN signal on $procdff$35801 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[105]).
+Adding EN signal on $procdff$35794 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[104]).
+Adding EN signal on $procdff$35787 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[103]).
+Adding EN signal on $procdff$35780 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[102]).
+Adding EN signal on $procdff$35773 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[101]).
+Adding EN signal on $procdff$35766 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[100]).
+Adding EN signal on $procdff$35759 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[99]).
+Adding EN signal on $procdff$35752 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[98]).
+Adding EN signal on $procdff$35745 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[97]).
+Adding EN signal on $procdff$35738 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[96]).
+Adding EN signal on $procdff$35731 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[95]).
+Adding EN signal on $procdff$35724 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[94]).
+Adding EN signal on $procdff$35717 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[93]).
+Adding EN signal on $procdff$35710 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[92]).
+Adding EN signal on $procdff$35703 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[91]).
+Adding EN signal on $procdff$35696 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[90]).
+Adding EN signal on $procdff$35689 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[89]).
+Adding EN signal on $procdff$35682 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[88]).
+Adding EN signal on $procdff$35675 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[87]).
+Adding EN signal on $procdff$35668 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[86]).
+Adding EN signal on $procdff$35661 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[85]).
+Adding EN signal on $procdff$35654 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[84]).
+Adding EN signal on $procdff$35647 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[83]).
+Adding EN signal on $procdff$35640 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[82]).
+Adding EN signal on $procdff$35633 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[81]).
+Adding EN signal on $procdff$35626 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[80]).
+Adding EN signal on $procdff$35619 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[79]).
+Adding EN signal on $procdff$35612 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[78]).
+Adding EN signal on $procdff$35605 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[77]).
+Adding EN signal on $procdff$35598 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[76]).
+Adding EN signal on $procdff$35591 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[75]).
+Adding EN signal on $procdff$35584 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[74]).
+Adding EN signal on $procdff$35577 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[73]).
+Adding EN signal on $procdff$35570 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[72]).
+Adding EN signal on $procdff$35563 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[71]).
+Adding EN signal on $procdff$35556 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[70]).
+Adding EN signal on $procdff$35549 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[69]).
+Adding EN signal on $procdff$35542 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[68]).
+Adding EN signal on $procdff$35535 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[67]).
+Adding EN signal on $procdff$35528 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[66]).
+Adding EN signal on $procdff$35521 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[65]).
+Adding EN signal on $procdff$35514 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[64]).
+Adding EN signal on $procdff$35507 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[63]).
+Adding EN signal on $procdff$35500 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[62]).
+Adding EN signal on $procdff$35493 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[61]).
+Adding EN signal on $procdff$35486 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[60]).
+Adding EN signal on $procdff$35479 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[59]).
+Adding EN signal on $procdff$35472 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[58]).
+Adding EN signal on $procdff$35465 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[57]).
+Adding EN signal on $procdff$35458 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[56]).
+Adding EN signal on $procdff$35451 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[55]).
+Adding EN signal on $procdff$35444 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[54]).
+Adding EN signal on $procdff$35437 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[53]).
+Adding EN signal on $procdff$35430 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[52]).
+Adding EN signal on $procdff$35423 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[51]).
+Adding EN signal on $procdff$35416 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[50]).
+Adding EN signal on $procdff$35409 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[49]).
+Adding EN signal on $procdff$35402 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[48]).
+Adding EN signal on $procdff$35395 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[47]).
+Adding EN signal on $procdff$35388 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[46]).
+Adding EN signal on $procdff$35381 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[45]).
+Adding EN signal on $procdff$35374 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[44]).
+Adding EN signal on $procdff$35367 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[43]).
+Adding EN signal on $procdff$35360 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[42]).
+Adding EN signal on $procdff$35353 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[41]).
+Adding EN signal on $procdff$35346 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[40]).
+Adding EN signal on $procdff$35339 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[39]).
+Adding EN signal on $procdff$35332 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[38]).
+Adding EN signal on $procdff$35325 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[37]).
+Adding EN signal on $procdff$35318 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[36]).
+Adding EN signal on $procdff$35311 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[35]).
+Adding EN signal on $procdff$35304 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[34]).
+Adding EN signal on $procdff$35297 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[33]).
+Adding EN signal on $procdff$35290 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[32]).
+Adding EN signal on $procdff$35283 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[31]).
+Adding EN signal on $procdff$35276 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[30]).
+Adding EN signal on $procdff$35269 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[29]).
+Adding EN signal on $procdff$35262 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[28]).
+Adding EN signal on $procdff$35255 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[27]).
+Adding EN signal on $procdff$35248 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[26]).
+Adding EN signal on $procdff$35241 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[25]).
+Adding EN signal on $procdff$35234 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[24]).
+Adding EN signal on $procdff$35227 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[23]).
+Adding EN signal on $procdff$35220 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[22]).
+Adding EN signal on $procdff$35213 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[21]).
+Adding EN signal on $procdff$35206 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[20]).
+Adding EN signal on $procdff$35199 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[19]).
+Adding EN signal on $procdff$35192 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[18]).
+Adding EN signal on $procdff$35185 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[17]).
+Adding EN signal on $procdff$35178 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[16]).
+Adding EN signal on $procdff$35171 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[15]).
+Adding EN signal on $procdff$35164 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[14]).
+Adding EN signal on $procdff$35157 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[13]).
+Adding EN signal on $procdff$35150 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[12]).
+Adding EN signal on $procdff$35143 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[11]).
+Adding EN signal on $procdff$35136 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[10]).
+Adding EN signal on $procdff$35129 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[9]).
+Adding EN signal on $procdff$35122 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[8]).
+Adding EN signal on $procdff$35115 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[7]).
+Adding EN signal on $procdff$35108 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[6]).
+Adding EN signal on $procdff$35101 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[5]).
+Adding EN signal on $procdff$35094 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[4]).
+Adding EN signal on $procdff$35087 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[3]).
+Adding EN signal on $procdff$35080 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[2]).
+Adding EN signal on $procdff$35073 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[1]).
+Adding EN signal on $procdff$35066 ($dff) from module vibe_dll_retry_buf (D = \wr_flit, Q = \mem[0]).
+Adding EN signal on $procdff$35054 ($adff) from module vibe_dll_retry_buf (D = $0\rcv[7:0], Q = \rcv).
+Adding EN signal on $procdff$35049 ($adff) from module vibe_dll_retry_buf (D = $0\tail[7:0], Q = \tail).
+Adding EN signal on $procdff$35044 ($adff) from module vibe_dll_retry_buf (D = $0\wrp[7:0], Q = \wrp).
+Adding EN signal on $procdff$35039 ($adff) from module vibe_dll_retry_buf (D = 1'1, Q = \proto_err).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 1027 unused cells and 1027 unused wires.
+<suppressed ~1028 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+<suppressed ~3 debug messages>
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~6 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+<suppressed ~777 debug messages>
+Removed a total of 259 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 0 unused cells and 259 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~6 debug messages>
+
+yosys> opt_reduce
+
+2.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> opt_expr
+
+2.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 9) from port B of cell vibe_dll_retry_buf.$ge$/workspace/rtl/dll/vibe_dll_retry_buf.sv:34$3 ($ge).
+Removed top 7 bits (of 8) from port B of cell vibe_dll_retry_buf.$add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:52$21 ($add).
+Removed top 8 bits (of 9) from port B of cell vibe_dll_retry_buf.$sub$/workspace/rtl/dll/vibe_dll_retry_buf.sv:53$22 ($sub).
+Removed top 1 bits (of 9) from port B of cell vibe_dll_retry_buf.$add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$23 ($add).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$160_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$161_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$162_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$163_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$164_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$165_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$166_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$167_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$168_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$169_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$170_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$171_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$172_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$173_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$174_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$175_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$176_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$177_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$178_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$179_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$180_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$181_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$182_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$183_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$184_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$185_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$186_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$187_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$188_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$189_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$190_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$191_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$192_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$193_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$194_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$195_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$196_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$197_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$198_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$199_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$200_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$201_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$202_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$203_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$204_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$205_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$206_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$207_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$208_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$209_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$210_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$211_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$212_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$213_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$214_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$215_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$216_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$217_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$218_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$219_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$220_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$221_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$222_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$223_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$224_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$225_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$226_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$227_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$228_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$229_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$230_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$231_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$232_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$233_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$234_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$235_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$236_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$237_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$238_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$239_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$240_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$241_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$242_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$243_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$244_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$245_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$246_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$247_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$248_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$249_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$250_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$251_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$252_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$253_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$254_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$255_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$256_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$257_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$258_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$259_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$260_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$261_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$262_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$263_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$264_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$265_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$266_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$267_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$268_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$269_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$270_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$271_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$272_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$273_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$274_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$275_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$276_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$277_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$278_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$279_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$280_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$281_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$282_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$283_CMP0 ($eq).
+Removed top 6 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$284_CMP0 ($eq).
+Removed top 6 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$285_CMP0 ($eq).
+Removed top 7 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$286_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$9588_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$9725_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$9863_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10002_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10142_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10283_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10425_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10568_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10712_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$10857_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11003_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11150_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11298_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11447_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11597_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11748_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$11900_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12053_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12207_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12362_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12518_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12675_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12833_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$12992_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13152_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13313_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13475_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13638_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13802_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$13967_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14133_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14300_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14468_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14637_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14807_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$14978_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$15150_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$15323_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$15497_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$15672_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$15848_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16025_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16203_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16382_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16562_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16743_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$16925_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$17108_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$17292_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$17477_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$17663_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$17850_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18038_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18227_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18417_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18608_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18800_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$18993_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$19187_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$19382_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$19578_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$19775_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$19973_CMP0 ($eq).
+Removed top 1 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$20172_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$20372_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$20573_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$20775_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$20978_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$21182_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$21387_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$21593_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$21800_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$22008_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$22217_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$22427_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$22638_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$22850_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$23063_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$23277_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$23492_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$23708_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$23925_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$24143_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$24362_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$24582_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$24803_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$25025_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$25248_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$25472_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$25697_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$25923_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$26150_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$26378_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$26607_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$26837_CMP0 ($eq).
+Removed top 2 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$27068_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$27300_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$27533_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$27767_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$28002_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$28238_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$28475_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$28713_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$28952_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$29192_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$29433_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$29675_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$29918_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$30162_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$30407_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$30653_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$30900_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$31148_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$31397_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$31647_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$31898_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$32150_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$32403_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$32657_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$32912_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$33168_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$33425_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$33683_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$33942_CMP0 ($eq).
+Removed top 6 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$34202_CMP0 ($eq).
+Removed top 6 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$34463_CMP0 ($eq).
+Removed top 7 bits (of 8) from port B of cell vibe_dll_retry_buf.$procmux$34725_CMP0 ($eq).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_dll_retry_buf:
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:52$21 ($add).
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$23 ($add).
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:60$26 ($add).
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:61$27 ($add).
+  creating $macc model for $sub$/workspace/rtl/dll/vibe_dll_retry_buf.sv:53$22 ($sub).
+  creating $alu model for $macc $sub$/workspace/rtl/dll/vibe_dll_retry_buf.sv:53$22.
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:61$27.
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:60$26.
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$23.
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:52$21.
+  creating $alu model for $ge$/workspace/rtl/dll/vibe_dll_retry_buf.sv:34$3 ($ge): new $alu
+  creating $alu model for $gt$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$24 ($gt): new $alu
+  creating $alu cell for $gt$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$24: $auto$alumacc.cc:495:replace_alu$38166
+  creating $alu cell for $ge$/workspace/rtl/dll/vibe_dll_retry_buf.sv:34$3: $auto$alumacc.cc:495:replace_alu$38177
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:52$21: $auto$alumacc.cc:495:replace_alu$38190
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:56$23: $auto$alumacc.cc:495:replace_alu$38193
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:60$26: $auto$alumacc.cc:495:replace_alu$38196
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_buf.sv:61$27: $auto$alumacc.cc:495:replace_alu$38199
+  creating $alu cell for $sub$/workspace/rtl/dll/vibe_dll_retry_buf.sv:53$22: $auto$alumacc.cc:495:replace_alu$38202
+  created 7 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+<suppressed ~3 debug messages>
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~6 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_buf..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~6 debug messages>
+
+yosys> opt_reduce
+
+2.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_buf.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> opt_expr
+
+2.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+
+2.14.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_dll_retry_buf/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_dll_retry_buf ===
+
+   Number of wires:               1101
+   Number of wire bits:          42449
+   Number of public wires:         279
+   Number of public wire bits:   41380
+   Number of ports:                 19
+   Number of port bits:            387
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1071
+     $adff                           1
+     $adffe                          4
+     $alu                            7
+     $dffe                         256
+     $eq                           510
+     $logic_and                      3
+     $logic_not                      5
+     $logic_or                       1
+     $mux                           12
+     $ne                             1
+     $not                            5
+     $or                             2
+     $pmux                           1
+     $reduce_and                   260
+     $reduce_bool                    2
+     $reduce_or                      1
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+<suppressed ~7 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 1 unused cells and 14 unused wires.
+<suppressed ~2 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using template $paramod$c3cd1564c35d873179656addd6052d7ea8b6d991\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $logic_and.
+Using template $paramod$78464f9f65d57061f7490f3fe5dd257e4a61e2b7\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$a1bc51c02ce12ac21eb18988e83292af48ed7d72\_90_alu for cells of type $alu.
+Using template $paramod$cd54e322aa4265ca236096fe4bb634aaec4e39b4\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $dffe.
+Using template $paramod$6f67705c43e5e94c02b6ebb52209ce5aa5ade4c1\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $eq.
+Using template $paramod$e0e41bcbb995aeb890cca9ca0345002fcb7a82a6\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using template $paramod$fc972a7a46956c1788f3cb5257b53c8f1df2d0cc\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001000 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001001 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000001 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~2425 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_buf.
+<suppressed ~4230 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_buf'.
+<suppressed ~15843 debug messages>
+Removed a total of 5281 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 57 unused cells and 5480 unused wires.
+<suppressed ~58 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_dll_retry_buf':
+  mapped 40960 $_DFFE_PP_ cells to \sky130_fd_sc_hd__edfxtp_1 cells.
+  mapped 33 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+  mapped 1 $_DFF_PN1_ cells to \sky130_fd_sc_hd__dfstp_2 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_dll_retry_buf' to `<abc-temp-dir>/input.blif'..
+Extracted 83862 gates and 124889 wires to a netlist network with 41025 inputs and 451 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.05 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.08 sec
+ABC: Memory =   19.81 MB. Time =     0.08 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a2111o_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__a2111oi_0 cells:      291
+ABC RESULTS:   sky130_fd_sc_hd__a211o_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:       58
+ABC RESULTS:   sky130_fd_sc_hd__a21boi_0 cells:       29
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:      242
+ABC RESULTS:   sky130_fd_sc_hd__a221o_1 cells:       86
+ABC RESULTS:   sky130_fd_sc_hd__a221oi_1 cells:      891
+ABC RESULTS:   sky130_fd_sc_hd__a222oi_1 cells:     8637
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:      728
+ABC RESULTS:   sky130_fd_sc_hd__a22oi_1 cells:     4925
+ABC RESULTS:   sky130_fd_sc_hd__a311o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__a41oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:      253
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:       40
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:       14
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:       13
+ABC RESULTS:   sky130_fd_sc_hd__maj3_1 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:     2207
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        6
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:     1904
+ABC RESULTS:   sky130_fd_sc_hd__nand3b_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:     2247
+ABC RESULTS:   sky130_fd_sc_hd__nand4b_1 cells:       11
+ABC RESULTS:   sky130_fd_sc_hd__nand4bb_1 cells:       10
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:      749
+ABC RESULTS:   sky130_fd_sc_hd__nor2b_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:      288
+ABC RESULTS:   sky130_fd_sc_hd__nor3b_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:      498
+ABC RESULTS:   sky130_fd_sc_hd__nor4b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nor4bb_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o211a_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__o211ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__o221ai_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__o22ai_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o2bb2ai_1 cells:       10
+ABC RESULTS:   sky130_fd_sc_hd__o31a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31ai_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__or3_1 cells:       20
+ABC RESULTS:   sky130_fd_sc_hd__or4_1 cells:       97
+ABC RESULTS:   sky130_fd_sc_hd__or4b_1 cells:        6
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:       21
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       18
+ABC RESULTS:        internal signals:    83413
+ABC RESULTS:           input signals:    41025
+ABC RESULTS:          output signals:      451
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_buf..
+Removed 0 unused cells and 43869 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_dll_retry_buf/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_dll_retry_buf ===
+
+   Number of wires:              24487
+   Number of wire bits:          65596
+   Number of public wires:         279
+   Number of public wire bits:   41380
+   Number of ports:                 19
+   Number of port bits:            387
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              65371
+     sky130_fd_sc_hd__a2111o_1       3
+     sky130_fd_sc_hd__a2111oi_0    291
+     sky130_fd_sc_hd__a211o_1        5
+     sky130_fd_sc_hd__a211oi_1      58
+     sky130_fd_sc_hd__a21boi_0      29
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1      242
+     sky130_fd_sc_hd__a221o_1       86
+     sky130_fd_sc_hd__a221oi_1     891
+     sky130_fd_sc_hd__a222oi_1    8637
+     sky130_fd_sc_hd__a22o_1       728
+     sky130_fd_sc_hd__a22oi_1     4925
+     sky130_fd_sc_hd__a311o_1        1
+     sky130_fd_sc_hd__a31o_1         1
+     sky130_fd_sc_hd__a31oi_1        3
+     sky130_fd_sc_hd__a41oi_1        1
+     sky130_fd_sc_hd__and2_0         5
+     sky130_fd_sc_hd__and3_1       253
+     sky130_fd_sc_hd__and4_1        40
+     sky130_fd_sc_hd__clkinv_1      14
+     sky130_fd_sc_hd__dfrtp_1       33
+     sky130_fd_sc_hd__dfstp_2        1
+     sky130_fd_sc_hd__edfxtp_1   40960
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      7
+     sky130_fd_sc_hd__lpflow_isobufsrc_1     13
+     sky130_fd_sc_hd__maj3_1        12
+     sky130_fd_sc_hd__nand2_1     2207
+     sky130_fd_sc_hd__nand2b_1       6
+     sky130_fd_sc_hd__nand3_1     1904
+     sky130_fd_sc_hd__nand3b_1       3
+     sky130_fd_sc_hd__nand4_1     2247
+     sky130_fd_sc_hd__nand4b_1      11
+     sky130_fd_sc_hd__nand4bb_1     10
+     sky130_fd_sc_hd__nor2_1       749
+     sky130_fd_sc_hd__nor2b_1        2
+     sky130_fd_sc_hd__nor3_1       288
+     sky130_fd_sc_hd__nor3b_1        2
+     sky130_fd_sc_hd__nor4_1       498
+     sky130_fd_sc_hd__nor4b_1        4
+     sky130_fd_sc_hd__nor4bb_1       1
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       12
+     sky130_fd_sc_hd__o221ai_1       2
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1     10
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__o31ai_1        3
+     sky130_fd_sc_hd__or3_1         20
+     sky130_fd_sc_hd__or4_1         97
+     sky130_fd_sc_hd__or4b_1         6
+     sky130_fd_sc_hd__xnor2_1       21
+     sky130_fd_sc_hd__xor2_1        18
+
+   Chip area for module '\vibe_dll_retry_buf': 1417205.462399
+     of which used for sequential elements: 1230831.715199 (86.85%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_dll_retry_buf/vibe_dll_retry_buf.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_dll_retry_buf'.
+
+Warnings: 1 unique messages, 1 total
+End of script. Logfile hash: b0f0de7d30, CPU: user 16.89s system 0.28s, MEM: 399.29 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 43% 1x abc (12 sec), 12% 1x check (3 sec), ...

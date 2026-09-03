@@ -1,0 +1,44 @@
+STATUS: yosys rc=1 frontend=verilog
+---- synth.log tail ----
+   240/270: $0\tbl[29][31:0]
+   241/270: $0\tbl[28][31:0]
+   242/270: $0\tbl[27][31:0]
+   243/270: $0\tbl[26][31:0]
+   244/270: $0\tbl[25][31:0]
+   245/270: $0\tbl[24][31:0]
+   246/270: $0\tbl[23][31:0]
+   247/270: $0\tbl[22][31:0]
+   248/270: $0\tbl[21][31:0]
+   249/270: $0\tbl[20][31:0]
+   250/270: $0\tbl[19][31:0]
+   251/270: $0\tbl[18][31:0]
+   252/270: $0\tbl[17][31:0]
+   253/270: $0\tbl[16][31:0]
+   254/270: $0\tbl[15][31:0]
+   255/270: $0\tbl[14][31:0]
+   256/270: $0\tbl[13][31:0]
+   257/270: $0\tbl[12][31:0]
+   258/270: $0\tbl[11][31:0]
+   259/270: $0\tbl[10][31:0]
+   260/270: $0\tbl[9][31:0]
+   261/270: $0\tbl[8][31:0]
+   262/270: $0\tbl[7][31:0]
+   263/270: $0\tbl[6][31:0]
+   264/270: $0\tbl[5][31:0]
+   265/270: $0\tbl[4][31:0]
+   266/270: $0\tbl[3][31:0]
+   267/270: $0\tbl[2][31:0]
+   268/270: $0\tbl[1][31:0]
+   269/270: $0\tbl[0][31:0]
+   270/270: $0\bitmap[3:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+ERROR: Multiple edge sensitive events found for this signal!
+---- watch.stderr ----
+Yosys failed (rc=1). See /workspace/reports/synth/blocks/vibe_route_lu/synth.log

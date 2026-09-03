@@ -1,0 +1,1440 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_rs128_120_enc/vibe_rs128_120_enc.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/pcs/vibe_rs128_120_enc.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/pcs/vibe_rs128_120_enc.sv
+Parsing SystemVerilog input from `/workspace/rtl/pcs/vibe_rs128_120_enc.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_rs128_120_enc'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_rs128_120_enc -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_rs128_120_enc
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_rs128_120_enc
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_rs128_120_enc
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+Cleaned up 1 empty switch.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 130 switch rules as full_case in process $proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15 in module vibe_rs128_120_enc.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 48 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~130 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+     1/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$534
+     2/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$532
+     3/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$529
+     4/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$527
+     5/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$524
+     6/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$522
+     7/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$519
+     8/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$517
+     9/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$514
+    10/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$512
+    11/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$509
+    12/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$507
+    13/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$504
+    14/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$502
+    15/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$499
+    16/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$497
+    17/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$493
+    18/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$491
+    19/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$488
+    20/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$486
+    21/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$483
+    22/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$481
+    23/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$478
+    24/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$476
+    25/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$473
+    26/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$471
+    27/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$468
+    28/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$466
+    29/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$463
+    30/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$461
+    31/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$458
+    32/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$456
+    33/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$452
+    34/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$450
+    35/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$447
+    36/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$445
+    37/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$442
+    38/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$440
+    39/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$437
+    40/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$435
+    41/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$432
+    42/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$430
+    43/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$427
+    44/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$425
+    45/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$422
+    46/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$420
+    47/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$417
+    48/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$415
+    49/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$411
+    50/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$409
+    51/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$406
+    52/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$404
+    53/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$401
+    54/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$399
+    55/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$396
+    56/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$394
+    57/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$391
+    58/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$389
+    59/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$386
+    60/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$384
+    61/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$381
+    62/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$379
+    63/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$376
+    64/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$374
+    65/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$370
+    66/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$368
+    67/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$365
+    68/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$363
+    69/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$360
+    70/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$358
+    71/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$355
+    72/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$353
+    73/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$350
+    74/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$348
+    75/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$345
+    76/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$343
+    77/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$340
+    78/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$338
+    79/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$335
+    80/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$333
+    81/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$329
+    82/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$327
+    83/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$324
+    84/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$322
+    85/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$319
+    86/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$317
+    87/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$314
+    88/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$312
+    89/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$309
+    90/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$307
+    91/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$304
+    92/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$302
+    93/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$299
+    94/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$297
+    95/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$294
+    96/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$292
+    97/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$288
+    98/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$286
+    99/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$283
+   100/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$281
+   101/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$278
+   102/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$276
+   103/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$273
+   104/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$271
+   105/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$268
+   106/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$266
+   107/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$263
+   108/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$261
+   109/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$258
+   110/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$256
+   111/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$253
+   112/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$251
+   113/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$248
+   114/283: $11\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$246
+   115/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$243
+   116/283: $10\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$241
+   117/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$238
+   118/283: $9\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$236
+   119/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$233
+   120/283: $8\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$231
+   121/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$228
+   122/283: $7\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$226
+   123/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$223
+   124/283: $6\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$221
+   125/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$218
+   126/283: $5\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$216
+   127/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$213
+   128/283: $4\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$211
+   129/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.$result[7:0]$205
+   130/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.k[31:0]$210
+   131/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.bb[7:0]$209
+   132/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$208
+   133/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$207
+   134/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.a[7:0]$206
+   135/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.$result[7:0]$199
+   136/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.k[31:0]$204
+   137/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.bb[7:0]$203
+   138/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$202
+   139/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$201
+   140/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.a[7:0]$200
+   141/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.$result[7:0]$193
+   142/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.k[31:0]$198
+   143/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.bb[7:0]$197
+   144/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$196
+   145/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$195
+   146/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.a[7:0]$194
+   147/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.$result[7:0]$187
+   148/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.k[31:0]$192
+   149/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.bb[7:0]$191
+   150/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$190
+   151/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$189
+   152/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.a[7:0]$188
+   153/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.$result[7:0]$181
+   154/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.k[31:0]$186
+   155/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.bb[7:0]$185
+   156/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$184
+   157/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$183
+   158/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.a[7:0]$182
+   159/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.$result[7:0]$175
+   160/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.k[31:0]$180
+   161/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.bb[7:0]$179
+   162/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$178
+   163/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$177
+   164/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.a[7:0]$176
+   165/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.$result[7:0]$169
+   166/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.k[31:0]$174
+   167/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.bb[7:0]$173
+   168/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$172
+   169/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$171
+   170/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.a[7:0]$170
+   171/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.$result[7:0]$163
+   172/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.k[31:0]$168
+   173/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.bb[7:0]$167
+   174/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$166
+   175/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$165
+   176/283: $3\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.a[7:0]$164
+   177/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.k[31:0]$160
+   178/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.bb[7:0]$159
+   179/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$158
+   180/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$157
+   181/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.a[7:0]$156
+   182/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.$result[7:0]$155
+   183/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.k[31:0]$154
+   184/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.bb[7:0]$153
+   185/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$152
+   186/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$151
+   187/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.a[7:0]$150
+   188/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.$result[7:0]$149
+   189/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.k[31:0]$148
+   190/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.bb[7:0]$147
+   191/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$146
+   192/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$145
+   193/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.a[7:0]$144
+   194/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.$result[7:0]$143
+   195/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.k[31:0]$142
+   196/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.bb[7:0]$141
+   197/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$140
+   198/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$139
+   199/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.a[7:0]$138
+   200/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.$result[7:0]$137
+   201/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.k[31:0]$136
+   202/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.bb[7:0]$135
+   203/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$134
+   204/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$133
+   205/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.a[7:0]$132
+   206/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.$result[7:0]$131
+   207/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.k[31:0]$130
+   208/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.bb[7:0]$129
+   209/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$128
+   210/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$127
+   211/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.a[7:0]$126
+   212/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.$result[7:0]$125
+   213/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.k[31:0]$124
+   214/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.bb[7:0]$123
+   215/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$122
+   216/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$121
+   217/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.a[7:0]$120
+   218/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.$result[7:0]$119
+   219/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.k[31:0]$118
+   220/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.bb[7:0]$117
+   221/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$116
+   222/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$115
+   223/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.a[7:0]$114
+   224/283: $2\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.$result[7:0]$113
+   225/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.k[31:0]$112
+   226/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.bb[7:0]$111
+   227/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa[7:0]$110
+   228/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p[7:0]$109
+   229/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.a[7:0]$108
+   230/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.$result[7:0]$107
+   231/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.k[31:0]$106
+   232/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.bb[7:0]$105
+   233/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa[7:0]$104
+   234/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p[7:0]$103
+   235/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.a[7:0]$102
+   236/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.$result[7:0]$101
+   237/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.k[31:0]$100
+   238/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.bb[7:0]$99
+   239/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa[7:0]$98
+   240/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p[7:0]$97
+   241/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.a[7:0]$96
+   242/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.$result[7:0]$95
+   243/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.k[31:0]$94
+   244/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.bb[7:0]$93
+   245/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa[7:0]$92
+   246/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p[7:0]$91
+   247/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.a[7:0]$90
+   248/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.$result[7:0]$89
+   249/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.k[31:0]$88
+   250/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.bb[7:0]$87
+   251/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa[7:0]$86
+   252/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p[7:0]$85
+   253/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.a[7:0]$84
+   254/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.$result[7:0]$83
+   255/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.k[31:0]$82
+   256/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.bb[7:0]$81
+   257/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa[7:0]$80
+   258/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p[7:0]$79
+   259/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.a[7:0]$78
+   260/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.$result[7:0]$77
+   261/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.k[31:0]$76
+   262/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.bb[7:0]$75
+   263/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa[7:0]$74
+   264/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p[7:0]$73
+   265/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.a[7:0]$72
+   266/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.$result[7:0]$71
+   267/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.k[31:0]$70
+   268/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.bb[7:0]$69
+   269/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa[7:0]$68
+   270/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p[7:0]$67
+   271/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.a[7:0]$66
+   272/283: $1\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.$result[7:0]$65
+   273/283: $0\done[0:0]
+   274/283: $0\busy[0:0]
+   275/283: $0\cnt[7:0]
+   276/283: $0\r7[7:0]
+   277/283: $0\r6[7:0]
+   278/283: $0\r5[7:0]
+   279/283: $0\r4[7:0]
+   280/283: $0\r3[7:0]
+   281/283: $0\r2[7:0]
+   282/283: $0\r1[7:0]
+   283/283: $0\r0[7:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_rs128_120_enc.\done' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2181' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r0' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2186' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r1' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2191' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r2' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2196' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r3' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2201' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r4' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2206' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r5' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2211' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r6' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2216' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\r7' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2221' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\cnt' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2226' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\busy' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2231' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2236' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2241' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2246' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2251' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2256' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:48$4.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2261' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2266' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2271' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2276' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2281' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2286' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:49$5.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2291' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2296' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2301' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2306' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2311' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2316' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:50$6.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2321' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2326' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2331' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2336' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2341' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2346' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:51$7.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2351' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2356' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2361' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2366' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2371' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2376' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:52$8.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2381' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2386' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2391' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2396' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2401' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2406' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:53$9.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2411' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2416' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2421' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2426' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2431' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2436' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:54$10.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2441' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.$result' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2446' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.a' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2451' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.p' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2456' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.aa' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2461' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.bb' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2466' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_rs128_120_enc.\vibe_gf256_mul$func$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:55$11.k' using process `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+  created $adff cell `$procdff$2471' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 130 empty switches in `\vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+Removing empty process `vibe_rs128_120_enc.$proc$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:33$15'.
+Cleaned up 130 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+<suppressed ~310 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 350 unused cells and 1478 unused wires.
+<suppressed ~391 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_rs128_120_enc...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+<suppressed ~21 debug messages>
+Removed a total of 7 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$1000.
+    dead port 2/2 on $mux $procmux$1015.
+    dead port 1/2 on $mux $procmux$1018.
+    dead port 2/2 on $mux $procmux$1069.
+    dead port 1/2 on $mux $procmux$1072.
+    dead port 2/2 on $mux $procmux$1193.
+    dead port 1/2 on $mux $procmux$1196.
+    dead port 2/2 on $mux $procmux$1299.
+    dead port 1/2 on $mux $procmux$1302.
+    dead port 2/2 on $mux $procmux$1335.
+    dead port 1/2 on $mux $procmux$1338.
+    dead port 2/2 on $mux $procmux$1387.
+    dead port 1/2 on $mux $procmux$1390.
+    dead port 2/2 on $mux $procmux$1459.
+    dead port 1/2 on $mux $procmux$1462.
+    dead port 2/2 on $mux $procmux$1477.
+    dead port 1/2 on $mux $procmux$1480.
+    dead port 2/2 on $mux $procmux$1513.
+    dead port 1/2 on $mux $procmux$1516.
+    dead port 2/2 on $mux $procmux$1529.
+    dead port 1/2 on $mux $procmux$1532.
+    dead port 2/2 on $mux $procmux$1547.
+    dead port 1/2 on $mux $procmux$1550.
+    dead port 2/2 on $mux $procmux$1565.
+    dead port 1/2 on $mux $procmux$1568.
+    dead port 2/2 on $mux $procmux$1583.
+    dead port 1/2 on $mux $procmux$1586.
+    dead port 2/2 on $mux $procmux$1601.
+    dead port 1/2 on $mux $procmux$1604.
+    dead port 2/2 on $mux $procmux$1655.
+    dead port 1/2 on $mux $procmux$1658.
+    dead port 2/2 on $mux $procmux$1670.
+    dead port 1/2 on $mux $procmux$1673.
+    dead port 2/2 on $mux $procmux$713.
+    dead port 1/2 on $mux $procmux$716.
+    dead port 2/2 on $mux $procmux$731.
+    dead port 1/2 on $mux $procmux$734.
+    dead port 2/2 on $mux $procmux$749.
+    dead port 1/2 on $mux $procmux$752.
+    dead port 2/2 on $mux $procmux$767.
+    dead port 1/2 on $mux $procmux$770.
+    dead port 2/2 on $mux $procmux$803.
+    dead port 1/2 on $mux $procmux$806.
+    dead port 2/2 on $mux $procmux$855.
+    dead port 1/2 on $mux $procmux$858.
+    dead port 2/2 on $mux $procmux$891.
+    dead port 1/2 on $mux $procmux$894.
+    dead port 2/2 on $mux $procmux$927.
+    dead port 1/2 on $mux $procmux$930.
+    dead port 2/2 on $mux $procmux$945.
+    dead port 1/2 on $mux $procmux$948.
+    dead port 2/2 on $mux $procmux$961.
+    dead port 1/2 on $mux $procmux$964.
+    dead port 2/2 on $mux $procmux$997.
+Removed 54 multiplexer ports.
+<suppressed ~94 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+<suppressed ~528 debug messages>
+Removed a total of 176 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 0 unused cells and 237 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$2231 ($adff) from module vibe_rs128_120_enc (D = $0\busy[0:0], Q = \busy).
+Adding EN signal on $procdff$2226 ($adff) from module vibe_rs128_120_enc (D = $0\cnt[7:0], Q = \cnt).
+Adding EN signal on $procdff$2221 ($adff) from module vibe_rs128_120_enc (D = $0\r7[7:0], Q = \r7).
+Adding EN signal on $procdff$2216 ($adff) from module vibe_rs128_120_enc (D = $0\r6[7:0], Q = \r6).
+Adding EN signal on $procdff$2211 ($adff) from module vibe_rs128_120_enc (D = $0\r5[7:0], Q = \r5).
+Adding EN signal on $procdff$2206 ($adff) from module vibe_rs128_120_enc (D = $0\r4[7:0], Q = \r4).
+Adding EN signal on $procdff$2201 ($adff) from module vibe_rs128_120_enc (D = $0\r3[7:0], Q = \r3).
+Adding EN signal on $procdff$2196 ($adff) from module vibe_rs128_120_enc (D = $0\r2[7:0], Q = \r2).
+Adding EN signal on $procdff$2191 ($adff) from module vibe_rs128_120_enc (D = $0\r1[7:0], Q = \r1).
+Adding EN signal on $procdff$2186 ($adff) from module vibe_rs128_120_enc (D = $0\r0[7:0], Q = \r0).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+<suppressed ~10 debug messages>
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+<suppressed ~27 debug messages>
+Removed a total of 9 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 0 unused cells and 9 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> opt_expr
+
+2.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 8) from port B of cell vibe_rs128_120_enc.$lt$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:28$12 ($lt).
+Removed top 1 bits (of 3) from port B of cell vibe_rs128_120_enc.$auto$opt_dff.cc:195:make_patterns_logic$2604 ($ne).
+Removed top 7 bits (of 8) from port B of cell vibe_rs128_120_enc.$add$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:56$538 ($add).
+Removed top 1 bits (of 8) from port B of cell vibe_rs128_120_enc.$eq$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:57$539 ($eq).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$596 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1094 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1270 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1288 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1360 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1466 ($mux).
+Removed top 3 bits (of 8) from mux cell vibe_rs128_120_enc.$procmux$1484 ($mux).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_rs128_120_enc:
+  creating $macc model for $add$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:56$538 ($add).
+  creating $alu model for $macc $add$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:56$538.
+  creating $alu model for $lt$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:28$12 ($lt): new $alu
+  creating $alu cell for $lt$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:28$12: $auto$alumacc.cc:495:replace_alu$2635
+  creating $alu cell for $add$/workspace/rtl/pcs/vibe_rs128_120_enc.sv:56$538: $auto$alumacc.cc:495:replace_alu$2640
+  created 2 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_rs128_120_enc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~44 debug messages>
+
+yosys> opt_reduce
+
+2.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_rs128_120_enc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> opt_expr
+
+2.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+
+2.14.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_rs128_120_enc/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_rs128_120_enc ===
+
+   Number of wires:                168
+   Number of wire bits:           1232
+   Number of public wires:          19
+   Number of public wire bits:     159
+   Number of ports:                  8
+   Number of port bits:             78
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                158
+     $adff                           1
+     $adffe                         10
+     $alu                            2
+     $eq                             1
+     $logic_and                      3
+     $mux                           97
+     $ne                             1
+     $not                            8
+     $reduce_and                     1
+     $reduce_bool                    1
+     $xor                           33
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+<suppressed ~126 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 3 unused cells and 98 unused wires.
+<suppressed ~4 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using template $paramod$c3cd1564c35d873179656addd6052d7ea8b6d991\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $adffe.
+Using template $paramod$dad13a281fa6a9ffd6dd427a87dc9a952e80e9ea\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $adff.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001000 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000101 for cells of type $lcu.
+Using extmapper simplemap for cells of type $or.
+No more expansions possible.
+<suppressed ~582 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_rs128_120_enc.
+<suppressed ~97 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_rs128_120_enc'.
+<suppressed ~69 debug messages>
+Removed a total of 23 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 9 unused cells and 85 unused wires.
+<suppressed ~10 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_rs128_120_enc':
+  mapped 74 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_rs128_120_enc' to `<abc-temp-dir>/input.blif'..
+Extracted 467 gates and 551 wires to a netlist network with 83 inputs and 75 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:       37
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:        9
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a32oi_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        6
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       90
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:       10
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       59
+ABC RESULTS:   sky130_fd_sc_hd__o21bai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:       70
+ABC RESULTS:   sky130_fd_sc_hd__xnor3_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       38
+ABC RESULTS:        internal signals:      393
+ABC RESULTS:           input signals:       83
+ABC RESULTS:          output signals:       75
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_rs128_120_enc..
+Removed 0 unused cells and 239 unused wires.
+<suppressed ~2 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_rs128_120_enc/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_rs128_120_enc ===
+
+   Number of wires:                367
+   Number of wire bits:            500
+   Number of public wires:          18
+   Number of public wire bits:     151
+   Number of ports:                  8
+   Number of port bits:             78
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                424
+     sky130_fd_sc_hd__a21o_1         2
+     sky130_fd_sc_hd__a21oi_1       37
+     sky130_fd_sc_hd__a22o_1         9
+     sky130_fd_sc_hd__a31oi_1        2
+     sky130_fd_sc_hd__a32oi_1        2
+     sky130_fd_sc_hd__and2_0         6
+     sky130_fd_sc_hd__and3_1         3
+     sky130_fd_sc_hd__dfrtp_1       74
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      2
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__nand2_1       90
+     sky130_fd_sc_hd__nand2b_1       2
+     sky130_fd_sc_hd__nand3_1        1
+     sky130_fd_sc_hd__nor2_1        10
+     sky130_fd_sc_hd__nor3_1         4
+     sky130_fd_sc_hd__o21a_1         7
+     sky130_fd_sc_hd__o21ai_0       59
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__xnor2_1       70
+     sky130_fd_sc_hd__xnor3_1        4
+     sky130_fd_sc_hd__xor2_1        38
+
+   Chip area for module '\vibe_rs128_120_enc': 4040.124800
+     of which used for sequential elements: 1851.776000 (45.83%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_rs128_120_enc/vibe_rs128_120_enc.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_rs128_120_enc'.
+
+End of script. Logfile hash: d5494f0feb, CPU: user 0.26s system 0.03s, MEM: 43.86 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 48% 1x abc (0 sec), 8% 1x dfflibmap (0 sec), ...

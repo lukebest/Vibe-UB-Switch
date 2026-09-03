@@ -1,0 +1,24 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_pcs_tx_cw2beat ===
+
+   Number of wires:                 22
+   Number of wire bits:           2578
+   Number of public wires:          12
+   Number of public wire bits:    2568
+   Number of ports:                  8
+   Number of port bits:           1542
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 17
+     $adff                           2
+     $adffe                          2
+     $logic_and                      3
+     $logic_not                      2
+     $logic_or                       1
+     $mux                            7
+

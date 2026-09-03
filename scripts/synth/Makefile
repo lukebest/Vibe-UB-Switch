@@ -34,7 +34,7 @@ ORFS_CFG_SMOKE := $(SYNTH)/orfs/sky130hd/vibe_sync2/config.mk
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check-tools check-sdc synth-smoke synth sta \
+.PHONY: help check-tools check-sdc synth-smoke synth sta blocks \
         orfs-synth orfs-synth-smoke _orfs-synth orfs-flow clean
 
 help:
@@ -43,6 +43,7 @@ help:
 	@echo "  make check-tools       - print Yosys / OpenSTA / ORFS / liberty"
 	@echo "  make check-sdc         - confirm SDC pin names vs rtl/top"
 	@echo "  make synth-smoke       - Yosys on leaf $(VIBE_SMOKE_TOP) (no P&R)"
+	@echo "  make blocks            - per-module Yosys QoR (no full-chip slang)"
 	@echo "  make synth             - Yosys on vibe_ub_switch (no P&R, not QoR signoff)"
 	@echo "  make sta               - OpenSTA WNS/TNS if netlist+liberty exist"
 	@echo "  make orfs-synth        - ORFS 'make synth' for the top (needs ORFS=)"
@@ -91,7 +92,12 @@ synth-smoke: check-sdc
 	YOSYS=$(YOSYS) \
 	$(SYNTH)/yosys/run_synth.sh $(VIBE_SMOKE_SV)
 
-# Full-chip Yosys. RTL is not frozen — do not treat output as QoR signoff.
+blocks:
+	RTL_SHA=32a7f5e0c3f04762aa27dae73b000e55773195da \
+	YOSYS=$(YOSYS) LIBERTY="$(LIBERTY)" \
+	$(SYNTH)/yosys/run_blocks.sh
+
+# Full-chip Yosys. Do not treat as QoR signoff. Prefer 'make blocks'.
 # Standalone Yosys -sv is best-effort; ORFS slang (orfs-synth) is preferred.
 synth: check-sdc
 	@echo "NOTE: full-chip synth is not a QoR signoff (RTL not frozen; Sky130 != 1.25 GHz)."

@@ -1,0 +1,78 @@
+
+yosys> stat
+
+4. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+=== vibe_pcs_rx_amctl_lock ===
+
+   Number of wires:                112
+   Number of wire bits:            578
+   Number of public wires:          31
+   Number of public wire bits:     472
+   Number of ports:                 10
+   Number of port bits:            170
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                100
+     $adff                           2
+     $adffe                          8
+     $alu                            4
+     $eq                            13
+     $logic_and                      7
+     $logic_not                      2
+     $logic_or                       8
+     $mux                           25
+     $ne                             4
+     $not                            6
+     $or                             2
+     $reduce_and                     9
+     $reduce_bool                    1
+     $reduce_or                      2
+     vibe_ebch16                     7
+
+=== design hierarchy ===
+
+   vibe_pcs_rx_amctl_lock            1
+     vibe_ebch16                     7
+
+   Number of wires:                126
+   Number of wire bits:            725
+   Number of public wires:          45
+   Number of public wire bits:     619
+   Number of ports:                 24
+   Number of port bits:            317
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                100
+     $adff                           2
+     $adffe                          8
+     $alu                            4
+     $eq                            13
+     $logic_and                      7
+     $logic_not                      2
+     $logic_or                       8
+     $mem_v2                         7
+     $mux                           25
+     $ne                             4
+     $not                            6
+     $or                             2
+     $reduce_and                     9
+     $reduce_bool                    1
+     $reduce_or                      2
+

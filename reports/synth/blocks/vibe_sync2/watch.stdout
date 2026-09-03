@@ -1,0 +1,1 @@
+synth ok  top=vibe_sync2  netlist=/workspace/scripts/synth/work/blocks/vibe_sync2/vibe_sync2.synth.v  reports=/workspace/reports/synth/blocks/vibe_sync2

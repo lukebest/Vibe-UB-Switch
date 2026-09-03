@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:             103229
+   Chip area for module '\vibe_saf_ing': 2263176.815998
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

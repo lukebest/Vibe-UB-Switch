@@ -1,0 +1,24 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_rst_ctl ===
+
+   Number of wires:                 75
+   Number of wire bits:            147
+   Number of public wires:          13
+   Number of public wire bits:      32
+   Number of ports:                  6
+   Number of port bits:             12
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 65
+     $adffe                         10
+     $alu                            5
+     $mux                           25
+     $ne                             5
+     $reduce_and                    10
+     $reduce_bool                   10
+

@@ -1,0 +1,117 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_cfg_space/vibe_cfg_space.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/mgmt/vibe_cfg_space.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/mgmt/vibe_cfg_space.sv
+Parsing SystemVerilog input from `/workspace/rtl/mgmt/vibe_cfg_space.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_cfg_space'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_cfg_space -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_cfg_space
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_cfg_space
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_cfg_space
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 8 switch rules as full_case in process $proc$/workspace/rtl/mgmt/vibe_cfg_space.sv:73$35 in module vibe_cfg_space.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 4 redundant assignments.
+Promoted 9 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~8 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_cfg_space.$proc$/workspace/rtl/mgmt/vibe_cfg_space.sv:73$35'.
+     1/35: $4$lookahead\port_rst_pulse$33[3:0]$69
+     2/35: $4$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:116$2[1:0]$67
+     3/35: $8$lookahead\port_rst_rw1c$32[3:0]$68
+     4/35: $4$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:115$1[1:0]$66
+     5/35: $3$lookahead\lmsm_go_pulse$34[3:0]$65
+     6/35: $3$lookahead\port_rst_pulse$33[3:0]$64
+     7/35: $7$lookahead\port_rst_rw1c$32[3:0]$63
+     8/35: $3$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:120$3[1:0]$62
+     9/35: $3$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:116$2[1:0]$61
+    10/35: $3$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:115$1[1:0]$60
+    11/35: $2$lookahead\lmsm_go_pulse$34[3:0]$59
+    12/35: $2$lookahead\port_rst_pulse$33[3:0]$58
+    13/35: $6$lookahead\port_rst_rw1c$32[3:0]$57
+    14/35: $2$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:120$3[1:0]$56
+    15/35: $2$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:116$2[1:0]$55
+    16/35: $2$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:115$1[1:0]$54
+    17/35: $5$lookahead\port_rst_rw1c$32[3:3]$53
+    18/35: $4$lookahead\port_rst_rw1c$32[2:2]$52
+    19/35: $3$lookahead\port_rst_rw1c$32[1:1]$51
+    20/35: $2$lookahead\port_rst_rw1c$32[0:0]$50
+    21/35: $0\port_rst_hold_d[3:0]
+    22/35: $1$lookahead\port_rst_rw1c$32[3:0]$47
+    23/35: $0\irq_clr[0:0]
+    24/35: $1$lookahead\lmsm_go_pulse$34[3:0]$49
+    25/35: $0\device_rst_pulse[0:0]
+    26/35: $1$lookahead\port_rst_pulse$33[3:0]$48
+    27/35: $0\rt_wr_en[0:0]
+    28/35: $1$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:120$3[1:0]$46
+    29/35: $1$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:116$2[1:0]$45
+    30/35: $1$bitselwrite$pos$/workspace/rtl/mgmt/vibe_cfg_space.sv:115$1[1:0]$44
+    31/35: $0\rt_wr_data[31:0]
+    32/35: $0\rt_wr_idx[15:0]
+    33/35: $0\default_bm[3:0]
+    34/35: $0\cna_written[0:0]
+    35/35: $0\cna[15:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+ERROR: Multiple edge sensitive events found for this signal!

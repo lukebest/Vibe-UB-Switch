@@ -1,0 +1,15 @@
+design              vibe_cfg_space
+repo_root           /workspace
+repo_sha            5cb3542bf21e7e585367c995ce7dfe9f49a6595f
+dut_rtl_sha         32a7f5e0c3f04762aa27dae73b000e55773195da
+spec_md_frozen      no
+tapeout             no
+yosys               Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+frontend            verilog
+sdc                 none
+liberty             /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+memory_map          0
+netlist             /workspace/scripts/synth/work/blocks/vibe_cfg_space/vibe_cfg_space.synth.v
+platform            sky130hd (ORFS name; only if liberty was provided)
+note                Sky130 cannot close spec 1.25 GHz. Methodology QoR only.
+top_mapped          no  (block-level only; full-chip slang OOM/unroll)

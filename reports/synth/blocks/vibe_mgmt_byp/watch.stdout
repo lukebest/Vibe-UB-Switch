@@ -1,0 +1,1 @@
+synth ok  top=vibe_mgmt_byp  netlist=/workspace/scripts/synth/work/blocks/vibe_mgmt_byp/vibe_mgmt_byp.synth.v  reports=/workspace/reports/synth/blocks/vibe_mgmt_byp

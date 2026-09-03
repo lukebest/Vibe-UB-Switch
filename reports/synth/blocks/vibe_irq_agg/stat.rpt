@@ -1,0 +1,26 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_irq_agg ===
+
+   Number of wires:                 24
+   Number of wire bits:             45
+   Number of public wires:          14
+   Number of public wire bits:      35
+   Number of ports:                 13
+   Number of port bits:             34
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 11
+     sky130_fd_sc_hd__a41oi_1        1
+     sky130_fd_sc_hd__and4_1         1
+     sky130_fd_sc_hd__dfrtp_1        1
+     sky130_fd_sc_hd__nor4_1         7
+     sky130_fd_sc_hd__or4_1          1
+
+   Chip area for module '\vibe_irq_agg': 93.840000
+     of which used for sequential elements: 25.024000 (26.67%)
+

@@ -1,0 +1,6 @@
+STATUS: not_run
+NOTE: OpenSTA was not run. No mapped netlist exists for vibe_ub_switch
+      (full-chip slang elaborate previously OOM / unroll-limit; this run
+      did not retry that invocation).
+      Sky130 cannot close spec 1.25 GHz clk_fab; that is a known node
+      risk, not a missing STA file. Block-level WNS was not collected.

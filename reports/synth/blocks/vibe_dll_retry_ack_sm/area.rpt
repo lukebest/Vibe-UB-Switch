@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:                111
+   Chip area for module '\vibe_dll_retry_ack_sm': 933.395200
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

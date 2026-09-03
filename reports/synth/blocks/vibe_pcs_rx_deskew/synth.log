@@ -1,0 +1,967 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_pcs_rx_deskew/vibe_pcs_rx_deskew.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv
+Parsing SystemVerilog input from `/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_pcs_rx_deskew'.
+Warning: Replacing memory \f3 with list of registers. See /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52
+Warning: Replacing memory \f2 with list of registers. See /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51
+Warning: Replacing memory \f1 with list of registers. See /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50
+Warning: Replacing memory \f0 with list of registers. See /workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_pcs_rx_deskew -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_pcs_rx_deskew
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_pcs_rx_deskew
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_pcs_rx_deskew
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 6 switch rules as full_case in process $proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13 in module vibe_pcs_rx_deskew.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 8 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~9 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+     1/61: $2$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_ADDR[2:0]$37
+     2/61: $2$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_DATA[159:0]$38
+     3/61: $2$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_ADDR[2:0]$35
+     4/61: $2$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_DATA[159:0]$36
+     5/61: $2$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_ADDR[2:0]$33
+     6/61: $2$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_DATA[159:0]$34
+     7/61: $2$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_ADDR[2:0]$31
+     8/61: $2$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_DATA[159:0]$32
+     9/61: $1$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_DATA[159:0]$30
+    10/61: $1$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_ADDR[2:0]$29
+    11/61: $1$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_DATA[159:0]$28
+    12/61: $1$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_ADDR[2:0]$27
+    13/61: $1$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_DATA[159:0]$26
+    14/61: $1$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_ADDR[2:0]$25
+    15/61: $1$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_DATA[159:0]$24
+    16/61: $1$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_ADDR[2:0]$23
+    17/61: $0\f3[7][159:0]
+    18/61: $0\f3[6][159:0]
+    19/61: $0\f3[5][159:0]
+    20/61: $0\f3[4][159:0]
+    21/61: $0\f3[3][159:0]
+    22/61: $0\f3[2][159:0]
+    23/61: $0\f3[1][159:0]
+    24/61: $0\f3[0][159:0]
+    25/61: $0\f2[7][159:0]
+    26/61: $0\f2[6][159:0]
+    27/61: $0\f2[5][159:0]
+    28/61: $0\f2[4][159:0]
+    29/61: $0\f2[3][159:0]
+    30/61: $0\f2[2][159:0]
+    31/61: $0\f2[1][159:0]
+    32/61: $0\f2[0][159:0]
+    33/61: $0\f1[7][159:0]
+    34/61: $0\f1[6][159:0]
+    35/61: $0\f1[5][159:0]
+    36/61: $0\f1[4][159:0]
+    37/61: $0\f1[3][159:0]
+    38/61: $0\f1[2][159:0]
+    39/61: $0\f1[1][159:0]
+    40/61: $0\f1[0][159:0]
+    41/61: $0\f0[7][159:0]
+    42/61: $0\f0[6][159:0]
+    43/61: $0\f0[5][159:0]
+    44/61: $0\f0[4][159:0]
+    45/61: $0\f0[3][159:0]
+    46/61: $0\f0[2][159:0]
+    47/61: $0\f0[1][159:0]
+    48/61: $0\f0[0][159:0]
+    49/61: $0\am3_r[0:0]
+    50/61: $0\am2_r[0:0]
+    51/61: $0\am1_r[0:0]
+    52/61: $0\am0_r[0:0]
+    53/61: $0\saw3[0:0]
+    54/61: $0\saw2[0:0]
+    55/61: $0\saw1[0:0]
+    56/61: $0\saw0[0:0]
+    57/61: $0\a3[2:0]
+    58/61: $0\a2[2:0]
+    59/61: $0\a1[2:0]
+    60/61: $0\a0[2:0]
+    61/61: $0\wptr[2:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_pcs_rx_deskew.\wptr' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$403' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\a0' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$408' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\a1' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$413' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\a2' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$418' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\a3' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$423' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\saw0' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$428' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\saw1' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$433' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\saw2' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$438' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\saw3' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$443' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\am0_r' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$448' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\am1_r' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$453' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\am2_r' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$458' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\am3_r' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$463' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[0]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$470' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[1]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$477' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[2]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$484' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[3]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$491' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[4]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$498' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[5]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$505' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[6]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$512' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f0[7]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$519' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[0]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$526' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[1]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$533' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[2]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$540' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[3]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$547' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[4]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$554' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[5]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$561' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[6]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$568' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f1[7]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$575' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[0]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$582' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[1]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$589' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[2]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$596' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[3]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$603' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[4]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$610' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[5]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$617' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[6]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$624' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f2[7]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$631' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[0]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$638' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[1]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$645' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[2]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$652' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[3]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$659' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[4]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$666' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[5]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$673' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[6]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$680' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.\f3[7]' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $dff cell `$procdff$687' with positive edge clock.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_ADDR' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$692' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f0$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:49$1_DATA' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$697' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_ADDR' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$702' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f1$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:50$2_DATA' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$707' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_ADDR' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$712' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f2$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:51$3_DATA' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$717' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_ADDR' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$722' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_pcs_rx_deskew.$mem2reg_wr$\f3$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:52$4_DATA' using process `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+  created $adff cell `$procdff$727' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 9 empty switches in `\vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+Removing empty process `vibe_pcs_rx_deskew.$proc$/workspace/rtl/pcs/vibe_pcs_rx_deskew.sv:42$13'.
+Cleaned up 9 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+<suppressed ~110 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+Removed 245 unused cells and 430 unused wires.
+<suppressed ~283 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_pcs_rx_deskew...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_pcs_rx_deskew..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~8 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_pcs_rx_deskew.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+2.6.9. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_pcs_rx_deskew..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~8 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_pcs_rx_deskew.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$463 ($adff) from module vibe_pcs_rx_deskew (D = \am3, Q = \am3_r).
+Adding EN signal on $procdff$458 ($adff) from module vibe_pcs_rx_deskew (D = \am2, Q = \am2_r).
+Adding EN signal on $procdff$453 ($adff) from module vibe_pcs_rx_deskew (D = \am1, Q = \am1_r).
+Adding EN signal on $procdff$448 ($adff) from module vibe_pcs_rx_deskew (D = \am0, Q = \am0_r).
+Adding EN signal on $procdff$443 ($adff) from module vibe_pcs_rx_deskew (D = 1'1, Q = \saw3).
+Adding EN signal on $procdff$438 ($adff) from module vibe_pcs_rx_deskew (D = 1'1, Q = \saw2).
+Adding EN signal on $procdff$433 ($adff) from module vibe_pcs_rx_deskew (D = 1'1, Q = \saw1).
+Adding EN signal on $procdff$428 ($adff) from module vibe_pcs_rx_deskew (D = 1'1, Q = \saw0).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+Removed 12 unused cells and 12 unused wires.
+<suppressed ~13 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_pcs_rx_deskew..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_pcs_rx_deskew.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+2.8.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_pcs_rx_deskew:
+  created 0 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_pcs_rx_deskew..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_pcs_rx_deskew.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+2.14.9. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_pcs_rx_deskew/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_pcs_rx_deskew ===
+
+   Number of wires:                 43
+   Number of wire bits:           1315
+   Number of public wires:          25
+   Number of public wire bits:    1297
+   Number of ports:                 17
+   Number of port bits:           1289
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 28
+     $adffe                          8
+     $and                            3
+     $logic_and                      5
+     $logic_not                      5
+     $or                             3
+     $reduce_and                     4
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $reduce_and.
+No more expansions possible.
+<suppressed ~103 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_pcs_rx_deskew.
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_pcs_rx_deskew'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+Removed 0 unused cells and 4 unused wires.
+<suppressed ~1 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_pcs_rx_deskew':
+  mapped 8 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_pcs_rx_deskew' to `<abc-temp-dir>/input.blif'..
+Extracted 28 gates and 42 wires to a netlist network with 13 inputs and 10 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21bai_1 cells:        4
+ABC RESULTS:        internal signals:       19
+ABC RESULTS:           input signals:       13
+ABC RESULTS:          output signals:       10
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_pcs_rx_deskew..
+Removed 0 unused cells and 41 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_pcs_rx_deskew/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_pcs_rx_deskew ===
+
+   Number of wires:                 41
+   Number of wire bits:           1313
+   Number of public wires:          25
+   Number of public wire bits:    1297
+   Number of ports:                 17
+   Number of port bits:           1289
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 26
+     sky130_fd_sc_hd__and4_1         1
+     sky130_fd_sc_hd__clkinv_1       3
+     sky130_fd_sc_hd__dfrtp_1        8
+     sky130_fd_sc_hd__nand2_1        4
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nor4_1         1
+     sky130_fd_sc_hd__o21a_1         1
+     sky130_fd_sc_hd__o21ai_0        3
+     sky130_fd_sc_hd__o21bai_1       4
+
+   Chip area for module '\vibe_pcs_rx_deskew': 300.288000
+     of which used for sequential elements: 200.192000 (66.67%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_pcs_rx_deskew/vibe_pcs_rx_deskew.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_pcs_rx_deskew'.
+
+Warnings: 4 unique messages, 4 total
+End of script. Logfile hash: 33841a2327, CPU: user 0.16s system 0.02s, MEM: 42.35 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 47% 1x abc (0 sec), 12% 1x dfflibmap (0 sec), ...

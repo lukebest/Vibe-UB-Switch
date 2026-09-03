@@ -10,6 +10,7 @@ close the FS 1.25 GHz fabric clock. This flow must not edit `rtl/`.
 make -C scripts/synth help          # default — does not launch P&R
 make -C scripts/synth check-sdc     # pin names vs rtl/top
 make -C scripts/synth synth-smoke   # leaf vibe_sync2
+make -C scripts/synth blocks        # per-module Yosys QoR (no full-chip slang)
 make -C scripts/synth synth         # full top; not a QoR signoff
 make -C scripts/synth sta           # needs mapped netlist + liberty
 ```
@@ -24,8 +25,10 @@ SDCs: `constraints/vibe_ub_switch.spec.sdc` and
 `rtl/top/vibe_ub_switch.sv`. CDC uses async clock groups, not a
 chip-wide false path.
 
-Reports are **generated** under `reports/synth/` and `reports/signoff/`
-(keepers only in git). Do not hand-write WNS/TNS/area.
+Block-level QoR lives under `reports/synth/` (dated write-up plus
+generated `area.rpt` / `cells.rpt` / `blocks/`). `reports/signoff/`
+stays keepers-only until OpenSTA is actually run. Do not hand-write
+WNS/TNS/area. Do not raise slang `--unroll-limit` to 200000 (OOM).
 
 ## Tools / PDK (do not vendor binaries)
 

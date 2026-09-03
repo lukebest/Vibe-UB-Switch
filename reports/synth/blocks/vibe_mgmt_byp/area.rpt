@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:              12930
+   Chip area for module '\vibe_mgmt_byp': 283630.774400
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

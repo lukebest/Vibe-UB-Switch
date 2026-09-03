@@ -1,0 +1,31 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_port_sel ===
+
+   Number of wires:                193
+   Number of wire bits:            492
+   Number of public wires:          35
+   Number of public wire bits:     139
+   Number of ports:                 15
+   Number of port bits:             93
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                158
+     $adff                           1
+     $adffe                         19
+     $alu                           11
+     $and                            2
+     $eq                            15
+     $logic_and                      1
+     $logic_not                      6
+     $logic_or                       1
+     $mux                           67
+     $not                            3
+     $pmux                           1
+     $reduce_and                    19
+     $shiftx                        12
+

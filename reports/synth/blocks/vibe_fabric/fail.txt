@@ -1,0 +1,44 @@
+STATUS: yosys rc=1 frontend=slang
+---- synth.log tail ----
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[0].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[1].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[2].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[3].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_vl_rr.sv:19:5: error: unroll limit of 4000 exhausted [--unroll-limit=]
+    for (n = 0; n < 16; n = n + 1) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:155:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:154:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:197:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:196:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ERROR: Compilation failed
+---- watch.stderr ----
+Yosys failed (rc=1). See /workspace/reports/synth/blocks/vibe_fabric/synth.log

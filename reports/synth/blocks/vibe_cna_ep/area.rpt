@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               3695
+   Chip area for module '\vibe_cna_ep': 22520.348800
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

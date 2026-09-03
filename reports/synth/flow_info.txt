@@ -1,0 +1,13 @@
+design              block_suite (not vibe_ub_switch)
+repo_root           /workspace
+dut_rtl_sha         32a7f5e0c3f04762aa27dae73b000e55773195da
+spec_md_frozen      no
+tapeout             no
+yosys               Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+frontends           verilog (native -sv) for parseable blocks; slang (default unroll-limit 4000) for unpacked-array ports
+sdc                 none (no OpenSTA this run)
+liberty             sky130_fd_sc_hd__tt_025C_1v80.lib (not committed; scripts/synth/work/)
+memory_map          0
+platform            sky130hd
+note                Sky130 cannot close spec 1.25 GHz. Methodology QoR only. See 2026-09-03.md
+top_mapped          no  (vibe_ub_switch not invoked; full-chip slang OOM/unroll)

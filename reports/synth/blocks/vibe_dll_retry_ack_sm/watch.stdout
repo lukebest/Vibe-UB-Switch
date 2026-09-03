@@ -1,0 +1,1 @@
+synth ok  top=vibe_dll_retry_ack_sm  netlist=/workspace/scripts/synth/work/blocks/vibe_dll_retry_ack_sm/vibe_dll_retry_ack_sm.synth.v  reports=/workspace/reports/synth/blocks/vibe_dll_retry_ack_sm

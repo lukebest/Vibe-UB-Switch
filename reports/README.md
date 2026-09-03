@@ -8,9 +8,8 @@ Committed. Reproduce with `reports/lint/run_lint.sh`.
 Log: `vibe_ub_switch.lint.log`. Waivers: `WAIVERS.md` + `vibe_ub_switch.vlt`.  
 Requirement: 0 `%Error-*`. Every `-Wall` warning class has a waiver note.
 
-Directories are tracked with `.gitkeep`. Files below are produced later
-by `make -C scripts/synth synth-smoke`, `synth`, `sta`, or ORFS — not
-committed as a QoR drop.
+`reports/synth/` now holds a **methodology** block-level Yosys drop
+(see `2026-09-03.md`). That is not tapeout and not a mapped top.
 
 ## `reports/synth/` (after Yosys / ORFS synth)
 

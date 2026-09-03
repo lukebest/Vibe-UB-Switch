@@ -1,0 +1,34 @@
+STATUS: yosys rc=1 frontend=slang
+---- synth.log tail ----
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_xbar/vibe_xbar.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> plugin -i slang
+
+yosys> read_slang --single-unit --compat-mode -I /workspace/rtl/common /workspace/rtl/fabric/vibe_xbar.sv
+
+1. Executing SLANG frontend.
+rtl/fabric/vibe_xbar.sv:50:9: error: unroll limit of 4000 exhausted [--unroll-limit=]
+        for (i = 0; i < 4; i = i + 1) begin
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:47:9: note: loop contributes to unroll tally
+        for (i = 0; i < 4; i = i + 1)
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:67:7: warning: asynchronous load value missing for variable '\i'
+      for (e = 0; e < 4; e = e + 1) begin
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:65:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ERROR: Compilation failed
+---- watch.stderr ----
+Yosys failed (rc=1). See /workspace/reports/synth/blocks/vibe_xbar/synth.log

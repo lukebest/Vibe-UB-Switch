@@ -1,0 +1,2063 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_saf_ing/vibe_saf_ing.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/fabric/vibe_saf_ing.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/fabric/vibe_saf_ing.sv
+Parsing SystemVerilog input from `/workspace/rtl/fabric/vibe_saf_ing.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_saf_ing'.
+Warning: Replacing memory \mem with list of registers. See /workspace/rtl/fabric/vibe_saf_ing.sv:50
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_saf_ing -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_saf_ing
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_saf_ing
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_saf_ing
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 1 dead cases from process $proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248 in module vibe_saf_ing.
+Marked 1 switch rules as full_case in process $proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248 in module vibe_saf_ing.
+Marked 13 switch rules as full_case in process $proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30 in module vibe_saf_ing.
+Removed a total of 1 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 41 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~17 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248'.
+     1/1: $1$mem2reg_rd$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:32$17_DATA[511:0]$250
+Creating decoders for process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+     1/276: $5\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result[7:0]$241
+     2/276: $6\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$236
+     3/276: $5\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$234
+     4/276: $4\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.lastn[31:0]$227
+     5/276: $4\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.nblk[31:0]$226
+     6/276: $4\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.plen[13:0]$225
+     7/276: $4\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$224
+     8/276: $4\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.flit[159:0]$223
+     9/276: $4\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.$result[13:0]$222
+    10/276: $4\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.n[31:0]$221
+    11/276: $4\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.flit[159:0]$220
+    12/276: $4\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.$result[15:0]$219
+    13/276: $4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.b[15:0]$218
+    14/276: $4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.flit[159:0]$217
+    15/276: $4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result[7:0]$216
+    16/276: $4\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.beat[511:0]$215
+    17/276: $4\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.$result[159:0]$214
+    18/276: $4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$207
+    19/276: $5\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$202
+    20/276: $4\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$200
+    21/276: $5\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result[31:0]$193
+    22/276: $4\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result[31:0]$191
+    23/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.lastn[31:0]$184
+    24/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.nblk[31:0]$183
+    25/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.plen[13:0]$182
+    26/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$181
+    27/276: $3\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.flit[159:0]$180
+    28/276: $3\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.$result[13:0]$179
+    29/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.n[31:0]$178
+    30/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.flit[159:0]$177
+    31/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.$result[15:0]$176
+    32/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.b[15:0]$175
+    33/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.flit[159:0]$174
+    34/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result[7:0]$173
+    35/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.beat[511:0]$172
+    36/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.$result[159:0]$171
+    37/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$159
+    38/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.b[15:0]$161
+    39/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.$result[15:0]$162
+    40/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.n[31:0]$164
+    41/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$167
+    42/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.lastn[31:0]$170
+    43/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.nblk[31:0]$169
+    44/276: $3\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.plen[13:0]$168
+    45/276: $3\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.$result[13:0]$165
+    46/276: $3\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.flit[159:0]$166
+    47/276: $3\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.flit[159:0]$163
+    48/276: $3\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.flit[159:0]$160
+    49/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.$result[159:0]$157
+    50/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.beat[511:0]$158
+    51/276: $3\dflits[31:0]
+    52/276: $3\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result[31:0]$153
+    53/276: $3\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.lastn[31:0]$156
+    54/276: $3\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.nblk[31:0]$155
+    55/276: $3\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.plen[13:0]$154
+    56/276: $3\plen[13:0]
+    57/276: $3\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.$result[13:0]$151
+    58/276: $3\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.flit[159:0]$152
+    59/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.$result[159:0]$149
+    60/276: $3\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.beat[511:0]$150
+    61/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.lastn[31:0]$144
+    62/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.nblk[31:0]$143
+    63/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.plen[13:0]$142
+    64/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$141
+    65/276: $2\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.flit[159:0]$140
+    66/276: $2\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.$result[13:0]$139
+    67/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.n[31:0]$138
+    68/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.flit[159:0]$137
+    69/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.$result[15:0]$136
+    70/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.b[15:0]$135
+    71/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.flit[159:0]$134
+    72/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result[7:0]$133
+    73/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.beat[511:0]$132
+    74/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.$result[159:0]$131
+    75/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.lastn[31:0]$130
+    76/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.nblk[31:0]$129
+    77/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.plen[13:0]$128
+    78/276: $2\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$127
+    79/276: $2\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.flit[159:0]$126
+    80/276: $2\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.$result[13:0]$125
+    81/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.n[31:0]$124
+    82/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.flit[159:0]$123
+    83/276: $2\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.$result[15:0]$122
+    84/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.b[15:0]$121
+    85/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.flit[159:0]$120
+    86/276: $2\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$119
+    87/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.beat[511:0]$118
+    88/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.$result[159:0]$117
+    89/276: $2\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.lastn[31:0]$116
+    90/276: $2\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.nblk[31:0]$115
+    91/276: $2\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.plen[13:0]$114
+    92/276: $2\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result[31:0]$113
+    93/276: $2\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.flit[159:0]$112
+    94/276: $2\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.$result[13:0]$111
+    95/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.beat[511:0]$110
+    96/276: $2\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.$result[159:0]$109
+    97/276: $2\dflits[31:0]
+    98/276: $2\plen[13:0]
+    99/276: $2$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_ADDR[6:0]$145
+   100/276: $2$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_DATA[511:0]$146
+   101/276: $1$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_DATA[511:0]$107
+   102/276: $1$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_ADDR[6:0]$106
+   103/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.lastn[31:0]$105
+   104/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.nblk[31:0]$104
+   105/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.plen[13:0]$103
+   106/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result[31:0]$102
+   107/276: $1\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.flit[159:0]$101
+   108/276: $1\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.$result[13:0]$100
+   109/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.n[31:0]$99
+   110/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.flit[159:0]$98
+   111/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.$result[15:0]$97
+   112/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.b[15:0]$96
+   113/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.flit[159:0]$95
+   114/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result[7:0]$94
+   115/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.beat[511:0]$93
+   116/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.$result[159:0]$92
+   117/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.lastn[31:0]$91
+   118/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.nblk[31:0]$90
+   119/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.plen[13:0]$89
+   120/276: $1\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$88
+   121/276: $1\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.flit[159:0]$87
+   122/276: $1\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.$result[13:0]$86
+   123/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.n[31:0]$85
+   124/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.flit[159:0]$84
+   125/276: $1\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.$result[15:0]$83
+   126/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.b[15:0]$82
+   127/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.flit[159:0]$81
+   128/276: $1\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$80
+   129/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.beat[511:0]$79
+   130/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.$result[159:0]$78
+   131/276: $1\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.lastn[31:0]$77
+   132/276: $1\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.nblk[31:0]$76
+   133/276: $1\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.plen[13:0]$75
+   134/276: $1\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result[31:0]$74
+   135/276: $1\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.flit[159:0]$73
+   136/276: $1\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.$result[13:0]$72
+   137/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.beat[511:0]$71
+   138/276: $1\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.$result[159:0]$70
+   139/276: $1\dflits[31:0]
+   140/276: $1\plen[13:0]
+   141/276: $0\len_err[0:0]
+   142/276: $0\mem[127][511:0]
+   143/276: $0\mem[126][511:0]
+   144/276: $0\mem[125][511:0]
+   145/276: $0\mem[124][511:0]
+   146/276: $0\mem[123][511:0]
+   147/276: $0\mem[122][511:0]
+   148/276: $0\mem[121][511:0]
+   149/276: $0\mem[120][511:0]
+   150/276: $0\mem[119][511:0]
+   151/276: $0\mem[118][511:0]
+   152/276: $0\mem[117][511:0]
+   153/276: $0\mem[116][511:0]
+   154/276: $0\mem[115][511:0]
+   155/276: $0\mem[114][511:0]
+   156/276: $0\mem[113][511:0]
+   157/276: $0\mem[112][511:0]
+   158/276: $0\mem[111][511:0]
+   159/276: $0\mem[110][511:0]
+   160/276: $0\mem[109][511:0]
+   161/276: $0\mem[108][511:0]
+   162/276: $0\mem[107][511:0]
+   163/276: $0\mem[106][511:0]
+   164/276: $0\mem[105][511:0]
+   165/276: $0\mem[104][511:0]
+   166/276: $0\mem[103][511:0]
+   167/276: $0\mem[102][511:0]
+   168/276: $0\mem[101][511:0]
+   169/276: $0\mem[100][511:0]
+   170/276: $0\mem[99][511:0]
+   171/276: $0\mem[98][511:0]
+   172/276: $0\mem[97][511:0]
+   173/276: $0\mem[96][511:0]
+   174/276: $0\mem[95][511:0]
+   175/276: $0\mem[94][511:0]
+   176/276: $0\mem[93][511:0]
+   177/276: $0\mem[92][511:0]
+   178/276: $0\mem[91][511:0]
+   179/276: $0\mem[90][511:0]
+   180/276: $0\mem[89][511:0]
+   181/276: $0\mem[88][511:0]
+   182/276: $0\mem[87][511:0]
+   183/276: $0\mem[86][511:0]
+   184/276: $0\mem[85][511:0]
+   185/276: $0\mem[84][511:0]
+   186/276: $0\mem[83][511:0]
+   187/276: $0\mem[82][511:0]
+   188/276: $0\mem[81][511:0]
+   189/276: $0\mem[80][511:0]
+   190/276: $0\mem[79][511:0]
+   191/276: $0\mem[78][511:0]
+   192/276: $0\mem[77][511:0]
+   193/276: $0\mem[76][511:0]
+   194/276: $0\mem[75][511:0]
+   195/276: $0\mem[74][511:0]
+   196/276: $0\mem[73][511:0]
+   197/276: $0\mem[72][511:0]
+   198/276: $0\mem[71][511:0]
+   199/276: $0\mem[70][511:0]
+   200/276: $0\mem[69][511:0]
+   201/276: $0\mem[68][511:0]
+   202/276: $0\mem[67][511:0]
+   203/276: $0\mem[66][511:0]
+   204/276: $0\mem[65][511:0]
+   205/276: $0\mem[64][511:0]
+   206/276: $0\mem[63][511:0]
+   207/276: $0\mem[62][511:0]
+   208/276: $0\mem[61][511:0]
+   209/276: $0\mem[60][511:0]
+   210/276: $0\mem[59][511:0]
+   211/276: $0\mem[58][511:0]
+   212/276: $0\mem[57][511:0]
+   213/276: $0\mem[56][511:0]
+   214/276: $0\mem[55][511:0]
+   215/276: $0\mem[54][511:0]
+   216/276: $0\mem[53][511:0]
+   217/276: $0\mem[52][511:0]
+   218/276: $0\mem[51][511:0]
+   219/276: $0\mem[50][511:0]
+   220/276: $0\mem[49][511:0]
+   221/276: $0\mem[48][511:0]
+   222/276: $0\mem[47][511:0]
+   223/276: $0\mem[46][511:0]
+   224/276: $0\mem[45][511:0]
+   225/276: $0\mem[44][511:0]
+   226/276: $0\mem[43][511:0]
+   227/276: $0\mem[42][511:0]
+   228/276: $0\mem[41][511:0]
+   229/276: $0\mem[40][511:0]
+   230/276: $0\mem[39][511:0]
+   231/276: $0\mem[38][511:0]
+   232/276: $0\mem[37][511:0]
+   233/276: $0\mem[36][511:0]
+   234/276: $0\mem[35][511:0]
+   235/276: $0\mem[34][511:0]
+   236/276: $0\mem[33][511:0]
+   237/276: $0\mem[32][511:0]
+   238/276: $0\mem[31][511:0]
+   239/276: $0\mem[30][511:0]
+   240/276: $0\mem[29][511:0]
+   241/276: $0\mem[28][511:0]
+   242/276: $0\mem[27][511:0]
+   243/276: $0\mem[26][511:0]
+   244/276: $0\mem[25][511:0]
+   245/276: $0\mem[24][511:0]
+   246/276: $0\mem[23][511:0]
+   247/276: $0\mem[22][511:0]
+   248/276: $0\mem[21][511:0]
+   249/276: $0\mem[20][511:0]
+   250/276: $0\mem[19][511:0]
+   251/276: $0\mem[18][511:0]
+   252/276: $0\mem[17][511:0]
+   253/276: $0\mem[16][511:0]
+   254/276: $0\mem[15][511:0]
+   255/276: $0\mem[14][511:0]
+   256/276: $0\mem[13][511:0]
+   257/276: $0\mem[12][511:0]
+   258/276: $0\mem[11][511:0]
+   259/276: $0\mem[10][511:0]
+   260/276: $0\mem[9][511:0]
+   261/276: $0\mem[8][511:0]
+   262/276: $0\mem[7][511:0]
+   263/276: $0\mem[6][511:0]
+   264/276: $0\mem[5][511:0]
+   265/276: $0\mem[4][511:0]
+   266/276: $0\mem[3][511:0]
+   267/276: $0\mem[2][511:0]
+   268/276: $0\mem[1][511:0]
+   269/276: $0\mem[0][511:0]
+   270/276: $0\done[0:0]
+   271/276: $0\assembling[0:0]
+   272/276: $0\bytes[15:0]
+   273/276: $0\decl_beats[6:0]
+   274/276: $0\beat_cnt[6:0]
+   275/276: $0\rptr[6:0]
+   276/276: $0\wptr[6:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\vibe_saf_ing.$mem2reg_rd$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:32$17_DATA' from process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248'.
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_saf_ing.\len_err' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9781' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\wptr' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9786' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\rptr' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9791' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\beat_cnt' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9796' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\decl_beats' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9801' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\bytes' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9806' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\assembling' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9811' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\done' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9816' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\plen' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$9823' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\dflits' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$9830' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9835' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$4.beat' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9840' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9845' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/fabric/vibe_saf_ing.sv:54$5.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9850' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9855' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.plen' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9860' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.nblk' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9865' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/fabric/vibe_saf_ing.sv:55$6.lastn' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9870' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9875' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$7.beat' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9880' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9885' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9890' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.b' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9895' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9900' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9905' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$9.n' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9910' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9915' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$10.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9920' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9925' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.plen' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9930' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.nblk' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9935' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.lastn' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9940' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9945' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_flit0$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$12.beat' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9950' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9955' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9960' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:64$13.b' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9965' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9970' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9975' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_pkt_bytes$func$/workspace/rtl/common/vibe_ub_fn.vh:124$14.n' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9980' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9985' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_lph_plength$func$/workspace/rtl/common/vibe_ub_fn.vh:115$15.flit' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9990' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.$result' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$9995' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.plen' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$10000' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.nblk' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$10005' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$16.lastn' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$10010' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.\mem[0]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10017' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[1]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10024' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[2]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10031' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[3]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10038' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[4]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10045' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[5]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10052' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[6]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10059' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[7]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10066' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[8]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10073' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[9]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10080' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[10]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10087' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[11]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10094' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[12]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10101' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[13]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10108' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[14]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10115' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[15]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10122' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[16]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10129' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[17]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10136' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[18]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10143' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[19]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10150' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[20]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10157' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[21]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10164' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[22]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10171' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[23]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10178' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[24]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10185' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[25]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10192' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[26]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10199' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[27]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10206' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[28]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10213' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[29]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10220' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[30]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10227' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[31]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10234' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[32]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10241' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[33]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10248' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[34]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10255' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[35]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10262' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[36]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10269' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[37]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10276' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[38]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10283' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[39]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10290' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[40]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10297' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[41]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10304' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[42]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10311' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[43]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10318' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[44]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10325' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[45]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10332' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[46]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10339' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[47]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10346' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[48]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10353' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[49]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10360' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[50]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10367' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[51]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10374' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[52]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10381' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[53]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10388' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[54]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10395' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[55]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10402' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[56]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10409' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[57]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10416' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[58]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10423' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[59]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10430' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[60]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10437' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[61]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10444' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[62]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10451' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[63]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10458' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[64]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10465' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[65]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10472' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[66]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10479' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[67]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10486' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[68]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10493' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[69]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10500' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[70]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10507' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[71]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10514' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[72]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10521' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[73]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10528' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[74]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10535' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[75]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10542' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[76]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10549' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[77]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10556' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[78]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10563' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[79]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10570' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[80]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10577' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[81]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10584' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[82]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10591' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[83]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10598' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[84]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10605' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[85]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10612' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[86]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10619' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[87]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10626' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[88]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10633' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[89]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10640' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[90]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10647' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[91]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10654' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[92]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10661' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[93]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10668' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[94]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10675' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[95]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10682' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[96]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10689' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[97]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10696' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[98]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10703' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[99]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10710' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[100]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10717' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[101]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10724' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[102]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10731' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[103]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10738' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[104]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10745' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[105]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10752' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[106]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10759' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[107]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10766' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[108]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10773' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[109]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10780' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[110]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10787' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[111]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10794' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[112]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10801' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[113]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10808' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[114]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10815' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[115]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10822' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[116]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10829' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[117]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10836' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[118]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10843' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[119]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10850' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[120]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10857' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[121]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10864' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[122]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10871' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[123]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10878' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[124]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10885' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[125]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10892' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[126]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10899' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.\mem[127]' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $dff cell `$procdff$10906' with positive edge clock.
+Creating register for signal `\vibe_saf_ing.$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_ADDR' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$10911' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_saf_ing.$mem2reg_wr$\mem$/workspace/rtl/fabric/vibe_saf_ing.sv:50$18_DATA' using process `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+  created $adff cell `$procdff$10916' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248'.
+Removing empty process `vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:0$248'.
+Found and cleaned up 16 empty switches in `\vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+Removing empty process `vibe_saf_ing.$proc$/workspace/rtl/fabric/vibe_saf_ing.sv:37$30'.
+Cleaned up 17 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~427 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~11 debug messages>
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 378 unused cells and 1222 unused wires.
+<suppressed ~404 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_saf_ing...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+<suppressed ~48 debug messages>
+Removed a total of 16 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+      Replacing known input bits on port A of cell $procmux$9730: \assembling -> 1'1
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$547.
+    dead port 2/2 on $mux $procmux$549.
+Removed 2 multiplexer ports.
+<suppressed ~146 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+<suppressed ~24 debug messages>
+Removed a total of 8 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 0 unused cells and 28 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~145 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~145 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$9811 ($adff) from module vibe_saf_ing (D = $procmux$9738_Y, Q = \assembling).
+Adding EN signal on $procdff$9806 ($adff) from module vibe_saf_ing (D = { $mul$/workspace/rtl/fabric/vibe_saf_ing.sv:57$208_Y [15:2] 2'00 }, Q = \bytes).
+Adding EN signal on $procdff$9801 ($adff) from module vibe_saf_ing (D = $4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$207 [6:0], Q = \decl_beats).
+Adding EN signal on $procdff$9796 ($adff) from module vibe_saf_ing (D = $procmux$9756_Y, Q = \beat_cnt).
+Adding EN signal on $procdff$9791 ($adff) from module vibe_saf_ing (D = $procmux$9760_Y, Q = \rptr).
+Adding EN signal on $procdff$10906 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[127]).
+Adding EN signal on $procdff$10899 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[126]).
+Adding EN signal on $procdff$10892 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[125]).
+Adding EN signal on $procdff$10885 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[124]).
+Adding EN signal on $procdff$10878 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[123]).
+Adding EN signal on $procdff$10871 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[122]).
+Adding EN signal on $procdff$10864 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[121]).
+Adding EN signal on $procdff$10857 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[120]).
+Adding EN signal on $procdff$10850 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[119]).
+Adding EN signal on $procdff$10843 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[118]).
+Adding EN signal on $procdff$10836 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[117]).
+Adding EN signal on $procdff$10829 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[116]).
+Adding EN signal on $procdff$10822 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[115]).
+Adding EN signal on $procdff$10815 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[114]).
+Adding EN signal on $procdff$10808 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[113]).
+Adding EN signal on $procdff$10801 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[112]).
+Adding EN signal on $procdff$10794 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[111]).
+Adding EN signal on $procdff$10787 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[110]).
+Adding EN signal on $procdff$10780 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[109]).
+Adding EN signal on $procdff$10773 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[108]).
+Adding EN signal on $procdff$10766 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[107]).
+Adding EN signal on $procdff$10759 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[106]).
+Adding EN signal on $procdff$10752 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[105]).
+Adding EN signal on $procdff$10745 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[104]).
+Adding EN signal on $procdff$10738 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[103]).
+Adding EN signal on $procdff$10731 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[102]).
+Adding EN signal on $procdff$10724 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[101]).
+Adding EN signal on $procdff$10717 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[100]).
+Adding EN signal on $procdff$10710 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[99]).
+Adding EN signal on $procdff$10703 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[98]).
+Adding EN signal on $procdff$10696 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[97]).
+Adding EN signal on $procdff$10689 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[96]).
+Adding EN signal on $procdff$10682 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[95]).
+Adding EN signal on $procdff$10675 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[94]).
+Adding EN signal on $procdff$10668 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[93]).
+Adding EN signal on $procdff$10661 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[92]).
+Adding EN signal on $procdff$10654 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[91]).
+Adding EN signal on $procdff$10647 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[90]).
+Adding EN signal on $procdff$10640 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[89]).
+Adding EN signal on $procdff$10633 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[88]).
+Adding EN signal on $procdff$10626 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[87]).
+Adding EN signal on $procdff$10619 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[86]).
+Adding EN signal on $procdff$10612 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[85]).
+Adding EN signal on $procdff$10605 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[84]).
+Adding EN signal on $procdff$10598 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[83]).
+Adding EN signal on $procdff$10591 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[82]).
+Adding EN signal on $procdff$10584 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[81]).
+Adding EN signal on $procdff$10577 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[80]).
+Adding EN signal on $procdff$10570 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[79]).
+Adding EN signal on $procdff$10563 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[78]).
+Adding EN signal on $procdff$10556 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[77]).
+Adding EN signal on $procdff$10549 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[76]).
+Adding EN signal on $procdff$10542 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[75]).
+Adding EN signal on $procdff$10535 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[74]).
+Adding EN signal on $procdff$10528 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[73]).
+Adding EN signal on $procdff$10521 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[72]).
+Adding EN signal on $procdff$10514 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[71]).
+Adding EN signal on $procdff$10507 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[70]).
+Adding EN signal on $procdff$10500 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[69]).
+Adding EN signal on $procdff$10493 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[68]).
+Adding EN signal on $procdff$10486 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[67]).
+Adding EN signal on $procdff$10479 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[66]).
+Adding EN signal on $procdff$10472 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[65]).
+Adding EN signal on $procdff$10465 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[64]).
+Adding EN signal on $procdff$10458 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[63]).
+Adding EN signal on $procdff$10451 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[62]).
+Adding EN signal on $procdff$10444 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[61]).
+Adding EN signal on $procdff$10437 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[60]).
+Adding EN signal on $procdff$10430 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[59]).
+Adding EN signal on $procdff$10423 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[58]).
+Adding EN signal on $procdff$10416 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[57]).
+Adding EN signal on $procdff$10409 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[56]).
+Adding EN signal on $procdff$10402 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[55]).
+Adding EN signal on $procdff$10395 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[54]).
+Adding EN signal on $procdff$10388 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[53]).
+Adding EN signal on $procdff$10381 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[52]).
+Adding EN signal on $procdff$10374 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[51]).
+Adding EN signal on $procdff$10367 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[50]).
+Adding EN signal on $procdff$10360 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[49]).
+Adding EN signal on $procdff$10353 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[48]).
+Adding EN signal on $procdff$10346 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[47]).
+Adding EN signal on $procdff$10339 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[46]).
+Adding EN signal on $procdff$10332 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[45]).
+Adding EN signal on $procdff$10325 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[44]).
+Adding EN signal on $procdff$10318 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[43]).
+Adding EN signal on $procdff$10311 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[42]).
+Adding EN signal on $procdff$10304 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[41]).
+Adding EN signal on $procdff$10297 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[40]).
+Adding EN signal on $procdff$10290 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[39]).
+Adding EN signal on $procdff$10283 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[38]).
+Adding EN signal on $procdff$10276 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[37]).
+Adding EN signal on $procdff$10269 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[36]).
+Adding EN signal on $procdff$10262 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[35]).
+Adding EN signal on $procdff$10255 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[34]).
+Adding EN signal on $procdff$10248 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[33]).
+Adding EN signal on $procdff$10241 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[32]).
+Adding EN signal on $procdff$10234 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[31]).
+Adding EN signal on $procdff$10227 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[30]).
+Adding EN signal on $procdff$10220 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[29]).
+Adding EN signal on $procdff$10213 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[28]).
+Adding EN signal on $procdff$10206 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[27]).
+Adding EN signal on $procdff$10199 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[26]).
+Adding EN signal on $procdff$10192 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[25]).
+Adding EN signal on $procdff$10185 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[24]).
+Adding EN signal on $procdff$10178 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[23]).
+Adding EN signal on $procdff$10171 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[22]).
+Adding EN signal on $procdff$10164 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[21]).
+Adding EN signal on $procdff$10157 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[20]).
+Adding EN signal on $procdff$10150 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[19]).
+Adding EN signal on $procdff$10143 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[18]).
+Adding EN signal on $procdff$10136 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[17]).
+Adding EN signal on $procdff$10129 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[16]).
+Adding EN signal on $procdff$10122 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[15]).
+Adding EN signal on $procdff$10115 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[14]).
+Adding EN signal on $procdff$10108 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[13]).
+Adding EN signal on $procdff$10101 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[12]).
+Adding EN signal on $procdff$10094 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[11]).
+Adding EN signal on $procdff$10087 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[10]).
+Adding EN signal on $procdff$10080 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[9]).
+Adding EN signal on $procdff$10073 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[8]).
+Adding EN signal on $procdff$10066 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[7]).
+Adding EN signal on $procdff$10059 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[6]).
+Adding EN signal on $procdff$10052 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[5]).
+Adding EN signal on $procdff$10045 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[4]).
+Adding EN signal on $procdff$10038 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[3]).
+Adding EN signal on $procdff$10031 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[2]).
+Adding EN signal on $procdff$10024 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[1]).
+Adding EN signal on $procdff$10017 ($dff) from module vibe_saf_ing (D = \in_data, Q = \mem[0]).
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$10918 ($adffe) from module vibe_saf_ing.
+Setting constant 0-bit at position 1 on $auto$ff.cc:266:slice$10918 ($adffe) from module vibe_saf_ing.
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 391 unused cells and 391 unused wires.
+<suppressed ~392 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+<suppressed ~6 debug messages>
+Removed a total of 2 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+yosys> opt_reduce
+
+2.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> opt_expr
+
+2.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 6 bits (of 7) from port B of cell vibe_saf_ing.$add$/workspace/rtl/fabric/vibe_saf_ing.sv:30$19 ($add).
+Removed top 6 bits (of 7) from port B of cell vibe_saf_ing.$add$/workspace/rtl/fabric/vibe_saf_ing.sv:34$27 ($add).
+Removed top 31 bits (of 32) from port B of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:94$185 ($add).
+Removed top 27 bits (of 32) from port Y of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:94$185 ($add).
+Removed top 31 bits (of 32) from port B of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:95$186 ($add).
+Removed top 26 bits (of 32) from port Y of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:95$186 ($add).
+Removed top 26 bits (of 32) from port A of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Removed top 30 bits (of 32) from port B of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Converting cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub) from signed to unsigned.
+Removed top 25 bits (of 32) from port Y of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Removed top 1 bits (of 6) from port A of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Removed top 1 bits (of 2) from port B of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Removed top 1 bits (of 7) from port Y of cell vibe_saf_ing.$sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+Converting cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:96$189 ($add) from unsigned to signed.
+Removed top 21 bits (of 32) from port A of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:96$189 ($add).
+Removed top 25 bits (of 32) from port B of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:96$189 ($add).
+Removed top 20 bits (of 32) from port Y of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:96$189 ($add).
+Removed top 20 bits (of 32) from port A of cell vibe_saf_ing.$lt$/workspace/rtl/common/vibe_ub_fn.vh:97$190 ($lt).
+Removed top 30 bits (of 32) from port B of cell vibe_saf_ing.$lt$/workspace/rtl/common/vibe_ub_fn.vh:97$190 ($lt).
+Removed top 21 bits (of 32) from port B of cell vibe_saf_ing.$gt$/workspace/rtl/common/vibe_ub_fn.vh:98$192 ($gt).
+Removed top 11 bits (of 14) from port B of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203 ($mul).
+Removed top 16 bits (of 30) from port Y of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203 ($mul).
+Removed top 10 bits (of 16) from port B of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$204 ($add).
+Removed top 2 bits (of 16) from port Y of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$204 ($add).
+Removed top 2 bits (of 16) from port A of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$204 ($add).
+Removed top 26 bits (of 30) from port B of cell vibe_saf_ing.$mul$/workspace/rtl/fabric/vibe_saf_ing.sv:57$208 ($mul).
+Removed top 26 bits (of 32) from port B of cell vibe_saf_ing.$lt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$210 ($lt).
+Removed top 18 bits (of 32) from port B of cell vibe_saf_ing.$gt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$212 ($gt).
+Removed top 21 bits (of 32) from port B of cell vibe_saf_ing.$gt$/workspace/rtl/common/vibe_ub_fn.vh:98$235 ($gt).
+Removed top 11 bits (of 14) from port B of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237 ($mul).
+Removed top 16 bits (of 30) from port Y of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237 ($mul).
+Removed top 10 bits (of 16) from port B of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$238 ($add).
+Removed top 2 bits (of 16) from port Y of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$238 ($add).
+Removed top 2 bits (of 16) from port A of cell vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$238 ($add).
+Removed top 7 bits (of 8) from port B of cell vibe_saf_ing.$eq$/workspace/rtl/fabric/vibe_saf_ing.sv:64$242 ($eq).
+Removed top 6 bits (of 7) from port B of cell vibe_saf_ing.$add$/workspace/rtl/fabric/vibe_saf_ing.sv:70$243 ($add).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$316_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$317_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$318_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$319_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$320_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$321_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$322_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$323_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$324_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$325_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$326_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$327_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$328_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$329_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$330_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$331_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$332_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$333_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$334_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$335_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$336_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$337_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$338_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$339_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$340_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$341_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$342_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$343_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$344_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$345_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$346_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$347_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$348_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$349_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$350_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$351_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$352_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$353_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$354_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$355_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$356_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$357_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$358_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$359_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$360_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$361_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$362_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$363_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$364_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$365_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$366_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$367_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$368_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$369_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$370_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$371_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$372_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$373_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$374_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$375_CMP0 ($eq).
+Removed top 5 bits (of 7) from port B of cell vibe_saf_ing.$procmux$376_CMP0 ($eq).
+Removed top 5 bits (of 7) from port B of cell vibe_saf_ing.$procmux$377_CMP0 ($eq).
+Removed top 6 bits (of 7) from port B of cell vibe_saf_ing.$procmux$378_CMP0 ($eq).
+Removed top 1 bits (of 8) from mux cell vibe_saf_ing.$procmux$545 ($mux).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3346_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3416_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3487_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3559_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3632_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3706_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3781_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3857_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$3934_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4012_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4091_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4171_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4252_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4334_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4417_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4501_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4586_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4672_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4759_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4847_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$4936_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5026_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5117_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5209_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5302_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5396_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5491_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5587_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5684_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5782_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5881_CMP0 ($eq).
+Removed top 1 bits (of 7) from port B of cell vibe_saf_ing.$procmux$5981_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6082_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6184_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6287_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6391_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6496_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6602_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6709_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6817_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$6926_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7036_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7147_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7259_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7372_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7486_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7601_CMP0 ($eq).
+Removed top 2 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7717_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7834_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$7952_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8071_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8191_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8312_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8434_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8557_CMP0 ($eq).
+Removed top 3 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8681_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8806_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$8932_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$9059_CMP0 ($eq).
+Removed top 4 bits (of 7) from port B of cell vibe_saf_ing.$procmux$9187_CMP0 ($eq).
+Removed top 5 bits (of 7) from port B of cell vibe_saf_ing.$procmux$9316_CMP0 ($eq).
+Removed top 5 bits (of 7) from port B of cell vibe_saf_ing.$procmux$9446_CMP0 ($eq).
+Removed top 6 bits (of 7) from port B of cell vibe_saf_ing.$procmux$9577_CMP0 ($eq).
+Removed top 2 bits (of 14) from port Y of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203 ($mul).
+Removed top 2 bits (of 14) from port Y of cell vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237 ($mul).
+Removed top 1 bits (of 8) from wire vibe_saf_ing.$4\vibe_nw512_decl_beats$func$/workspace/rtl/fabric/vibe_saf_ing.sv:56$8.$result[7:0]$207.
+Removed top 2 bits (of 16) from wire vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$204_Y.
+Removed top 2 bits (of 16) from wire vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:125$238_Y.
+Removed top 27 bits (of 32) from wire vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:94$185_Y.
+Removed top 26 bits (of 32) from wire vibe_saf_ing.$add$/workspace/rtl/common/vibe_ub_fn.vh:95$186_Y.
+Removed top 18 bits (of 32) from wire vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203_Y.
+Removed top 22 bits (of 32) from wire vibe_saf_ing.$mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237_Y.
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 0 unused cells and 8 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_saf_ing:
+  creating $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:125$204 ($add).
+  creating $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:125$238 ($add).
+  creating $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:94$185 ($add).
+  creating $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:95$186 ($add).
+  creating $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:96$189 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:30$19 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:34$27 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:70$243 ($add).
+  creating $macc model for $mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203 ($mul).
+  creating $macc model for $mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237 ($mul).
+  creating $macc model for $mul$/workspace/rtl/fabric/vibe_saf_ing.sv:57$208 ($mul).
+  creating $macc model for $sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187 ($sub).
+  merging $macc model for $add$/workspace/rtl/common/vibe_ub_fn.vh:94$185 into $sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_saf_ing.sv:70$243.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_saf_ing.sv:34$27.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_saf_ing.sv:30$19.
+  creating $alu model for $macc $add$/workspace/rtl/common/vibe_ub_fn.vh:96$189.
+  creating $alu model for $macc $add$/workspace/rtl/common/vibe_ub_fn.vh:95$186.
+  creating $alu model for $macc $add$/workspace/rtl/common/vibe_ub_fn.vh:125$238.
+  creating $alu model for $macc $add$/workspace/rtl/common/vibe_ub_fn.vh:125$204.
+  creating $macc cell for $mul$/workspace/rtl/common/vibe_ub_fn.vh:116$203: $auto$alumacc.cc:365:replace_macc$11322
+  creating $macc cell for $sub$/workspace/rtl/common/vibe_ub_fn.vh:96$187: $auto$alumacc.cc:365:replace_macc$11323
+  creating $macc cell for $mul$/workspace/rtl/common/vibe_ub_fn.vh:116$237: $auto$alumacc.cc:365:replace_macc$11324
+  creating $macc cell for $mul$/workspace/rtl/fabric/vibe_saf_ing.sv:57$208: $auto$alumacc.cc:365:replace_macc$11325
+  creating $alu model for $ge$/workspace/rtl/fabric/vibe_saf_ing.sv:71$245 ($ge): new $alu
+  creating $alu model for $gt$/workspace/rtl/common/vibe_ub_fn.vh:98$192 ($gt): new $alu
+  creating $alu model for $gt$/workspace/rtl/common/vibe_ub_fn.vh:98$235 ($gt): new $alu
+  creating $alu model for $gt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$212 ($gt): new $alu
+  creating $alu model for $lt$/workspace/rtl/common/vibe_ub_fn.vh:97$190 ($lt): new $alu
+  creating $alu model for $lt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$210 ($lt): new $alu
+  creating $alu cell for $lt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$210: $auto$alumacc.cc:495:replace_alu$11332
+  creating $alu cell for $lt$/workspace/rtl/common/vibe_ub_fn.vh:97$190: $auto$alumacc.cc:495:replace_alu$11339
+  creating $alu cell for $gt$/workspace/rtl/fabric/vibe_saf_ing.sv:59$212: $auto$alumacc.cc:495:replace_alu$11346
+  creating $alu cell for $gt$/workspace/rtl/common/vibe_ub_fn.vh:98$235: $auto$alumacc.cc:495:replace_alu$11359
+  creating $alu cell for $gt$/workspace/rtl/common/vibe_ub_fn.vh:98$192: $auto$alumacc.cc:495:replace_alu$11372
+  creating $alu cell for $ge$/workspace/rtl/fabric/vibe_saf_ing.sv:71$245: $auto$alumacc.cc:495:replace_alu$11385
+  creating $alu cell for $add$/workspace/rtl/common/vibe_ub_fn.vh:125$204: $auto$alumacc.cc:495:replace_alu$11398
+  creating $alu cell for $add$/workspace/rtl/common/vibe_ub_fn.vh:125$238: $auto$alumacc.cc:495:replace_alu$11401
+  creating $alu cell for $add$/workspace/rtl/common/vibe_ub_fn.vh:95$186: $auto$alumacc.cc:495:replace_alu$11404
+  creating $alu cell for $add$/workspace/rtl/common/vibe_ub_fn.vh:96$189: $auto$alumacc.cc:495:replace_alu$11407
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:30$19: $auto$alumacc.cc:495:replace_alu$11410
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:34$27: $auto$alumacc.cc:495:replace_alu$11413
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_saf_ing.sv:70$243: $auto$alumacc.cc:495:replace_alu$11416
+  created 13 $alu and 4 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~2 debug messages>
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 3 unused cells and 9 unused wires.
+<suppressed ~4 debug messages>
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_saf_ing..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~16 debug messages>
+
+yosys> opt_reduce
+
+2.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_saf_ing.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> opt_expr
+
+2.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+
+2.14.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_saf_ing/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_saf_ing ===
+
+   Number of wires:                647
+   Number of wire bits:          68357
+   Number of public wires:         147
+   Number of public wire bits:   66631
+   Number of ports:                 12
+   Number of port bits:           1049
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                615
+     $adff                           3
+     $adffe                          5
+     $alu                           13
+     $dffe                         128
+     $eq                           256
+     $logic_and                      5
+     $logic_not                      5
+     $logic_or                       2
+     $macc_v2                        4
+     $mux                           39
+     $ne                             2
+     $not                            4
+     $or                             4
+     $pmux                           1
+     $reduce_and                   133
+     $reduce_or                      1
+     $xor                           10
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~32 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+<suppressed ~58 debug messages>
+Removed a total of 18 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 2 unused cells and 51 unused wires.
+<suppressed ~3 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using template $paramod$103b4016182df467cceab67bcf3e18e6361ec0fd\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod$5e23d2e0f07f5403e3d2c5b606bab0c16e4174c1\_90_alu for cells of type $alu.
+Using template $paramod$207692717c51e48d82d715cfaf2668de98d70b09\_90_alu for cells of type $alu.
+Using extmapper maccmap for cells of type $macc_v2.
+  add $5\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$202 * 3'101 (32x3 bits, unsigned)
+Using template $paramod$f1f31224a5cc6e2069ce533a866f354626fa3c48\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $adffe.
+Using template $paramod$dbcdc7e8aa1a4080cea2deda6fdc8772064f4d90\_90_alu for cells of type $alu.
+  add \in_data [373:370] (4 bits, unsigned)
+Using template $paramod$3ee881479230cbacdbc76ce69c54db09efb310e2\_90_alu for cells of type $alu.
+Using template $paramod$f2c02b535aa5a3ee3328d157e65221153244f56e\_90_alu for cells of type $alu.
+Using template $paramod$8263b6154cd7ab2bbb8571662288869c1a1d06e5\_90_alu for cells of type $alu.
+  add $5\vibe_decl_flits$func$/workspace/rtl/common/vibe_ub_fn.vh:115$11.$result[31:0]$202 * 4'0101 (32x4 bits, signed)
+Using template $paramod$c25c19dcd491e3f0bfee04c35867099cab34c766\_90_alu for cells of type $alu.
+Using template $paramod$2ea00f0089b6cf231e4ee7eea21499d5dcf0700e\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $dffe.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011110 for cells of type $fa.
+Using template $paramod$403d07c18de10cda2ac652a859c56aea81aaf9b5\_90_alu for cells of type $alu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000111 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000010111 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001100 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011100 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011110 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000001100 for cells of type $fa.
+Using template $paramod$ee3d784672cdb1cb32d9a801a3af776716f16b74\_90_alu for cells of type $alu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000110 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~3480 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~3597 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+<suppressed ~7299 debug messages>
+Removed a total of 2433 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$18875 ($_DFFE_PN0P_) from module vibe_saf_ing.
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 127 unused cells and 4827 unused wires.
+<suppressed ~128 debug messages>
+
+6.5. Rerunning OPT passes. (Removed registers in this run.)
+
+yosys> opt_expr
+
+6.6. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_saf_ing.
+<suppressed ~12 debug messages>
+
+yosys> opt_merge
+
+6.7. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_saf_ing'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+6.8. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 1 unused cells and 3 unused wires.
+<suppressed ~2 debug messages>
+
+6.10. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_saf_ing':
+  mapped 65536 $_DFFE_PP_ cells to \sky130_fd_sc_hd__edfxtp_1 cells.
+  mapped 44 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_saf_ing' to `<abc-temp-dir>/input.blif'..
+Extracted 131407 gates and 197000 wires to a netlist network with 65591 inputs and 688 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.08 sec
+ABC: Memory =   19.81 MB. Time =     0.08 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a2111oi_0 cells:      208
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:       54
+ABC RESULTS:   sky130_fd_sc_hd__a21boi_0 cells:       40
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:      596
+ABC RESULTS:   sky130_fd_sc_hd__a221o_1 cells:       79
+ABC RESULTS:   sky130_fd_sc_hd__a221oi_1 cells:     2107
+ABC RESULTS:   sky130_fd_sc_hd__a222oi_1 cells:    13246
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:     2140
+ABC RESULTS:   sky130_fd_sc_hd__a22oi_1 cells:     7272
+ABC RESULTS:   sky130_fd_sc_hd__a311oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:       11
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:      155
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:       99
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:       47
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        9
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:       10
+ABC RESULTS:   sky130_fd_sc_hd__maj3_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:     2690
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:     2432
+ABC RESULTS:   sky130_fd_sc_hd__nand3b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:     4277
+ABC RESULTS:   sky130_fd_sc_hd__nand4b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:      544
+ABC RESULTS:   sky130_fd_sc_hd__nor2b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:      420
+ABC RESULTS:   sky130_fd_sc_hd__nor3b_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:      846
+ABC RESULTS:   sky130_fd_sc_hd__nor4b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__o211a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o211ai_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       22
+ABC RESULTS:   sky130_fd_sc_hd__o22ai_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__o2bb2ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31ai_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__o32a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o41ai_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__or3_1 cells:       24
+ABC RESULTS:   sky130_fd_sc_hd__or4_1 cells:      218
+ABC RESULTS:   sky130_fd_sc_hd__or4b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:       25
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       21
+ABC RESULTS:   sky130_fd_sc_hd__xor3_1 cells:        2
+ABC RESULTS:        internal signals:   130721
+ABC RESULTS:           input signals:    65591
+ABC RESULTS:          output signals:      688
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_saf_ing..
+Removed 0 unused cells and 70018 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_saf_ing/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_saf_ing ===
+
+   Number of wires:              37274
+   Number of wire bits:         103764
+   Number of public wires:         147
+   Number of public wire bits:   66631
+   Number of ports:                 12
+   Number of port bits:           1049
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:             103229
+     sky130_fd_sc_hd__a2111oi_0    208
+     sky130_fd_sc_hd__a211oi_1      54
+     sky130_fd_sc_hd__a21boi_0      40
+     sky130_fd_sc_hd__a21o_1         3
+     sky130_fd_sc_hd__a21oi_1      596
+     sky130_fd_sc_hd__a221o_1       79
+     sky130_fd_sc_hd__a221oi_1    2107
+     sky130_fd_sc_hd__a222oi_1   13246
+     sky130_fd_sc_hd__a22o_1      2140
+     sky130_fd_sc_hd__a22oi_1     7272
+     sky130_fd_sc_hd__a311oi_1       1
+     sky130_fd_sc_hd__a31oi_1       11
+     sky130_fd_sc_hd__and2_0         5
+     sky130_fd_sc_hd__and3_1       155
+     sky130_fd_sc_hd__and4_1        99
+     sky130_fd_sc_hd__clkinv_1      47
+     sky130_fd_sc_hd__dfrtp_1       44
+     sky130_fd_sc_hd__edfxtp_1   65536
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      9
+     sky130_fd_sc_hd__lpflow_isobufsrc_1     10
+     sky130_fd_sc_hd__maj3_1         4
+     sky130_fd_sc_hd__nand2_1     2690
+     sky130_fd_sc_hd__nand2b_1       7
+     sky130_fd_sc_hd__nand3_1     2432
+     sky130_fd_sc_hd__nand3b_1       4
+     sky130_fd_sc_hd__nand4_1     4277
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1       544
+     sky130_fd_sc_hd__nor2b_1        1
+     sky130_fd_sc_hd__nor3_1       420
+     sky130_fd_sc_hd__nor3b_1        3
+     sky130_fd_sc_hd__nor4_1       846
+     sky130_fd_sc_hd__nor4b_1        4
+     sky130_fd_sc_hd__o211a_1        1
+     sky130_fd_sc_hd__o211ai_1       3
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       22
+     sky130_fd_sc_hd__o22ai_1        5
+     sky130_fd_sc_hd__o2bb2ai_1      1
+     sky130_fd_sc_hd__o31ai_1        4
+     sky130_fd_sc_hd__o32a_1         1
+     sky130_fd_sc_hd__o41ai_1        3
+     sky130_fd_sc_hd__or3_1         24
+     sky130_fd_sc_hd__or4_1        218
+     sky130_fd_sc_hd__or4b_1         1
+     sky130_fd_sc_hd__xnor2_1       25
+     sky130_fd_sc_hd__xor2_1        21
+     sky130_fd_sc_hd__xor3_1         2
+
+   Chip area for module '\vibe_saf_ing': 2263176.815998
+     of which used for sequential elements: 1969068.492798 (87.00%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_saf_ing/vibe_saf_ing.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_saf_ing'.
+
+Warnings: 1 unique messages, 1 total
+End of script. Logfile hash: e01f9155a4, CPU: user 36.59s system 0.76s, MEM: 598.56 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 36% 1x abc (20 sec), 13% 1x check (7 sec), ...

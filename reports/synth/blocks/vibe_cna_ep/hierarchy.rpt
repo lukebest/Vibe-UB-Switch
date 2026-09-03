@@ -1,0 +1,22 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_cna_ep ===
+
+   Number of wires:                 48
+   Number of wire bits:           6244
+   Number of public wires:          12
+   Number of public wire bits:    4164
+   Number of ports:                 11
+   Number of port bits:           4132
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 44
+     $eq                            12
+     $logic_and                      8
+     $logic_or                       8
+     $mux                           16
+

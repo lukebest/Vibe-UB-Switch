@@ -9,10 +9,8 @@ tb/vibe/results/*.inc
 tb/vibe/scripts/__pycache__/
 coverage.dat
 
-# Synth flow — generated only. Any GDS is a local artifact, NOT tapeout.
+# Synth work/netlists. QoR reports under reports/synth/ are committed.
 scripts/synth/work/
-reports/synth/*
-!reports/synth/.gitkeep
 reports/signoff/*
 !reports/signoff/.gitkeep
 *.gds

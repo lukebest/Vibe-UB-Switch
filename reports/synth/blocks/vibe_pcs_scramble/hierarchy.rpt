@@ -1,0 +1,22 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_pcs_scramble ===
+
+   Number of wires:                179
+   Number of wire bits:           4636
+   Number of public wires:         173
+   Number of public wire bits:    4246
+   Number of ports:                  9
+   Number of port bits:            328
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                168
+     $adff                           2
+     $adffe                          1
+     $mux                            4
+     $xor                          161
+
