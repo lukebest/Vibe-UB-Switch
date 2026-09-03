@@ -7,10 +7,10 @@ module tc_identity_cfg_space;
   logic        clk, rst_n, device_rst;
   logic        cfg_wr_vld, cfg_wr_ready, cna_written, rt_wr_en, irq_clr;
   logic        device_rst_pulse;
-  logic [2:0]  cfg_wr_cmd;
+  logic [3:0]  cfg_wr_cmd;
   logic [15:0] cfg_wr_idx, cna, rt_wr_idx;
   logic [31:0] cfg_wr_data, rt_wr_data;
-  logic [3:0]  default_bm, port_rst_pulse, lmsm_go_pulse;
+  logic [3:0]  default_bm, port_rst_pulse, port_rst_hold, port_rst_rw1c, lmsm_go_pulse;
   logic [31:0] guid0, class_code, port_basic, port_cap;
   integer      fail;
 
@@ -23,7 +23,8 @@ module tc_identity_cfg_space;
     .cfg_wr_cmd(cfg_wr_cmd), .cfg_wr_idx(cfg_wr_idx), .cfg_wr_data(cfg_wr_data),
     .cna(cna), .cna_written(cna_written), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .port_rst_pulse(port_rst_pulse), .device_rst_pulse(device_rst_pulse),
+    .port_rst_pulse(port_rst_pulse), .port_rst_hold(port_rst_hold),
+    .port_rst_rw1c(port_rst_rw1c), .device_rst_pulse(device_rst_pulse),
     .lmsm_go_pulse(lmsm_go_pulse), .irq_clr(irq_clr),
     .guid0(guid0), .class_code(class_code),
     .port_basic(port_basic), .port_cap(port_cap)
@@ -33,6 +34,7 @@ module tc_identity_cfg_space;
     fail = 0;
     rst_n = 0; device_rst = 0; cfg_wr_vld = 0;
     cfg_wr_cmd = 0; cfg_wr_idx = 0; cfg_wr_data = 0;
+    port_rst_hold = 4'd0;
     repeat (3) @(posedge clk);
     rst_n = 1;
     repeat (2) @(posedge clk);
@@ -52,7 +54,7 @@ module tc_identity_cfg_space;
       fail = 1;
     end
     @(negedge clk);
-    cfg_wr_cmd = 3'd0; cfg_wr_data = 32'h0000_BEEF; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd0; cfg_wr_data = 32'h0000_BEEF; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     cfg_wr_vld = 0;
@@ -66,7 +68,7 @@ module tc_identity_cfg_space;
     end
     // cmd=1 route write — sample at negedge after NBA
     @(negedge clk);
-    cfg_wr_cmd = 3'd1; cfg_wr_idx = 16'h0003; cfg_wr_data = 32'h0000_000F; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd1; cfg_wr_idx = 16'h0003; cfg_wr_data = 32'h0000_000F; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     if (!rt_wr_en || rt_wr_idx !== 16'h0003 || rt_wr_data !== 32'h0000_000F) begin
@@ -78,7 +80,7 @@ module tc_identity_cfg_space;
     end
     // cmd=2 default bitmap
     @(negedge clk);
-    cfg_wr_cmd = 3'd2; cfg_wr_data = 32'h0000_0005; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd2; cfg_wr_data = 32'h0000_0005; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     cfg_wr_vld = 0;
@@ -90,23 +92,39 @@ module tc_identity_cfg_space;
       $display("  actual   : %04b", default_bm);
       fail = 1;
     end
-    // cmd=3 port rst pulse
+    // cmd=3 data[0]==0 must not start Port Reset
     @(negedge clk);
-    cfg_wr_cmd = 3'd3; cfg_wr_idx = 16'd2; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd3; cfg_wr_idx = 16'd2; cfg_wr_data = 32'd0; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
-    if (port_rst_pulse[2] !== 1'b1) begin
+    if (port_rst_pulse[2] !== 1'b0 || port_rst_rw1c[2] !== 1'b0) begin
       $display("FAIL tc_identity_cfg_space");
-      $display("  stimulus : cfg_wr_cmd=3 idx=2");
-      $display("  expected : port_rst_pulse[2]=1");
-      $display("  actual   : %04b", port_rst_pulse);
+      $display("  stimulus : cfg_wr_cmd=4'h3 idx=2 data[0]=0");
+      $display("  expected : pulse=0 rw1c=0 (DUT must not reset)");
+      $display("  actual   : pulse=%04b rw1c=%04b", port_rst_pulse, port_rst_rw1c);
+      $display("  hier     : u_cfg.port_rst_pulse / port_rst_rw1c");
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    // cmd=3 data[0]==1 W1C starts that port
+    @(negedge clk);
+    cfg_wr_cmd = 4'd3; cfg_wr_idx = 16'd2; cfg_wr_data = 32'd1; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    if (port_rst_pulse[2] !== 1'b1 || port_rst_rw1c[2] !== 1'b1) begin
+      $display("FAIL tc_identity_cfg_space");
+      $display("  stimulus : cfg_wr_cmd=4'h3 idx=2 data[0]=1");
+      $display("  expected : port_rst_pulse[2]=1 rw1c[2]=1 (no cfg_rd_*)");
+      $display("  actual   : pulse=%04b rw1c=%04b", port_rst_pulse, port_rst_rw1c);
+      $display("  hier     : u_cfg.port_rst_pulse / port_rst_rw1c");
       fail = 1;
     end
     @(negedge clk);
     cfg_wr_vld = 0;
     // cmd=4 device rst pulse
     @(negedge clk);
-    cfg_wr_cmd = 3'd4; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd4; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     if (!device_rst_pulse) begin
@@ -120,7 +138,7 @@ module tc_identity_cfg_space;
     cfg_wr_vld = 0;
     // cmd=5 lmsm_go
     @(negedge clk);
-    cfg_wr_cmd = 3'd5; cfg_wr_idx = 16'd1; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd5; cfg_wr_idx = 16'd1; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     if (lmsm_go_pulse[1] !== 1'b1) begin
@@ -134,7 +152,7 @@ module tc_identity_cfg_space;
     cfg_wr_vld = 0;
     // default cmd (7) still irq_clr
     @(negedge clk);
-    cfg_wr_cmd = 3'd7; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd7; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     if (!irq_clr) begin

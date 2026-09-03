@@ -1,5 +1,9 @@
-// AS-0.1 §10: device reset clears RW config (CNA unwritten), MUST NOT force DLL_Disabled.
-// LMSM → Link_Idle. Port Reset: that port LMSM Link_Idle, DLL_Disabled, retry ptrs 0, NumFreeBuf=256.
+// AS-0.1.2 §10 / Table D-103: device reset clears RW config (CNA unwritten),
+// MUST NOT force DLL_Disabled. LMSM → Link_Idle.
+// Port Reset is RW1C in vibe_cfg_space (stored bit = 1 while this hold is
+// active). A write-1 pulse starts the existing stretch; HW returns the
+// readable bit to 0 when this hold ends. Port p only: LMSM Link_Idle,
+// DLL_Disabled, retry ptrs 0, NumFreeBuf=256. Not an irq_agg clear.
 module vibe_rst_ctl (
   input  logic       clk,
   input  logic       rst_n,

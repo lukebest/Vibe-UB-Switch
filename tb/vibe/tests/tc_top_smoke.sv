@@ -9,7 +9,7 @@ module tc_top_smoke;
   logic [511:0] txdata_0, txdata_1, txdata_2, txdata_3;
   logic [511:0] rxdata_0, rxdata_1, rxdata_2, rxdata_3;
   logic         cfg_wr_vld, cfg_wr_ready, irq_logic;
-  logic [2:0]   cfg_wr_cmd;
+  logic [3:0]   cfg_wr_cmd;
   logic [15:0]  cfg_wr_idx;
   logic [31:0]  cfg_wr_data;
   integer       fail, i, accepted, saw_peer_tx;
@@ -82,7 +82,7 @@ module tc_top_smoke;
   endtask
 
   task automatic cfgw;
-    input [2:0] cmd;
+    input [3:0] cmd;
     input [15:0] idx;
     input [31:0] data;
     begin
@@ -104,6 +104,10 @@ module tc_top_smoke;
     rst_n = 1;
     repeat (8) @(posedge clk_fab);
 
+    if ($bits(dut.cfg_wr_cmd) !== 4) begin
+      fail_at("reset", "cfg_wr_cmd[3:0] (4 bits)", "width not 4", "dut.cfg_wr_cmd");
+      $finish;
+    end
     if (!cfg_wr_ready) begin
       fail_at("reset", "cfg_wr_ready=1", "0", "dut.cfg_wr_ready");
       $finish;
@@ -113,7 +117,7 @@ module tc_top_smoke;
       $finish;
     end
 
-    cfgw(3'd0, 16'd0, 32'h0000_0001);
+    cfgw(4'd0, 16'd0, 32'h0000_0001);
     if (dut.u_mgmt.cna !== 16'd1) begin
       fail_at("cfg_wr CNA=1", "u_mgmt.cna=1", "CNA not written", "dut.u_mgmt.cna");
       $finish;
@@ -128,8 +132,8 @@ module tc_top_smoke;
     force dut.g_port[1].u_port.u_lmsm.lid_bad   = 1'b0;
     @(negedge clk_fab);
     plgo = 1;
-    cfgw(3'd5, 16'd0, 32'd0);
-    cfgw(3'd5, 16'd1, 32'd0);
+    cfgw(4'd5, 16'd0, 32'd0);
+    cfgw(4'd5, 16'd1, 32'd0);
     @(posedge clk_fab);
     plgo = 0;
     i = 0;

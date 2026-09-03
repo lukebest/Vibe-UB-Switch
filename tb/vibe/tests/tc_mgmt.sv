@@ -3,7 +3,7 @@
 module tc_mgmt;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, cfg_wr_vld, cfg_wr_ready, cna_written, rt_wr_en, device_rst, irq_logic;
-  logic [2:0] cfg_wr_cmd;
+  logic [3:0] cfg_wr_cmd;
   logic [15:0] cfg_wr_idx, cna, rt_wr_idx;
   logic [31:0] cfg_wr_data, rt_wr_data;
   logic [3:0] default_bm, port_rst, lmsm_go, cfg6_hit, cfg6_consume, reply_vld, reply_ready;
@@ -38,6 +38,14 @@ module tc_mgmt;
     repeat (3) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
+    if ($bits(u_m.cfg_wr_cmd) !== 4) begin
+      $display("FAIL tc_mgmt");
+      $display("  stimulus : reset");
+      $display("  expected : cfg_wr_cmd[3:0] (4 bits)");
+      $display("  actual   : width=%0d", $bits(u_m.cfg_wr_cmd));
+      $display("  hier     : u_m.cfg_wr_cmd");
+      fail = 1;
+    end
     if (!cfg_wr_ready) begin
       $display("FAIL tc_mgmt");
       $display("  stimulus : reset");
@@ -45,7 +53,7 @@ module tc_mgmt;
       fail = 1;
     end
     @(negedge clk);
-    cfg_wr_cmd = 3'd0; cfg_wr_data = 32'h0000_1111; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd0; cfg_wr_data = 32'h0000_1111; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     cfg_wr_vld = 0;
@@ -79,11 +87,33 @@ module tc_mgmt;
     end
     cfg6_hit = 0;
     @(negedge clk);
-    cfg_wr_cmd = 3'd3; cfg_wr_idx = 16'd0; cfg_wr_vld = 1;
+    cfg_wr_cmd = 4'd3; cfg_wr_idx = 16'd0; cfg_wr_data = 32'd0; cfg_wr_vld = 1;
     @(posedge clk);
     @(negedge clk);
     cfg_wr_vld = 0;
     repeat (2) @(posedge clk);
+    if (port_rst[0]) begin
+      $display("FAIL tc_mgmt");
+      $display("  stimulus : cfg_wr_cmd=4'h3 idx=0 data[0]=0");
+      $display("  expected : port_rst[0]=0 (DUT must not reset)");
+      $display("  actual   : port_rst=%04b", port_rst);
+      $display("  hier     : u_m.port_rst / u_m.u_cfg.port_rst_rw1c");
+      fail = 1;
+    end
+    @(negedge clk);
+    cfg_wr_cmd = 4'd3; cfg_wr_idx = 16'd0; cfg_wr_data = 32'd1; cfg_wr_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    cfg_wr_vld = 0;
+    repeat (2) @(posedge clk);
+    if (!port_rst[0]) begin
+      $display("FAIL tc_mgmt");
+      $display("  stimulus : cfg_wr_cmd=4'h3 idx=0 data[0]=1");
+      $display("  expected : port_rst[0]=1 (W1C)");
+      $display("  actual   : port_rst=%04b", port_rst);
+      $display("  hier     : u_m.port_rst / u_m.u_cfg.port_rst_rw1c");
+      fail = 1;
+    end
     if (!fail) $display("PASS tc_mgmt");
     $finish;
   end

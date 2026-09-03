@@ -17,7 +17,7 @@ module vibe_fabric_harness (
   `include "vibe_tb_defs.svh"
 
   logic         cfg_wr_vld, cfg_wr_ready;
-  logic [2:0]   cfg_wr_cmd;
+  logic [3:0]   cfg_wr_cmd;
   logic [15:0]  cfg_wr_idx;
   logic [31:0]  cfg_wr_data;
   logic [3:0]   status_up;
@@ -141,7 +141,7 @@ module vibe_fabric_harness (
     begin
       rst_n       = 1'b0;
       cfg_wr_vld  = 1'b0;
-      cfg_wr_cmd  = 3'd0;
+      cfg_wr_cmd  = 4'd0;
       cfg_wr_idx  = 16'd0;
       cfg_wr_data = 32'd0;
       status_up   = 4'b1111;
@@ -164,7 +164,7 @@ module vibe_fabric_harness (
   endtask
 
   task automatic tb_cfg;
-    input [2:0]  cmd;
+    input [3:0]  cmd;
     input [15:0] idx;
     input [31:0] data;
     begin

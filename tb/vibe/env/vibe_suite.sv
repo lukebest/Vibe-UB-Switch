@@ -860,21 +860,37 @@ module vibe_suite;
     begin
       $display("=== tc_port_rst_via_cfg ===");
       h.tb_reset();
-      h.tb_cfg(VIBE_TB_CMD_PORTRST, 16'd2, 32'd0);
-      if (!h.port_rst[2]) begin
+      // cmd=3 data[0]==0 must not start Port Reset (RW1C; not old WO pulse).
+      h.tb_cfg(VIBE_TB_CMD_PORTRST, 16'd2, VIBE_TB_PORTRST_NOP);
+      if (h.port_rst[2] || h.u_mgmt.u_cfg.port_rst_rw1c[2]) begin
         h.tb_fail("tc_port_rst_via_cfg",
-          "cfg_wr_cmd=3 idx=2 (Port Reset)",
-          "port_rst[2]=1 (hold from rst_ctl)",
-          "port_rst[2]=0",
-          "h.u_mgmt.u_rst.port_rst / h.port_rst");
-      end else if (h.port_rst[0] || h.port_rst[1] || h.port_rst[3]) begin
-        h.tb_fail("tc_port_rst_via_cfg",
-          "port reset index 2",
-          "only bit 2",
-          "other bits set",
-          "h.port_rst");
-      end else
-        h.tb_pass("tc_port_rst_via_cfg");
+          "cfg_wr_cmd=4'h3 idx=2 data[0]=0",
+          "port_rst[2]=0 (no W1C; DUT must not reset)",
+          "port_rst or rw1c bit 2 set",
+          "h.port_rst / h.u_mgmt.u_cfg.port_rst_rw1c");
+      end else begin
+        h.tb_cfg(VIBE_TB_CMD_PORTRST, 16'd2, VIBE_TB_PORTRST_W1C);
+        if (!h.port_rst[2]) begin
+          h.tb_fail("tc_port_rst_via_cfg",
+            "cfg_wr_cmd=4'h3 idx=2 data[0]=1 (Port Reset W1C)",
+            "port_rst[2]=1 (hold from rst_ctl / rw1c)",
+            "port_rst[2]=0",
+            "h.port_rst / h.u_mgmt.u_cfg.port_rst_rw1c");
+        end else if (h.port_rst[0] || h.port_rst[1] || h.port_rst[3]) begin
+          h.tb_fail("tc_port_rst_via_cfg",
+            "port reset index 2 data[0]=1",
+            "only bit 2",
+            "other bits set",
+            "h.port_rst");
+        end else if (!h.u_mgmt.u_cfg.port_rst_rw1c[2]) begin
+          h.tb_fail("tc_port_rst_via_cfg",
+            "cfg_wr_cmd=4'h3 idx=2 data[0]=1",
+            "port_rst_rw1c[2]=1 (readable in mgmt; no cfg_rd_*)",
+            "rw1c[2]=0",
+            "h.u_mgmt.u_cfg.port_rst_rw1c");
+        end else
+          h.tb_pass("tc_port_rst_via_cfg");
+      end
     end
   endtask
 

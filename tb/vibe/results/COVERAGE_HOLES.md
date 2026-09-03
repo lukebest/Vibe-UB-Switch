@@ -1,24 +1,25 @@
-# Coverage close-out — SHA `25eb085e` (PR14 TB)
+# Coverage close-out — SHA `32a7f5e0` (PR21 on main + PR22/25 TB)
 
 Acceptance (芯片开发PM): **code coverage ≥95% + waiver**; **functional coverage 100%**.
 **Do not chase LINE 100%.** Specs unchanged. **Zero `rtl/` commits.**
 
-RTL under test: PR13 SHA **`25eb085e`** (sim-only overlay). Tool: Verilator **5.020**.
+RTL under test: **origin/main SHA `32a7f5e0`** (PR21 4-bit `cfg_wr_cmd` + Port Reset RW1C).
+Prior close-out was overlay `25eb085e` (LINE 702/727). Tool: Verilator **5.020**.
 FSM = line hits on state `case`/`if` (no VCS FSM engine).
 
 ## Verdict
 
 | Gate | Result |
 |------|--------|
-| Code LINE ≥95% | **PASS — 702/727 = 96.6%** |
-| Code + classified waiver | **PASS** — every remaining LINE is TOOL / WAIVER-防御 / TB空洞-waived |
+| Code LINE ≥95% | **PASS — 708/737 = 96.1%** |
+| Code + classified waiver | **PASS** — every remaining LINE is TOOL / WAIVER / TB空洞-waived |
 | Functional (official 159 TPs) | **100% of published/implementable TPs** — see below |
 | LINE 100% | **not a goal** |
 
 | Metric | Hit/tot | % |
 |--------|--------:|--:|
-| **LINE** | **702/727** | **96.6** |
-| **TOGGLE** | **9528/17230** | **55.3** |
+| **LINE** | **708/737** | **96.1** |
+| **TOGGLE** | **9538/17260** | **55.3** |
 | **FSM** | (none) | use LINE on state `case`/`if` |
 
 Toggle <100% is wide-bus unused bit patterns (not the LINE gate).
@@ -62,7 +63,7 @@ vs SHA `25eb085e` after PR13 Null-pad. G1 is also scored on the fabric cluster.
 
 ## Every uncovered LINE — classified
 
-25 LINE points at 0. None are open TB work under the new bar.
+29 LINE points at 0 (25 prior + 4 `hold_fall`). None are open TB work under the new bar.
 
 ### TOOL (waiver — not DUT / not TB)
 
@@ -81,6 +82,7 @@ guards — **not** DUT死代码. Do not patch `rtl/`.
 |-----------|------|--------|
 | `vibe_dll_tx.sv:98 if` | `val_b==0` shift defense | **WAIVER / 防御** |
 | `vibe_dll_tx.sv:144 else` | `n_flits==0` when rem < 20 B | **WAIVER / 防御** |
+| `vibe_cfg_space.sv:96–99 if` | RW1C `hold_fall[3:0]` HW-clear | **WAIVER** — 设计 agreed, **不改** `rtl/`. Not DUT dead. |
 
 ### TB空洞 — waived (not cheap to close; do not chase LINE 100%)
 
