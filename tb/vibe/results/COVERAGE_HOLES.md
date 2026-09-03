@@ -57,9 +57,8 @@ HOLE nine (Xia: go into freeze SPEC as **非目标**; keep waived):
 `tc_tp_holes` documents them; do not invent. Implemented-feature bins: **122/122**.
 Official NEG: **28/28**. HOLE nine: **非目标 / waiver**. **Published FUNC = 100%.**
 
-Suite 27/27, units 85/85, neg 10/10 (Overlay B TB). `tc_top_smoke` FAIL
-(`irq_logic` at top pin) is a **设计** integration item already filed — not a
-missing TP mapping (G1 is scored on the fabric cluster).
+Suite 27/27, units 85/85, neg 10/10 (Overlay B TB). `tc_top_smoke` **PASSED**
+vs SHA `25eb085e` after PR13 Null-pad. G1 is also scored on the fabric cluster.
 
 ## Every uncovered LINE — classified
 
