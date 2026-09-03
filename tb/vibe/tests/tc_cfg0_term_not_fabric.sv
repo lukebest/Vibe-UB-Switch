@@ -108,21 +108,10 @@ module tc_cfg0_term_not_fabric;
       port_rst = 0;
     end
 
-    // need_hdr :128 — stall NW so can_emit=0 while a new SOP unpacks.
+    // need_hdr :128 — nw_ready=0 before the first emit so nw_vld sticks,
+    // then a second SOP unpacks with can_emit=0.
     begin : needhdr
       integer w;
-      w = 0;
-      nw_ready = 1'b1;
-      @(negedge clk);
-      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
-      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
-          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
-          16'd0, 8'd0, 3'd0, 8'd0));
-      pcs_vld = 1'b1;
-      @(posedge clk);
-      @(negedge clk);
-      pcs_vld = 1'b0;
-      repeat (4) @(posedge clk);
       nw_ready = 1'b0;
       w = 0;
       @(negedge clk);
@@ -134,7 +123,18 @@ module tc_cfg0_term_not_fabric;
       @(posedge clk);
       @(negedge clk);
       pcs_vld = 1'b0;
-      repeat (4) @(posedge clk);
+      repeat (6) @(posedge clk);
+      w = 0;
+      @(negedge clk);
+      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      pcs_vld = 1'b1;
+      @(posedge clk);
+      @(negedge clk);
+      pcs_vld = 1'b0;
+      repeat (6) @(posedge clk);
       nw_ready = 1'b1;
       port_rst = 1;
       @(posedge clk);

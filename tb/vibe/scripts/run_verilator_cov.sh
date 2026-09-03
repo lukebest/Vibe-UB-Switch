@@ -174,7 +174,7 @@ run_cluster pcs_rx_un tc_pcs_rx_unpack --vl "--public-flat-rw" \
   "$T/tc_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv"
 run_cluster pcs_rx_fec tc_pcs_rx_fec "$T/tc_pcs_rx_fec.sv" \
   "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
-run_cluster pcs_rx tc_pcs_rx "$T/tc_pcs_rx.sv" \
+run_cluster pcs_rx tc_pcs_rx --vl "--public-flat-rw" "$T/tc_pcs_rx.sv" \
   "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_scramble.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv" \
   "$RTL/pcs/vibe_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_fec.sv" \
@@ -206,7 +206,8 @@ run_cluster voq tc_deadlock_timeout_1us "$T/tc_deadlock_timeout_1us.sv" "$RTL/fa
 run_cluster voq_rd tc_voq_rd "$T/tc_voq_rd.sv" "$RTL/fabric/vibe_voq_egr.sv"
 run_cluster psel tc_psel_cov "$TB/cov/tc_psel_cov.sv" "$RTL/fabric/vibe_port_sel.sv"
 run_cluster xbar tc_xbar_unit "$T/tc_xbar_unit.sv" "$RTL/fabric/vibe_xbar.sv"
-run_cluster fabric_holes tc_fabric_line_holes "$T/tc_fabric_line_holes.sv" \
+run_cluster fabric_holes tc_fabric_line_holes --vl "--public-flat-rw" \
+  "$T/tc_fabric_line_holes.sv" \
   "$RTL/fabric/vibe_saf_ing.sv" "$RTL/fabric/vibe_route_lu.sv" \
   "$RTL/fabric/vibe_port_sel.sv" "$RTL/fabric/vibe_xbar.sv" \
   "$RTL/fabric/vibe_voq_egr.sv" "$RTL/fabric/vibe_vl_rr.sv" \

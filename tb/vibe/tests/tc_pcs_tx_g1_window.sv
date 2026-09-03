@@ -41,10 +41,18 @@ module tc_pcs_tx_g1_window;
     @(negedge clk);
     in_vld = 0;
     repeat (8) @(posedge clk);
-    // Two back-to-back beats: second takes nflit==4 rem-complete (:51)
-    @(negedge clk);
-    in_vld = 1; in_data = 640'hC;
+    // Two beats with nflit==4 between them (rem-complete :51)
+    rst_n = 0;
     @(posedge clk);
+    rst_n = 1;
+    in_vld = 0; win_ready = 1; link_up = 1; in_data = 640'hC;
+    repeat (2) @(posedge clk);
+    @(negedge clk);
+    in_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 0;
+    repeat (2) @(posedge clk);
     @(negedge clk);
     in_vld = 1; in_data = 640'hD;
     @(posedge clk);
