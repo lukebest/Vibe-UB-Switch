@@ -20,9 +20,20 @@ fi
 
 VERILATOR="${VERILATOR:-verilator}"
 INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
-# -Wno-UNSUPPORTED: Verilator 5.020 rejects default values on module inputs
-# (link_up=1'b0, am_gap=1'b0). Those clusters then produce 0 records.
-WARN="-Wno-fatal -Wno-UNSUPPORTED -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
+WARN="-Wno-fatal -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
+COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
+
+# Verilator 5.020 treats `input … = 1'b0` as %Error-UNSUPPORTED (and
+# -Wno-UNSUPPORTED is not a valid warning name on this build — it aborts
+# every cluster). Strip defaults into a sim-only tree. Do not touch rtl/.
+RTL_SRC="$RTL"
+RTL="$COV/rtl_nodedef"
+rm -rf "$RTL"
+mkdir -p "$RTL"
+cp -a "$RTL_SRC/." "$RTL/"
+find "$RTL" -name 'vibe_*.sv' -print0 | xargs -0 sed -i -E \
+  "s/(input[[:space:]]+logic[[:space:]]+[A-Za-z0-9_]+)[[:space:]]*=[[:space:]]*1'b[01]/\1/g"
+INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
 COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
 
 write_main() {
