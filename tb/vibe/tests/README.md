@@ -26,7 +26,7 @@ MUST TP where the RTL implements it. Negatives are explicit absent-feature TCs.
 | `tc_cfg3_fwd` / `tc_cfg4_fwd` / `tc_cfg5_fwd` / `tc_cfg7_fwd` / `tc_cfg9_fwd` | CFG forward |
 | `tc_cfg_reserved_fwd` | CFG 1,2,8,10,15 forward |
 | `tc_cfg0_fabric_no_special` | CFG0 terminate is DLL, not fabric |
-| `tc_port_rst_via_cfg` | Port Reset cmd=3 |
+| `tc_port_rst_via_cfg` | Port Reset cmd=4'h3 W1C `data[0]==1` (data[0]==0 must not reset) |
 | `tc_device_rst_via_cfg` | device reset cmd=4 |
 | `tc_pkt_len_legal_16_4300` | legal 20 B / 4300 B (16 B not LPH-representable) |
 

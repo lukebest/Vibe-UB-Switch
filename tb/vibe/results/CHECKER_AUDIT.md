@@ -1,6 +1,6 @@
 # Checker audit — `tb/vibe` vs FS-0.2.7 / AS-0.1.2
 
-Audit of every named checker in `tb/vibe`. Spec is **FS-0.2.7 / AS-0.1.2** (Overlay B: NW `data[511:0]`; 640b is DLL↔PCS; credit **1024 = cell**) plus locked G1 / CFG6 / ICRC. Old README / `tb/ub_*` are **void**. RTL is frozen (`rtl/` not patched).
+Audit of every named checker in `tb/vibe`. Spec is **FS-0.2.7 / AS-0.1.2** (Overlay B: NW `data[511:0]`; 640b is DLL↔PCS; credit **1024 = cell**) plus locked G1 / CFG6 / ICRC. Old README / `tb/ub_*` are **void**. RTL is frozen (`rtl/` not patched). Overlay sim-only SHA **`7a37cee0`**: `cfg_wr_cmd[3:0]`; Port Reset W1C `data[0]==1`; **no `cfg_rd_*`**. CFG6 opcode `0x10` packing still **未知**.
 
 Verdict: **OK** = checker already scored the locked rule. **FIXED** = checker was wrong or incomplete vs spec and was corrected in this revision.
 
@@ -89,7 +89,7 @@ Compute/check as **sender/receiver**. Transit does **not** recompute.
 | `tc_no_dijkstra` | no Dijkstra | OK |
 | `tc_saf_full_pkt` | SAF: full packet then one grant | OK |
 | `tc_pkt_len_legal_16_4300` / `tc_pkt_len_err_drop` | 16–4300 B; oversize drop | OK |
-| `tc_port_rst_via_cfg` / `tc_device_rst_via_cfg` | mgmt reset | OK |
+| `tc_port_rst_via_cfg` / `tc_device_rst_via_cfg` | mgmt reset | **FIXED** — `cfg_wr_cmd` is 4 bits; cmd=3 Port Reset is W1C `data[0]==1` (data[0]==0 must not reset). Score `port_rst` + hierarchical `port_rst_rw1c`. No `cfg_rd_*`. |
 
 ---
 

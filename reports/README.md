@@ -2,6 +2,12 @@
 
 Generated implementation reports. **Do not hand-write QoR numbers here.**
 
+## `reports/lint/` (Verilator `--lint-only`)
+
+Committed. Reproduce with `reports/lint/run_lint.sh`.  
+Log: `vibe_ub_switch.lint.log`. Waivers: `WAIVERS.md` + `vibe_ub_switch.vlt`.  
+Requirement: 0 `%Error-*`. Every `-Wall` warning class has a waiver note.
+
 Directories are tracked with `.gitkeep`. Files below are produced later
 by `make -C scripts/synth synth-smoke`, `synth`, `sta`, or ORFS — not
 committed as a QoR drop.

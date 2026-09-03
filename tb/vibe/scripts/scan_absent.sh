@@ -42,4 +42,18 @@ else
   echo "PASS neg_no_dijkstra"
 fi
 
-exit 0
+# AS §18 / PR21: no cfg_rd_* pin. FAIL if TB still wiggles one.
+TB_VIBE="$(cd "$RTL/.." && pwd)/tb/vibe"
+if [ -d "$TB_VIBE" ]; then
+  rd_hits=$(grep -RIn --include='*.sv' --include='*.svh' -E '\bcfg_rd_' "$TB_VIBE" \
+    | grep -vE 'no cfg_rd|No cfg_rd|not .*cfg_rd|cfg_rd_\*' || true)
+  if [ -n "$rd_hits" ]; then
+    echo "FAIL neg_no_cfg_rd: TB still wiggles cfg_rd_*"
+    echo "$rd_hits" | head -20
+    LOG_OK=0
+  else
+    echo "PASS neg_no_cfg_rd (no cfg_rd_* in TB)"
+  fi
+fi
+
+exit $LOG_OK

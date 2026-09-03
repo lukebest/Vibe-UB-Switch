@@ -6,14 +6,18 @@
 `include "vibe_ub_fn.vh"
 `include "vibe_ub_params.vh"
 
-// cfg_wr_cmd (AS-0.1 §10)
-localparam [2:0] VIBE_TB_CMD_CNA     = 3'd0;
-localparam [2:0] VIBE_TB_CMD_ROUTE   = 3'd1;
-localparam [2:0] VIBE_TB_CMD_DEFAULT = 3'd2;
-localparam [2:0] VIBE_TB_CMD_PORTRST = 3'd3;
-localparam [2:0] VIBE_TB_CMD_DEVRST  = 3'd4;
-localparam [2:0] VIBE_TB_CMD_LMSMGO  = 3'd5;
-localparam [2:0] VIBE_TB_CMD_NOPCLR  = 3'd7; // ignored opcode; still irq_clr
+// cfg_wr_cmd is 4 bits (AS-0.1.2 §10 / PR21). 0–5 as named; 6–15 ignore
+// (irq_clr still pulses). No cfg_rd_* pin. Port Reset (cmd=3) is W1C:
+// data[0]==1 starts that port; data[0]==0 must not reset. CFG6 packing 未知.
+localparam [3:0] VIBE_TB_CMD_CNA     = 4'd0;
+localparam [3:0] VIBE_TB_CMD_ROUTE   = 4'd1;
+localparam [3:0] VIBE_TB_CMD_DEFAULT = 4'd2;
+localparam [3:0] VIBE_TB_CMD_PORTRST = 4'd3;
+localparam [3:0] VIBE_TB_CMD_DEVRST  = 4'd4;
+localparam [3:0] VIBE_TB_CMD_LMSMGO  = 4'd5;
+localparam [3:0] VIBE_TB_CMD_NOPCLR  = 4'd7; // ignored opcode; still irq_clr
+localparam [31:0] VIBE_TB_PORTRST_W1C = 32'd1; // data[0]==1
+localparam [31:0] VIBE_TB_PORTRST_NOP = 32'd0; // data[0]==0 must not reset
 
 // LPH PLENGTH for N declared flits (nblk=1, lastn=N) — 1 beat if N<=4.
 function automatic [13:0] vibe_tb_plen_nflit;
