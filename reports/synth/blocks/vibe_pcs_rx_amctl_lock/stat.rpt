@@ -1,0 +1,150 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+11. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+   Area for cell type $mem_v2 is unknown!
+
+=== vibe_pcs_rx_amctl_lock ===
+
+   Number of wires:                641
+   Number of wire bits:           1067
+   Number of public wires:          22
+   Number of public wire bits:     448
+   Number of ports:                 10
+   Number of port bits:            170
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                703
+     sky130_fd_sc_hd__a2111oi_0      9
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       5
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1       15
+     sky130_fd_sc_hd__a221oi_1       2
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31o_1         3
+     sky130_fd_sc_hd__a31oi_1       12
+     sky130_fd_sc_hd__a41o_1         1
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and4_1         4
+     sky130_fd_sc_hd__clkinv_1      13
+     sky130_fd_sc_hd__dfrtp_1       76
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      9
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      4
+     sky130_fd_sc_hd__mux2_1        62
+     sky130_fd_sc_hd__mux2i_1        3
+     sky130_fd_sc_hd__nand2_1       15
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1       18
+     sky130_fd_sc_hd__nand4_1       22
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1        12
+     sky130_fd_sc_hd__nor3_1        20
+     sky130_fd_sc_hd__nor4_1        48
+     sky130_fd_sc_hd__nor4b_1        3
+     sky130_fd_sc_hd__o2111ai_1     10
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       19
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o22a_1         1
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1      1
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__or3_1          2
+     sky130_fd_sc_hd__or4_1          7
+     sky130_fd_sc_hd__or4b_1         2
+     sky130_fd_sc_hd__xnor2_1      133
+     sky130_fd_sc_hd__xor2_1       146
+     vibe_ebch16                     7
+
+   Area for cell type \vibe_ebch16 is unknown!
+
+   Chip area for module '\vibe_pcs_rx_amctl_lock': 6745.219200
+     of which used for sequential elements: 1901.824000 (28.20%)
+
+=== design hierarchy ===
+
+   vibe_pcs_rx_amctl_lock            1
+     vibe_ebch16                     7
+
+   Number of wires:                655
+   Number of wire bits:           1214
+   Number of public wires:          36
+   Number of public wire bits:     595
+   Number of ports:                 24
+   Number of port bits:            317
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                703
+     $mem_v2                         7
+     sky130_fd_sc_hd__a2111oi_0      9
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       5
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1       15
+     sky130_fd_sc_hd__a221oi_1       2
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31o_1         3
+     sky130_fd_sc_hd__a31oi_1       12
+     sky130_fd_sc_hd__a41o_1         1
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and4_1         4
+     sky130_fd_sc_hd__clkinv_1      13
+     sky130_fd_sc_hd__dfrtp_1       76
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      9
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      4
+     sky130_fd_sc_hd__mux2_1        62
+     sky130_fd_sc_hd__mux2i_1        3
+     sky130_fd_sc_hd__nand2_1       15
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1       18
+     sky130_fd_sc_hd__nand4_1       22
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1        12
+     sky130_fd_sc_hd__nor3_1        20
+     sky130_fd_sc_hd__nor4_1        48
+     sky130_fd_sc_hd__nor4b_1        3
+     sky130_fd_sc_hd__o2111ai_1     10
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       19
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o22a_1         1
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1      1
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__or3_1          2
+     sky130_fd_sc_hd__or4_1          7
+     sky130_fd_sc_hd__or4b_1         2
+     sky130_fd_sc_hd__xnor2_1      133
+     sky130_fd_sc_hd__xor2_1       146
+
+   Area for cell type $mem_v2 is unknown!
+
+   Chip area for top module '\vibe_pcs_rx_amctl_lock': 6745.219200
+     of which used for sequential elements: 1901.824000 (28.20%)
+

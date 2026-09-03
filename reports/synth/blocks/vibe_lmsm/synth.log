@@ -1,0 +1,1115 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_lmsm/vibe_lmsm.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/lmsm/vibe_lmsm.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/lmsm/vibe_lmsm.sv
+Parsing SystemVerilog input from `/workspace/rtl/lmsm/vibe_lmsm.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_lmsm'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_lmsm -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_lmsm
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_lmsm
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_lmsm
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 4 switch rules as full_case in process $proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26 in module vibe_lmsm.
+Marked 22 switch rules as full_case in process $proc$/workspace/rtl/lmsm/vibe_lmsm.sv:47$12 in module vibe_lmsm.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 4 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~30 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+     1/14: $4\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.$result[26:0]$45
+     2/14: $3\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.$result[26:0]$38
+     3/14: $3\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.from_rc[0:0]$40
+     4/14: $3\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.s[4:0]$39
+     5/14: $2\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.from_rc[0:0]$36
+     6/14: $2\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.s[4:0]$35
+     7/14: $2\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.$result[26:0]$34
+     8/14: $1\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.from_rc[0:0]$33
+     9/14: $1\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.s[4:0]$32
+    10/14: $1\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.$result[26:0]$31
+    11/14: $0\from_retrain_cfg[0:0]
+    12/14: $0\null_cnt[3:0]
+    13/14: $0\tmr[26:0]
+    14/14: $0\st[4:0]
+Creating decoders for process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:47$12'.
+     1/22: $22\st_n[4:0]
+     2/22: $21\st_n[4:0]
+     3/22: $20\st_n[4:0]
+     4/22: $19\st_n[4:0]
+     5/22: $18\st_n[4:0]
+     6/22: $17\st_n[4:0]
+     7/22: $16\st_n[4:0]
+     8/22: $15\st_n[4:0]
+     9/22: $14\st_n[4:0]
+    10/22: $13\st_n[4:0]
+    11/22: $12\st_n[4:0]
+    12/22: $11\st_n[4:0]
+    13/22: $10\st_n[4:0]
+    14/22: $9\st_n[4:0]
+    15/22: $8\st_n[4:0]
+    16/22: $7\st_n[4:0]
+    17/22: $6\st_n[4:0]
+    18/22: $5\st_n[4:0]
+    19/22: $4\st_n[4:0]
+    20/22: $3\st_n[4:0]
+    21/22: $2\st_n[4:0]
+    22/22: $1\st_n[4:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\vibe_lmsm.\st_n' from process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:47$12'.
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_lmsm.\st' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$422' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\tmr' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$427' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\null_cnt' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$432' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\from_retrain_cfg' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$437' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.$result' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$442' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.s' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$447' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_lmsm.\tmr_load$func$/workspace/rtl/lmsm/vibe_lmsm.sv:127$1.from_rc' using process `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+  created $adff cell `$procdff$452' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 8 empty switches in `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+Removing empty process `vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:114$26'.
+Found and cleaned up 22 empty switches in `\vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:47$12'.
+Removing empty process `vibe_lmsm.$proc$/workspace/rtl/lmsm/vibe_lmsm.sv:47$12'.
+Cleaned up 30 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+<suppressed ~29 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 21 unused cells and 129 unused wires.
+<suppressed ~24 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_lmsm...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+<suppressed ~126 debug messages>
+Removed a total of 42 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$140.
+    dead port 2/2 on $mux $procmux$142.
+    dead port 2/2 on $mux $procmux$148.
+    dead port 1/2 on $mux $procmux$156.
+    dead port 2/2 on $mux $procmux$158.
+    dead port 2/2 on $mux $procmux$165.
+    dead port 1/2 on $mux $procmux$174.
+    dead port 2/2 on $mux $procmux$176.
+    dead port 2/2 on $mux $procmux$184.
+    dead port 1/2 on $mux $procmux$194.
+    dead port 2/2 on $mux $procmux$196.
+    dead port 2/2 on $mux $procmux$205.
+    dead port 2/2 on $mux $procmux$215.
+    dead port 2/2 on $mux $procmux$226.
+    dead port 1/2 on $mux $procmux$239.
+    dead port 2/2 on $mux $procmux$241.
+    dead port 2/2 on $mux $procmux$253.
+    dead port 1/2 on $mux $procmux$267.
+    dead port 2/2 on $mux $procmux$269.
+    dead port 2/2 on $mux $procmux$282.
+    dead port 2/2 on $mux $procmux$296.
+    dead port 1/2 on $mux $procmux$312.
+    dead port 1/2 on $mux $procmux$315.
+    dead port 2/2 on $mux $procmux$317.
+    dead port 1/2 on $mux $procmux$333.
+    dead port 2/2 on $mux $procmux$335.
+    dead port 2/2 on $mux $procmux$350.
+    dead port 1/2 on $mux $procmux$367.
+    dead port 2/2 on $mux $procmux$369.
+    dead port 2/2 on $mux $procmux$385.
+    dead port 2/2 on $mux $procmux$402.
+    dead port 2/2 on $mux $procmux$69.
+    dead port 1/2 on $mux $procmux$72.
+Removed 33 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+    New ctrl vector for $pmux cell $procmux$60: { $procmux$68_CMP $auto$opt_reduce.cc:137:opt_pmux$458 $auto$opt_reduce.cc:137:opt_pmux$456 $procmux$62_CMP $auto$opt_reduce.cc:137:opt_pmux$454 }
+    New input vector for $reduce_or cell $auto$opt_reduce.cc:131:opt_pmux$457: { $procmux$66_CMP $eq$/workspace/rtl/lmsm/vibe_lmsm.sv:128$47_Y }
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 2 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 1 unused cells and 75 unused wires.
+<suppressed ~2 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking vibe_lmsm.st as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$437 ($adff) from module vibe_lmsm (D = $procmux$104_Y, Q = \from_retrain_cfg).
+Adding EN signal on $procdff$432 ($adff) from module vibe_lmsm (D = $0\null_cnt[3:0], Q = \null_cnt).
+Adding EN signal on $procdff$427 ($adff) from module vibe_lmsm (D = $0\tmr[26:0], Q = \tmr).
+Adding EN signal on $procdff$422 ($adff) from module vibe_lmsm (D = $0\st[4:0], Q = \st).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 2 unused cells and 2 unused wires.
+<suppressed ~3 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+<suppressed ~4 debug messages>
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+2.8.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$eq$/workspace/rtl/lmsm/vibe_lmsm.sv:39$3 ($eq).
+Removed top 2 bits (of 4) from port B of cell vibe_lmsm.$auto$opt_dff.cc:195:make_patterns_logic$470 ($ne).
+Removed top 1 bits (of 3) from port B of cell vibe_lmsm.$auto$opt_dff.cc:195:make_patterns_logic$472 ($ne).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$eq$/workspace/rtl/lmsm/vibe_lmsm.sv:127$41 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$eq$/workspace/rtl/lmsm/vibe_lmsm.sv:127$43 ($eq).
+Removed top 2 bits (of 27) from mux cell vibe_lmsm.$ternary$/workspace/rtl/lmsm/vibe_lmsm.sv:101$46 ($mux).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$eq$/workspace/rtl/lmsm/vibe_lmsm.sv:128$47 ($eq).
+Removed top 26 bits (of 27) from port B of cell vibe_lmsm.$sub$/workspace/rtl/lmsm/vibe_lmsm.sv:132$53 ($sub).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$eq$/workspace/rtl/lmsm/vibe_lmsm.sv:134$54 ($eq).
+Removed top 3 bits (of 4) from port B of cell vibe_lmsm.$add$/workspace/rtl/lmsm/vibe_lmsm.sv:135$56 ($add).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$61_CMP0 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$62_CMP0 ($eq).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$procmux$63_CMP0 ($eq).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$procmux$64_CMP0 ($eq).
+Removed top 3 bits (of 5) from port B of cell vibe_lmsm.$procmux$66_CMP0 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$66_CMP1 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$66_CMP2 ($eq).
+Removed top 3 bits (of 5) from port B of cell vibe_lmsm.$procmux$67_CMP0 ($eq).
+Removed top 4 bits (of 5) from port B of cell vibe_lmsm.$procmux$68_CMP0 ($eq).
+Removed top 1 bits (of 5) from port B of cell vibe_lmsm.$procmux$159_CMP0 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$216_CMP0 ($eq).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$227_CMP0 ($eq).
+Removed top 1 bits (of 5) from mux cell vibe_lmsm.$procmux$236 ($mux).
+Removed top 1 bits (of 5) from mux cell vibe_lmsm.$procmux$251 ($mux).
+Removed top 2 bits (of 5) from mux cell vibe_lmsm.$procmux$264 ($mux).
+Removed top 2 bits (of 5) from port B of cell vibe_lmsm.$procmux$270_CMP0 ($eq).
+Removed top 2 bits (of 5) from mux cell vibe_lmsm.$procmux$280 ($mux).
+Removed top 2 bits (of 5) from mux cell vibe_lmsm.$procmux$294 ($mux).
+Removed top 3 bits (of 5) from port B of cell vibe_lmsm.$procmux$297_CMP0 ($eq).
+Removed top 3 bits (of 5) from port B of cell vibe_lmsm.$procmux$318_CMP0 ($eq).
+Removed top 4 bits (of 5) from port B of cell vibe_lmsm.$procmux$370_CMP0 ($eq).
+Removed top 2 bits (of 5) from wire vibe_lmsm.$10\st_n[4:0].
+Removed top 1 bits (of 5) from wire vibe_lmsm.$11\st_n[4:0].
+Removed top 1 bits (of 5) from wire vibe_lmsm.$12\st_n[4:0].
+Removed top 2 bits (of 5) from wire vibe_lmsm.$8\st_n[4:0].
+Removed top 2 bits (of 5) from wire vibe_lmsm.$9\st_n[4:0].
+Removed top 2 bits (of 27) from wire vibe_lmsm.$ternary$/workspace/rtl/lmsm/vibe_lmsm.sv:101$46_Y.
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 0 unused cells and 6 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_lmsm:
+  creating $macc model for $add$/workspace/rtl/lmsm/vibe_lmsm.sv:135$56 ($add).
+  creating $macc model for $sub$/workspace/rtl/lmsm/vibe_lmsm.sv:132$53 ($sub).
+  creating $alu model for $macc $sub$/workspace/rtl/lmsm/vibe_lmsm.sv:132$53.
+  creating $alu model for $macc $add$/workspace/rtl/lmsm/vibe_lmsm.sv:135$56.
+  creating $alu model for $ge$/workspace/rtl/lmsm/vibe_lmsm.sv:78$22 ($ge): new $alu
+  creating $alu model for $lt$/workspace/rtl/lmsm/vibe_lmsm.sv:135$55 ($lt): merged with $ge$/workspace/rtl/lmsm/vibe_lmsm.sv:78$22.
+  creating $alu cell for $ge$/workspace/rtl/lmsm/vibe_lmsm.sv:78$22, $lt$/workspace/rtl/lmsm/vibe_lmsm.sv:135$55: $auto$alumacc.cc:495:replace_alu$488
+  creating $alu cell for $add$/workspace/rtl/lmsm/vibe_lmsm.sv:135$56: $auto$alumacc.cc:495:replace_alu$501
+  creating $alu cell for $sub$/workspace/rtl/lmsm/vibe_lmsm.sv:132$53: $auto$alumacc.cc:495:replace_alu$504
+  created 3 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+<suppressed ~1 debug messages>
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+2.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_lmsm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+yosys> opt_reduce
+
+2.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_lmsm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> opt_expr
+
+2.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+
+2.14.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_lmsm/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_lmsm ===
+
+   Number of wires:                110
+   Number of wire bits:            481
+   Number of public wires:          21
+   Number of public wire bits:      65
+   Number of ports:                 14
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 94
+     $adffe                          4
+     $alu                            3
+     $eq                            21
+     $logic_and                      1
+     $logic_not                      4
+     $logic_or                       5
+     $mux                           34
+     $ne                             3
+     $not                            3
+     $or                             1
+     $pmux                           2
+     $reduce_and                     4
+     $reduce_bool                    5
+     $reduce_or                      4
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+<suppressed ~7 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 0 unused cells and 9 unused wires.
+<suppressed ~1 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $adffe.
+Using template $paramod$32a7b7b86c07519b7537abc18e96f0331f97914d\_90_alu for cells of type $alu.
+Using template $paramod$d90c3448203144d55644b597072d6cf1b3e54430\_90_alu for cells of type $alu.
+Using template $paramod$366dd6b6ab1aceeba20e443f3798978668d1d6e8\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $or.
+Using template $paramod$a5891a77e06186730ebebe41feb31333d5ca20a8\_90_pmux for cells of type $pmux.
+Using template $paramod$fc972a7a46956c1788f3cb5257b53c8f1df2d0cc\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000100 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011011 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000001 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~965 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_lmsm.
+<suppressed ~555 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_lmsm'.
+<suppressed ~459 debug messages>
+Removed a total of 153 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 5 unused cells and 433 unused wires.
+<suppressed ~6 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_lmsm':
+  mapped 37 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_lmsm' to `<abc-temp-dir>/input.blif'..
+Extracted 655 gates and 704 wires to a netlist network with 47 inputs and 39 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.07 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:          _const0_ cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a2111oi_0 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21boi_0 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:       25
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a311o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a311oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:        9
+ABC RESULTS:   sky130_fd_sc_hd__a32oi_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a41oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       30
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:        8
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand4b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:       24
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:       13
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__nor4b_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nor4bb_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o211ai_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        6
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:        8
+ABC RESULTS:   sky130_fd_sc_hd__o22ai_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__o31a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31ai_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__o32a_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__or3_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__or3b_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__or4_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__or4b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:        8
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       11
+ABC RESULTS:        internal signals:      618
+ABC RESULTS:           input signals:       47
+ABC RESULTS:          output signals:       39
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_lmsm..
+Removed 0 unused cells and 330 unused wires.
+<suppressed ~4 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_lmsm/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_lmsm ===
+
+   Number of wires:                230
+   Number of wire bits:            270
+   Number of public wires:          18
+   Number of public wire bits:      58
+   Number of ports:                 14
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                251
+     sky130_fd_sc_hd__a2111oi_0      1
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       1
+     sky130_fd_sc_hd__a21o_1         3
+     sky130_fd_sc_hd__a21oi_1       25
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a311o_1        1
+     sky130_fd_sc_hd__a311oi_1       1
+     sky130_fd_sc_hd__a31oi_1        9
+     sky130_fd_sc_hd__a32oi_1        2
+     sky130_fd_sc_hd__a41oi_1        1
+     sky130_fd_sc_hd__and2_0         5
+     sky130_fd_sc_hd__and3_1         3
+     sky130_fd_sc_hd__and4_1         3
+     sky130_fd_sc_hd__clkinv_1       4
+     sky130_fd_sc_hd__dfrtp_1       37
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      4
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      4
+     sky130_fd_sc_hd__nand2_1       30
+     sky130_fd_sc_hd__nand2b_1       4
+     sky130_fd_sc_hd__nand3_1        8
+     sky130_fd_sc_hd__nand4_1        1
+     sky130_fd_sc_hd__nand4b_1       1
+     sky130_fd_sc_hd__nor2_1        24
+     sky130_fd_sc_hd__nor3_1        13
+     sky130_fd_sc_hd__nor4_1         7
+     sky130_fd_sc_hd__nor4b_1        3
+     sky130_fd_sc_hd__nor4bb_1       1
+     sky130_fd_sc_hd__o211ai_1       2
+     sky130_fd_sc_hd__o21a_1         6
+     sky130_fd_sc_hd__o21ai_0        8
+     sky130_fd_sc_hd__o22ai_1        2
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__o31ai_1        5
+     sky130_fd_sc_hd__o32a_1         2
+     sky130_fd_sc_hd__or3_1          3
+     sky130_fd_sc_hd__or3b_1         2
+     sky130_fd_sc_hd__or4_1          2
+     sky130_fd_sc_hd__or4b_1         1
+     sky130_fd_sc_hd__xnor2_1        8
+     sky130_fd_sc_hd__xor2_1        11
+
+   Chip area for module '\vibe_lmsm': 2183.344000
+     of which used for sequential elements: 925.888000 (42.41%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_lmsm/vibe_lmsm.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_lmsm'.
+
+End of script. Logfile hash: dca5807ce0, CPU: user 0.20s system 0.02s, MEM: 43.69 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 52% 1x abc (0 sec), 10% 1x dfflibmap (0 sec), ...

@@ -1,0 +1,10 @@
+   Number of memories:               0
+   Number of cells:                 10
+   Chip area for module '$paramod\vibe_sync2\W=s32'00000000000000000000000000000101': 250.240000
+   Number of memories:               0
+   Number of cells:                 86
+   Chip area for module '\vibe_afifo': 800.768000
+   Number of memories:               0
+   Number of cells:                104
+   Chip area for top module '\vibe_afifo': 1301.248000
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

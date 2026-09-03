@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               1227
+   Chip area for module '\vibe_bcrc': 13765.702400
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

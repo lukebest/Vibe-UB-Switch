@@ -1,0 +1,1063 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_icrc/vibe_icrc.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/nw/vibe_icrc.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/nw/vibe_icrc.sv
+Parsing SystemVerilog input from `/workspace/rtl/nw/vibe_icrc.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_icrc'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_icrc -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_icrc
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_icrc
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_icrc
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 20 switch rules as full_case in process $proc$/workspace/rtl/nw/vibe_icrc.sv:38$10 in module vibe_icrc.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 21 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~19 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+     1/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [7]
+     2/139: $11\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$151
+     3/139: $10\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$148
+     4/139: $9\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$145
+     5/139: $8\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$142
+     6/139: $7\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$139
+     7/139: $6\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$136
+     8/139: $5\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$133
+     9/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.i[31:0]$128
+    10/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [30]
+    11/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [29]
+    12/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [28]
+    13/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [27]
+    14/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [26]
+    15/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [25]
+    16/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [24]
+    17/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [23]
+    18/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [22]
+    19/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [21]
+    20/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [20]
+    21/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [19]
+    22/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [18]
+    23/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [17]
+    24/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [16]
+    25/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [15]
+    26/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [14]
+    27/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [13]
+    28/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [12]
+    29/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [11]
+    30/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [10]
+    31/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [9]
+    32/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [8]
+    33/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [7]
+    34/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [6]
+    35/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [5]
+    36/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [4]
+    37/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [3]
+    38/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [2]
+    39/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [1]
+    40/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [0]
+    41/139: $12\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$154
+    42/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.x[31:0]$127
+    43/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.$result[31:0]$120
+    44/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.k[31:0]$125
+    45/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$123
+    46/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.br[7:0]$124
+    47/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.i[31:0]$131
+    48/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [6]
+    49/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [5]
+    50/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [4]
+    51/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [3]
+    52/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [2]
+    53/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [1]
+    54/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [0]
+    55/139: $4\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$126 [31]
+    56/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.x[7:0]$130
+    57/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.b[7:0]$122
+    58/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.c[31:0]$121
+    59/139: $11\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$118
+    60/139: $10\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$115
+    61/139: $9\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$112
+    62/139: $8\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$109
+    63/139: $7\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$106
+    64/139: $6\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$103
+    65/139: $5\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$100
+    66/139: $4\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$97
+    67/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.i[31:0]$95
+    68/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.x[7:0]$94
+    69/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$93
+    70/139: $3\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.i[31:0]$92
+    71/139: $3\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.x[31:0]$91
+    72/139: $3\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$90
+    73/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.k[31:0]$89
+    74/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.br[7:0]$88
+    75/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$87
+    76/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.b[7:0]$86
+    77/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.c[31:0]$85
+    78/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.$result[31:0]$84
+    79/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.$result[31:0]$75
+    80/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.k[31:0]$80
+    81/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$78
+    82/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.br[7:0]$79
+    83/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.i[31:0]$83
+    84/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [6]
+    85/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [5]
+    86/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [4]
+    87/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [3]
+    88/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [2]
+    89/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [1]
+    90/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$81 [0]
+    91/139: $4\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$129 [7]
+    92/139: $3\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.x[7:0]$82
+    93/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.b[7:0]$77
+    94/139: $3\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.c[31:0]$76
+    95/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.i[31:0]$74
+    96/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.x[7:0]$73
+    97/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$72
+    98/139: $2\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.i[31:0]$71
+    99/139: $2\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.x[31:0]$70
+   100/139: $2\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$69
+   101/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.k[31:0]$68
+   102/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.br[7:0]$67
+   103/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$66
+   104/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.b[7:0]$65
+   105/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.c[31:0]$64
+   106/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.$result[31:0]$63
+   107/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.i[31:0]$62
+   108/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.x[7:0]$61
+   109/139: $2\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$60
+   110/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.k[31:0]$59
+   111/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.br[7:0]$58
+   112/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$57
+   113/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.b[7:0]$56
+   114/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.c[31:0]$55
+   115/139: $2\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.$result[31:0]$54
+   116/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.i[31:0]$53
+   117/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.x[7:0]$52
+   118/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result[7:0]$51
+   119/139: $1\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.i[31:0]$50
+   120/139: $1\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.x[31:0]$49
+   121/139: $1\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result[31:0]$48
+   122/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.k[31:0]$47
+   123/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.br[7:0]$46
+   124/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t[31:0]$45
+   125/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.b[7:0]$44
+   126/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.c[31:0]$43
+   127/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.$result[31:0]$42
+   128/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.i[31:0]$41
+   129/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.x[7:0]$40
+   130/139: $1\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result[7:0]$39
+   131/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.k[31:0]$38
+   132/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.br[7:0]$37
+   133/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t[31:0]$36
+   134/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.b[7:0]$35
+   135/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.c[31:0]$34
+   136/139: $1\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.$result[31:0]$33
+   137/139: $0\done[0:0]
+   138/139: $0\crc[31:0]
+   139/139: $0\crc_out[31:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_icrc.\crc_out' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1034' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\done' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1039' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\crc' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1044' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.$result' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1049' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.c' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1054' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.b' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1059' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.t' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1064' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.br' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1069' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:48$5.k' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1074' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.$result' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1079' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.x' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1084' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$6.i' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1089' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.$result' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1094' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.c' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1099' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.b' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1104' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.t' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1109' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.br' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1114' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\step8$func$/workspace/rtl/nw/vibe_icrc.sv:50$7.k' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1119' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.$result' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1124' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.x' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1129' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev32$func$/workspace/rtl/nw/vibe_icrc.sv:50$8.i' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1134' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.$result' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1139' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.x' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1144' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_icrc.\vibe_rev8$func$/workspace/rtl/nw/vibe_icrc.sv:26$9.i' using process `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+  created $adff cell `$procdff$1149' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 19 empty switches in `\vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+Removing empty process `vibe_icrc.$proc$/workspace/rtl/nw/vibe_icrc.sv:38$10'.
+Cleaned up 19 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+<suppressed ~64 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 273 unused cells and 720 unused wires.
+<suppressed ~291 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_icrc...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+<suppressed ~6 debug messages>
+Removed a total of 2 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_icrc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$704.
+    dead port 1/2 on $mux $procmux$707.
+Removed 2 multiplexer ports.
+<suppressed ~18 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_icrc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 0 unused cells and 5 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_icrc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~19 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_icrc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_icrc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~19 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_icrc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$1044 ($adff) from module vibe_icrc (D = $0\crc[31:0], Q = \crc).
+Adding EN signal on $procdff$1034 ($adff) from module vibe_icrc (D = $not$/workspace/rtl/nw/vibe_icrc.sv:50$156_Y, Q = \crc_out).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 3 unused cells and 3 unused wires.
+<suppressed ~4 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+<suppressed ~1 debug messages>
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_icrc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~18 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_icrc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+2.8.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$166 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$178 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$190 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$202 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$214 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$226 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$238 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$538 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$702 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$711 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$720 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$729 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$738 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$747 ($mux).
+Removed top 5 bits (of 32) from mux cell vibe_icrc.$procmux$756 ($mux).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_icrc:
+  created 0 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_icrc..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~18 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_icrc.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+
+2.14.9. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_icrc/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_icrc ===
+
+   Number of wires:                101
+   Number of wire bits:           2101
+   Number of public wires:           9
+   Number of public wire bits:      78
+   Number of ports:                  8
+   Number of port bits:             46
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 95
+     $adff                           1
+     $adffe                          2
+     $mux                           58
+     $not                           17
+     $reduce_and                     1
+     $reduce_bool                    1
+     $xor                           15
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+<suppressed ~131 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+<suppressed ~63 debug messages>
+Removed a total of 21 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 0 unused cells and 91 unused wires.
+<suppressed ~1 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $adffe.
+No more expansions possible.
+<suppressed ~109 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_icrc.
+<suppressed ~112 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_icrc'.
+<suppressed ~3 debug messages>
+Removed a total of 1 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 0 unused cells and 11 unused wires.
+<suppressed ~1 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_icrc':
+  mapped 33 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+  mapped 32 $_DFF_PN1_ cells to \sky130_fd_sc_hd__dfstp_2 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_icrc' to `<abc-temp-dir>/input.blif'..
+Extracted 349 gates and 426 wires to a netlist network with 75 inputs and 65 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__mux2_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       32
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       31
+ABC RESULTS:   sky130_fd_sc_hd__o22a_1 cells:       31
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:       42
+ABC RESULTS:   sky130_fd_sc_hd__xnor3_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       25
+ABC RESULTS:   sky130_fd_sc_hd__xor3_1 cells:        3
+ABC RESULTS:        internal signals:      286
+ABC RESULTS:           input signals:       75
+ABC RESULTS:          output signals:       65
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_icrc..
+Removed 0 unused cells and 162 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_icrc/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_icrc ===
+
+   Number of wires:                181
+   Number of wire bits:            250
+   Number of public wires:           9
+   Number of public wire bits:      78
+   Number of ports:                  8
+   Number of port bits:             46
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                237
+     sky130_fd_sc_hd__a21oi_1        1
+     sky130_fd_sc_hd__clkinv_1       1
+     sky130_fd_sc_hd__dfrtp_1       33
+     sky130_fd_sc_hd__dfstp_2       32
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      1
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__mux2_1         1
+     sky130_fd_sc_hd__nand2_1       32
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nor2_1         1
+     sky130_fd_sc_hd__o21ai_0       31
+     sky130_fd_sc_hd__o22a_1        31
+     sky130_fd_sc_hd__xnor2_1       42
+     sky130_fd_sc_hd__xnor3_1        1
+     sky130_fd_sc_hd__xor2_1        25
+     sky130_fd_sc_hd__xor3_1         3
+
+   Chip area for module '\vibe_icrc': 2936.566400
+     of which used for sequential elements: 1666.598400 (56.75%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_icrc/vibe_icrc.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_icrc'.
+
+End of script. Logfile hash: 265df6f13d, CPU: user 0.22s system 0.01s, MEM: 43.78 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 46% 1x abc (0 sec), 13% 1x dfflibmap (0 sec), ...

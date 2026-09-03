@@ -1,0 +1,9 @@
+   Number of memories:               0
+   Number of cells:                  1
+   Number of memories:               0
+   Number of cells:                 88
+   Chip area for module '\vibe_pcs_tx_amctl': 566.793600
+   Number of memories:               0
+   Number of cells:                 88
+   Chip area for top module '\vibe_pcs_tx_amctl': 566.793600
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

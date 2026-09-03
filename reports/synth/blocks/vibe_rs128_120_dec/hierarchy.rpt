@@ -1,0 +1,31 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_rs128_120_dec ===
+
+   Number of wires:                524
+   Number of wire bits:           3286
+   Number of public wires:         185
+   Number of public wire bits:    2520
+   Number of ports:                  9
+   Number of port bits:            975
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                482
+     $adff                           2
+     $adffe                        131
+     $alu                            3
+     $eq                           120
+     $logic_and                      3
+     $logic_not                      1
+     $mux                           56
+     $ne                             2
+     $not                           31
+     $reduce_and                   123
+     $reduce_bool                    1
+     $reduce_or                      1
+     $xor                            8
+

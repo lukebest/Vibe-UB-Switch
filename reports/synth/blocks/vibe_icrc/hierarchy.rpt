@@ -1,0 +1,25 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_icrc ===
+
+   Number of wires:                101
+   Number of wire bits:           2101
+   Number of public wires:           9
+   Number of public wire bits:      78
+   Number of ports:                  8
+   Number of port bits:             46
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 95
+     $adff                           1
+     $adffe                          2
+     $mux                           58
+     $not                           17
+     $reduce_and                     1
+     $reduce_bool                    1
+     $xor                           15
+

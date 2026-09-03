@@ -1,0 +1,72 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+11. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+   Area for cell type $mem_v2 is unknown!
+
+=== vibe_pcs_tx_amctl ===
+
+   Number of wires:                 81
+   Number of wire bits:            536
+   Number of public wires:          17
+   Number of public wire bits:     472
+   Number of ports:                  8
+   Number of port bits:            328
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 88
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__nand3_1       16
+     sky130_fd_sc_hd__nand3b_1      32
+     sky130_fd_sc_hd__nand4_1       16
+     sky130_fd_sc_hd__or3b_1        16
+     vibe_ebch16                     7
+
+   Area for cell type \vibe_ebch16 is unknown!
+
+   Chip area for module '\vibe_pcs_tx_amctl': 566.793600
+     of which used for sequential elements: 0.000000 (0.00%)
+
+=== design hierarchy ===
+
+   vibe_pcs_tx_amctl                 1
+     vibe_ebch16                     7
+
+   Number of wires:                 95
+   Number of wire bits:            683
+   Number of public wires:          31
+   Number of public wire bits:     619
+   Number of ports:                 22
+   Number of port bits:            475
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 88
+     $mem_v2                         7
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__nand3_1       16
+     sky130_fd_sc_hd__nand3b_1      32
+     sky130_fd_sc_hd__nand4_1       16
+     sky130_fd_sc_hd__or3b_1        16
+
+   Area for cell type $mem_v2 is unknown!
+
+   Chip area for top module '\vibe_pcs_tx_amctl': 566.793600
+     of which used for sequential elements: 0.000000 (0.00%)
+

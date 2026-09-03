@@ -1,0 +1,983 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_dll_retry_ack_sm/vibe_dll_retry_ack_sm.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/dll/vibe_dll_retry_ack_sm.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/dll/vibe_dll_retry_ack_sm.sv
+Parsing SystemVerilog input from `/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_dll_retry_ack_sm'.
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_dll_retry_ack_sm -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_dll_retry_ack_sm
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_dll_retry_ack_sm
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_dll_retry_ack_sm
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 5 switch rules as full_case in process $proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8 in module vibe_dll_retry_ack_sm.
+Removed a total of 0 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~5 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+     1/3: $0\rp[7:0]
+     2/3: $0\burst[5:0]
+     3/3: $0\st[2:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_dll_retry_ack_sm.\st' using process `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+  created $adff cell `$procdff$60' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_ack_sm.\burst' using process `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+  created $adff cell `$procdff$65' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_dll_retry_ack_sm.\rp' using process `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+  created $adff cell `$procdff$70' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 5 empty switches in `\vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+Removing empty process `vibe_dll_retry_ack_sm.$proc$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:29$8'.
+Cleaned up 5 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+<suppressed ~10 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 4 unused cells and 23 unused wires.
+<suppressed ~5 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_dll_retry_ack_sm...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+<suppressed ~21 debug messages>
+Removed a total of 7 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 0 unused cells and 7 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+2.6.16. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking vibe_dll_retry_ack_sm.st as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$70 ($adff) from module vibe_dll_retry_ack_sm (D = $0\rp[7:0], Q = \rp).
+Adding EN signal on $procdff$65 ($adff) from module vibe_dll_retry_ack_sm (D = $0\burst[5:0], Q = \burst).
+Adding EN signal on $procdff$60 ($adff) from module vibe_dll_retry_ack_sm (D = $0\st[2:0], Q = \st).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+<suppressed ~2 debug messages>
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+<suppressed ~6 debug messages>
+Removed a total of 2 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+2.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> opt_expr
+
+2.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+2.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 2 bits (of 3) from port B of cell vibe_dll_retry_ack_sm.$eq$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:24$1 ($eq).
+Removed top 1 bits (of 3) from port B of cell vibe_dll_retry_ack_sm.$eq$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:26$7 ($eq).
+Removed top 5 bits (of 6) from port B of cell vibe_dll_retry_ack_sm.$add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:49$11 ($add).
+Removed top 7 bits (of 8) from port B of cell vibe_dll_retry_ack_sm.$add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:55$13 ($add).
+Removed top 1 bits (of 3) from port B of cell vibe_dll_retry_ack_sm.$auto$opt_dff.cc:195:make_patterns_logic$77 ($ne).
+Removed top 1 bits (of 3) from port B of cell vibe_dll_retry_ack_sm.$auto$opt_dff.cc:195:make_patterns_logic$93 ($ne).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_dll_retry_ack_sm:
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:49$11 ($add).
+  creating $macc model for $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:55$13 ($add).
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:55$13.
+  creating $alu model for $macc $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:49$11.
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:49$11: $auto$alumacc.cc:495:replace_alu$98
+  creating $alu cell for $add$/workspace/rtl/dll/vibe_dll_retry_ack_sm.sv:55$13: $auto$alumacc.cc:495:replace_alu$101
+  created 2 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_dll_retry_ack_sm..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~3 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_dll_retry_ack_sm.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+
+2.14.9. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_dll_retry_ack_sm/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_dll_retry_ack_sm ===
+
+   Number of wires:                 49
+   Number of wire bits:            180
+   Number of public wires:          14
+   Number of public wire bits:      51
+   Number of ports:                 11
+   Number of port bits:             34
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 37
+     $adffe                          3
+     $alu                            2
+     $eq                             4
+     $logic_and                      2
+     $logic_not                      2
+     $mux                           10
+     $ne                             5
+     $pmux                           3
+     $reduce_and                     3
+     $reduce_bool                    3
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+<suppressed ~9 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 0 unused cells and 7 unused wires.
+<suppressed ~1 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using template $paramod$c3cd1564c35d873179656addd6052d7ea8b6d991\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $reduce_and.
+Using template $paramod$85df5dc01c7df96a7d8e5f1fdf76ce9ac452af63\_90_pmux for cells of type $pmux.
+Using template $paramod$32efbfac1c4dc57230cf86180788fdfd12e3b511\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000001000 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000110 for cells of type $lcu.
+Using extmapper simplemap for cells of type $or.
+No more expansions possible.
+<suppressed ~562 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+<suppressed ~139 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+<suppressed ~39 debug messages>
+Removed a total of 13 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$394 ($_DFFE_PN0P_) from module vibe_dll_retry_ack_sm.
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 16 unused cells and 141 unused wires.
+<suppressed ~17 debug messages>
+
+6.5. Rerunning OPT passes. (Removed registers in this run.)
+
+yosys> opt_expr
+
+6.6. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_dll_retry_ack_sm.
+<suppressed ~3 debug messages>
+
+yosys> opt_merge
+
+6.7. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_dll_retry_ack_sm'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+6.8. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+6.10. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_dll_retry_ack_sm':
+  mapped 16 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_dll_retry_ack_sm' to `<abc-temp-dir>/input.blif'..
+Extracted 131 gates and 166 wires to a netlist network with 34 inputs and 19 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.06 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.09 sec
+ABC: Memory =   19.81 MB. Time =     0.09 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:       15
+ABC RESULTS:   sky130_fd_sc_hd__a22o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a22oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a311oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_inputiso1p_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__mux2_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       11
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:       13
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       13
+ABC RESULTS:   sky130_fd_sc_hd__o21bai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o22a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o311ai_0 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__or4_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:        9
+ABC RESULTS:        internal signals:      113
+ABC RESULTS:           input signals:       34
+ABC RESULTS:          output signals:       19
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_dll_retry_ack_sm..
+Removed 0 unused cells and 107 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_dll_retry_ack_sm/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_dll_retry_ack_sm ===
+
+   Number of wires:                106
+   Number of wire bits:            143
+   Number of public wires:          14
+   Number of public wire bits:      51
+   Number of ports:                 11
+   Number of port bits:             34
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                111
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21oi_1       15
+     sky130_fd_sc_hd__a22o_1         1
+     sky130_fd_sc_hd__a22oi_1        1
+     sky130_fd_sc_hd__a311oi_1       1
+     sky130_fd_sc_hd__a31o_1         1
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and4_1         1
+     sky130_fd_sc_hd__clkinv_1       4
+     sky130_fd_sc_hd__dfrtp_1       16
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      2
+     sky130_fd_sc_hd__mux2_1         1
+     sky130_fd_sc_hd__nand2_1       11
+     sky130_fd_sc_hd__nand2b_1       5
+     sky130_fd_sc_hd__nand3_1        2
+     sky130_fd_sc_hd__nand4_1        1
+     sky130_fd_sc_hd__nor2_1        13
+     sky130_fd_sc_hd__nor3_1         3
+     sky130_fd_sc_hd__nor4_1         3
+     sky130_fd_sc_hd__o21ai_0       13
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o22a_1         1
+     sky130_fd_sc_hd__o311ai_0       1
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__or4_1          1
+     sky130_fd_sc_hd__xor2_1         9
+
+   Chip area for module '\vibe_dll_retry_ack_sm': 933.395200
+     of which used for sequential elements: 400.384000 (42.90%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_dll_retry_ack_sm/vibe_dll_retry_ack_sm.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_dll_retry_ack_sm'.
+
+End of script. Logfile hash: 4c9c7bd690, CPU: user 0.14s system 0.02s, MEM: 42.11 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 54% 1x abc (0 sec), 15% 1x dfflibmap (0 sec), ...

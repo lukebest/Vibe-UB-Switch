@@ -1,0 +1,41 @@
+   Number of wires:                973
+   Number of wire bits:           5068
+   Number of public wires:         173
+   Number of public wire bits:    4246
+   Number of ports:                  9
+   Number of port bits:            328
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1006
+     sky130_fd_sc_hd__a21o_1         4
+     sky130_fd_sc_hd__a21oi_1      154
+     sky130_fd_sc_hd__a22o_1        14
+     sky130_fd_sc_hd__a22oi_1       13
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31oi_1        5
+     sky130_fd_sc_hd__and2_0         4
+     sky130_fd_sc_hd__clkinv_1       2
+     sky130_fd_sc_hd__dfrtp_1      183
+     sky130_fd_sc_hd__dfstp_2        1
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      3
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__mux2_1         4
+     sky130_fd_sc_hd__mux2i_1        2
+     sky130_fd_sc_hd__nand2_1      102
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1        3
+     sky130_fd_sc_hd__nand3b_1       1
+     sky130_fd_sc_hd__nor2_1       193
+     sky130_fd_sc_hd__nor2b_1        1
+     sky130_fd_sc_hd__o21ai_0       14
+     sky130_fd_sc_hd__o22a_1         3
+     sky130_fd_sc_hd__o22ai_1        2
+     sky130_fd_sc_hd__o31ai_1        1
+     sky130_fd_sc_hd__o32ai_1        1
+     sky130_fd_sc_hd__or3_1          4
+     sky130_fd_sc_hd__xnor2_1      127
+     sky130_fd_sc_hd__xnor3_1       16
+     sky130_fd_sc_hd__xor2_1       141
+     sky130_fd_sc_hd__xor3_1         5
+   Chip area for module '\vibe_pcs_scramble': 9908.252800

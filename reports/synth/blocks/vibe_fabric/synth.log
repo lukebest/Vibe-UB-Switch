@@ -1,0 +1,126 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_fabric/vibe_fabric.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> plugin -i slang
+
+yosys> read_slang --single-unit --compat-mode -I /workspace/rtl/common /workspace/rtl/fabric/vibe_saf_ing.sv /workspace/rtl/fabric/vibe_route_lu.sv /workspace/rtl/fabric/vibe_port_sel.sv /workspace/rtl/fabric/vibe_xbar.sv /workspace/rtl/fabric/vibe_voq_egr.sv /workspace/rtl/fabric/vibe_vl_rr.sv /workspace/rtl/fabric/vibe_fecn_mark.sv /workspace/rtl/fabric/vibe_fabric.sv
+
+1. Executing SLANG frontend.
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[0].u_saf.plen'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[0].u_saf.dflits'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[1].u_saf.plen'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[1].u_saf.dflits'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[2].u_saf.plen'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[2].u_saf.dflits'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[3].u_saf.plen'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_saf_ing.sv:38:17: warning: asynchronous load value missing for variable '\g_saf[3].u_saf.dflits'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_saf_ing.sv:37:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_route_lu.sv:23:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_route_lu.sv:22:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_port_sel.sv:42:7: error: unroll limit of 4000 exhausted [--unroll-limit=]
+      for (n = 0; n < 4; n = n + 1) begin
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:50:9: error: unroll limit of 4000 exhausted [--unroll-limit=]
+        for (i = 0; i < 4; i = i + 1) begin
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:47:9: note: loop contributes to unroll tally
+        for (i = 0; i < 4; i = i + 1)
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:67:7: warning: asynchronous load value missing for variable '\u_xbar.i'
+      for (e = 0; e < 4; e = e + 1) begin
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_xbar.sv:65:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[0].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[1].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[2].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_voq_egr.sv:46:17: warning: asynchronous load value missing for variable '\g_egr[3].u_voq.j'
+    if (!rst_n) begin
+                ^~~~~
+rtl/fabric/vibe_voq_egr.sv:45:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_vl_rr.sv:19:5: error: unroll limit of 4000 exhausted [--unroll-limit=]
+    for (n = 0; n < 16; n = n + 1) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:155:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:154:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:197:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/fabric/vibe_fabric.sv:196:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ERROR: Compilation failed

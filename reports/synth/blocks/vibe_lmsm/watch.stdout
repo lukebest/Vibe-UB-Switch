@@ -1,0 +1,1 @@
+synth ok  top=vibe_lmsm  netlist=/workspace/scripts/synth/work/blocks/vibe_lmsm/vibe_lmsm.synth.v  reports=/workspace/reports/synth/blocks/vibe_lmsm

@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               2569
+   Chip area for module '\vibe_pcs_tx_cw2beat': 43013.753600
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

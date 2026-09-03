@@ -1,0 +1,183 @@
+---
+pid: 3198
+cwd: "/workspace"
+command: "export PATH=/tmp/oss-cad/oss-cad-suite/bin:$PATH\nexport YOSYS=/tmp/oss-cad/oss-cad-suite/bin/yosys\nexport LIBERTY=/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib\nexport RTL_SHA=32a7f5e0c3f04762aa27dae73b000e55773195da\ndate -u +%FT%TZ | tee /tmp/blocks_start.txt\n/workspace/scripts/synth/yosys/run_blocks.sh\necho BLOCKS_EXIT:$? | tee /tmp/blocks_exit.txt\ndate -u +%FT%TZ | tee /tmp/blocks_end.txt\ncat /workspace/reports/synth/blocks_index.txt"
+title: "Re-run full block-level Yosys suite"
+status: succeeded
+started_at: 2026-09-03T04:41:59.200Z
+running_for_ms: 395706   
+---
+2026-09-03T04:41:59Z
+=== vibe_sync2 frontend=verilog timeout=60s ===
+OK vibe_sync2
+=== vibe_rst_sync frontend=verilog timeout=60s ===
+OK vibe_rst_sync
+=== vibe_gear_160_128 frontend=verilog timeout=90s ===
+OK vibe_gear_160_128
+=== vibe_gear_128_160 frontend=verilog timeout=90s ===
+OK vibe_gear_128_160
+=== vibe_afifo frontend=verilog timeout=120s ===
+OK vibe_afifo
+=== vibe_pma_bnd frontend=verilog timeout=60s ===
+OK vibe_pma_bnd
+=== vibe_ebch16 frontend=verilog timeout=60s ===
+OK vibe_ebch16
+=== vibe_pcs_scramble frontend=verilog timeout=90s ===
+OK vibe_pcs_scramble
+=== vibe_pcs_tx_amctl frontend=verilog timeout=90s ===
+OK vibe_pcs_tx_amctl
+=== vibe_pcs_tx_g1 frontend=verilog timeout=120s ===
+OK vibe_pcs_tx_g1
+=== vibe_pcs_tx_cw2beat frontend=verilog timeout=90s ===
+OK vibe_pcs_tx_cw2beat
+=== vibe_pcs_rx_amctl_lock frontend=verilog timeout=90s ===
+OK vibe_pcs_rx_amctl_lock
+=== vibe_pcs_rx_deskew frontend=verilog timeout=90s ===
+OK vibe_pcs_rx_deskew
+=== vibe_pcs_rx_unpack frontend=verilog timeout=90s ===
+OK vibe_pcs_rx_unpack
+=== vibe_lmsm frontend=verilog timeout=90s ===
+OK vibe_lmsm
+=== vibe_bcrc frontend=verilog timeout=120s ===
+OK vibe_bcrc
+=== vibe_dll_sm frontend=verilog timeout=90s ===
+OK vibe_dll_sm
+=== vibe_dll_credit frontend=verilog timeout=90s ===
+OK vibe_dll_credit
+=== vibe_dll_retry_req_sm frontend=verilog timeout=90s ===
+OK vibe_dll_retry_req_sm
+=== vibe_dll_retry_ack_sm frontend=verilog timeout=90s ===
+OK vibe_dll_retry_ack_sm
+=== vibe_dll_retry_buf frontend=verilog timeout=180s ===
+OK vibe_dll_retry_buf
+=== vibe_dll_rx frontend=verilog timeout=180s ===
+OK vibe_dll_rx
+=== vibe_dll_tx frontend=verilog timeout=180s ===
+OK vibe_dll_tx
+=== vibe_icrc frontend=verilog timeout=120s ===
+OK vibe_icrc
+=== vibe_nw_adapt frontend=verilog timeout=90s ===
+OK vibe_nw_adapt
+=== vibe_irq_agg frontend=verilog timeout=60s ===
+OK vibe_irq_agg
+=== vibe_mgmt_byp frontend=verilog timeout=90s ===
+OK vibe_mgmt_byp
+=== vibe_rst_ctl frontend=verilog timeout=60s ===
+OK vibe_rst_ctl
+=== vibe_cfg_space frontend=verilog timeout=90s ===
+FAIL vibe_cfg_space rc=1
+=== vibe_route_lu frontend=verilog timeout=90s ===
+FAIL vibe_route_lu rc=1
+=== vibe_port_sel frontend=verilog timeout=90s ===
+OK vibe_port_sel
+=== vibe_saf_ing frontend=verilog timeout=180s ===
+OK vibe_saf_ing
+=== vibe_voq_egr frontend=verilog timeout=180s ===
+FAIL vibe_voq_egr TIMEOUT 180s
+=== vibe_vl_rr frontend=verilog timeout=90s ===
+OK vibe_vl_rr
+=== vibe_fecn_mark frontend=verilog timeout=90s ===
+OK vibe_fecn_mark
+=== vibe_rs128_120_enc frontend=verilog timeout=180s ===
+OK vibe_rs128_120_enc
+=== vibe_rs128_120_dec frontend=verilog timeout=180s ===
+OK vibe_rs128_120_dec
+=== vibe_xbar frontend=slang timeout=180s ===
+FAIL vibe_xbar rc=1
+=== vibe_cna_ep frontend=slang timeout=180s ===
+OK vibe_cna_ep
+=== vibe_mgmt frontend=slang timeout=180s ===
+FAIL vibe_mgmt rc=1
+=== vibe_fabric frontend=slang timeout=180s ===
+FAIL vibe_fabric rc=1
+DONE blocks. Index: /workspace/reports/synth/blocks_index.txt
+OK vibe_sync2
+OK vibe_rst_sync
+OK vibe_gear_160_128
+OK vibe_gear_128_160
+OK vibe_afifo
+OK vibe_pma_bnd
+OK vibe_ebch16
+OK vibe_pcs_scramble
+OK vibe_pcs_tx_amctl
+OK vibe_pcs_tx_g1
+OK vibe_pcs_tx_cw2beat
+OK vibe_pcs_rx_amctl_lock
+OK vibe_pcs_rx_deskew
+OK vibe_pcs_rx_unpack
+OK vibe_lmsm
+OK vibe_bcrc
+OK vibe_dll_sm
+OK vibe_dll_credit
+OK vibe_dll_retry_req_sm
+OK vibe_dll_retry_ack_sm
+OK vibe_dll_retry_buf
+OK vibe_dll_rx
+OK vibe_dll_tx
+OK vibe_icrc
+OK vibe_nw_adapt
+OK vibe_irq_agg
+OK vibe_mgmt_byp
+OK vibe_rst_ctl
+FAIL vibe_cfg_space rc=1
+FAIL vibe_route_lu rc=1
+OK vibe_port_sel
+OK vibe_saf_ing
+FAIL vibe_voq_egr TIMEOUT 180s
+OK vibe_vl_rr
+OK vibe_fecn_mark
+OK vibe_rs128_120_enc
+OK vibe_rs128_120_dec
+FAIL vibe_xbar rc=1
+OK vibe_cna_ep
+FAIL vibe_mgmt rc=1
+FAIL vibe_fabric rc=1
+BLOCKS_EXIT:0
+2026-09-03T04:48:29Z
+OK vibe_sync2
+OK vibe_rst_sync
+OK vibe_gear_160_128
+OK vibe_gear_128_160
+OK vibe_afifo
+OK vibe_pma_bnd
+OK vibe_ebch16
+OK vibe_pcs_scramble
+OK vibe_pcs_tx_amctl
+OK vibe_pcs_tx_g1
+OK vibe_pcs_tx_cw2beat
+OK vibe_pcs_rx_amctl_lock
+OK vibe_pcs_rx_deskew
+OK vibe_pcs_rx_unpack
+OK vibe_lmsm
+OK vibe_bcrc
+OK vibe_dll_sm
+OK vibe_dll_credit
+OK vibe_dll_retry_req_sm
+OK vibe_dll_retry_ack_sm
+OK vibe_dll_retry_buf
+OK vibe_dll_rx
+OK vibe_dll_tx
+OK vibe_icrc
+OK vibe_nw_adapt
+OK vibe_irq_agg
+OK vibe_mgmt_byp
+OK vibe_rst_ctl
+FAIL vibe_cfg_space rc=1
+FAIL vibe_route_lu rc=1
+OK vibe_port_sel
+OK vibe_saf_ing
+FAIL vibe_voq_egr TIMEOUT 180s
+OK vibe_vl_rr
+OK vibe_fecn_mark
+OK vibe_rs128_120_enc
+OK vibe_rs128_120_dec
+FAIL vibe_xbar rc=1
+OK vibe_cna_ep
+FAIL vibe_mgmt rc=1
+FAIL vibe_fabric rc=1
+
+---
+exit_code: 0
+elapsed_ms: 395706
+ended_at: 2026-09-03T04:48:34.906Z
+---

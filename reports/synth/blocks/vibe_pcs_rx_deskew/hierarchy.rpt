@@ -1,0 +1,24 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_pcs_rx_deskew ===
+
+   Number of wires:                 43
+   Number of wire bits:           1315
+   Number of public wires:          25
+   Number of public wire bits:    1297
+   Number of ports:                 17
+   Number of port bits:           1289
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 28
+     $adffe                          8
+     $and                            3
+     $logic_and                      5
+     $logic_not                      5
+     $or                             3
+     $reduce_and                     4
+

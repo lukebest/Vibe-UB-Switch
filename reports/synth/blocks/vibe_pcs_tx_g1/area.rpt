@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               4199
+   Chip area for module '\vibe_pcs_tx_g1': 52371.478400
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

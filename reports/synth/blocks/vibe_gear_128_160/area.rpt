@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               1593
+   Chip area for module '\vibe_gear_128_160': 17848.368000
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

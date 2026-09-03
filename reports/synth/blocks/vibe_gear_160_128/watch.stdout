@@ -1,0 +1,1 @@
+synth ok  top=vibe_gear_160_128  netlist=/workspace/scripts/synth/work/blocks/vibe_gear_160_128/vibe_gear_160_128.synth.v  reports=/workspace/reports/synth/blocks/vibe_gear_160_128

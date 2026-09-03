@@ -1,0 +1,3 @@
+STATUS: generic_synth
+NOTE: No liberty was passed to Yosys, so there is no Sky130 area figure.
+      Cell counts are in /workspace/reports/synth/blocks/vibe_ebch16/stat.rpt / cells.rpt.

@@ -1,0 +1,25 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_nw_adapt ===
+
+   Number of wires:                 18
+   Number of wire bits:           2573
+   Number of public wires:          18
+   Number of public wire bits:    2573
+   Number of ports:                 18
+   Number of port bits:           2573
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                515
+     sky130_fd_sc_hd__and2_0         1
+     sky130_fd_sc_hd__and3b_1        1
+     sky130_fd_sc_hd__mux2_1       512
+     sky130_fd_sc_hd__o21a_1         1
+
+   Chip area for module '\vibe_nw_adapt': 5788.051200
+     of which used for sequential elements: 0.000000 (0.00%)
+

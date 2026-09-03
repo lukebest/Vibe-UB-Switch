@@ -1,0 +1,1 @@
+synth ok  top=vibe_bcrc  netlist=/workspace/scripts/synth/work/blocks/vibe_bcrc/vibe_bcrc.synth.v  reports=/workspace/reports/synth/blocks/vibe_bcrc

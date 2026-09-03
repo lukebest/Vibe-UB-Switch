@@ -1,0 +1,74 @@
+
+yosys> stat
+
+4. Printing statistics.
+
+=== $paramod\vibe_sync2\W=s32'00000000000000000000000000000101 ===
+
+   Number of wires:                  5
+   Number of wire bits:             17
+   Number of public wires:           5
+   Number of public wire bits:      17
+   Number of ports:                  4
+   Number of port bits:             12
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  2
+     $adff                           2
+
+=== vibe_afifo ===
+
+   Number of wires:                 46
+   Number of wire bits:            781
+   Number of public wires:          24
+   Number of public wire bits:     394
+   Number of ports:                 12
+   Number of port bits:            334
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 33
+     $adffe                          2
+     $alu                            4
+     $eq                             2
+     $logic_and                      2
+     $logic_not                      2
+     $mem_v2                         1
+     $mux                            3
+     $not                            2
+     $or                             1
+     $paramod\vibe_sync2\W=s32'00000000000000000000000000000101      2
+     $reduce_and                     1
+     $reduce_or                      1
+     $xor                           10
+
+=== design hierarchy ===
+
+   vibe_afifo                        1
+     $paramod\vibe_sync2\W=s32'00000000000000000000000000000101      2
+
+   Number of wires:                 56
+   Number of wire bits:            815
+   Number of public wires:          34
+   Number of public wire bits:     428
+   Number of ports:                 20
+   Number of port bits:            358
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 35
+     $adff                           4
+     $adffe                          2
+     $alu                            4
+     $eq                             2
+     $logic_and                      2
+     $logic_not                      2
+     $mem_v2                         1
+     $mux                            3
+     $not                            2
+     $or                             1
+     $reduce_and                     1
+     $reduce_or                      1
+     $xor                           10
+

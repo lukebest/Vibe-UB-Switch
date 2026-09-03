@@ -1,0 +1,24 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_mgmt/vibe_mgmt.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> plugin -i slang
+
+yosys> read_slang --single-unit --compat-mode -I /workspace/rtl/common /workspace/rtl/mgmt/vibe_cfg_space.sv /workspace/rtl/mgmt/vibe_cna_ep.sv /workspace/rtl/mgmt/vibe_irq_agg.sv /workspace/rtl/mgmt/vibe_rst_ctl.sv /workspace/rtl/mgmt/vibe_mgmt.sv
+
+1. Executing SLANG frontend.
+rtl/mgmt/vibe_cfg_space.sv:74:5: error: condition cannot be matched to any signal from the event list
+    if (!rst_n || device_rst) begin
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rtl/mgmt/vibe_cfg_space.sv:73:11: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+  always @(posedge clk or negedge rst_n) begin
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ERROR: Compilation failed

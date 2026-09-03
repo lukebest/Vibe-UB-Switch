@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               1024
+   Chip area for module '\vibe_pma_bnd': 25624.576000
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

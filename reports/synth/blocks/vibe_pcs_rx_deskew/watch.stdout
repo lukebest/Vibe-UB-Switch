@@ -1,0 +1,1 @@
+synth ok  top=vibe_pcs_rx_deskew  netlist=/workspace/scripts/synth/work/blocks/vibe_pcs_rx_deskew/vibe_pcs_rx_deskew.synth.v  reports=/workspace/reports/synth/blocks/vibe_pcs_rx_deskew

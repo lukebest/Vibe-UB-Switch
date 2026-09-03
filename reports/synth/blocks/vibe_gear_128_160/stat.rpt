@@ -1,0 +1,43 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_gear_128_160 ===
+
+   Number of wires:               1215
+   Number of wire bits:           1886
+   Number of public wires:          13
+   Number of public wire bits:     684
+   Number of ports:                  8
+   Number of port bits:            294
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1593
+     sky130_fd_sc_hd__a21oi_1      130
+     sky130_fd_sc_hd__a221o_1       32
+     sky130_fd_sc_hd__a222oi_1      96
+     sky130_fd_sc_hd__a22o_1        64
+     sky130_fd_sc_hd__a22oi_1       64
+     sky130_fd_sc_hd__a31o_1         1
+     sky130_fd_sc_hd__a31oi_1      320
+     sky130_fd_sc_hd__and2_0        32
+     sky130_fd_sc_hd__clkinv_1      66
+     sky130_fd_sc_hd__dfrtp_1      389
+     sky130_fd_sc_hd__dfstp_2        1
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      1
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__mux2_1        99
+     sky130_fd_sc_hd__mux2i_1       63
+     sky130_fd_sc_hd__nand2_1      224
+     sky130_fd_sc_hd__nor2_1         2
+     sky130_fd_sc_hd__nor3_1         4
+     sky130_fd_sc_hd__nor4_1         1
+     sky130_fd_sc_hd__o21ai_0        1
+     sky130_fd_sc_hd__o21bai_1       1
+     sky130_fd_sc_hd__o41a_1         1
+
+   Chip area for module '\vibe_gear_128_160': 17848.368000
+     of which used for sequential elements: 9760.611200 (54.69%)
+

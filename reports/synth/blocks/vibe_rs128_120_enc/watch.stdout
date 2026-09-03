@@ -1,0 +1,1 @@
+synth ok  top=vibe_rs128_120_enc  netlist=/workspace/scripts/synth/work/blocks/vibe_rs128_120_enc/vibe_rs128_120_enc.synth.v  reports=/workspace/reports/synth/blocks/vibe_rs128_120_enc

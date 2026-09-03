@@ -1,0 +1,22 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_nw_adapt ===
+
+   Number of wires:                 20
+   Number of wire bits:           2575
+   Number of public wires:          18
+   Number of public wire bits:    2573
+   Number of ports:                 18
+   Number of port bits:           2573
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  6
+     $logic_and                      3
+     $logic_not                      1
+     $logic_or                       1
+     $mux                            1
+

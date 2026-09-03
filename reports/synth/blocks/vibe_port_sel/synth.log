@@ -1,0 +1,1434 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+
+-- Executing script file `/workspace/scripts/synth/work/blocks/vibe_port_sel/vibe_port_sel.ys' --
+Disabled timestamp in logs.
+echo on
+
+yosys> read_verilog -sv -I /workspace/rtl/common /workspace/rtl/fabric/vibe_port_sel.sv
+
+1. Executing Verilog-2005 frontend: /workspace/rtl/fabric/vibe_port_sel.sv
+Parsing SystemVerilog input from `/workspace/rtl/fabric/vibe_port_sel.sv' to AST representation.
+Generating RTLIL representation for module `\vibe_port_sel'.
+Warning: Replacing memory \sticky with list of registers. See /workspace/rtl/fabric/vibe_port_sel.sv:58
+Successfully finished Verilog frontend.
+
+yosys> synth -top vibe_port_sel -run :fine
+
+2. Executing SYNTH pass.
+
+yosys> hierarchy -check -top vibe_port_sel
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \vibe_port_sel
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \vibe_port_sel
+Removed 0 unused modules.
+
+yosys> proc
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+yosys> proc_clean
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+yosys> proc_rmdead
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 5 dead cases from process $proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20 in module vibe_port_sel.
+Marked 27 switch rules as full_case in process $proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20 in module vibe_port_sel.
+Removed a total of 5 dead cases.
+
+yosys> proc_prune
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 33 assignments to connections.
+
+yosys> proc_init
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+yosys> proc_arst
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+Found async reset \rst_n in `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+
+yosys> proc_rom
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~27 debug messages>
+
+yosys> proc_mux
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+     1/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$268
+     2/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$269
+     3/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$264
+     4/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$265
+     5/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$260
+     6/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$261
+     7/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$256
+     8/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$257
+     9/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$252
+    10/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$253
+    11/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$248
+    12/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$249
+    13/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$244
+    14/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$245
+    15/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$240
+    16/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$241
+    17/195: $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236
+    18/195: $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$237
+    19/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$232
+    20/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$233
+    21/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$228
+    22/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$229
+    23/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$224
+    24/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$225
+    25/195: $6$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$222
+    26/195: $5$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR[3:0]$220
+    27/195: $5$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA[1:0]$221
+    28/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n[31:0]$217
+    29/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$216
+    30/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$213
+    31/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start[1:0]$215
+    32/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$219
+    33/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR[3:0]$218
+    34/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm[3:0]$214
+    35/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA[1:0]$210
+    36/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA[1:0]$207
+    37/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA[1:0]$206
+    38/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$203
+    39/195: $8\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$204
+    40/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$199
+    41/195: $7\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$200
+    42/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$195
+    43/195: $6\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$196
+    44/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$191
+    45/195: $5\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$192
+    46/195: $5$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA[1:0]$189
+    47/195: $4$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA[1:0]$188
+    48/195: $4$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR[3:0]$187
+    49/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$186
+    50/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR[3:0]$185
+    51/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n[31:0]$166
+    52/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$165
+    53/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start[1:0]$164
+    54/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm[3:0]$163
+    55/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$162
+    56/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA[1:0]$184
+    57/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_ADDR[3:0]$183
+    58/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA[1:0]$182
+    59/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_ADDR[3:0]$181
+    60/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA[1:0]$180
+    61/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_ADDR[3:0]$179
+    62/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.n[31:0]$161
+    63/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$160
+    64/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$157
+    65/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.start[1:0]$159
+    66/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA[1:0]$178
+    67/195: $4$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_ADDR[3:0]$177
+    68/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.bm[3:0]$158
+    69/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.n[31:0]$176
+    70/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$175
+    71/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.start[1:0]$174
+    72/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.bm[3:0]$173
+    73/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$172
+    74/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.n[31:0]$171
+    75/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$170
+    76/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.start[1:0]$169
+    77/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.bm[3:0]$168
+    78/195: $4\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$167
+    79/195: $3$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA[1:0]$151
+    80/195: $3$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR[3:0]$150
+    81/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$149
+    82/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR[3:0]$148
+    83/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA[1:0]$147
+    84/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_ADDR[3:0]$146
+    85/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA[1:0]$145
+    86/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_ADDR[3:0]$144
+    87/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA[1:0]$143
+    88/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_ADDR[3:0]$142
+    89/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA[1:0]$141
+    90/195: $3$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_ADDR[3:0]$140
+    91/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.n[31:0]$139
+    92/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$138
+    93/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.start[1:0]$137
+    94/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.bm[3:0]$136
+    95/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$135
+    96/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.n[31:0]$134
+    97/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$133
+    98/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.start[1:0]$132
+    99/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.bm[3:0]$131
+   100/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$130
+   101/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n[31:0]$129
+   102/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$128
+   103/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start[1:0]$127
+   104/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm[3:0]$126
+   105/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$125
+   106/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.n[31:0]$124
+   107/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$123
+   108/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.start[1:0]$122
+   109/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.bm[3:0]$121
+   110/195: $3\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$120
+   111/195: $2$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA[1:0]$117
+   112/195: $2$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR[3:0]$116
+   113/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$115
+   114/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR[3:0]$114
+   115/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA[1:0]$113
+   116/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_ADDR[3:0]$112
+   117/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA[1:0]$111
+   118/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_ADDR[3:0]$110
+   119/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA[1:0]$109
+   120/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_ADDR[3:0]$108
+   121/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA[1:0]$107
+   122/195: $2$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_ADDR[3:0]$106
+   123/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.n[31:0]$105
+   124/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$104
+   125/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.start[1:0]$103
+   126/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.bm[3:0]$102
+   127/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$101
+   128/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.n[31:0]$100
+   129/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$99
+   130/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.start[1:0]$98
+   131/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.bm[3:0]$97
+   132/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$96
+   133/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n[31:0]$95
+   134/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$94
+   135/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start[1:0]$93
+   136/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm[3:0]$92
+   137/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$91
+   138/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.n[31:0]$90
+   139/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$89
+   140/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.start[1:0]$88
+   141/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.bm[3:0]$87
+   142/195: $2\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$86
+   143/195: $1$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA[1:0]$85
+   144/195: $1$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR[3:0]$84
+   145/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA[1:0]$83
+   146/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR[3:0]$82
+   147/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA[1:0]$81
+   148/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_ADDR[3:0]$80
+   149/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA[1:0]$79
+   150/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_ADDR[3:0]$78
+   151/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA[1:0]$77
+   152/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_ADDR[3:0]$76
+   153/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA[1:0]$75
+   154/195: $1$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_ADDR[3:0]$74
+   155/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.n[31:0]$73
+   156/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p[1:0]$72
+   157/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.start[1:0]$71
+   158/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.bm[3:0]$70
+   159/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result[1:0]$69
+   160/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.n[31:0]$68
+   161/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p[1:0]$67
+   162/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.start[1:0]$66
+   163/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.bm[3:0]$65
+   164/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result[1:0]$64
+   165/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n[31:0]$63
+   166/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p[1:0]$62
+   167/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start[1:0]$61
+   168/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm[3:0]$60
+   169/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$59
+   170/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.n[31:0]$58
+   171/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p[1:0]$57
+   172/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.start[1:0]$56
+   173/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.bm[3:0]$55
+   174/195: $1\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result[1:0]$54
+   175/195: $0\drop[0:0]
+   176/195: $1\k[31:0]
+   177/195: $0\sticky[15][1:0]
+   178/195: $0\sticky[14][1:0]
+   179/195: $0\sticky[13][1:0]
+   180/195: $0\sticky[12][1:0]
+   181/195: $0\sticky[11][1:0]
+   182/195: $0\sticky[10][1:0]
+   183/195: $0\sticky[9][1:0]
+   184/195: $0\sticky[8][1:0]
+   185/195: $0\sticky[7][1:0]
+   186/195: $0\sticky[6][1:0]
+   187/195: $0\sticky[5][1:0]
+   188/195: $0\sticky[4][1:0]
+   189/195: $0\sticky[3][1:0]
+   190/195: $0\sticky[2][1:0]
+   191/195: $0\sticky[1][1:0]
+   192/195: $0\sticky[0][1:0]
+   193/195: $0\rr[1:0]
+   194/195: $0\drop_down_cnt[31:0]
+   195/195: $0\egr[1:0]
+
+yosys> proc_dlatch
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+yosys> proc_dff
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\vibe_port_sel.\egr' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1877' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\drop' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1882' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\drop_down_cnt' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1887' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\rr' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1892' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\k' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1897' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.$result' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1902' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.bm' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1907' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.start' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1912' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.p' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1917' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:67$3.n' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1922' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1927' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.bm' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1932' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.start' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1937' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.p' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1942' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.n' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1947' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.$result' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1952' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.bm' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1957' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.start' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1962' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.p' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1967' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:71$5.n' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1972' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.$result' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1977' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.bm' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1982' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.start' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1987' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.p' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1992' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:72$6.n' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$1997' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[0]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2002' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[1]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2007' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[2]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2012' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[3]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2017' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[4]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2022' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[5]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2027' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[6]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2032' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[7]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2037' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[8]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2042' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[9]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2047' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[10]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2052' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[11]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2057' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[12]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2062' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[13]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2067' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[14]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2072' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.\sticky[15]' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2077' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2082' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$7_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2087' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2092' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$8_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2097' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2102' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:67$9_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2107' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2112' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:68$10_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2117' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2122' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_rd$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$11_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2127' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_ADDR' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2132' with positive edge clock and positive level reset.
+Creating register for signal `\vibe_port_sel.$mem2reg_wr$\sticky$/workspace/rtl/fabric/vibe_port_sel.sv:69$12_DATA' using process `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+  created $adff cell `$procdff$2137' with positive edge clock and positive level reset.
+
+yosys> proc_memwr
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+yosys> proc_clean
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 27 empty switches in `\vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+Removing empty process `vibe_port_sel.$proc$/workspace/rtl/fabric/vibe_port_sel.sv:52$20'.
+Cleaned up 27 empty switches.
+
+yosys> opt_expr -keepdc
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+<suppressed ~151 debug messages>
+
+yosys> opt_expr
+
+2.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+yosys> opt_clean
+
+2.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 337 unused cells and 1075 unused wires.
+<suppressed ~355 debug messages>
+
+yosys> check
+
+2.5. Executing CHECK pass (checking for obvious problems).
+Checking module vibe_port_sel...
+Found and reported 0 problems.
+
+yosys> opt -nodffe -nosdff
+
+2.6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+yosys> opt_merge -nomux
+
+2.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+<suppressed ~249 debug messages>
+Removed a total of 83 cells.
+
+yosys> opt_muxtree
+
+2.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$301.
+    dead port 1/2 on $mux $procmux$304.
+    dead port 2/2 on $mux $procmux$306.
+    dead port 1/2 on $mux $procmux$325.
+    dead port 1/2 on $mux $procmux$328.
+    dead port 2/2 on $mux $procmux$330.
+    dead port 1/2 on $mux $procmux$349.
+    dead port 1/2 on $mux $procmux$352.
+    dead port 2/2 on $mux $procmux$354.
+    dead port 1/2 on $mux $procmux$373.
+    dead port 1/2 on $mux $procmux$376.
+    dead port 2/2 on $mux $procmux$378.
+    dead port 1/2 on $mux $procmux$397.
+    dead port 1/2 on $mux $procmux$400.
+    dead port 2/2 on $mux $procmux$402.
+    dead port 1/2 on $mux $procmux$421.
+    dead port 1/2 on $mux $procmux$424.
+    dead port 2/2 on $mux $procmux$426.
+    dead port 1/2 on $mux $procmux$445.
+    dead port 1/2 on $mux $procmux$448.
+    dead port 2/2 on $mux $procmux$450.
+    dead port 1/2 on $mux $procmux$470.
+    dead port 2/2 on $mux $procmux$472.
+    dead port 1/2 on $mux $procmux$475.
+    dead port 2/2 on $mux $procmux$477.
+    dead port 1/2 on $mux $procmux$500.
+    dead port 2/2 on $mux $procmux$502.
+    dead port 1/2 on $mux $procmux$505.
+    dead port 2/2 on $mux $procmux$507.
+    dead port 1/2 on $mux $procmux$530.
+    dead port 2/2 on $mux $procmux$532.
+    dead port 1/2 on $mux $procmux$535.
+    dead port 2/2 on $mux $procmux$537.
+    dead port 1/2 on $mux $procmux$560.
+    dead port 2/2 on $mux $procmux$562.
+    dead port 1/2 on $mux $procmux$565.
+    dead port 2/2 on $mux $procmux$567.
+    dead port 2/2 on $mux $procmux$766.
+    dead port 1/2 on $mux $procmux$769.
+    dead port 2/2 on $mux $procmux$771.
+    dead port 2/2 on $mux $procmux$804.
+    dead port 1/2 on $mux $procmux$807.
+    dead port 2/2 on $mux $procmux$809.
+    dead port 2/2 on $mux $procmux$828.
+    dead port 1/2 on $mux $procmux$831.
+    dead port 2/2 on $mux $procmux$833.
+    dead port 2/2 on $mux $procmux$852.
+    dead port 1/2 on $mux $procmux$855.
+    dead port 2/2 on $mux $procmux$857.
+    dead port 2/2 on $mux $procmux$876.
+    dead port 1/2 on $mux $procmux$879.
+    dead port 2/2 on $mux $procmux$881.
+Removed 52 multiplexer ports.
+<suppressed ~41 debug messages>
+
+yosys> opt_reduce
+
+2.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+<suppressed ~99 debug messages>
+Removed a total of 33 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 0 unused cells and 168 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$874.
+Removed 1 multiplexer ports.
+<suppressed ~38 debug messages>
+
+yosys> opt_reduce
+
+2.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.6.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.6.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~38 debug messages>
+
+yosys> opt_reduce
+
+2.6.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.6.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_dff -nodffe -nosdff
+
+2.6.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.6.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> opt_expr
+
+2.6.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.6.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> fsm
+
+2.7. Executing FSM pass (extract and optimize FSM).
+
+yosys> fsm_detect
+
+2.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+yosys> fsm_extract
+
+2.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+yosys> fsm_opt
+
+2.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> opt_clean
+
+2.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> fsm_opt
+
+2.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+yosys> fsm_recode
+
+2.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+yosys> fsm_info
+
+2.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+yosys> fsm_map
+
+2.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+yosys> opt
+
+2.8. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+yosys> opt_merge -nomux
+
+2.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~38 debug messages>
+
+yosys> opt_reduce
+
+2.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$2077 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[15]).
+Adding EN signal on $procdff$2072 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[14]).
+Adding EN signal on $procdff$2067 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[13]).
+Adding EN signal on $procdff$2062 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[12]).
+Adding EN signal on $procdff$2057 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[11]).
+Adding EN signal on $procdff$2052 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[10]).
+Adding EN signal on $procdff$2047 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[9]).
+Adding EN signal on $procdff$2042 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[8]).
+Adding EN signal on $procdff$2037 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[7]).
+Adding EN signal on $procdff$2032 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[6]).
+Adding EN signal on $procdff$2027 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[5]).
+Adding EN signal on $procdff$2022 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[4]).
+Adding EN signal on $procdff$2017 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[3]).
+Adding EN signal on $procdff$2012 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[2]).
+Adding EN signal on $procdff$2007 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[1]).
+Adding EN signal on $procdff$2002 ($adff) from module vibe_port_sel (D = $9\pick_rr$func$/workspace/rtl/fabric/vibe_port_sel.sv:69$4.$result[1:0]$236, Q = \sticky[0]).
+Adding EN signal on $procdff$1892 ($adff) from module vibe_port_sel (D = $add$/workspace/rtl/fabric/vibe_port_sel.sv:72$271_Y, Q = \rr).
+Adding EN signal on $procdff$1887 ($adff) from module vibe_port_sel (D = $add$/workspace/rtl/fabric/vibe_port_sel.sv:65$155_Y, Q = \drop_down_cnt).
+Adding EN signal on $procdff$1877 ($adff) from module vibe_port_sel (D = $procmux$1866_Y, Q = \egr).
+
+yosys> opt_clean
+
+2.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 88 unused cells and 88 unused wires.
+<suppressed ~89 debug messages>
+
+yosys> opt_expr
+
+2.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~20 debug messages>
+
+yosys> opt_reduce
+
+2.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+<suppressed ~96 debug messages>
+Removed a total of 32 cells.
+
+yosys> opt_dff
+
+2.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 0 unused cells and 32 unused wires.
+<suppressed ~1 debug messages>
+
+yosys> opt_expr
+
+2.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+yosys> opt_muxtree
+
+2.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~20 debug messages>
+
+yosys> opt_reduce
+
+2.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> opt_expr
+
+2.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.8.23. Finished OPT passes. (There is nothing left to do.)
+
+yosys> wreduce
+
+2.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 31 bits (of 32) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:65$155 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$193 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$197 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$201 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$226 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$230 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$234 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$242 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$246 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:47$250 ($add).
+Removed top 1 bits (of 2) from port B of cell vibe_port_sel.$add$/workspace/rtl/fabric/vibe_port_sel.sv:72$271 ($add).
+Removed top 1 bits (of 4) from port B of cell vibe_port_sel.$procmux$1655_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell vibe_port_sel.$procmux$1678_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell vibe_port_sel.$procmux$1702_CMP0 ($eq).
+Removed top 1 bits (of 4) from port B of cell vibe_port_sel.$procmux$1727_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell vibe_port_sel.$procmux$1753_CMP0 ($eq).
+Removed top 2 bits (of 4) from port B of cell vibe_port_sel.$procmux$1780_CMP0 ($eq).
+Removed top 3 bits (of 4) from port B of cell vibe_port_sel.$procmux$1808_CMP0 ($eq).
+
+yosys> peepopt
+
+2.10. Executing PEEPOPT pass (run peephole optimizers).
+
+yosys> opt_clean
+
+2.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> alumacc
+
+2.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module vibe_port_sel:
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$193 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$197 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$201 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$226 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$230 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$234 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$242 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$246 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$250 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:65$155 ($add).
+  creating $macc model for $add$/workspace/rtl/fabric/vibe_port_sel.sv:72$271 ($add).
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:72$271.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:65$155.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$250.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$246.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$242.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$234.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$230.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$226.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$201.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$197.
+  creating $alu model for $macc $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$193.
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$193: $auto$alumacc.cc:495:replace_alu$2265
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$197: $auto$alumacc.cc:495:replace_alu$2268
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$201: $auto$alumacc.cc:495:replace_alu$2271
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$226: $auto$alumacc.cc:495:replace_alu$2274
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$230: $auto$alumacc.cc:495:replace_alu$2277
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$234: $auto$alumacc.cc:495:replace_alu$2280
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$242: $auto$alumacc.cc:495:replace_alu$2283
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$246: $auto$alumacc.cc:495:replace_alu$2286
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:47$250: $auto$alumacc.cc:495:replace_alu$2289
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:65$155: $auto$alumacc.cc:495:replace_alu$2292
+  creating $alu cell for $add$/workspace/rtl/fabric/vibe_port_sel.sv:72$271: $auto$alumacc.cc:495:replace_alu$2295
+  created 11 $alu and 0 $macc cells.
+
+yosys> share
+
+2.13. Executing SHARE pass (SAT-based resource sharing).
+
+yosys> opt
+
+2.14. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+2.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+yosys> opt_merge -nomux
+
+2.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_muxtree
+
+2.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \vibe_port_sel..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~20 debug messages>
+
+yosys> opt_reduce
+
+2.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \vibe_port_sel.
+Performed a total of 0 changes.
+
+yosys> opt_merge
+
+2.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+Removed a total of 0 cells.
+
+yosys> opt_dff
+
+2.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+2.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> opt_expr
+
+2.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+
+2.14.9. Finished OPT passes. (There is nothing left to do.)
+
+yosys> memory -nomap
+
+2.15. Executing MEMORY pass.
+
+yosys> opt_mem
+
+2.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_priority
+
+2.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+yosys> opt_mem_feedback
+
+2.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+yosys> memory_bmux2rom
+
+2.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+yosys> memory_dff
+
+2.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+yosys> opt_clean
+
+2.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> memory_share
+
+2.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+yosys> opt_mem_widen
+
+2.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+yosys> opt_clean
+
+2.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> memory_collect
+
+2.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+yosys> opt_clean
+
+2.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_port_sel/hierarchy.rpt stat
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_port_sel ===
+
+   Number of wires:                193
+   Number of wire bits:            492
+   Number of public wires:          35
+   Number of public wire bits:     139
+   Number of ports:                 15
+   Number of port bits:             93
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                158
+     $adff                           1
+     $adffe                         19
+     $alu                           11
+     $and                            2
+     $eq                            15
+     $logic_and                      1
+     $logic_not                      6
+     $logic_or                       1
+     $mux                           67
+     $not                            3
+     $pmux                           1
+     $reduce_and                    19
+     $shiftx                        12
+
+
+yosys> opt -fast -full
+
+4. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr -full
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+<suppressed ~43 debug messages>
+
+yosys> opt_merge
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+<suppressed ~36 debug messages>
+Removed a total of 10 cells.
+
+yosys> opt_dff
+
+4.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+4.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 0 unused cells and 57 unused wires.
+<suppressed ~1 debug messages>
+
+4.5. Finished fast OPT passes.
+
+yosys> techmap
+
+5. Executing TECHMAP pass (map to technology primitives).
+
+5.1. Executing Verilog-2005 frontend: /tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v
+Parsing Verilog input from `/tmp/oss-cad/oss-cad-suite/lib/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $logic_and.
+Using template $paramod$175e67c02b86e96b1288b9dc100122520d7240d8\_90_alu for cells of type $alu.
+Using template $paramod$0527bd31598f45e3570b8d820612753f6716c8a4\_90_pmux for cells of type $pmux.
+Using template $paramod$constmap:1ef046be63c9541309f2f19c4ef998a798f64488$paramod$7fe1424d9d826b3a6286885bc851fafa5143be2b\_90_shift_shiftx for cells of type $shiftx.
+Using extmapper simplemap for cells of type $adffe.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$6a42b6fefed750f8a1c58eab59479d960557103c\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $adff.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000010 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using extmapper simplemap for cells of type $reduce_or.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000100000 for cells of type $lcu.
+Using extmapper simplemap for cells of type $or.
+No more expansions possible.
+<suppressed ~1040 debug messages>
+
+yosys> opt -fast
+
+6. Executing OPT pass (performing simple optimizations).
+
+yosys> opt_expr
+
+6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module vibe_port_sel.
+<suppressed ~331 debug messages>
+
+yosys> opt_merge
+
+6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\vibe_port_sel'.
+<suppressed ~321 debug messages>
+Removed a total of 107 cells.
+
+yosys> opt_dff
+
+6.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+yosys> opt_clean
+
+6.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 92 unused cells and 527 unused wires.
+<suppressed ~93 debug messages>
+
+6.5. Finished fast OPT passes.
+
+yosys> dfflibmap -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+7. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+yosys> dfflegalize -cell $_DFF_P_ 01 -cell $_DFFE_PP_ 01 -cell $_DFF_NN0_ 01 -cell $_DFF_PN0_ 01 -cell $_DFF_PN1_ 01 -cell $_DFFSR_NNN_ 01 -cell $_DFFSR_PNN_ 01 t:$_DFF* t:$_SDFF*
+
+7.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `\vibe_port_sel':
+  mapped 69 $_DFF_PN0_ cells to \sky130_fd_sc_hd__dfrtp_1 cells.
+
+yosys> abc -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\vibe_port_sel' to `<abc-temp-dir>/input.blif'..
+Extracted 406 gates and 496 wires to a netlist network with 88 inputs and 69 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.07 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.10 sec
+ABC: Memory =   19.81 MB. Time =     0.10 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__a211o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a211oi_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a21boi_0 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__a21o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a21oi_1 cells:       14
+ABC RESULTS:   sky130_fd_sc_hd__a221o_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a222oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a22oi_1 cells:       16
+ABC RESULTS:   sky130_fd_sc_hd__a2bb2oi_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__a31oi_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__and2_0 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and3_1 cells:        2
+ABC RESULTS:   sky130_fd_sc_hd__and3b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__and4_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and4b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__clkinv_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__lpflow_isobufsrc_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__mux2_1 cells:       21
+ABC RESULTS:   sky130_fd_sc_hd__mux2i_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nand2_1 cells:       41
+ABC RESULTS:   sky130_fd_sc_hd__nand2b_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__nand3_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__nand3b_1 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__nand4_1 cells:        8
+ABC RESULTS:   sky130_fd_sc_hd__nor2_1 cells:       26
+ABC RESULTS:   sky130_fd_sc_hd__nor2b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nor3_1 cells:        7
+ABC RESULTS:   sky130_fd_sc_hd__nor4_1 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nor4b_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__nor4bb_1 cells:        6
+ABC RESULTS:   sky130_fd_sc_hd__o211a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o211ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o21a_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__o21ai_0 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__o221ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o22ai_1 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__o31a_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__o31ai_1 cells:       12
+ABC RESULTS:   sky130_fd_sc_hd__o32ai_1 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__xnor2_1 cells:       14
+ABC RESULTS:   sky130_fd_sc_hd__xor2_1 cells:       11
+ABC RESULTS:        internal signals:      339
+ABC RESULTS:           input signals:       88
+ABC RESULTS:          output signals:       69
+Removing temp directory.
+
+yosys> opt_clean
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \vibe_port_sel..
+Removed 0 unused cells and 313 unused wires.
+<suppressed ~3 debug messages>
+
+yosys> tee -o /workspace/reports/synth/blocks/vibe_port_sel/stat.rpt stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_port_sel ===
+
+   Number of wires:                302
+   Number of wire bits:            400
+   Number of public wires:          33
+   Number of public wire bits:     131
+   Number of ports:                 15
+   Number of port bits:             93
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                338
+     sky130_fd_sc_hd__a211o_1        1
+     sky130_fd_sc_hd__a211oi_1       2
+     sky130_fd_sc_hd__a21boi_0       2
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1       14
+     sky130_fd_sc_hd__a221o_1        1
+     sky130_fd_sc_hd__a222oi_1       1
+     sky130_fd_sc_hd__a22oi_1       16
+     sky130_fd_sc_hd__a2bb2oi_1      1
+     sky130_fd_sc_hd__a31oi_1        4
+     sky130_fd_sc_hd__and2_0         5
+     sky130_fd_sc_hd__and3_1         2
+     sky130_fd_sc_hd__and3b_1        1
+     sky130_fd_sc_hd__and4_1         5
+     sky130_fd_sc_hd__and4b_1        4
+     sky130_fd_sc_hd__clkinv_1       3
+     sky130_fd_sc_hd__dfrtp_1       69
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      7
+     sky130_fd_sc_hd__mux2_1        21
+     sky130_fd_sc_hd__mux2i_1        4
+     sky130_fd_sc_hd__nand2_1       41
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1        7
+     sky130_fd_sc_hd__nand3b_1       5
+     sky130_fd_sc_hd__nand4_1        8
+     sky130_fd_sc_hd__nor2_1        26
+     sky130_fd_sc_hd__nor2b_1        4
+     sky130_fd_sc_hd__nor3_1         7
+     sky130_fd_sc_hd__nor4_1         3
+     sky130_fd_sc_hd__nor4b_1        4
+     sky130_fd_sc_hd__nor4bb_1       6
+     sky130_fd_sc_hd__o211a_1        1
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         4
+     sky130_fd_sc_hd__o21ai_0       12
+     sky130_fd_sc_hd__o221ai_1       1
+     sky130_fd_sc_hd__o22ai_1        4
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__o31ai_1       12
+     sky130_fd_sc_hd__o32ai_1        1
+     sky130_fd_sc_hd__xnor2_1       14
+     sky130_fd_sc_hd__xor2_1        11
+
+   Chip area for module '\vibe_port_sel': 3507.113600
+     of which used for sequential elements: 1726.656000 (49.23%)
+
+
+yosys> write_verilog -noattr /workspace/scripts/synth/work/blocks/vibe_port_sel/vibe_port_sel.synth.v
+
+11. Executing Verilog backend.
+
+yosys> bmuxmap
+
+11.1. Executing BMUXMAP pass.
+
+yosys> demuxmap
+
+11.2. Executing DEMUXMAP pass.
+
+yosys> clean_zerowidth
+Dumping module `\vibe_port_sel'.
+
+Warnings: 1 unique messages, 1 total
+End of script. Logfile hash: 58c330c08a, CPU: user 0.27s system 0.01s, MEM: 43.52 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, clang++ 18.1.8 -fPIC -O3)
+Time spent: 48% 1x abc (0 sec), 9% 1x dfflibmap (0 sec), ...

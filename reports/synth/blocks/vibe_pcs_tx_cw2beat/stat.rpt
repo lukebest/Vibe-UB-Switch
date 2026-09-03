@@ -1,0 +1,28 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_pcs_tx_cw2beat ===
+
+   Number of wires:               1041
+   Number of wire bits:           3597
+   Number of public wires:          12
+   Number of public wire bits:    2568
+   Number of ports:                  8
+   Number of port bits:           1542
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2569
+     sky130_fd_sc_hd__a21o_1         2
+     sky130_fd_sc_hd__clkinv_1       2
+     sky130_fd_sc_hd__dfrtp_1     1026
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      1
+     sky130_fd_sc_hd__mux2_1      1536
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nor3b_1        1
+
+   Chip area for module '\vibe_pcs_tx_cw2beat': 43013.753600
+     of which used for sequential elements: 25674.624000 (59.69%)
+

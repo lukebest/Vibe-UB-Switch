@@ -1,0 +1,13 @@
+   Number of wires:                 14
+   Number of wire bits:           2052
+   Number of public wires:          14
+   Number of public wire bits:    2052
+   Number of ports:                 14
+   Number of port bits:           2052
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               1024
+     sky130_fd_sc_hd__dfxtp_1      512
+     sky130_fd_sc_hd__edfxtp_1     512
+   Chip area for module '\vibe_pma_bnd': 25624.576000

@@ -1,0 +1,119 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+11. Printing statistics.
+
+=== $paramod\vibe_sync2\W=s32'00000000000000000000000000000101 ===
+
+   Number of wires:                  5
+   Number of wire bits:             17
+   Number of public wires:           5
+   Number of public wire bits:      17
+   Number of ports:                  4
+   Number of port bits:             12
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 10
+     sky130_fd_sc_hd__dfrtp_1       10
+
+   Chip area for module '$paramod\vibe_sync2\W=s32'00000000000000000000000000000101': 250.240000
+     of which used for sequential elements: 250.240000 (100.00%)
+
+=== vibe_afifo ===
+
+   Number of wires:                 81
+   Number of wire bits:            610
+   Number of public wires:          24
+   Number of public wire bits:     394
+   Number of ports:                 12
+   Number of port bits:            334
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 86
+     $mem_v2                         1
+     $paramod\vibe_sync2\W=s32'00000000000000000000000000000101      2
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       1
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1        2
+     sky130_fd_sc_hd__a31oi_1        1
+     sky130_fd_sc_hd__and2_0         3
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and3b_1        1
+     sky130_fd_sc_hd__and4_1         1
+     sky130_fd_sc_hd__clkinv_1       5
+     sky130_fd_sc_hd__dfrtp_1       10
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      2
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__nand2_1        5
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1        1
+     sky130_fd_sc_hd__nand4_1        1
+     sky130_fd_sc_hd__nor2_1         4
+     sky130_fd_sc_hd__nor3_1         2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         1
+     sky130_fd_sc_hd__o21ai_0        4
+     sky130_fd_sc_hd__o41a_1         1
+     sky130_fd_sc_hd__or3b_1         1
+     sky130_fd_sc_hd__xnor2_1       14
+     sky130_fd_sc_hd__xnor3_1        1
+     sky130_fd_sc_hd__xor2_1        14
+     sky130_fd_sc_hd__xor3_1         2
+
+   Area for cell type $mem_v2 is unknown!
+   Area for cell type $paramod\vibe_sync2\W=s32'00000000000000000000000000000101 is unknown!
+
+   Chip area for module '\vibe_afifo': 800.768000
+     of which used for sequential elements: 250.240000 (31.25%)
+
+=== design hierarchy ===
+
+   vibe_afifo                        1
+     $paramod\vibe_sync2\W=s32'00000000000000000000000000000101      2
+
+   Number of wires:                 91
+   Number of wire bits:            644
+   Number of public wires:          34
+   Number of public wire bits:     428
+   Number of ports:                 20
+   Number of port bits:            358
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                104
+     $mem_v2                         1
+     sky130_fd_sc_hd__a211oi_1       1
+     sky130_fd_sc_hd__a21boi_0       1
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1        2
+     sky130_fd_sc_hd__a31oi_1        1
+     sky130_fd_sc_hd__and2_0         3
+     sky130_fd_sc_hd__and3_1         1
+     sky130_fd_sc_hd__and3b_1        1
+     sky130_fd_sc_hd__and4_1         1
+     sky130_fd_sc_hd__clkinv_1       5
+     sky130_fd_sc_hd__dfrtp_1       30
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      2
+     sky130_fd_sc_hd__lpflow_isobufsrc_1      1
+     sky130_fd_sc_hd__nand2_1        5
+     sky130_fd_sc_hd__nand2b_1       1
+     sky130_fd_sc_hd__nand3_1        1
+     sky130_fd_sc_hd__nand4_1        1
+     sky130_fd_sc_hd__nor2_1         4
+     sky130_fd_sc_hd__nor3_1         2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         1
+     sky130_fd_sc_hd__o21ai_0        4
+     sky130_fd_sc_hd__o41a_1         1
+     sky130_fd_sc_hd__or3b_1         1
+     sky130_fd_sc_hd__xnor2_1       14
+     sky130_fd_sc_hd__xnor3_1        1
+     sky130_fd_sc_hd__xor2_1        14
+     sky130_fd_sc_hd__xor3_1         2
+
+   Chip area for top module '\vibe_afifo': 1301.248000
+     of which used for sequential elements: 750.720000 (57.69%)
+

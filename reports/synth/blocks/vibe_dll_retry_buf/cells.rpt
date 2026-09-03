@@ -1,0 +1,65 @@
+   Number of wires:              24487
+   Number of wire bits:          65596
+   Number of public wires:         279
+   Number of public wire bits:   41380
+   Number of ports:                 19
+   Number of port bits:            387
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              65371
+     sky130_fd_sc_hd__a2111o_1       3
+     sky130_fd_sc_hd__a2111oi_0    291
+     sky130_fd_sc_hd__a211o_1        5
+     sky130_fd_sc_hd__a211oi_1      58
+     sky130_fd_sc_hd__a21boi_0      29
+     sky130_fd_sc_hd__a21o_1         1
+     sky130_fd_sc_hd__a21oi_1      242
+     sky130_fd_sc_hd__a221o_1       86
+     sky130_fd_sc_hd__a221oi_1     891
+     sky130_fd_sc_hd__a222oi_1    8637
+     sky130_fd_sc_hd__a22o_1       728
+     sky130_fd_sc_hd__a22oi_1     4925
+     sky130_fd_sc_hd__a311o_1        1
+     sky130_fd_sc_hd__a31o_1         1
+     sky130_fd_sc_hd__a31oi_1        3
+     sky130_fd_sc_hd__a41oi_1        1
+     sky130_fd_sc_hd__and2_0         5
+     sky130_fd_sc_hd__and3_1       253
+     sky130_fd_sc_hd__and4_1        40
+     sky130_fd_sc_hd__clkinv_1      14
+     sky130_fd_sc_hd__dfrtp_1       33
+     sky130_fd_sc_hd__dfstp_2        1
+     sky130_fd_sc_hd__edfxtp_1   40960
+     sky130_fd_sc_hd__lpflow_inputiso1p_1      7
+     sky130_fd_sc_hd__lpflow_isobufsrc_1     13
+     sky130_fd_sc_hd__maj3_1        12
+     sky130_fd_sc_hd__nand2_1     2207
+     sky130_fd_sc_hd__nand2b_1       6
+     sky130_fd_sc_hd__nand3_1     1904
+     sky130_fd_sc_hd__nand3b_1       3
+     sky130_fd_sc_hd__nand4_1     2247
+     sky130_fd_sc_hd__nand4b_1      11
+     sky130_fd_sc_hd__nand4bb_1     10
+     sky130_fd_sc_hd__nor2_1       749
+     sky130_fd_sc_hd__nor2b_1        2
+     sky130_fd_sc_hd__nor3_1       288
+     sky130_fd_sc_hd__nor3b_1        2
+     sky130_fd_sc_hd__nor4_1       498
+     sky130_fd_sc_hd__nor4b_1        4
+     sky130_fd_sc_hd__nor4bb_1       1
+     sky130_fd_sc_hd__o211a_1        2
+     sky130_fd_sc_hd__o211ai_1       1
+     sky130_fd_sc_hd__o21a_1         3
+     sky130_fd_sc_hd__o21ai_0       12
+     sky130_fd_sc_hd__o221ai_1       2
+     sky130_fd_sc_hd__o22ai_1        3
+     sky130_fd_sc_hd__o2bb2ai_1     10
+     sky130_fd_sc_hd__o31a_1         1
+     sky130_fd_sc_hd__o31ai_1        3
+     sky130_fd_sc_hd__or3_1         20
+     sky130_fd_sc_hd__or4_1         97
+     sky130_fd_sc_hd__or4b_1         6
+     sky130_fd_sc_hd__xnor2_1       21
+     sky130_fd_sc_hd__xor2_1        18
+   Chip area for module '\vibe_dll_retry_buf': 1417205.462399

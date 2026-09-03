@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:               1006
+   Chip area for module '\vibe_pcs_scramble': 9908.252800
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

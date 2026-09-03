@@ -1,0 +1,4 @@
+   Number of memories:               0
+   Number of cells:                589
+   Chip area for module '\vibe_vl_rr': 3834.928000
+NOTE: Chip area is stdcell-only if memories were left unmapped (MEMORY_MAP=0).

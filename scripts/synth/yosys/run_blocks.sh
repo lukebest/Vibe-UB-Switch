@@ -71,11 +71,13 @@ one_block() {
   mkdir -p "$rpt" "$work"
   echo "=== $top frontend=$frontend timeout=${timeout_sec}s ==="
   local rc=0
+  set +e
   TOP="$top" FRONTEND="$frontend" MEMORY_MAP=0 \
     RTL_SHA="$RTL_SHA" LIBERTY="$LIBERTY" YOSYS="$YOSYS" \
     RPT_DIR="$rpt" OUT_DIR="$work" \
     run_capped "$timeout_sec" "$rpt/watch" "$RUN" "$@"
   rc=$?
+  set -e
   if [ "$rc" -eq 0 ]; then
     echo "OK $top" | tee -a "$INDEX"
   elif [ "$rc" -eq 137 ]; then
@@ -109,10 +111,10 @@ one_block vibe_afifo            verilog 120 "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/v
 one_block vibe_pma_bnd          verilog 60  "$RTL/pma/vibe_pma_bnd.sv"
 one_block vibe_ebch16           verilog 60  "$RTL/pcs/vibe_ebch16.sv"
 one_block vibe_pcs_scramble     verilog 90  "$RTL/pcs/vibe_pcs_scramble.sv"
-one_block vibe_pcs_tx_amctl     verilog 90  "$RTL/pcs/vibe_pcs_tx_amctl.sv"
+one_block vibe_pcs_tx_amctl     verilog 90  "$RTL/pcs/vibe_ebch16.sv" "$RTL/pcs/vibe_pcs_tx_amctl.sv"
 one_block vibe_pcs_tx_g1        verilog 120 "$RTL/pcs/vibe_pcs_tx_g1.sv"
 one_block vibe_pcs_tx_cw2beat   verilog 90  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv"
-one_block vibe_pcs_rx_amctl_lock verilog 90 "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv"
+one_block vibe_pcs_rx_amctl_lock verilog 90 "$RTL/pcs/vibe_ebch16.sv" "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv"
 one_block vibe_pcs_rx_deskew    verilog 90  "$RTL/pcs/vibe_pcs_rx_deskew.sv"
 one_block vibe_pcs_rx_unpack    verilog 90  "$RTL/pcs/vibe_pcs_rx_unpack.sv"
 one_block vibe_lmsm             verilog 90  "$RTL/lmsm/vibe_lmsm.sv"

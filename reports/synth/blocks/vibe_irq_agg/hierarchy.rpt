@@ -1,0 +1,23 @@
+
+yosys> stat
+
+3. Printing statistics.
+
+=== vibe_irq_agg ===
+
+   Number of wires:                 32
+   Number of wire bits:             53
+   Number of public wires:          14
+   Number of public wire bits:      35
+   Number of ports:                 13
+   Number of port bits:             34
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 19
+     $adffe                          1
+     $logic_or                       8
+     $mux                            2
+     $reduce_bool                    1
+     $reduce_or                      7
+

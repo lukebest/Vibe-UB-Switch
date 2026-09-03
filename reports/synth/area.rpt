@@ -1,0 +1,45 @@
+# Aggregate from reports/synth/blocks/*/area.rpt — generated, not hand-typed.
+# Units: Yosys liberty Chip area (um^2) when mapped to sky130_fd_sc_hd tt 1.8V 25C.
+# MEMORY_MAP=0: inferred $mem not included in um^2.
+
+vibe_afifo                    status=OK        area_um2=    800.768000  cells=10
+vibe_bcrc                     status=OK        area_um2=  13765.702400  cells=1227
+vibe_cfg_space                status=FAIL      area_um2=           n/a  cells=n/a
+vibe_cna_ep                   status=OK        area_um2=  22520.348800  cells=3695
+vibe_dll_credit               status=OK        area_um2=   5266.300800  cells=723
+vibe_dll_retry_ack_sm         status=OK        area_um2=    933.395200  cells=111
+vibe_dll_retry_buf            status=OK        area_um2=1417205.462399  cells=65371
+vibe_dll_retry_req_sm         status=OK        area_um2=   1953.123200  cells=211
+vibe_dll_rx                   status=OK        area_um2= 217750.089600  cells=25611
+vibe_dll_sm                   status=OK        area_um2=     97.593600  cells=10
+vibe_dll_tx                   status=OK        area_um2= 203677.843200  cells=25085
+vibe_ebch16                   status=OK        area_um2=           n/a  cells=1
+vibe_fabric                   status=FAIL      area_um2=           n/a  cells=n/a
+vibe_fecn_mark                status=OK        area_um2=     98.844800  cells=12
+vibe_gear_128_160             status=OK        area_um2=  17848.368000  cells=1593
+vibe_gear_160_128             status=OK        area_um2=  12281.779200  cells=1078
+vibe_icrc                     status=OK        area_um2=   2936.566400  cells=237
+vibe_irq_agg                  status=OK        area_um2=     93.840000  cells=11
+vibe_lmsm                     status=OK        area_um2=   2183.344000  cells=251
+vibe_mgmt                     status=FAIL      area_um2=           n/a  cells=n/a
+vibe_mgmt_byp                 status=OK        area_um2= 283630.774400  cells=12930
+vibe_nw_adapt                 status=OK        area_um2=   5788.051200  cells=515
+vibe_pcs_rx_amctl_lock        status=OK        area_um2=   6745.219200  cells=1
+vibe_pcs_rx_deskew            status=OK        area_um2=    300.288000  cells=26
+vibe_pcs_rx_unpack            status=OK        area_um2= 212924.211200  cells=16199
+vibe_pcs_scramble             status=OK        area_um2=   9908.252800  cells=1006
+vibe_pcs_tx_amctl             status=OK        area_um2=    566.793600  cells=1
+vibe_pcs_tx_cw2beat           status=OK        area_um2=  43013.753600  cells=2569
+vibe_pcs_tx_g1                status=OK        area_um2=  52371.478400  cells=4199
+vibe_pma_bnd                  status=OK        area_um2=  25624.576000  cells=1024
+vibe_port_sel                 status=OK        area_um2=   3507.113600  cells=338
+vibe_route_lu                 status=FAIL      area_um2=           n/a  cells=n/a
+vibe_rs128_120_dec            status=OK        area_um2=  74327.536000  cells=6238
+vibe_rs128_120_enc            status=OK        area_um2=   4040.124800  cells=424
+vibe_rst_ctl                  status=OK        area_um2=    775.744000  cells=65
+vibe_rst_sync                 status=OK        area_um2=     50.048000  cells=2
+vibe_saf_ing                  status=OK        area_um2=2263176.815998  cells=103229
+vibe_sync2                    status=OK        area_um2=    250.240000  cells=10
+vibe_vl_rr                    status=OK        area_um2=   3834.928000  cells=589
+vibe_voq_egr                  status=TIMEOUT   area_um2=           n/a  cells=n/a
+vibe_xbar                     status=FAIL      area_um2=           n/a  cells=n/a

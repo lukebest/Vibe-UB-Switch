@@ -1,0 +1,58 @@
+
+yosys> stat
+
+4. Printing statistics.
+
+=== vibe_ebch16 ===
+
+   Number of wires:                  2
+   Number of wire bits:             21
+   Number of public wires:           2
+   Number of public wire bits:      21
+   Number of ports:                  2
+   Number of port bits:             21
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $mem_v2                         1
+
+=== vibe_pcs_tx_amctl ===
+
+   Number of wires:                 20
+   Number of wire bits:            475
+   Number of public wires:          17
+   Number of public wire bits:     472
+   Number of ports:                  8
+   Number of port bits:            328
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 12
+     $eq                             2
+     $logic_and                      1
+     $logic_not                      1
+     $pmux                           1
+     vibe_ebch16                     7
+
+=== design hierarchy ===
+
+   vibe_pcs_tx_amctl                 1
+     vibe_ebch16                     7
+
+   Number of wires:                 34
+   Number of wire bits:            622
+   Number of public wires:          31
+   Number of public wire bits:     619
+   Number of ports:                 22
+   Number of port bits:            475
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 12
+     $eq                             2
+     $logic_and                      1
+     $logic_not                      1
+     $mem_v2                         7
+     $pmux                           1
+

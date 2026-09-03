@@ -1,0 +1,27 @@
+
+yosys> stat -liberty /workspace/scripts/synth/work/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+10. Printing statistics.
+
+=== vibe_fecn_mark ===
+
+   Number of wires:                 11
+   Number of wire bits:             49
+   Number of public wires:           6
+   Number of public wire bits:      44
+   Number of ports:                  4
+   Number of port bits:             39
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 12
+     sky130_fd_sc_hd__a21oi_1        1
+     sky130_fd_sc_hd__clkinv_1       2
+     sky130_fd_sc_hd__nor4_1         1
+     sky130_fd_sc_hd__o41a_1         4
+     sky130_fd_sc_hd__o41ai_1        2
+     sky130_fd_sc_hd__xnor2_1        2
+
+   Chip area for module '\vibe_fecn_mark': 98.844800
+     of which used for sequential elements: 0.000000 (0.00%)
+
