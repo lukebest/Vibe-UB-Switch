@@ -11,7 +11,7 @@ FSM = line hits on state `case`/`if` (no VCS FSM engine).
 | Gate | Result |
 |------|--------|
 | Code LINE ≥95% | **PASS — 702/727 = 96.6%** |
-| Code + classified waiver | **PASS** — every remaining LINE is TOOL / DUT死代码 / TB空洞-waived |
+| Code + classified waiver | **PASS** — every remaining LINE is TOOL / WAIVER-防御 / TB空洞-waived |
 | Functional (official 159 TPs) | **100% of published/implementable TPs** — see below |
 | LINE 100% | **not a goal** |
 
@@ -37,14 +37,25 @@ No SystemVerilog `covergroup` in this TB. Functional coverage **is** the locked
 |-------|------:|--------|
 | MAPPED + ADDED (scored by a TC) | 122 | hit |
 | NEG (absent-feature / scan) | 28 | hit (must-not-exist) |
-| HOLE (FS silent / 未发布 — do not invent) | 9 | **waived** (not a published bin) |
+| HOLE (freeze SPEC **非目标** / 未发布) | 9 | **waiver / 非目标** |
 | **Sum** | **159** | |
 
-HOLE IDs (spec-unpublished; `tc_tp_holes` documents, does not invent):
-TP-HOLE-G2/G3/G4/G5/G6/G8/G9, TP-HOLE-010, TP-HOLE-012.
+HOLE nine (Xia: go into freeze SPEC as **非目标**; keep waived):
 
-Implemented-feature functional bins: **122/122**. Official NEG: **28/28**.
-Unpublished HOLE: waived. **Functional coverage of the published set = 100%.**
+| ID | Note |
+|----|------|
+| TP-HOLE-G2 | 路由表 Max Index 未发布 — **非目标 / waiver** |
+| TP-HOLE-G3 | 额外 IRQ 脚名未发布 — **非目标 / waiver** |
+| TP-HOLE-G4 | 额外 reset 脚名未发布 — **非目标 / waiver** |
+| TP-HOLE-G5 | 上电 CNA 默认未发布 — **非目标 / waiver** |
+| TP-HOLE-G6 | lmsm_go 来源未发布 — **非目标 / waiver** |
+| TP-HOLE-G8 | 封装脚未发布 — **非目标 / waiver** |
+| TP-HOLE-G9 | RXEQ 张力/Optimize 未发布 — **非目标 / waiver** |
+| TP-HOLE-010 | 性能数字未发布 — **非目标 / waiver** |
+| TP-HOLE-012 | 计数器位宽不是 FS-must — **非目标 / waiver** |
+
+`tc_tp_holes` documents them; do not invent. Implemented-feature bins: **122/122**.
+Official NEG: **28/28**. HOLE nine: **非目标 / waiver**. **Published FUNC = 100%.**
 
 Suite 27/27, units 85/85, neg 10/10 (Overlay B TB). `tc_top_smoke` FAIL
 (`irq_logic` at top pin) is a **设计** integration item already filed — not a
@@ -62,14 +73,15 @@ missing TP mapping (G1 is scored on the fabric cluster).
 | `vibe_pcs_rx_amctl_lock.sv:55–58` | `dec_lid` function arms. `tc_pcs_rx_amctl` already sends cw3/cw8/cw9/cw10/else. Same 5.020 inline class as `tmr_load`. |
 | `vibe_dll_tx.sv:151, 155, 159 if` | EOP Null-pad (`25eb085e`). Three combo `if (fq_n_nxt[1:0] != 0)` settle to 0; Verilator records the **final** condition. 1/2/3-flit EOP was sent. |
 
-### DUT死代码 — 设计 (do not patch `rtl/`)
+### WAIVER / 防御 (设计: not DUT dead to fix)
 
-Legal packets are 20 B granules; these arms cannot fire.
+Legal 20 B granules cannot hit these arms. They stay as defensive
+guards — **not** DUT死代码. Do not patch `rtl/`.
 
-| File:line | Unreachable | TCs already tried |
-|-----------|-------------|-------------------|
-| `vibe_dll_tx.sv:98 if` | `val_b==0` (`vibe_pkt_bytes` ≥ 20; zero beat still 1 flit) | `tc_dll_tx_cfg0` CFG0, CFG3 1/2/3/16-flit, all-zero NW beat |
-| `vibe_dll_tx.sv:144 else` | `n_flits==0` while packing (`(rem+val)/20` never 0) | same |
+| File:line | What | Class |
+|-----------|------|--------|
+| `vibe_dll_tx.sv:98 if` | `val_b==0` shift defense | **WAIVER / 防御** |
+| `vibe_dll_tx.sv:144 else` | `n_flits==0` when rem < 20 B | **WAIVER / 防御** |
 
 ### TB空洞 — waived (not cheap to close; do not chase LINE 100%)
 

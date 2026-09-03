@@ -133,7 +133,7 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 Classification: see `COVERAGE_HOLES.md`.
 Acceptance: LINE ≥95% + waiver (do not chase 100%).
 Wide-bus toggle miss is unused data-bit patterns (not the LINE gate).
-TB holes: fill if cheap, else waiver. DUT dead: file:line for 设计.
+TB holes: fill if cheap, else waiver. dll_tx :98/:144 = WAIVER/防御.
 TOOL: tmr_load / dec_lid / combo-pad settle. Do not patch rtl/.
 Suite Verilator bind OOM on VOQ — use per-module clusters.
 
@@ -142,7 +142,9 @@ Suite Verilator bind OOM on VOQ — use per-module clusters.
 Gate (芯片开发PM): **LINE ≥95% + waiver**. This merge: **702/727 = 96.6% PASS**.
 FSM = line on state `case`/`if`. Toggle miss = unused wide-bus bits (not the gate).
 Functional coverage = official **159 TPs** (`TP_TC_MATRIX.md`): 122 MAPPED/ADDED +
-28 NEG scored; 9 HOLE (FS unpublished) waived. **Published FUNC = 100%.**
+28 NEG scored; 9 HOLE = freeze SPEC **非目标 / waiver**. **Published FUNC = 100%.**
+
+HOLE nine (非目标 / waiver): TP-HOLE-G2, G3, G4, G5, G6, G8, G9, 010, 012.
 
 Every uncovered LINE (`COVERAGE_HOLES.md`):
 
@@ -151,11 +153,11 @@ Every uncovered LINE (`COVERAGE_HOLES.md`):
 | `vibe_lmsm.sv:101–108` | **TOOL** (`tmr_load`; 设计 agreed) |
 | `vibe_pcs_rx_amctl_lock.sv:55–58` | **TOOL** (`dec_lid` inline) |
 | `vibe_dll_tx.sv:151, 155, 159` | **TOOL** (pad combo settles) |
-| `vibe_dll_tx.sv:98 if` | **DUT死代码** — `val_b==0`; 设计; do not patch rtl/ |
-| `vibe_dll_tx.sv:144 else` | **DUT死代码** — `n_flits==0`; 设计; do not patch rtl/ |
+| `vibe_dll_tx.sv:98 if` | **WAIVER / 防御** — `val_b==0` shift defense; not DUT dead |
+| `vibe_dll_tx.sv:144 else` | **WAIVER / 防御** — `n_flits==0` rem < 20 B; not DUT dead |
 | `vibe_pcs_tx_g1.sv:51 else` | **TB空洞 — WAIVE** (not cheap) |
 | `vibe_pcs_rx.sv:181, 182, 194, 198, 207, 211` | **TB空洞 — WAIVE** (rem/pend; not cheap) |
 
-AS-0.1 non-goals (not in RTL): Probe / Dijkstra / QDLWS / Exact Route / UBFM.
+AS-0.1 / freeze SPEC 非目标: Probe / Dijkstra / QDLWS / Exact Route / UBFM + HOLE nine.
 Suite Verilator bind OOM on VOQ — per-module clusters. Port/top 0 records (OOM).
 

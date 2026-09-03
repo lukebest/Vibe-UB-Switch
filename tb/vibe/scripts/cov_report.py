@@ -184,7 +184,7 @@ def main() -> int:
     lines.append("Classification: see `COVERAGE_HOLES.md`.")
     lines.append("Acceptance: LINE ≥95% + waiver (do not chase 100%).")
     lines.append("Wide-bus toggle miss is unused data-bit patterns (not the LINE gate).")
-    lines.append("TB holes: fill if cheap, else waiver. DUT dead: file:line for 设计.")
+    lines.append("TB holes: fill if cheap, else waiver. dll_tx :98/:144 = WAIVER/防御.")
     lines.append("TOOL: tmr_load / dec_lid / combo-pad settle. Do not patch rtl/.")
     lines.append("Suite Verilator bind OOM on VOQ — use per-module clusters.")
     lines.append("")

@@ -22,4 +22,6 @@ Outputs:
 Verilator has no VCS-style FSM report. FSM coverage is line hits on state
 `case`/`if`. Gate is **LINE ≥95% + waiver** (do not chase 100%). Every
 uncovered LINE is classified in `results/COVERAGE_HOLES.md`
-(TB空洞 / DUT死代码 / TOOL). Functional coverage is the official 159 TPs.
+(TB空洞-waived / WAIVER-防御 / TOOL). `vibe_dll_tx.sv:98` / `:144` are
+防御, not DUT死. HOLE nine = freeze SPEC 非目标 / waiver.
+Functional coverage is the official 159 TPs.
