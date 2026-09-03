@@ -10,9 +10,18 @@
 
 ### Added
 
-- `docs/SPEC.md` freeze candidate（SPEC-0.1-freeze-candidate，作者 Xia，状态 **冻结候选**）。覆盖空洞九项 HOLE 从需求正文移入 §非目标。RTL freeze-candidate SHA `32a7f5e0` 仅作为匹配 RTL 的引用，不是本 SPEC 对功能的改写。
 - Firmware-facing management register documentation for the static handshake (`cfg_wr_*`). This is not MMIO; there is no APB/AXI/I2C/JTAG decode in `rtl/mgmt`.
   - `docs/rdl/vibe_ub_switch_mgmt.rdl` — SystemRDL command map (`address` = `cfg_wr_cmd`)
   - `include/vibe_ub_switch_regs.h` — bare-metal C header (cmd 0–5, field masks, identity constants, `irq_logic` pin)
   - `docs/Vibe-UB-Switch-register-map.md` — firmware register manual, gap table
   - `docs/Vibe-UB-Switch-reg-diffs.md` — standalone AS/FS vs `rtl/mgmt` difference list (facts only; firmware follows RTL `cfg_wr_cmd[3:0]` + RW1C Port Reset + `irq_logic`, no MMIO)
+
+## 2026-09-03 (SPEC-0.1 freeze)
+
+### Changed
+
+- `docs/SPEC.md` promoted from freeze-candidate to **已冻结** (SPEC-0.1); human approved; aligned RTL `32a7f5e0`; §非目标 nine HOLEs retained; no functional change.
+
+### Added
+
+- Historical record (past tense): `docs/SPEC.md` was first published as freeze candidate SPEC-0.1-freeze-candidate (author Xia). Coverage holes (nine HOLEs) were moved from requirement text into §非目标. RTL SHA `32a7f5e0` is the matching RTL reference, not a functional rewrite of this SPEC.
