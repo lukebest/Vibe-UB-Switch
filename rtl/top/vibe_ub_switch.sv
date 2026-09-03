@@ -1,4 +1,5 @@
-// FS-0.2.3 + AS-0.1 §4/§17: top — 4-port PMA + clk_fab + rst_n + cfg_wr_* + irq_logic.
+// FS-0.2.3 + AS-0.1.2 §4/§17: top — 4-port PMA + clk_fab + rst_n + cfg_wr_* + irq_logic.
+// cfg_wr_cmd is 4 bits (opcodes 0–5; 6–15 ignore). No cfg_rd_* pin.
 // G1 named signals: rt_shortest_unimpl (32-bit saturating), sticky irq_logic. No extra IRQ pins.
 module vibe_ub_switch #(
   parameter int ROUTE_TABLE_DEPTH = 256
@@ -23,7 +24,7 @@ module vibe_ub_switch #(
   input  logic [511:0] rxdata_3,
   input  logic         cfg_wr_vld,
   output logic         cfg_wr_ready,
-  input  logic [2:0]   cfg_wr_cmd,
+  input  logic [3:0]   cfg_wr_cmd,
   input  logic [15:0]  cfg_wr_idx,
   input  logic [31:0]  cfg_wr_data,
   output logic         irq_logic

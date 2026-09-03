@@ -1,0 +1,5 @@
+`verilator_config
+lint_off -rule UNSUPPORTED -file "*/vibe_pcs_rx.sv" -lines 5
+lint_off -rule UNSUPPORTED -file "*/vibe_pcs_rx_fec.sv" -lines 14
+lint_off -rule UNSUPPORTED -file "*/vibe_pcs_rx_unpack.sv" -lines 17
+lint_off -rule BLKLOOPINIT -file "*/vibe_route_lu.sv"

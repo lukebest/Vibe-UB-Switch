@@ -1,4 +1,5 @@
-// AS-0.1 §4/§10: mgmt — cfg_space, cna_ep, irq_agg, rst_ctl.
+// AS-0.1.2 §4/§10: mgmt — cfg_space, cna_ep, irq_agg, rst_ctl.
+// cfg_wr_cmd is 4 bits. Port Reset RW1C bits live in u_cfg (no top read pin).
 module vibe_mgmt #(
   parameter int ROUTE_TABLE_DEPTH = 256
 ) (
@@ -6,7 +7,7 @@ module vibe_mgmt #(
   input  logic         rst_n,
   input  logic         cfg_wr_vld,
   output logic         cfg_wr_ready,
-  input  logic [2:0]   cfg_wr_cmd,
+  input  logic [3:0]   cfg_wr_cmd,
   input  logic [15:0]  cfg_wr_idx,
   input  logic [31:0]  cfg_wr_data,
   output logic [15:0]  cna,
@@ -35,9 +36,16 @@ module vibe_mgmt #(
   output logic         irq_logic
 );
   logic [3:0] port_rst_pulse;
+  logic [3:0] port_rst_hold;
+  logic [3:0] port_rst_rw1c;
   logic       device_rst_pulse;
   logic       irq_clr;
   logic       icrc_fail;
+
+  // Chip-facing port_rst tracks the readable RW1C bit (1=reset).
+  // Feedback to cfg_space is rst_ctl hold only — not this OR — so the
+  // bit can clear when the stretch ends (otherwise hold never falls).
+  assign port_rst = port_rst_hold | port_rst_rw1c;
 
   vibe_cfg_space #(.ROUTE_TABLE_DEPTH(ROUTE_TABLE_DEPTH)) u_cfg (
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
@@ -45,7 +53,9 @@ module vibe_mgmt #(
     .cfg_wr_cmd(cfg_wr_cmd), .cfg_wr_idx(cfg_wr_idx), .cfg_wr_data(cfg_wr_data),
     .cna(cna), .cna_written(cna_written), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .port_rst_pulse(port_rst_pulse), .device_rst_pulse(device_rst_pulse),
+    .port_rst_pulse(port_rst_pulse), .port_rst_hold(port_rst_hold),
+    .port_rst_rw1c(port_rst_rw1c),
+    .device_rst_pulse(device_rst_pulse),
     .lmsm_go_pulse(lmsm_go), .irq_clr(irq_clr),
     .guid0(), .class_code(), .port_basic(), .port_cap()
   );
@@ -53,7 +63,7 @@ module vibe_mgmt #(
   vibe_rst_ctl u_rst (
     .clk(clk), .rst_n(rst_n),
     .device_rst_pulse(device_rst_pulse), .port_rst_pulse(port_rst_pulse),
-    .device_rst(device_rst), .port_rst(port_rst)
+    .device_rst(device_rst), .port_rst(port_rst_hold)
   );
 
   vibe_cna_ep u_cna (
