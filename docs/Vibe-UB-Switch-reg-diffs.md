@@ -1,9 +1,9 @@
 # Vibe-UB-Switch register interface diffs (AS / FS vs `rtl/mgmt`)
 
 Status: facts only. This list does **not** choose a side and is **not** a fix list.  
-Do not change AS, FS, or RTL from this document.
+Do not change AS or FS from this document.
 
-Firmware artifacts follow **RTL**: `cfg_wr_cmd[2:0]`, pin `irq_logic`, **no MMIO**.
+Firmware artifacts follow **RTL**: `cfg_wr_cmd[3:0]`, Port Reset RW1C in mgmt flops, pin `irq_logic`, **no MMIO**.
 
 | Artifact | Path |
 |----------|------|
@@ -21,10 +21,8 @@ Firmware artifacts follow **RTL**: `cfg_wr_cmd[2:0]`, pin `irq_logic`, **no MMIO
 |------|-----------|
 | Local AS-0.1.2 | `cfg_wr_cmd` is **4 bits** |
 | In-repo AS-0.1 §10 / §18 | names `cfg_wr_cmd` without a width; opcodes 0–5 + others ignore |
-| RTL / top | `cfg_wr_cmd[2:0]` (**3 bits**) on `vibe_cfg_space`, `vibe_mgmt`, `vibe_ub_switch` |
-| Header / RDL | follow RTL **3 bits**. Do not invent cmd 8–15 |
-
-Opcodes 0–5 still fit in 3 bits. cmd 6/7 are the remaining 3-bit encodings; RTL ignores them except they still pulse `irq_clr`.
+| RTL / top | `cfg_wr_cmd[3:0]` (**4 bits**) on `vibe_cfg_space`, `vibe_mgmt`, `vibe_ub_switch` |
+| Header / RDL | follow RTL **4 bits**. Opcodes 6–15 ignore (still pulse `irq_clr`) |
 
 ---
 
@@ -34,9 +32,7 @@ Opcodes 0–5 still fit in 3 bits. cmd 6/7 are the remaining 3-bit encodings; RT
 |------|-----------|
 | FS / Appendix D | Table D-103 **Port Rst**, field **Port Reset**, attribute **RW1C** (`RW1C_DE0_EO`) |
 | In-repo AS-0.1 §10 | “Port Reset RW1C per port” |
-| RTL | write-only **1-cycle pulse**: `cfg_wr_cmd=3`, port = `cfg_wr_idx[1:0]` → `port_rst_pulse`. No readable bit, no RW1C CSR |
-
-Header / RDL / register map document RTL as **WO pulse** and mark the RW1C name as a gap. They do not implement a fake RW1C register.
+| RTL | four stored bits in `vibe_cfg_space.port_rst_rw1c`. Static `cfg_wr_cmd=3`, port = `cfg_wr_idx[1:0]`. Write `cfg_wr_data[0]==1` is W1C: apply that port’s sequence; bit reads 1 (reset) until `rst_ctl` hold ends, then HW returns 0. Write 0 does not start reset. No top-level read pin |
 
 ---
 
@@ -61,7 +57,7 @@ Firmware treats them as compile-time constants (`VIBE_GUID0`, …) with access =
 | RTL `vibe_cna_ep` | on terminate, `reply_data` **echos** `cfg6_data`. No identity or CSR payload is inserted |
 | RTL `icrc_fail` | hardwired `0` in `vibe_cna_ep` |
 
-CFG6 is not a register-read path for GUID / Class / `PORT_BASIC` / `PORT_CAP`.
+CFG6 is not a register-read path for GUID / Class / `PORT_BASIC` / `PORT_CAP` / Port Reset. Official opcode `0x10` payload packing / Appendix D offsets: **未知**.
 
 ---
 
@@ -77,16 +73,16 @@ Header / RDL expose `irq_logic` as a **pin** (width/mask helpers only). No fake 
 
 ---
 
-## 6. IRQ clear: any static write; Port Reset pulse does not
+## 6. IRQ clear: any static write; Port Reset hold does not
 
 | Side | Statement |
 |------|-----------|
 | AS-0.1 §10 | `irq_logic` sticky; clear on **static write or reset** |
-| RTL `vibe_cfg_space` | **every** accepted `cfg_wr` (cmd 0–7, including ignored 6/7) pulses `irq_clr` |
+| RTL `vibe_cfg_space` | **every** accepted `cfg_wr` (cmd 0–15, including ignored 6–15) pulses `irq_clr` |
 | RTL `vibe_irq_agg` / `vibe_mgmt` | clear on `irq_clr`, `rst_n`, or `device_rst` (`irq_clr \| device_rst`) |
-| RTL Port Reset | `port_rst` is **not** an `irq_agg` clear input |
+| RTL Port Reset | `port_rst` hold is **not** an `irq_agg` clear input |
 
-A cmd=3 write still pulses `irq_clr` because it is a static write. The Port Reset **pulse** (`port_rst`) itself does not clear `irq_logic`.
+A cmd=3 write still pulses `irq_clr` because it is a static write. The Port Reset **hold** (`port_rst`) itself does not clear `irq_logic`.
 
 ---
 
@@ -94,6 +90,6 @@ A cmd=3 write still pulses `irq_clr` because it is a static write. The Port Rese
 
 Humans use this list to compare texts. Firmware continues to follow RTL:
 
-- address = `cfg_wr_cmd[2:0]`
+- address = `cfg_wr_cmd[3:0]`
 - pin `irq_logic`, no MMIO, no APB/AXI/I2C/JTAG
-- Port Reset = `VIBE_CMD_PORT_RST` WO pulse
+- Port Reset = `VIBE_CMD_PORT_RST` RW1C (`data[0]==1` W1C; bits in mgmt flops)

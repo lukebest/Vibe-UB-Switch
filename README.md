@@ -29,7 +29,7 @@ Public protocol reference: https://www.unifiedbus.com (UB 2.0).
 | `irq_logic` | sticky active-high OR of observable errors |
 | `rst_n` | logical reset |
 
-`cfg_wr_cmd`: 0=CNA, 1=route entry, 2=Default bitmap, 3=Port Reset, 4=device reset, 5=pulse `lmsm_go`; others ignore.
+`cfg_wr_cmd` (4 bits): 0=CNA, 1=route entry, 2=Default bitmap, 3=Port Reset (RW1C per port), 4=device reset, 5=pulse `lmsm_go`; others ignore.
 
 ## Module tree (landed)
 

@@ -1,6 +1,9 @@
-// AS-0.1 §9/§13: CFG6 terminate if DCNA==mgmt CNA AND CNA written, OR NLP=1, OR opcode 0x10.
+// AS-0.1.2 §9/§13: CFG6 terminate if DCNA==mgmt CNA AND CNA written, OR NLP=1, OR opcode 0x10.
 // ICRC only as sender/receiver. Transit has no ICRC unit.
 // Power-on CNA UNKNOWN: do not match until static write.
+// CFG6 R/W of named subset (incl. Table D-103 Port Reset): official opcode
+// 0x10 payload packing / Appendix D offsets are 未知 — do not invent.
+// This module echos the request; it does not assemble a CFG6 CSR read.
 module vibe_cna_ep (
   input  logic         clk,
   input  logic         rst_n,
