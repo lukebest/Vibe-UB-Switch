@@ -8,3 +8,15 @@ tb/vibe/results/*.log
 tb/vibe/results/*.inc
 tb/vibe/scripts/__pycache__/
 coverage.dat
+
+# Synth flow — generated only. Any GDS is a local artifact, NOT tapeout.
+scripts/synth/work/
+reports/synth/*
+!reports/synth/.gitkeep
+reports/signoff/*
+!reports/signoff/.gitkeep
+*.gds
+*.gds.gz
+*.lef
+*.lib
+*.lib.gz

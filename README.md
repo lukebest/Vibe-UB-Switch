@@ -135,3 +135,16 @@ scripts/sim/run_vibe.sh sim
 ```
 
 See `tb/vibe/README.md`. Icarus Verilog 12 (`iverilog`/`vvp`) is the functional simulator.
+
+## Implementation flow (Sky130 bring-up)
+
+Yosys / ORFS (`sky130hd`) / OpenSTA **scaffold** lives under
+`scripts/synth/` (sibling of `scripts/sim/`). This is methodology
+bring-up, not a production-node signoff: Sky130 cannot close the FS
+1.25 GHz fabric clock, and current RTL is not frozen. The flow does
+not edit `rtl/`. See [`scripts/synth/README.md`](scripts/synth/README.md).
+
+```bash
+make -C scripts/synth help
+make -C scripts/synth synth-smoke    # leaf vibe_sync2, when Yosys is installed
+```
