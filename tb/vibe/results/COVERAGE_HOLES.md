@@ -1,59 +1,111 @@
-# Remaining Verilator LINE points (`vibe_*.sv`)
+# Coverage close-out — SHA `25eb085e` (PR14 TB)
 
-Gate: unique source LINE on implemented `vibe_*.sv`.
-RTL under test: **PR13 SHA `25eb085e`** (sim-only overlay; this branch does not commit `rtl/`).
-Tool: Verilator **5.020**. FSM = line hits on state `case`/`if` (no VCS FSM engine).
+Acceptance (芯片开发PM): **code coverage ≥95% + waiver**; **functional coverage 100%**.
+**Do not chase LINE 100%.** Specs unchanged. **Zero `rtl/` commits.**
 
-## First pass (before TB fill) — LINE **621/651 = 95.4%**, TOGGLE **4992/14508 = 34.4%**
+RTL under test: PR13 SHA **`25eb085e`** (sim-only overlay). Tool: Verilator **5.020**.
+FSM = line hits on state `case`/`if` (no VCS FSM engine).
 
-Combo-only wrappers (`vibe_dll`, `vibe_fecn_mark`, `vibe_mgmt`, `vibe_nw_adapt`,
-`vibe_pcs_tx`, `vibe_ub_switch`) contribute **0/0** line points.
+## Verdict
 
-Clusters: per-module / small groups. **`vibe_suite` is never bound** (VOQ OOM).
+| Gate | Result |
+|------|--------|
+| Code LINE ≥95% | **PASS — 702/727 = 96.6%** |
+| Code + classified waiver | **PASS** — every remaining LINE is TOOL / WAIVER-防御 / TB空洞-waived |
+| Functional (official 159 TPs) | **100% of published/implementable TPs** — see below |
+| LINE 100% | **not a goal** |
 
-`pcs_rx` / `pcs_rx_unpack` / `pcs_rx_fec` / `port` / `top` produced **0 records**
-this pass: Verilator 5.020 `%Error-UNSUPPORTED` on default input values
-(`link_up=1'b0`, `am_gap=1'b0`) and `%Error-ASSIGNIN` on `force u_lmsm.*`
-without `--public-flat-rw`. Script now has `-Wno-UNSUPPORTED` and port/top
-`--public-flat-rw`. Those modules are **not** DUT dead — tool/cluster setup.
-
-## First-pass uncovered LINE — classification
-
-| File:line | Class | Why / stim |
-|---|---|---|
-| `vibe_lmsm.sv:101–108` | **TOOL** | `tmr_load` function case arms. Caller `st_n != st` is hit. Verilator 5.020 instruments before selector bind. 设计 agreed not a hole. |
-| `vibe_pcs_rx_amctl_lock.sv:55–58` | **TOOL** (re-check) | `dec_lid` function arms. `tc_pcs_rx_amctl` already sends cw3/cw8/cw9/cw10/else. Same inline class; cluster now `--inline-mult 0`. |
-| `vibe_dll_tx.sv:94 else` | **TB hole → filled** | `rem_b != 0`. 16-flit / 5-beat packet in `tc_dll_tx_cfg0`. |
-| `vibe_dll_tx.sv:98 if` | **DUT dead?** | `val_b==0`. `vibe_pkt_bytes` clamps to ≥20 B. Zero-data beat still SOP=20 B. Tried; sequential invariant `pkt_act && pkt_left==0` never holds. |
-| `vibe_dll_tx.sv:144 else` | **DUT dead?** | `n_flits==0` while packing. Legal packets are 20 B granules; `rem+val` never <20. |
-| `vibe_dll_tx.sv:145–147 if` | **TB hole → filled** | `n_flits>=2,3,4`. 2-flit / 3-flit / 16-flit (rem=16+val=64) in `tc_dll_tx_cfg0`. |
-| `vibe_dll_tx.sv:150 else, 151/155/159 if` | **TB hole → filled** | EOP Null-pad (`25eb085e`) + continuation. 1/2/3-flit pad + 16-flit multi-beat. |
-| `vibe_dll_tx.sv:208 else` | **TB hole → filled** | `cur_left > val_b`. 16-flit continuation beats. |
-| `vibe_dll_rx.sv:100 if` | **TB hole → filled** | `rx_ovf`. Prior burst dropped on `!pcs_ready`. Now 12 ready-gated 1-flit, RXBUF=32. |
-| `vibe_dll_rx.sv:118 else` | **TB hole → filled** | leftover > emit. 5-flit declared length, one 640b beat. |
-| `vibe_dll_rx.sv:128 if` | **TB hole → filled** | `need_hdr && !can_emit`. Stall `nw_ready` after first emit, send second SOP. |
-| `vibe_fabric.sv:246,248` | **TB hole → filled** | `xb_v&&xb_sop` / `egr_sop`. Prior clusters were G1/CFG6 only. `tc_fabric_line_holes` now RT=00 dest=5 → port0. |
-| `vibe_pcs_tx_g1.sv:51 else` | **TB hole → filled** | second 640b while `nflit==4`. Two back-to-back beats. |
-| `vibe_pcs_tx_g1.sv:65 elsif` | **TB hole → filled** | idle complete of a 4-flit window. One beat then idle. |
+| Metric | Hit/tot | % |
+|--------|--------:|--:|
+| **LINE** | **702/727** | **96.6** |
+| **TOGGLE** | **9528/17230** | **55.3** |
+| **FSM** | (none) | use LINE on state `case`/`if` |
 
 Toggle <100% is wide-bus unused bit patterns (not the LINE gate).
 
-## Waivers (non-goals — not in RTL; AS-0.1)
+Combo wrappers (`vibe_dll`, `vibe_fecn_mark`, `vibe_mgmt`, `vibe_nw_adapt`,
+`vibe_pcs_tx`) are **0/0** line (toggle only) — not a LINE miss.
+`vibe_port` / `vibe_ub_switch`: 0 records (port/top cluster OOM). Children
+clustered. **`vibe_suite` never bound** (VOQ OOM).
 
-| Feature | Spec | Waiver |
-|---|---|---|
-| Probe LMSM state | AS-0.1 §11 this-rev subset | not implemented (`width_fail` tied 0, x4-only) |
-| Dijkstra / shortest-path | AS-0.1 G1 | not implemented (RT=10/11 DROP) |
-| QDLWS | AS-0.1 | not implemented |
-| Exact Route | AS-0.1 | not implemented |
-| UBFM | AS-0.1 | not implemented |
+## Functional coverage 100%
 
-## Tool only: `tmr_load` `:101–108`
+No SystemVerilog `covergroup` in this TB. Functional coverage **is** the locked
+**159 official TP-0.3 IDs** (`TP-0.3.md` / `TP_TC_MATRIX.md`). Do not invent IDs.
 
-Automatic function case arms. Caller `if (st_n != st) tmr <= tmr_load(...)` **is**
-hit. Verilator 5.020 instruments the case-cover tree before `__Vfunc_…s = st_n`
-(selector still 0). `no_inline` for functions is **Unsupported** on 5.020.
-Leave as 0; report separately. Not DUT / not TB.
+| Class | Count | Status |
+|-------|------:|--------|
+| MAPPED + ADDED (scored by a TC) | 122 | hit |
+| NEG (absent-feature / scan) | 28 | hit (must-not-exist) |
+| HOLE (freeze SPEC **非目标** / 未发布) | 9 | **waiver / 非目标** |
+| **Sum** | **159** | |
 
-Second-pass numbers (after this TB fill, overlay `25eb085e`) replace the
-first-pass totals in `cov_summary.txt` / `cov_report.md`.
+HOLE nine (Xia: go into freeze SPEC as **非目标**; keep waived):
+
+| ID | Note |
+|----|------|
+| TP-HOLE-G2 | 路由表 Max Index 未发布 — **非目标 / waiver** |
+| TP-HOLE-G3 | 额外 IRQ 脚名未发布 — **非目标 / waiver** |
+| TP-HOLE-G4 | 额外 reset 脚名未发布 — **非目标 / waiver** |
+| TP-HOLE-G5 | 上电 CNA 默认未发布 — **非目标 / waiver** |
+| TP-HOLE-G6 | lmsm_go 来源未发布 — **非目标 / waiver** |
+| TP-HOLE-G8 | 封装脚未发布 — **非目标 / waiver** |
+| TP-HOLE-G9 | RXEQ 张力/Optimize 未发布 — **非目标 / waiver** |
+| TP-HOLE-010 | 性能数字未发布 — **非目标 / waiver** |
+| TP-HOLE-012 | 计数器位宽不是 FS-must — **非目标 / waiver** |
+
+`tc_tp_holes` documents them; do not invent. Implemented-feature bins: **122/122**.
+Official NEG: **28/28**. HOLE nine: **非目标 / waiver**. **Published FUNC = 100%.**
+
+Suite 27/27, units 85/85, neg 10/10 (Overlay B TB). `tc_top_smoke` FAIL
+(`irq_logic` at top pin) is a **设计** integration item already filed — not a
+missing TP mapping (G1 is scored on the fabric cluster).
+
+## Every uncovered LINE — classified
+
+25 LINE points at 0. None are open TB work under the new bar.
+
+### TOOL (waiver — not DUT / not TB)
+
+| File:line | Why |
+|-----------|-----|
+| `vibe_lmsm.sv:101–108` | `tmr_load` function case arms. Caller `st_n != st` **is hit**. Verilator 5.020 instruments before `__Vfunc_…s = st_n`. 设计 agreed **TOOL**. |
+| `vibe_pcs_rx_amctl_lock.sv:55–58` | `dec_lid` function arms. `tc_pcs_rx_amctl` already sends cw3/cw8/cw9/cw10/else. Same 5.020 inline class as `tmr_load`. |
+| `vibe_dll_tx.sv:151, 155, 159 if` | EOP Null-pad (`25eb085e`). Three combo `if (fq_n_nxt[1:0] != 0)` settle to 0; Verilator records the **final** condition. 1/2/3-flit EOP was sent. |
+
+### WAIVER / 防御 (设计: not DUT dead to fix)
+
+Legal 20 B granules cannot hit these arms. They stay as defensive
+guards — **not** DUT死代码. Do not patch `rtl/`.
+
+| File:line | What | Class |
+|-----------|------|--------|
+| `vibe_dll_tx.sv:98 if` | `val_b==0` shift defense | **WAIVER / 防御** |
+| `vibe_dll_tx.sv:144 else` | `n_flits==0` when rem < 20 B | **WAIVER / 防御** |
+
+### TB空洞 — waived (not cheap to close; do not chase LINE 100%)
+
+| File:line | Why 0 | Waiver |
+|-----------|-------|--------|
+| `vibe_pcs_tx_g1.sv:51 else` | second 640 while `nflit==4`. Isolated two-beat + `win_ready=0` still 0. | **WAIVE** — LINE already ≥95% |
+| `vibe_pcs_rx.sv:181 elsif, :182 if/else` | `pend_vld` / null-pend | **WAIVE** — needs pend stall; `tc_pcs_rx` is AM + one beat |
+| `vibe_pcs_rx.sv:194 else, :198 if` | low-320 pad vs rem | **WAIVE** |
+| `vibe_pcs_rx.sv:207 else, :211 if` | rem is non-null second 640 | **WAIVE** |
+
+Cheap TB holes from the first `25eb085e` pass **were filled** (`dll_rx` 22/22,
+`fabric` 48/48, unpack/fec 100%, dll_tx rem/multi-beat). Remaining TB zeros
+are inverse-G1 rem/pend shapes — not worth another LINE hunt.
+
+## AS-0.1 non-goals (not in RTL — not LINE bins)
+
+| Feature | Waiver |
+|---------|--------|
+| Probe LMSM | not implemented (`width_fail` tied 0) |
+| Dijkstra / shortest-path | RT=10/11 DROP |
+| QDLWS / Exact Route / UBFM | not implemented |
+
+## Cov script (TB only)
+
+Verilator 5.020 `%Error-UNSUPPORTED` on `input … = 1'b0`. `-Wno-UNSUPPORTED`
+is not a valid warning name. Script strips defaults into
+`tb/vibe/cov/out/rtl_nodedef`. Does not modify or commit `rtl/`.
