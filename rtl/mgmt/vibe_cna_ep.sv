@@ -31,6 +31,12 @@ module vibe_cna_ep (
     consume   = 4'd0;
     icrc_fail = 1'b0;
     flit      = 160'd0;
+    cfg       = 4'd0;
+    dcna      = 16'd0;
+    nlp       = 3'd0;
+    opc       = 8'd0;
+    us        = 1'b0;
+    term      = 1'b0;
     for (p = 0; p < 4; p = p + 1) begin
       reply_data[p] = 512'd0;
       reply_vld[p]  = 1'b0;

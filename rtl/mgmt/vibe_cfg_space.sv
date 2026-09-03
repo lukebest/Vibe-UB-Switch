@@ -47,10 +47,10 @@ module vibe_cfg_space #(
 
   // Readable inside mgmt. Not a top-level pin (AS §18: no cfg_rd_*).
   logic [3:0] port_rst_hold_d;
-  integer     i;
   logic       wr_acc;
   logic [1:0] wr_port;
   logic       wr_port_rst_w1c;
+  logic [3:0] hold_fall;
 
   assign cfg_wr_ready = 1'b1;
   assign guid0        = {24'd0, VIBE_GUID_TYPE};
@@ -61,6 +61,14 @@ module vibe_cfg_space #(
   assign wr_acc          = cfg_wr_vld && cfg_wr_ready;
   assign wr_port         = cfg_wr_idx[1:0];
   assign wr_port_rst_w1c = wr_acc && (cfg_wr_cmd == 4'd3) && cfg_wr_data[0];
+  assign hold_fall[0]    = port_rst_hold_d[0] && !port_rst_hold[0] &&
+                           !(wr_port_rst_w1c && (wr_port == 2'd0));
+  assign hold_fall[1]    = port_rst_hold_d[1] && !port_rst_hold[1] &&
+                           !(wr_port_rst_w1c && (wr_port == 2'd1));
+  assign hold_fall[2]    = port_rst_hold_d[2] && !port_rst_hold[2] &&
+                           !(wr_port_rst_w1c && (wr_port == 2'd2));
+  assign hold_fall[3]    = port_rst_hold_d[3] && !port_rst_hold[3] &&
+                           !(wr_port_rst_w1c && (wr_port == 2'd3));
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n || device_rst) begin
@@ -84,12 +92,11 @@ module vibe_cfg_space #(
       irq_clr          <= 1'b0;
       port_rst_hold_d  <= port_rst_hold;
       // HW clear when rst_ctl hold ends (bit 1 → 0 = normal). Same-cycle
-      // W1C write-1 retriggers and keeps the bit set.
-      for (i = 0; i < 4; i = i + 1) begin
-        if (port_rst_hold_d[i] && !port_rst_hold[i] &&
-            !(wr_port_rst_w1c && (wr_port == i[1:0])))
-          port_rst_rw1c[i] <= 1'b0;
-      end
+      // W1C write-1 retriggers and keeps the bit set (hold_fall masks that).
+      if (hold_fall[0]) port_rst_rw1c[0] <= 1'b0;
+      if (hold_fall[1]) port_rst_rw1c[1] <= 1'b0;
+      if (hold_fall[2]) port_rst_rw1c[2] <= 1'b0;
+      if (hold_fall[3]) port_rst_rw1c[3] <= 1'b0;
       if (wr_acc) begin
         irq_clr <= 1'b1; // AS-0.1.2 §10: sticky clear on any accepted write
         case (cfg_wr_cmd)
