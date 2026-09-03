@@ -2,19 +2,20 @@
 
 | 项 | 内容 |
 |----|------|
-| 文档编号 | SPEC-0.1-freeze-candidate |
-| 状态 | **冻结候选** |
+| 文档编号 | SPEC-0.1 |
+| 状态 | **已冻结** |
+| 冻结日期 | 2026-09-03，人批准，对齐 RTL `32a7f5e0` |
 | 作者 | Xia |
 | 协议 | Unified Bus (UB) Base 2.0 |
 | 对齐功能规格 | FS-0.2.7（已实现锁定事实；真源不在本仓库） |
 | 对齐架构 | [AS-0.1](Vibe-UB-Switch-architecture-spec.md) / AS-0.1.2，含 Overlay B |
 | 对齐固件头 | [`include/vibe_ub_switch_regs.h`](../include/vibe_ub_switch_regs.h)（PR21 / `main`） |
 | 对齐寄存器手册 | [Vibe-UB-Switch-register-map.md](Vibe-UB-Switch-register-map.md) |
-| 对齐 RTL | freeze-candidate SHA `32a7f5e0`（匹配 RTL 的引用，不是本 SPEC 对功能的改写） |
+| 对齐 RTL | SHA `32a7f5e0`（匹配 RTL 的引用，不是本 SPEC 对功能的改写） |
 
-本文件是冻结门：芯片开发 PM 据此验收。状态为 **冻结候选**，在人类点头之前不得写成“已冻结”。冻结后，接口变更须走变更请求。
+本文件是冻结门：芯片开发 PM 据此验收。状态为 **已冻结**（2026-09-03，人批准）。对齐 RTL `32a7f5e0`。冻结后接口变更须走变更申请。
 
-本修订不改写 FS-0.2.7 已实现功能；SHA `32a7f5e0` 只标明与本冻结候选对齐的 RTL，不构成规格功能变更。
+本修订不改写 FS-0.2.7 已实现功能。SHA `32a7f5e0` 只标明对齐的 RTL，不构成规格功能变更。
 
 覆盖空洞（`tb/vibe/results/COVERAGE_HOLES.md` 九项 HOLE）以及其余不在本冻结范围内的项，一律放在 **§非目标**。冻结需求正文只写已锁定事实，不写未发布占位。
 
@@ -494,7 +495,7 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 
 | 项 | 规则 |
 |----|------|
-| 当前状态 | **冻结候选**（须芯片开发 PM 点头后才升为冻结） |
+| 当前状态 | **已冻结**（2026-09-03，人批准） |
 | 冻结后接口 | `cfg_wr_*`、`irq_logic`、PMA `txdata`/`rxdata`/`txclk`/`rxclk`、NW `data[511:0]` `vld`/`ready` 变更须变更请求 |
 | 功能改写 | 不得以“对齐 SHA `32a7f5e0`”为由改写 FS-0.2.7 已锁定行为 |
 | 空洞升级 | §非目标项若要进入冻结正文，须变更请求，并更新本文件版本号 |
@@ -510,4 +511,4 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 - [Vibe-UB-Switch-testpoints.md](Vibe-UB-Switch-testpoints.md) — TP-0.3
 - `tb/vibe/results/COVERAGE_HOLES.md` — 九项 HOLE
 - [`reports/synth/`](../reports/synth/) — 实现 QoR（非本 SPEC 必须项）
-- RTL freeze-candidate SHA `32a7f5e0`
+- RTL SHA `32a7f5e0`
