@@ -139,6 +139,27 @@ module tc_fabric_line_holes;
         end
       end
     end
+    // RT=00 dest in table → xbar grant (xb_v&&xb_sop / egr_sop header capture)
+    begin : fwd_rt00
+      integer saw_egr;
+      saw_egr = 0;
+      @(negedge clk);
+      rt_wr_en = 1; rt_wr_idx = 16'd5; rt_wr_data = 32'h0000_0001;
+      @(posedge clk);
+      @(negedge clk);
+      rt_wr_en = 0;
+      send2(1, 4'd3, 2'b00, 16'h0005);
+      repeat (40) begin
+        @(posedge clk);
+        if (egr_vld[0]) saw_egr = 1;
+      end
+      if (!fail && !saw_egr) begin
+        fail_at("RT=00 DCNA=5 bitmap port0",
+                "egr_vld[0] (xbar grant + VOQ pop)",
+                "no egress",
+                "u_fab.xb_v / egr_sop");
+      end
+    end
     if (!fail) $display("PASS tc_fabric_line_holes");
     $finish;
   end

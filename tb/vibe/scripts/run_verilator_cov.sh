@@ -20,7 +20,9 @@ fi
 
 VERILATOR="${VERILATOR:-verilator}"
 INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
-WARN="-Wno-fatal -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
+# -Wno-UNSUPPORTED: Verilator 5.020 rejects default values on module inputs
+# (link_up=1'b0, am_gap=1'b0). Those clusters then produce 0 records.
+WARN="-Wno-fatal -Wno-UNSUPPORTED -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
 COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
 
 write_main() {
@@ -152,7 +154,9 @@ run_cluster mgmt tc_mgmt "$T/tc_mgmt.sv" \
   "$RTL/mgmt/vibe_irq_agg.sv" "$RTL/mgmt/vibe_rst_ctl.sv"
 run_cluster saf tc_saf_ing "$T/tc_saf_ing.sv" "$RTL/fabric/vibe_saf_ing.sv"
 run_cluster route tc_route_lu "$T/tc_route_lu.sv" "$RTL/fabric/vibe_route_lu.sv"
-run_cluster pcs_rx_am tc_pcs_rx_amctl "$T/tc_pcs_rx_amctl.sv" \
+# --inline-mult 0: dec_lid case arms (same 5.020 function-inline class as tmr_load)
+run_cluster pcs_rx_am tc_pcs_rx_amctl --vl "--inline-mult 0" \
+  "$T/tc_pcs_rx_amctl.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_ebch16.sv"
 run_cluster pcs_rx_dsk tc_pcs_rx_deskew "$T/tc_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv"
 run_cluster pcs_rx_un tc_pcs_rx_unpack --vl "--public-flat-rw" \
@@ -212,7 +216,7 @@ run_cluster dll tc_dll "$T/tc_dll.sv" \
   "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv"
 
 # One port + top smoke: try; skip on OOM. Never bind vibe_suite here.
-run_cluster port tc_port_smoke "$T/tc_port_smoke.sv" \
+run_cluster port tc_port_smoke --vl "--public-flat-rw" "$T/tc_port_smoke.sv" \
   "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
   "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
   "$RTL/pma/vibe_pma_bnd.sv" \
@@ -231,7 +235,7 @@ run_cluster port tc_port_smoke "$T/tc_port_smoke.sv" \
   "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv" \
   "$RTL/nw/vibe_nw_adapt.sv" "$RTL/port/vibe_port.sv"
 
-run_cluster top tc_top_smoke "$T/tc_top_smoke.sv" \
+run_cluster top tc_top_smoke --vl "--public-flat-rw" "$T/tc_top_smoke.sv" \
   "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
   "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
   "$RTL/pma/vibe_pma_bnd.sv" \

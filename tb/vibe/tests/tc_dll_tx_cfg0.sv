@@ -89,6 +89,61 @@ module tc_dll_tx_cfg0;
     @(negedge clk);
     nw_vld = 0;
     repeat (8) @(posedge clk);
+
+    // Coverage: EOP Null-pad leftover (1/2/3 flits → 4-flit group) and
+    // multi-beat rem / n_flits>=2,3,4 / cur_left>val_b continuation.
+    begin : cov_pad_multibeat
+      integer b;
+      // 2-flit (40 B) and 3-flit (60 B): n_flits>=2/3 + pad
+      @(negedge clk);
+      while (!nw_ready) @(posedge clk);
+      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(2),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      nw_vld = 1;
+      @(posedge clk);
+      @(negedge clk);
+      nw_vld = 0;
+      repeat (8) @(posedge clk);
+      @(negedge clk);
+      while (!nw_ready) @(posedge clk);
+      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(3),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      nw_vld = 1;
+      @(posedge clk);
+      @(negedge clk);
+      nw_vld = 0;
+      repeat (8) @(posedge clk);
+      // 16 flits = 320 B = five 64 B beats: rem accumulates to 16 so
+      // beat 5 has n_flits>=4; beats 2–4 take cur_left>val_b (:208 else).
+      @(negedge clk);
+      while (!nw_ready) @(posedge clk);
+      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(16),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      nw_vld = 1;
+      @(posedge clk);
+      for (b = 0; b < 4; b = b + 1) begin
+        @(negedge clk);
+        while (!nw_ready) @(posedge clk);
+        nw_data = 512'hA5A5_A5A5;
+        nw_vld = 1;
+        @(posedge clk);
+      end
+      @(negedge clk);
+      nw_vld = 0;
+      repeat (16) @(posedge clk);
+      // Probe val_b==0 combo (legal SOP is always >=20 B; expect dead).
+      @(negedge clk);
+      while (!nw_ready) @(posedge clk);
+      nw_data = 512'd0;
+      nw_vld = 1;
+      @(posedge clk);
+      @(negedge clk);
+      nw_vld = 0;
+      repeat (4) @(posedge clk);
+    end
     link_up = 0;
     @(posedge clk);
     link_up = 1;
