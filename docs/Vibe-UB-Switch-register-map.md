@@ -7,6 +7,8 @@ C header: [`include/vibe_ub_switch_regs.h`](../include/vibe_ub_switch_regs.h).
 
 Names, widths, resets, and command numbers in this file, the RDL, and the header are the same.
 
+AS/FS vs `rtl/mgmt` wording diffs (facts only, no fix): [Vibe-UB-Switch-reg-diffs.md](Vibe-UB-Switch-reg-diffs.md). Firmware follows RTL.
+
 ---
 
 ## No MMIO
