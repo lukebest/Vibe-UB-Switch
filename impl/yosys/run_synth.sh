@@ -94,7 +94,7 @@ set -e
 
 # --- derived reports from Yosys output (still generated) ------------------
 if [ -f "$RPT_DIR/stat.rpt" ]; then
-  grep -E 'Number of |Chip area|Estimated number of LCs|wires:|cells:' \
+  grep -E 'Number of |Chip area|Estimated number of LCs|wires:|cells:|[[:space:]]+\$_' \
     "$RPT_DIR/stat.rpt" > "$RPT_DIR/cells.rpt" || true
   if grep -q 'Chip area' "$RPT_DIR/stat.rpt"; then
     grep -E 'Chip area|Number of cells' "$RPT_DIR/stat.rpt" > "$RPT_DIR/area.rpt"
