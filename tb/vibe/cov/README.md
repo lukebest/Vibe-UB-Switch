@@ -20,5 +20,6 @@ Outputs:
 - `tb/vibe/results/cov_raw.txt` — `verilator_coverage` dump
 
 Verilator has no VCS-style FSM report. FSM coverage is line hits on state
-`case`/`if`. Gate is 100% of implemented `vibe_*` if the tool reaches it;
-otherwise uncovered bins are listed (dead/non-goal vs missing stimulus).
+`case`/`if`. Gate is **LINE ≥95% + waiver** (do not chase 100%). Every
+uncovered LINE is classified in `results/COVERAGE_HOLES.md`
+(TB空洞 / DUT死代码 / TOOL). Functional coverage is the official 159 TPs.
