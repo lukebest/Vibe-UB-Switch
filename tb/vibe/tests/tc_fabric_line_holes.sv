@@ -67,6 +67,12 @@ module tc_fabric_line_holes;
 
   initial begin
     fail = 0; saw6 = 0; saw6b = 0;
+    // Icarus: pin VOQ wr_vl so vibe_nw512_flit0(xb_d) does not combo-storm
+    // on the first RT=00 xbar grant (same as harness / tc_cfg9_no_icrc).
+    force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
     default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
