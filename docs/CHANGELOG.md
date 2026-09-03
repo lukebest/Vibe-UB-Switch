@@ -10,6 +10,7 @@
 
 ### Added
 
+- `docs/SPEC.md` freeze candidate（SPEC-0.1-freeze-candidate，作者 Xia，状态 **冻结候选**）。覆盖空洞九项 HOLE 从需求正文移入 §非目标。RTL freeze-candidate SHA `32a7f5e0` 仅作为匹配 RTL 的引用，不是本 SPEC 对功能的改写。
 - Firmware-facing management register documentation for the static handshake (`cfg_wr_*`). This is not MMIO; there is no APB/AXI/I2C/JTAG decode in `rtl/mgmt`.
   - `docs/rdl/vibe_ub_switch_mgmt.rdl` — SystemRDL command map (`address` = `cfg_wr_cmd`)
   - `include/vibe_ub_switch_regs.h` — bare-metal C header (cmd 0–5, field masks, identity constants, `irq_logic` pin)
