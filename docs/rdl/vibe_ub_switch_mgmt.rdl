@@ -1,20 +1,22 @@
-// Vibe-UB-Switch management command map (rtl/mgmt, this commit).
+// Vibe-UB-Switch management command map.
+//
+// Firmware contract = architecture spec (AS-0.1 + AS-0.1.2 cfg_wr_cmd width).
+// This file is NOT a snapshot of current rtl/mgmt. A 3-bit RTL cmd bus is void
+// for firmware. RTL is being changed separately; do not claim rtl/mgmt matches.
 //
 // This file is NOT MMIO and does not describe APB/AXI/I2C/JTAG.
-// There is no address decode in rtl/mgmt. Firmware "address" is cfg_wr_cmd[2:0].
-// Handshake (top vibe_ub_switch): cfg_wr_vld, cfg_wr_ready (tied 1),
-// cfg_wr_cmd[2:0], cfg_wr_idx[15:0], cfg_wr_data[31:0], pin irq_logic.
+// Firmware "address" is cfg_wr_cmd[3:0]. Encodings 0-5 used; 6-15 reserved/ignored.
+// Handshake (AS §10 / §18): cfg_wr_vld, cfg_wr_ready, cfg_wr_cmd[3:0],
+// cfg_wr_idx[15:0], cfg_wr_data[31:0], pin irq_logic.
+// AS names no cfg_rd_* pins. Do not invent cfg_rd_* or Appendix D offsets.
 //
-// Local AS-0.1.2 said cfg_wr_cmd is 4 bits; RTL/top are 3 bits. Document RTL 3 bits.
-// Do not invent cmd 8-15. cmd 6/7 are ignored encodings; they still pulse irq_clr.
-//
-// Source: vibe_cfg_space.sv, vibe_cna_ep.sv, vibe_irq_agg.sv, vibe_mgmt.sv,
-//         vibe_rst_ctl.sv, vibe_ub_params.vh, vibe_ub_switch ports, AS-0.1.
+// Source of contract: docs/Vibe-UB-Switch-architecture-spec.md AS-0.1 §4/§9/§10/§18
+// and local AS-0.1.2 cmd width. Identity: compile-time (AS has no GUID read).
 
 property vibe_fw_cmd {
     type = longint unsigned;
     component = reg;
-    desc = "not MMIO; firmware address = cfg_wr_cmd encoding";
+    desc = "not MMIO; firmware address = cfg_wr_cmd[3:0] encoding";
 };
 
 property vibe_payload {
@@ -26,56 +28,55 @@ property vibe_payload {
 property vibe_identity_guid0 {
     type = longint unsigned;
     component = addrmap;
-    desc = "not MMIO; compile-time identity; not readable this RTL";
+    desc = "not MMIO; compile-time identity; AS names no GUID read";
 };
 
 property vibe_identity_class_code {
     type = longint unsigned;
     component = addrmap;
-    desc = "not MMIO; compile-time identity; not readable this RTL";
+    desc = "not MMIO; compile-time identity; AS names no GUID read";
 };
 
 property vibe_identity_port_basic {
     type = longint unsigned;
     component = addrmap;
-    desc = "not MMIO; compile-time identity; not readable this RTL";
+    desc = "not MMIO; compile-time identity; AS names no identity read";
 };
 
 property vibe_identity_port_cap {
     type = longint unsigned;
     component = addrmap;
-    desc = "not MMIO; compile-time identity; not readable this RTL";
+    desc = "not MMIO; compile-time identity; AS names no identity read";
 };
 
 addrmap vibe_ub_switch_mgmt {
     name = "vibe_ub_switch_mgmt";
-    desc = "Write-only static handshake command map. not MMIO.
-            Address column is cfg_wr_cmd[2:0] (0..5), not a hex bus offset.
-            Every accepted cfg_wr (including ignored cmd 6/7) pulses irq_clr.
-            cfg_wr_ready is tied 1. Route table RAM is in fabric, not mgmt.";
+    desc = "AS static-write command map. not MMIO.
+            Address column is cfg_wr_cmd[3:0] (0..5), not a hex bus offset.
+            Others (6..15) reserved/ignored.
+            irq_logic clears on static write or reset (AS §10).
+            Port Reset is RW1C per port. Read-data path 未知 (no cfg_rd_*).";
 
     addressing = compact;
     alignment = 1;
 
-    // Compile-time combo constants in vibe_cfg_space; tied off in vibe_mgmt.
-    // Not on chip pins. Not readable via cfg_wr. CFG6 path echos the request.
+    // AS §10 must-implement constants. Compile-time; no static-write readback.
     vibe_identity_guid0 = 32'h00000003;
     vibe_identity_class_code = 32'h00000300;
     vibe_identity_port_basic = 32'h00040402;
     vibe_identity_port_cap = 32'h00000104;
 
     // Handshake and IRQ are pins, not registers. not MMIO.
-    signal { signalwidth = 1; desc = "not MMIO; write strobe"; } cfg_wr_vld;
-    signal { signalwidth = 1; desc = "not MMIO; tied 1 in vibe_cfg_space"; } cfg_wr_ready;
-    signal { signalwidth = 3; desc = "not MMIO; command encoding (firmware address)"; } cfg_wr_cmd;
+    signal { signalwidth = 1; desc = "not MMIO; write strobe (AS §10)"; } cfg_wr_vld;
+    signal { signalwidth = 1; desc = "not MMIO; write ready (AS §10 vld/ready)"; } cfg_wr_ready;
+    signal { signalwidth = 4; desc = "not MMIO; command encoding (firmware address), AS-0.1.2 4 bits"; } cfg_wr_cmd;
     signal { signalwidth = 16; desc = "not MMIO; index / port select"; } cfg_wr_idx;
     signal { signalwidth = 32; desc = "not MMIO; write data"; } cfg_wr_data;
     signal {
         signalwidth = 1;
-        desc = "not MMIO; top pin irq_logic. Firmware reads the pin only.
-                1-bit sticky OR of error inputs. No per-cause status register.
-                Clear: any accepted cfg_wr, rst_n, or device_rst.
-                Port Reset pulse (port_rst) does not clear irq.
+        desc = "not MMIO; top pin irq_logic (AS §10/§15). Firmware reads the pin only.
+                1-bit sticky OR of observable errors. No per-cause status register.
+                Clear: static write or reset.
                 Product IRQ pin name / polarity / vector count: 未知.";
     } irq_logic;
 
@@ -84,8 +85,8 @@ addrmap vibe_ub_switch_mgmt {
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_CNA";
-        desc = "not MMIO; cfg_wr_cmd=0. Write CNA[15:0] and set cna_written.
-                Side effect: irq_clr pulse.";
+        desc = "not MMIO; cfg_wr_cmd=0. Write CNA[15:0] (AS §10 static write only).
+                Side effect: irq_logic clear (static write).";
         vibe_fw_cmd = 0;
 
         field {
@@ -93,10 +94,9 @@ addrmap vibe_ub_switch_mgmt {
             hw = r;
             reset = 16'h0;
             vibe_payload = "cfg_wr_data";
-            desc = "not MMIO. width=16. access=WO. reset=16'h0 in RTL flops.
-                    Product CNA power-on default is 未知; do not treat 0 as a
-                    valid CNA. DCNA match is gated by internal cna_written
-                    (reset 0, set on this write). cfg_wr_data[31:16] unused.";
+            desc = "not MMIO. width=16. access=WO. Product CNA power-on default is
+                    未知; do not treat 0 as a valid CNA. DCNA match only after a
+                    static CNA write (AS §9). cfg_wr_data[31:16] unused.";
         } CNA[15:0];
     } CMD_CNA @0x0;
 
@@ -105,10 +105,10 @@ addrmap vibe_ub_switch_mgmt {
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_ROUTE_TABLE";
-        desc = "not MMIO; cfg_wr_cmd=1. Pulse a route-table write into fabric.
-                cfg_wr_idx[15:0] is captured in full; fabric RAM indexes [7:0]
-                (DEPTH=256 architecture default, not product Max Index).
-                RAM lives in fabric, not mgmt. Side effect: irq_clr pulse.";
+        desc = "not MMIO; cfg_wr_cmd=1. Write a CFG0_ROUTE_TABLE entry.
+                cfg_wr_idx selects dest. Entries 32-bit; only [3:0] meaningful
+                (AS §10). DEPTH default 256 is architecture-chosen, not product
+                Max Index. Side effect: irq_logic clear (static write).";
         vibe_fw_cmd = 1;
 
         field {
@@ -116,11 +116,9 @@ addrmap vibe_ub_switch_mgmt {
             hw = r;
             reset = 4'h0;
             vibe_payload = "cfg_wr_data";
-            desc = "not MMIO. width=4. access=WO. reset=4'h0 (RAM cleared on
-                    rst_n / device_rst in fabric). Egress bitmap in
-                    cfg_wr_data[3:0]; [31:4] are captured then unused by lookup.
-                    AS-0.1: only [3:0] meaningful. cfg_wr_idx[15:0] (RT_IDX)
-                    is captured in full; fabric RAM uses [7:0]. Max Index: 未知.";
+            desc = "not MMIO. width=4. access=WO. reset=4'h0 (Default / table
+                    all-0, AS §2/§10). Egress bitmap in cfg_wr_data[3:0].
+                    Max Index: 未知.";
         } RT_BM[3:0];
     } CMD_ROUTE_TABLE @0x1;
 
@@ -129,8 +127,8 @@ addrmap vibe_ub_switch_mgmt {
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_DEFAULT_BM";
-        desc = "not MMIO; cfg_wr_cmd=2. Write default egress bitmap.
-                Side effect: irq_clr pulse.";
+        desc = "not MMIO; cfg_wr_cmd=2. Write default egress bitmap (AS §10).
+                Side effect: irq_logic clear (static write).";
         vibe_fw_cmd = 2;
 
         field {
@@ -144,26 +142,33 @@ addrmap vibe_ub_switch_mgmt {
     } CMD_DEFAULT_BM @0x2;
 
     // ---------------------------------------------------------------------
-    // cmd 3 — CMD_PORT_RST
+    // cmd 3 — CMD_PORT_RST  (RW1C, not a WO pulse)
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_PORT_RST";
-        desc = "not MMIO; cfg_wr_cmd=3. WO pulse Port Reset for port
-                cfg_wr_idx[1:0]. NOT an RW1C readable bit (FS named Port Reset
-                RW1C is a gap; this RTL does not implement that CSR).
-                port_rst does not clear irq; the static write still pulses
-                irq_clr. Side effect: irq_clr pulse + port_rst_pulse.";
+        desc = "not MMIO; cfg_wr_cmd=3. Port Reset RW1C per port (AS §10;
+                FS Port Rst.Port Reset). Software-visible per-port bit, reset=0.
+                cmd=3 writes 1 to the selected port bit (cfg_wr_idx[1:0]).
+                Firmware observes the bit until write-1-clears.
+                Readability is via the static interface (AS §4 mgmt/cfg_space).
+                AS names no cfg_rd_*: read-data path 未知. Do not invent cfg_rd_*
+                or an MMIO address.
+                Side effect: Port Reset action for that port (AS §10) plus
+                irq_logic clear (static write or reset).";
         vibe_fw_cmd = 3;
 
         field {
-            sw = w;
-            hw = w;
-            reset = 2'h0;
-            vibe_payload = "cfg_wr_idx";
-            desc = "not MMIO. width=2. access=WO pulse. reset=n/a (index, not
-                    a stored status bit). cfg_wr_idx[1:0] = port 0..3.
-                    cfg_wr_data unused.";
-        } PORT[1:0];
+            sw = rw;
+            hw = rw;
+            onwrite = woclr;
+            reset = 1'b0;
+            vibe_payload = "cfg_wr_data";
+            desc = "not MMIO. width=1. access=RW1C. reset=1'b0.
+                    cmd=3 writes 1 (cfg_wr_data[0]) to the per-port bit
+                    selected by cfg_wr_idx[1:0] (PORT). Four software-visible
+                    bits PORT_RST[3:0] exist, each reset 0. Write-1-clears
+                    the selected bit. Read-data path 未知.";
+        } PORT_RST[0:0];
     } CMD_PORT_RST @0x3;
 
     // ---------------------------------------------------------------------
@@ -171,10 +176,9 @@ addrmap vibe_ub_switch_mgmt {
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_DEVICE_RST";
-        desc = "not MMIO; cfg_wr_cmd=4. WO pulse device reset. idx and data
-                unused. NOT an RW1C readable bit. device_rst also clears irq
-                in vibe_mgmt (irq_clr | device_rst). The write pulses irq_clr.
-                Clears RW config to unwritten (CNA unwritten) in cfg_space.";
+        desc = "not MMIO; cfg_wr_cmd=4. Entity 0 device reset (AS §10).
+                idx and data unused. Not an RW1C bit. Clears RW config to
+                unwritten (CNA unwritten). Side effect: irq_logic clear (reset).";
         vibe_fw_cmd = 4;
 
         field {
@@ -182,8 +186,8 @@ addrmap vibe_ub_switch_mgmt {
             hw = w;
             reset = 1'b0;
             vibe_payload = "unused";
-            desc = "not MMIO. width=1. access=WO pulse. reset=n/a (not a
-                    stored bit). Payload unused; the accepted write is the pulse.";
+            desc = "not MMIO. width=1. access=WO pulse. Payload unused;
+                    the accepted write is the device-reset command.";
         } DEVICE_RST[0:0];
     } CMD_DEVICE_RST @0x4;
 
@@ -192,9 +196,9 @@ addrmap vibe_ub_switch_mgmt {
     // ---------------------------------------------------------------------
     reg {
         name = "CMD_LMSM_GO";
-        desc = "not MMIO; cfg_wr_cmd=5. WO pulse lmsm_go for port
-                cfg_wr_idx[1:0]. NOT an RW1C readable bit.
-                Side effect: irq_clr pulse + lmsm_go_pulse.";
+        desc = "not MMIO; cfg_wr_cmd=5. Pulse lmsm_go for port cfg_wr_idx[1:0]
+                (AS §10/§11). Not an RW1C bit. Side effect: irq_logic clear
+                (static write).";
         vibe_fw_cmd = 5;
 
         field {
@@ -202,19 +206,16 @@ addrmap vibe_ub_switch_mgmt {
             hw = w;
             reset = 2'h0;
             vibe_payload = "cfg_wr_idx";
-            desc = "not MMIO. width=2. access=WO pulse. reset=n/a (index, not
-                    a stored bit). cfg_wr_idx[1:0] = port 0..3.
-                    cfg_wr_data unused.";
+            desc = "not MMIO. width=2. access=WO pulse. cfg_wr_idx[1:0] = port
+                    0..3. cfg_wr_data unused.";
         } PORT[1:0];
     } CMD_LMSM_GO @0x5;
 
-    // cmd 6/7: ignored encodings (3-bit). No fields. Still pulse irq_clr.
-    // Do not invent cmd 8-15.
+    // cmd 6..15: reserved/ignored (4-bit). Do not invent extra opcodes.
     //
     // Identity constants (not registers, not a cfg_wr_cmd, not MMIO):
-    //   guid0      = 32'h00000003  access=not readable this RTL
-    //   class_code = 32'h00000300  access=not readable this RTL
-    //   PORT_BASIC = 32'h00040402  access=not readable this RTL  bit packing 未知
-    //   PORT_CAP   = 32'h00000104  access=not readable this RTL  bit packing 未知
-    // Tied off in vibe_mgmt. CFG6 path echos the request.
+    //   guid0      = 32'h00000003  compile-time; AS names no GUID read
+    //   class_code = 32'h00000300  compile-time; AS names no GUID read
+    //   PORT_BASIC = 32'h00040402  compile-time; bit packing 未知
+    //   PORT_CAP   = 32'h00000104  compile-time; bit packing 未知
 };

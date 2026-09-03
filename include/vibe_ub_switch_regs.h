@@ -4,29 +4,32 @@
 /*
  * Vibe-UB-Switch management command map (matches docs/rdl/vibe_ub_switch_mgmt.rdl).
  *
- * This is not MMIO. There is no address decode, APB, AXI, I2C, or JTAG in
- * rtl/mgmt. Bare-metal firmware drives the top-level static-write pins:
+ * Firmware contract is the architecture spec (AS-0.1 + AS-0.1.2 cmd width),
+ * not a snapshot of rtl/mgmt. A 3-bit RTL cmd bus is void for firmware.
  *
- *   cfg_wr_vld, cfg_wr_ready (tied 1), cfg_wr_cmd[2:0],
+ * This is not MMIO. No APB, AXI, I2C, or JTAG. Bare-metal firmware drives
+ * the AS static-write pins:
+ *
+ *   cfg_wr_vld, cfg_wr_ready, cfg_wr_cmd[3:0],
  *   cfg_wr_idx[15:0], cfg_wr_data[31:0], pin irq_logic
  *
- * Firmware "address" is cfg_wr_cmd (3-bit RTL). Do not invent cmd 8-15.
- * Every accepted write, including ignored cmd 6/7, pulses irq_clr.
+ * Firmware "address" is cfg_wr_cmd (4-bit). Encodings 0-5 used;
+ * 6-15 reserved/ignored. AS names no cfg_rd_* pins.
  */
 
 #include <stdint.h>
 
 /* -------------------------------------------------------------------------- */
-/* Handshake pin widths (not MMIO)                                            */
+/* Handshake pin widths (not MMIO). AS §10 static write, AS-0.1.2 cmd[3:0].   */
 /* -------------------------------------------------------------------------- */
 
-#define VIBE_CFG_WR_CMD_WIDTH   3u
+#define VIBE_CFG_WR_CMD_WIDTH   4u
+#define VIBE_CFG_WR_CMD_MASK    ((uint32_t)0x0000000Fu)
 #define VIBE_CFG_WR_IDX_WIDTH   16u
 #define VIBE_CFG_WR_DATA_WIDTH  32u
-#define VIBE_CFG_WR_READY_TIED  1u
 
 /* -------------------------------------------------------------------------- */
-/* Command encodings — firmware address = cfg_wr_cmd, not a hex MMIO offset   */
+/* Command encodings — firmware address = cfg_wr_cmd[3:0], not hex MMIO       */
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_CMD_CNA            0u
@@ -35,12 +38,12 @@
 #define VIBE_CMD_PORT_RST       3u
 #define VIBE_CMD_DEVICE_RST     4u
 #define VIBE_CMD_LMSM_GO        5u
-/* cmd 6 and 7 are ignored encodings; they still pulse irq_clr. */
+/* cmd 6..15 reserved/ignored (4-bit encoding). */
 
 /* -------------------------------------------------------------------------- */
-/* CMD_CNA (addr=0): CNA[15:0] on cfg_wr_data. access=WO. reset=16'h0.        */
-/* RTL reset 0 is not a product CNA. DCNA match is gated by cna_written.      */
-/* Product CNA power-on default: 未知.                                        */
+/* CMD_CNA (addr=0): CNA[15:0] on cfg_wr_data. access=WO (static write only). */
+/* Product CNA power-on default: 未知. Do not treat 0 as a valid CNA.         */
+/* DCNA match only after a static CNA write (AS §9).                          */
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_CNA_SHIFT          0u
@@ -49,9 +52,8 @@
 
 /* -------------------------------------------------------------------------- */
 /* CMD_ROUTE_TABLE (addr=1): RT_BM[3:0] on cfg_wr_data. access=WO. reset=0.   */
-/* cfg_wr_idx[15:0] (RT_IDX) is captured; fabric RAM uses [7:0], DEPTH=256.   */
-/* DEPTH=256 is the architecture default, not product Max Index (未知).       */
-/* Route table RAM is in fabric, not mgmt.                                    */
+/* cfg_wr_idx = dest index. AS: entries 32-bit, only [3:0] meaningful.        */
+/* ROUTE_TABLE_DEPTH default 256 is architecture-chosen, not product Max Index*/
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_RT_BM_SHIFT        0u
@@ -72,20 +74,34 @@
 #define VIBE_DEFAULT_BM_MASK    ((uint32_t)0x0000000Fu)
 
 /* -------------------------------------------------------------------------- */
-/* CMD_PORT_RST (addr=3) / CMD_LMSM_GO (addr=5): PORT[1:0] on cfg_wr_idx.     */
-/* access=WO pulse. Not a stored RW1C bit. cfg_wr_data unused.                */
+/* CMD_PORT_RST (addr=3): Port Reset is RW1C per port (AS §10), reset=0.      */
+/* cmd=3 writes 1 to the selected port bit (idx[1:0]). Firmware observes the  */
+/* bit until write-1-clears. No MMIO address.                                 */
+/* AS names no cfg_rd_*: RW1C read-data path is 未知. Do not invent cfg_rd_*. */
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_PORT_SHIFT         0u
 #define VIBE_PORT_WIDTH         2u
 #define VIBE_PORT_MASK          ((uint32_t)0x00000003u)
 
-/* CMD_DEVICE_RST (addr=4): WO pulse. idx and data unused. Not RW1C. */
+#define VIBE_PORT_RST_SHIFT     0u
+#define VIBE_PORT_RST_WIDTH     1u
+#define VIBE_PORT_RST_MASK      ((uint32_t)0x00000001u)
+#define VIBE_PORT_RST_RESET     0u
+#define VIBE_PORT_RST_VEC_WIDTH 4u
+#define VIBE_PORT_RST_VEC_MASK  ((uint32_t)0x0000000Fu)
+#define VIBE_PORT_RST_VEC_RESET 0u
+
+/* cmd=3 write-1 to selected bit (set / W1C). PORT_RST[p] reset 0. */
+#define VIBE_PACK_PORT_RST_BIT  VIBE_PORT_RST_MASK
+
+/* CMD_LMSM_GO (addr=5): PORT[1:0] on cfg_wr_idx. access=WO pulse.            */
+/* CMD_DEVICE_RST (addr=4): WO pulse. idx and data unused. Not RW1C.          */
 
 /* -------------------------------------------------------------------------- */
-/* Identity constants (vibe_cfg_space combo). Tied off in vibe_mgmt.          */
-/* access=not readable this RTL. Not on pins. CFG6 echos the request.         */
-/* PORT_BASIC / PORT_CAP bit packing: 未知.                                   */
+/* Identity constants (AS §10 GUID Type 0x3, Class 0x03/0x00, PORT_BASIC/CAP).*/
+/* Compile-time only: AS does not name a GUID / identity read on cfg_wr_*.    */
+/* PORT_BASIC / PORT_CAP official bit packing: 未知.                          */
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_GUID0              ((uint32_t)0x00000003u)
@@ -95,18 +111,18 @@
 
 /* -------------------------------------------------------------------------- */
 /* irq_logic is a pin, not a register address. Firmware reads the pin only.   */
-/* 1-bit sticky OR. No per-cause status CSR.                                  */
-/* Clear: any accepted cfg_wr, rst_n, or device_rst.                          */
-/* Port Reset pulse (port_rst) does not clear irq.                            */
+/* 1-bit sticky OR (AS §10/§15). No per-cause status CSR.                     */
+/* Clear: static write or reset (AS §10).                                     */
 /* Product IRQ pin name / polarity / vector count: 未知.                      */
 /* -------------------------------------------------------------------------- */
 
 #define VIBE_IRQ_LOGIC_WIDTH    1u
 #define VIBE_IRQ_LOGIC_MASK     ((uint32_t)0x00000001u)
 
-/* icrc_fail from cna_ep is hardwired 0 in this RTL. */
-
 /* Pack helpers: result goes on cfg_wr_data or cfg_wr_idx as noted. */
+
+#define VIBE_PACK_CMD(cmd) \
+    ((((uint32_t)(cmd)) ) & VIBE_CFG_WR_CMD_MASK)
 
 #define VIBE_PACK_CNA(cna) \
     ((((uint32_t)(cna)) << VIBE_CNA_SHIFT) & VIBE_CNA_MASK)
@@ -122,5 +138,11 @@
 
 #define VIBE_PACK_PORT(port) \
     ((((uint32_t)(port)) << VIBE_PORT_SHIFT) & VIBE_PORT_MASK)
+
+#define VIBE_PACK_PORT_RST(w1) \
+    ((((uint32_t)(w1)) << VIBE_PORT_RST_SHIFT) & VIBE_PORT_RST_MASK)
+
+#define VIBE_PORT_RST_BIT(port) \
+    ((uint32_t)(VIBE_PORT_RST_MASK << (((uint32_t)(port)) & VIBE_PORT_MASK)))
 
 #endif /* VIBE_UB_SWITCH_REGS_H */

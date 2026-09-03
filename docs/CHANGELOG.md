@@ -2,10 +2,18 @@
 
 ## Unreleased
 
+### Changed
+
+- Firmware register artifacts now follow the **architecture spec**, not a `rtl/mgmt` snapshot. `cfg_wr_cmd` is **4 bits**. Port Reset is **RW1C** (per-port bit, reset 0, write-1-clears). A 3-bit RTL cmd / WO-pulse snapshot is void for firmware. RTL is not modified here.
+  - `include/vibe_ub_switch_regs.h` — 4-bit cmd macros; `PORT_RST` RW1C
+  - `docs/rdl/vibe_ub_switch_mgmt.rdl` — `cfg_wr_cmd[3:0]`; `PORT_RST` `onwrite=woclr`
+  - `docs/Vibe-UB-Switch-register-map.md` — AS contract manual
+  - `docs/Vibe-UB-Switch-reg-diffs.md` — rewritten: header follows AS; do not claim current RTL matches
+
 ### Added
 
-- Firmware-facing management register documentation for the write-only static handshake (`cfg_wr_*`). This is not MMIO; there is no APB/AXI/I2C/JTAG decode in `rtl/mgmt`.
-  - `docs/rdl/vibe_ub_switch_mgmt.rdl` — SystemRDL command map (`address` = `cfg_wr_cmd`)
-  - `include/vibe_ub_switch_regs.h` — bare-metal C header (cmd 0–5, field masks, identity constants, `irq_logic` pin)
-  - `docs/Vibe-UB-Switch-register-map.md` — firmware register manual, gap table, Port Reset as WO pulse (not RW1C)
-  - `docs/Vibe-UB-Switch-reg-diffs.md` — standalone AS/FS vs `rtl/mgmt` difference list (facts only; firmware still follows RTL `cfg_wr_cmd[2:0]` + `irq_logic`, no MMIO)
+- Firmware-facing management register documentation for the AS static-write handshake (`cfg_wr_*`). This is not MMIO; no APB/AXI/I2C/JTAG.
+  - `docs/rdl/vibe_ub_switch_mgmt.rdl`
+  - `include/vibe_ub_switch_regs.h`
+  - `docs/Vibe-UB-Switch-register-map.md`
+  - `docs/Vibe-UB-Switch-reg-diffs.md`
