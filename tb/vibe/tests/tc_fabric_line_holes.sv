@@ -69,7 +69,7 @@ module tc_fabric_line_holes;
     fail = 0; saw6 = 0; saw6b = 0;
     // Icarus: pin VOQ wr_vl so vibe_nw512_flit0(xb_d) does not combo-storm
     // on the first RT=00 xbar grant (same as harness / tc_cfg9_no_icrc).
-    // Verilator: force-on-input is ASSIGNIN; --public-flat-rw on fabric/VOQ OOMs.
+    // V-tool builds: skip force (ASSIGNIN). Do not use public-flat-rw on VOQ.
 `ifndef VERILATOR
     force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
     force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
