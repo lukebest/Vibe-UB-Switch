@@ -1,0 +1,1 @@
+CDC-WARN rtl/port/vibe_port.sv:244 |ovf_l rxclk 1-cycle OR 2FF into clk_fab as afifo_ovf; pulse may be missed (no stretcher). Pre-existing. First baseline.
