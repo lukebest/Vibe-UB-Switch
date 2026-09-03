@@ -181,12 +181,20 @@ def main() -> int:
     if extra > 0:
         lines.append(f"- … {extra} more (see annotate/ and cov_raw.txt)")
     lines.append("")
-    lines.append("Classification: see `CHECKER_AUDIT.md` / `COVERAGE_HOLES.md`.")
-    lines.append("Wide-bus toggle miss is unused data-bit patterns (not dead).")
-    lines.append("Waive only Probe/Dijkstra/QDLWS/Exact Route/UBFM — those are")
-    lines.append("**not in RTL** (AS-0.1 non-goals). Do not waive missing stimulus.")
+    lines.append("Classification: see `COVERAGE_HOLES.md`.")
+    lines.append("Acceptance: LINE ≥95% + waiver (do not chase 100%).")
+    lines.append("Wide-bus toggle miss is unused data-bit patterns (not the LINE gate).")
+    lines.append("TB holes: fill if cheap, else waiver. DUT dead: file:line for 设计.")
+    lines.append("TOOL: tmr_load / dec_lid / combo-pad settle. Do not patch rtl/.")
     lines.append("Suite Verilator bind OOM on VOQ — use per-module clusters.")
     lines.append("")
+    classify = os.path.join(os.path.dirname(out_md), "..", "scripts", "cov_classify.md")
+    # tb/vibe/results/../scripts/cov_classify.md
+    classify = os.path.normpath(classify)
+    if os.path.isfile(classify):
+        with open(classify, "r", encoding="utf-8") as cf:
+            lines.append(cf.read().rstrip())
+            lines.append("")
 
     text = "\n".join(lines)
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
