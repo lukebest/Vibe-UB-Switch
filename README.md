@@ -138,13 +138,13 @@ See `tb/vibe/README.md`. Icarus Verilog 12 (`iverilog`/`vvp`) is the functional 
 
 ## Implementation flow (Sky130 bring-up)
 
-Yosys / ORFS (`sky130hd`) / OpenSTA scripts live under `impl/`. This is a
-methodology bring-up, not a production-node signoff: Sky130 cannot close
-the FS 1.25 GHz fabric clock, and current RTL is not frozen. The flow
-does not edit `rtl/`. See [`docs/impl/README.md`](docs/impl/README.md).
+Yosys / ORFS (`sky130hd`) / OpenSTA **scaffold** lives under
+`scripts/synth/` (sibling of `scripts/sim/`). This is methodology
+bring-up, not a production-node signoff: Sky130 cannot close the FS
+1.25 GHz fabric clock, and current RTL is not frozen. The flow does
+not edit `rtl/`. See [`scripts/synth/README.md`](scripts/synth/README.md).
 
 ```bash
-make -C impl help
-make -C impl synth-smoke    # leaf vibe_sync2, if Yosys is installed
-scripts/impl/run_impl.sh help
+make -C scripts/synth help
+make -C scripts/synth synth-smoke    # leaf vibe_sync2, when Yosys is installed
 ```

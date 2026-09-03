@@ -1,4 +1,4 @@
-# RTL file lists for the impl flow. Paths are relative to VIBE_ROOT.
+# RTL file lists for the synth flow. Paths are relative to VIBE_ROOT.
 # Keep in sync with the compile list in the top-level README.
 # Do not add tb/ sources. Do not list .vh files (they are `include`d).
 

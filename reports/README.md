@@ -2,14 +2,15 @@
 
 Generated implementation reports. **Do not hand-write QoR numbers here.**
 
-Directories are tracked with `.gitkeep`. Files below are produced by
-`make -C impl synth-smoke`, `synth`, `sta`, or a later ORFS run.
+Directories are tracked with `.gitkeep`. Files below are produced later
+by `make -C scripts/synth synth-smoke`, `synth`, `sta`, or ORFS — not
+committed as a QoR drop.
 
 ## `reports/synth/` (after Yosys / ORFS synth)
 
 | File | Who writes it |
 |------|----------------|
-| `flow_info.txt` | `impl/yosys/run_synth.sh` — SHA, tool version, SDC, liberty path |
+| `flow_info.txt` | `scripts/synth/yosys/run_synth.sh` — SHA, tool version, SDC, liberty path |
 | `synth.log` | Yosys stdout/stderr |
 | `stat.rpt` | Yosys `stat` / `stat -liberty` |
 | `cells.rpt` | extracted cell/wire counts from `stat.rpt` |
@@ -31,4 +32,4 @@ No liberty ⇒ no Sky130 area. That is not a license to invent one.
 
 WNS/TNS on Sky130 against the spec SDC is **not** a closed timing
 signoff. DRC/LVS counts must come from the tools. Any GDS under
-`impl/work/` is a local artifact and is **not for foundry submit**.
+`scripts/synth/work/` is a local artifact and is **not for foundry submit**.

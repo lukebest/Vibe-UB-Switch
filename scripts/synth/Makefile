@@ -1,14 +1,14 @@
-# Vibe-UB-Switch implementation flow (Sky130 + Yosys / ORFS / OpenSTA).
-# Default target is help — do NOT run full-chip P&R from `make`.
+# Vibe-UB-Switch synth flow scaffold (Sky130 + Yosys / ORFS / OpenSTA).
+# Sibling of scripts/sim/. Default target is help — do not launch P&R.
 # This flow must not edit RTL function. ECOs go through design/verif.
 
-VIBE_ROOT := $(abspath ..)
-include $(VIBE_ROOT)/impl/yosys/filelist.mk
+VIBE_ROOT := $(abspath ../..)
+include $(VIBE_ROOT)/scripts/synth/yosys/filelist.mk
 
-IMPL      := $(VIBE_ROOT)/impl
+SYNTH     := $(VIBE_ROOT)/scripts/synth
 RPT_SYNTH := $(VIBE_ROOT)/reports/synth
 RPT_SO    := $(VIBE_ROOT)/reports/signoff
-WORK      := $(IMPL)/work
+WORK      := $(SYNTH)/work
 
 YOSYS     ?= yosys
 STA       ?=
@@ -19,9 +19,9 @@ PDK_ROOT  ?=
 # SDC=bringup (default) or SDC=spec. After synth-smoke: make sta TOP=vibe_sync2
 SDC_SEL   ?= bringup
 STA_TOP   ?= $(if $(TOP),$(TOP),vibe_ub_switch)
-SDC_SPEC      := $(IMPL)/constraints/vibe_ub_switch.spec.sdc
-SDC_BRINGUP   := $(IMPL)/constraints/vibe_ub_switch.bringup.sdc
-SDC_SMOKE     := $(IMPL)/constraints/vibe_sync2.bringup.sdc
+SDC_SPEC      := $(SYNTH)/constraints/vibe_ub_switch.spec.sdc
+SDC_BRINGUP   := $(SYNTH)/constraints/vibe_ub_switch.bringup.sdc
+SDC_SMOKE     := $(SYNTH)/constraints/vibe_sync2.bringup.sdc
 
 ifeq ($(SDC_SEL),spec)
   SDC_TOP := $(SDC_SPEC)
@@ -29,8 +29,8 @@ else
   SDC_TOP := $(SDC_BRINGUP)
 endif
 
-ORFS_CFG_TOP   := $(IMPL)/orfs/sky130hd/vibe_ub_switch/config.mk
-ORFS_CFG_SMOKE := $(IMPL)/orfs/sky130hd/vibe_sync2/config.mk
+ORFS_CFG_TOP   := $(SYNTH)/orfs/sky130hd/vibe_ub_switch/config.mk
+ORFS_CFG_SMOKE := $(SYNTH)/orfs/sky130hd/vibe_sync2/config.mk
 
 .DEFAULT_GOAL := help
 
@@ -38,7 +38,7 @@ ORFS_CFG_SMOKE := $(IMPL)/orfs/sky130hd/vibe_sync2/config.mk
         orfs-synth orfs-synth-smoke _orfs-synth orfs-flow clean
 
 help:
-	@echo "Vibe-UB-Switch impl flow (Sky130hd bring-up, not tapeout)"
+	@echo "Vibe-UB-Switch synth flow (Sky130hd bring-up, not tapeout)"
 	@echo
 	@echo "  make check-tools       - print Yosys / OpenSTA / ORFS / liberty"
 	@echo "  make check-sdc         - confirm SDC pin names vs rtl/top"
@@ -47,10 +47,10 @@ help:
 	@echo "  make sta               - OpenSTA WNS/TNS if netlist+liberty exist"
 	@echo "  make orfs-synth        - ORFS 'make synth' for the top (needs ORFS=)"
 	@echo "  make orfs-synth-smoke  - ORFS 'make synth' for $(VIBE_SMOKE_TOP)"
-	@echo "  make clean             - remove impl/work and generated reports"
+	@echo "  make clean             - remove scripts/synth/work and generated reports"
 	@echo
 	@echo "SDC=bringup (default) or SDC=spec. LIBERTY= / ORFS= / STA= as needed."
-	@echo "Full-chip P&R is not a target. See docs/impl/README.md."
+	@echo "Full-chip P&R is not a target. See scripts/synth/README.md."
 
 check-tools:
 	@echo "yosys:   $$(command -v $(YOSYS) 2>/dev/null || echo MISSING)"
@@ -89,7 +89,7 @@ synth-smoke: check-sdc
 	SDC=$(SDC_SMOKE) \
 	LIBERTY="$(LIBERTY)" \
 	YOSYS=$(YOSYS) \
-	$(IMPL)/yosys/run_synth.sh $(VIBE_SMOKE_SV)
+	$(SYNTH)/yosys/run_synth.sh $(VIBE_SMOKE_SV)
 
 # Full-chip Yosys. RTL is not frozen — do not treat output as QoR signoff.
 # Standalone Yosys -sv is best-effort; ORFS slang (orfs-synth) is preferred.
@@ -103,7 +103,7 @@ synth: check-sdc
 	SDC=$(SDC_TOP) \
 	LIBERTY="$(LIBERTY)" \
 	YOSYS=$(YOSYS) \
-	$(IMPL)/yosys/run_synth.sh $(VIBE_TOP_SV)
+	$(SYNTH)/yosys/run_synth.sh $(VIBE_TOP_SV)
 
 ifeq ($(STA_TOP),vibe_sync2)
   STA_SDC := $(SDC_SMOKE)
@@ -120,7 +120,7 @@ sta:
 	LIBERTY="$(LIBERTY)" \
 	STA="$(STA)" \
 	ORFS="$(ORFS)" \
-	$(IMPL)/sta/run_sta.sh
+	$(SYNTH)/sta/run_sta.sh
 
 orfs-synth: check-sdc
 	@$(MAKE) -f $(lastword $(MAKEFILE_LIST)) _orfs-synth \
@@ -133,7 +133,7 @@ orfs-synth-smoke: check-sdc
 _orfs-synth:
 	@if [ -z "$(ORFS)" ]; then \
 	  echo "Set ORFS=/path/to/OpenROAD-flow-scripts" >&2; \
-	  echo "See impl/orfs/README.md and docs/impl/README.md" >&2; \
+	  echo "See scripts/synth/README.md" >&2; \
 	  exit 2; \
 	fi
 	@test -f "$(ORFS)/flow/Makefile" || { \
@@ -148,7 +148,7 @@ _orfs-synth:
 # Explicit, opt-in, not the default. Still not a signoff / tapeout path.
 orfs-flow:
 	@echo "Full ORFS RTL-GDSII is opt-in and NOT a tapeout or QoR signoff." >&2
-	@echo "Re-run: make -C impl orfs-flow CONFIRM=1 ORFS=... CORE_UTILIZATION=<n>" >&2
+	@echo "Re-run: make -C scripts/synth orfs-flow CONFIRM=1 ORFS=... CORE_UTILIZATION=<n>" >&2
 	@echo "CORE_UTILIZATION is a flow knob, not a product budget." >&2
 	@test "$(CONFIRM)" = "1" || exit 2
 	@test -n "$(ORFS)" || { echo "Set ORFS=..." >&2; exit 2; }

@@ -14,7 +14,7 @@ if {![file exists $liberty]} {
 }
 if {![file exists $netlist]} {
   puts "ERROR: netlist not found: $netlist"
-  puts "Run make -C impl synth-smoke or synth first."
+  puts "Run make -C scripts/synth synth-smoke or synth first."
   exit 2
 }
 if {![file exists $sdc]} {

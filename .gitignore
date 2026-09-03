@@ -9,8 +9,8 @@ tb/vibe/results/*.inc
 tb/vibe/scripts/__pycache__/
 coverage.dat
 
-# Impl flow — generated only. Any GDS is a local artifact, NOT tapeout.
-impl/work/
+# Synth flow — generated only. Any GDS is a local artifact, NOT tapeout.
+scripts/synth/work/
 reports/synth/*
 !reports/synth/.gitkeep
 reports/signoff/*

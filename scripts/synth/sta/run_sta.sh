@@ -2,10 +2,10 @@
 # OpenSTA wrapper. Requires a mapped netlist + liberty. No fake WNS/TNS.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TOP="${TOP:-vibe_ub_switch}"
-NETLIST="${NETLIST:-$ROOT/impl/work/${TOP}.synth.v}"
-SDC="${SDC:-$ROOT/impl/constraints/vibe_ub_switch.bringup.sdc}"
+NETLIST="${NETLIST:-$ROOT/scripts/synth/work/${TOP}.synth.v}"
+SDC="${SDC:-$ROOT/scripts/synth/constraints/vibe_ub_switch.bringup.sdc}"
 RPT_DIR="${RPT_DIR:-$ROOT/reports/signoff}"
 STA="${STA:-}"
 LIBERTY="${LIBERTY:-}"
@@ -57,14 +57,14 @@ Examples (do not copy these binaries into git):
   export LIBERTY=$ORFS/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
   export LIBERTY=$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
 
-See docs/impl/README.md.
+See scripts/synth/README.md.
 EOF
   exit 2
 fi
 
 if [ ! -f "$NETLIST" ]; then
   echo "Netlist not found: $NETLIST" >&2
-  echo "Run: make -C impl synth-smoke   or   make -C impl synth" >&2
+  echo "Run: make -C scripts/synth synth-smoke   or   make -C scripts/synth synth" >&2
   exit 2
 fi
 
@@ -72,7 +72,7 @@ mkdir -p "$RPT_DIR"
 
 export TOP LIBERTY NETLIST SDC RPT_DIR
 set +e
-"$STA_BIN" -exit "$ROOT/impl/sta/sta.tcl" > "$RPT_DIR/sta.log" 2>&1
+"$STA_BIN" -exit "$ROOT/scripts/synth/sta/sta.tcl" > "$RPT_DIR/sta.log" 2>&1
 rc=$?
 set -e
 
@@ -86,8 +86,9 @@ fi
 if [ ! -f "$RPT_DIR/lvs.rpt" ]; then
   cat > "$RPT_DIR/lvs.rpt" <<EOF
 STATUS: not_run
-NOTE: LVS is produced after a GDS exists. Any future GDS under impl/work/
-      is a local flow artifact and is NOT for foundry submit / tapeout.
+NOTE: LVS is produced after a GDS exists. Any future GDS under
+      scripts/synth/work/ is a local flow artifact and is NOT for
+      foundry submit / tapeout.
 EOF
 fi
 
