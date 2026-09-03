@@ -5,58 +5,77 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 | Module | Line hit/tot | Line % | Toggle hit/tot | Toggle % |
 |--------|-------------:|-------:|---------------:|---------:|
 | `vibe_afifo.sv` | 11/11 | 100.0 | 70/374 | 18.7 |
-| `vibe_bcrc.sv` | 10/10 | 100.0 | 108/229 | 47.2 |
-| `vibe_cfg_space.sv` | 12/12 | 100.0 | 183/264 | 69.3 |
-| `vibe_cna_ep.sv` | 6/6 | 100.0 | 33/69 | 47.8 |
-| `vibe_dll.sv` | 0/0 | 0.0 | 30/437 | 6.9 |
-| `vibe_dll_credit.sv` | 16/16 | 100.0 | 112/122 | 91.8 |
+| `vibe_bcrc.sv` | 10/10 | 100.0 | 102/229 | 44.5 |
+| `vibe_cfg_space.sv` | 12/12 | 100.0 | 64/264 | 24.2 |
+| `vibe_cna_ep.sv` | 6/6 | 100.0 | 44/229 | 19.2 |
+| `vibe_dll.sv` | 0/0 | 0.0 | 20/437 | 4.6 |
+| `vibe_dll_credit.sv` | 16/16 | 100.0 | 137/155 | 88.4 |
 | `vibe_dll_retry_ack_sm.sv` | 14/14 | 100.0 | 26/51 | 51.0 |
-| `vibe_dll_retry_buf.sv` | 10/10 | 100.0 | 60/420 | 14.3 |
+| `vibe_dll_retry_buf.sv` | 10/10 | 100.0 | 48/420 | 11.4 |
 | `vibe_dll_retry_req_sm.sv` | 21/21 | 100.0 | 38/60 | 63.3 |
-| `vibe_dll_rx.sv` | 18/18 | 100.0 | 25/536 | 4.7 |
+| `vibe_dll_rx.sv` | 19/22 | 86.4 | 33/604 | 5.5 |
 | `vibe_dll_sm.sv` | 14/14 | 100.0 | 13/13 | 100.0 |
-| `vibe_dll_tx.sv` | 16/16 | 100.0 | 80/551 | 14.5 |
+| `vibe_dll_tx.sv` | 40/51 | 78.4 | 177/1873 | 9.5 |
 | `vibe_ebch16.sv` | 33/33 | 100.0 | 21/21 | 100.0 |
-| `vibe_fabric.sv` | 27/27 | 100.0 | 150/712 | 21.1 |
+| `vibe_fabric.sv` | 46/48 | 95.8 | 143/732 | 19.5 |
 | `vibe_fecn_mark.sv` | 0/0 | 0.0 | 20/49 | 40.8 |
 | `vibe_gear_128_160.sv` | 12/12 | 100.0 | 58/714 | 8.1 |
 | `vibe_gear_160_128.sv` | 12/12 | 100.0 | 45/556 | 8.1 |
 | `vibe_icrc.sv` | 12/12 | 100.0 | 68/78 | 87.2 |
 | `vibe_irq_agg.sv` | 5/5 | 100.0 | 14/35 | 40.0 |
-| `vibe_lmsm.sv` | 64/72 | 88.9 | 63/65 | 96.9 |
-| `vibe_mgmt.sv` | 0/0 | 0.0 | 28/187 | 15.0 |
+| `vibe_lmsm.sv` | 64/72 | 88.9 | 62/65 | 95.4 |
+| `vibe_mgmt.sv` | 0/0 | 0.0 | 27/187 | 14.4 |
 | `vibe_mgmt_byp.sv` | 7/7 | 100.0 | 8/16 | 50.0 |
 | `vibe_nw_adapt.sv` | 0/0 | 0.0 | 13/13 | 100.0 |
-| `vibe_pcs_rx.sv` | 9/9 | 100.0 | 1309/1960 | 66.8 |
-| `vibe_pcs_rx_amctl_lock.sv` | 19/19 | 100.0 | 304/304 | 100.0 |
-| `vibe_pcs_rx_deskew.sv` | 12/12 | 100.0 | 1296/1308 | 99.1 |
-| `vibe_pcs_rx_fec.sv` | 19/19 | 100.0 | 27/34 | 79.4 |
-| `vibe_pcs_rx_unpack.sv` | 12/12 | 100.0 | 650/654 | 99.4 |
-| `vibe_pcs_scramble.sv` | 13/13 | 100.0 | 359/511 | 70.3 |
-| `vibe_pcs_tx.sv` | 0/0 | 0.0 | 1296/1941 | 66.8 |
+| `vibe_pcs_rx_amctl_lock.sv` | 18/22 | 81.8 | 139/472 | 29.4 |
+| `vibe_pcs_rx_deskew.sv` | 12/12 | 100.0 | 50/1312 | 3.8 |
+| `vibe_pcs_scramble.sv` | 13/13 | 100.0 | 470/511 | 92.0 |
+| `vibe_pcs_tx.sv` | 0/0 | 0.0 | 1798/1941 | 92.6 |
 | `vibe_pcs_tx_amctl.sv` | 5/5 | 100.0 | 152/152 | 100.0 |
 | `vibe_pcs_tx_cw2beat.sv` | 9/9 | 100.0 | 8/8 | 100.0 |
-| `vibe_pcs_tx_fec.sv` | 28/28 | 100.0 | 126/191 | 66.0 |
-| `vibe_pcs_tx_g1.sv` | 16/16 | 100.0 | 11/12 | 91.7 |
-| `vibe_pcs_tx_pack.sv` | 17/17 | 100.0 | 501/678 | 73.9 |
-| `vibe_pma_bnd.sv` | 4/4 | 100.0 | 43/1028 | 4.2 |
-| `vibe_port.sv` | 6/6 | 100.0 | 44/4201 | 1.0 |
-| `vibe_port_sel.sv` | 17/17 | 100.0 | 52/139 | 37.4 |
-| `vibe_route_lu.sv` | 10/10 | 100.0 | 27/76 | 35.5 |
-| `vibe_rs128_120_dec.sv` | 13/13 | 100.0 | 74/88 | 84.1 |
-| `vibe_rs128_120_enc.sv` | 8/8 | 100.0 | 158/159 | 99.4 |
+| `vibe_pcs_tx_fec.sv` | 24/24 | 100.0 | 132/175 | 75.4 |
+| `vibe_pcs_tx_g1.sv` | 15/17 | 88.2 | 11/12 | 91.7 |
+| `vibe_pcs_tx_pack.sv` | 17/17 | 100.0 | 537/680 | 79.0 |
+| `vibe_pma_bnd.sv` | 5/5 | 100.0 | 43/1028 | 4.2 |
+| `vibe_port_sel.sv` | 17/17 | 100.0 | 49/139 | 35.3 |
+| `vibe_route_lu.sv` | 10/10 | 100.0 | 24/76 | 31.6 |
+| `vibe_rs128_120_dec.sv` | 13/13 | 100.0 | 14/152 | 9.2 |
+| `vibe_rs128_120_enc.sv` | 8/8 | 100.0 | 117/159 | 73.6 |
 | `vibe_rst_ctl.sv` | 15/15 | 100.0 | 20/32 | 62.5 |
 | `vibe_rst_sync.sv` | 3/3 | 100.0 | 4/4 | 100.0 |
-| `vibe_saf_ing.sv` | 16/16 | 100.0 | 43/85 | 50.6 |
+| `vibe_saf_ing.sv` | 16/16 | 100.0 | 42/85 | 49.4 |
 | `vibe_sync2.sv` | 3/3 | 100.0 | 17/17 | 100.0 |
-| `vibe_ub_switch.sv` | 0/0 | 0.0 | 35/292 | 12.0 |
 | `vibe_vl_rr.sv` | 8/8 | 100.0 | 36/36 | 100.0 |
 | `vibe_voq_egr.sv` | 16/16 | 100.0 | 38/270 | 14.1 |
 | `vibe_xbar.sv` | 30/30 | 100.0 | 40/72 | 55.6 |
-| **TOTAL implemented vibe_*** | **628/636** | **98.7** | **7936/19824** | **40.0** |
+| **TOTAL implemented vibe_*** | **621/651** | **95.4** | **4992/14508** | **34.4** |
+
+## RTL files with no coverage records
+
+- `vibe_pcs_rx.sv` — no stimulus in Verilator clusters (or not elaborated)
+- `vibe_pcs_rx_fec.sv` — no stimulus in Verilator clusters (or not elaborated)
+- `vibe_pcs_rx_unpack.sv` — no stimulus in Verilator clusters (or not elaborated)
+- `vibe_port.sv` — no stimulus in Verilator clusters (or not elaborated)
+- `vibe_ub_switch.sv` — no stimulus in Verilator clusters (or not elaborated)
 
 ## Uncovered LINE points
 
+- `line /workspace/rtl/dll/vibe_dll_rx.sv:100 if`
+- `line /workspace/rtl/dll/vibe_dll_rx.sv:118 else`
+- `line /workspace/rtl/dll/vibe_dll_rx.sv:128 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:144 else`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:145 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:146 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:147 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:150 else`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:151 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:155 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:159 if`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:208 else`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:94 else`
+- `line /workspace/rtl/dll/vibe_dll_tx.sv:98 if`
+- `line /workspace/rtl/fabric/vibe_fabric.sv:246 if`
+- `line /workspace/rtl/fabric/vibe_fabric.sv:248 if`
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:101 case`
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:102 case`
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:103 case`
@@ -65,6 +84,12 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:106 case`
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:107 case`
 - `line /workspace/rtl/lmsm/vibe_lmsm.sv:108 case`
+- `line /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:55 elsif`
+- `line /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:56 elsif`
+- `line /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:57 elsif`
+- `line /workspace/rtl/pcs/vibe_pcs_rx_amctl_lock.sv:58 if`
+- `line /workspace/rtl/pcs/vibe_pcs_tx_g1.sv:51 else`
+- `line /workspace/rtl/pcs/vibe_pcs_tx_g1.sv:65 elsif`
 
 ## Uncovered toggle bins (first 40; not the line gate)
 
@@ -108,7 +133,7 @@ Honest tool output. FSM = line hits on state `case`/`if` (no VCS FSM engine).
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[137]`
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[138]`
 - `toggle /workspace/rtl/cdc/vibe_afifo.sv:10 wdata[139]`
-- … 11848 more (see annotate/ and cov_raw.txt)
+- … 9476 more (see annotate/ and cov_raw.txt)
 
 Classification: see `CHECKER_AUDIT.md` / `COVERAGE_HOLES.md`.
 Wide-bus toggle miss is unused data-bit patterns (not dead).
@@ -116,6 +141,6 @@ Waive only Probe/Dijkstra/QDLWS/Exact Route/UBFM — those are
 **not in RTL** (AS-0.1 non-goals). Do not waive missing stimulus.
 Suite Verilator bind OOM on VOQ — use per-module clusters.
 
-LINE 628/636 = 98.7%
-TOGGLE 7936/19824 = 40.0%
+LINE 621/651 = 95.4%
+TOGGLE 4992/14508 = 34.4%
 FSM note: no separate FSM engine; use line % on state machines

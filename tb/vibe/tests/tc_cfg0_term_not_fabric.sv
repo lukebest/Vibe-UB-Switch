@@ -88,10 +88,86 @@ module tc_cfg0_term_not_fabric;
       fail = 1;
     end
 
-    // rx_ovf: RXBUF=32, each beat +4, 9 beats without consume
+    // 5-flit declared length on one 640b beat: left=100, emit 64, leftover
+    // (dll_rx :118 else). port_rst after so by_n/pkt_act do not stick.
+    begin : leftover
+      integer w;
+      w = 0;
+      @(negedge clk);
+      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(5),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      pcs_vld = 1'b1;
+      @(posedge clk);
+      @(negedge clk);
+      pcs_vld = 1'b0;
+      repeat (4) @(posedge clk);
+      port_rst = 1;
+      @(posedge clk);
+      port_rst = 0;
+    end
+
+    // need_hdr :128 — nw_ready=0 before the first emit so nw_vld sticks,
+    // then a second SOP unpacks with can_emit=0.
+    begin : needhdr
+      integer w;
+      nw_ready = 1'b0;
+      w = 0;
+      @(negedge clk);
+      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      pcs_vld = 1'b1;
+      @(posedge clk);
+      @(negedge clk);
+      pcs_vld = 1'b0;
+      repeat (6) @(posedge clk);
+      w = 0;
+      @(negedge clk);
+      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+          4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+          16'd0, 8'd0, 3'd0, 8'd0));
+      pcs_vld = 1'b1;
+      @(posedge clk);
+      @(negedge clk);
+      pcs_vld = 1'b0;
+      repeat (6) @(posedge clk);
+      nw_ready = 1'b1;
+      port_rst = 1;
+      @(posedge clk);
+      port_rst = 0;
+    end
+
+    // rx_ovf :100 — RXBUF=32, +4 wptr/accept, rptr never pops. Drain
+    // each 1-flit so pcs_ready returns. wptr is not cleared by port_rst.
     begin : ovf
-      integer k;
-      for (k = 0; k < 10; k = k + 1) send_beat(4'd3);
+      integer k, w;
+      nw_ready = 1'b1;
+      for (k = 0; k < 12; k = k + 1) begin
+        w = 0;
+        @(negedge clk);
+        while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
+        pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+            4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
+            16'd0, 8'd0, 3'd0, 8'd0));
+        pcs_vld = 1'b1;
+        @(posedge clk);
+        @(negedge clk);
+        pcs_vld = 1'b0;
+        repeat (6) @(posedge clk);
+      end
+      if (!rx_ovf) begin
+        $display("FAIL tc_cfg0_term_not_fabric");
+        $display("  stimulus : 12 ready-gated CFG3 beats, RXBUF=32");
+        $display("  expected : rx_ovf (wptr-rptr >= 32)");
+        $display("  actual   : rx_ovf=0 wptr0=%0d", u_rx.wptr[0]);
+        $display("  hier     : u_rx.rx_ovf");
+        $display("  reproduce: make -C tb/vibe units");
+        fail = 1;
+      end
     end
     repeat (4) @(posedge clk);
     // fec_fail → start_retry

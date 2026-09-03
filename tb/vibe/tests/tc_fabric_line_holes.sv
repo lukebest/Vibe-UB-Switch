@@ -67,6 +67,15 @@ module tc_fabric_line_holes;
 
   initial begin
     fail = 0; saw6 = 0; saw6b = 0;
+    // Icarus: pin VOQ wr_vl so vibe_nw512_flit0(xb_d) does not combo-storm
+    // on the first RT=00 xbar grant (same as harness / tc_cfg9_no_icrc).
+    // V-tool builds: skip force (ASSIGNIN). Do not use public-flat-rw on VOQ.
+`ifndef VERILATOR
+    force u_fab.g_egr[0].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[1].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[2].u_voq.wr_vl = 4'd0;
+    force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
+`endif
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
     default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
@@ -137,6 +146,27 @@ module tc_fabric_line_holes;
                   "counter wrapped or changed",
                   "u_fab.rt_shortest_unimpl");
         end
+      end
+    end
+    // RT=00 dest in table → xbar grant (xb_v&&xb_sop / egr_sop header capture)
+    begin : fwd_rt00
+      integer saw_egr;
+      saw_egr = 0;
+      @(negedge clk);
+      rt_wr_en = 1; rt_wr_idx = 16'd5; rt_wr_data = 32'h0000_0001;
+      @(posedge clk);
+      @(negedge clk);
+      rt_wr_en = 0;
+      send2(1, 4'd3, 2'b00, 16'h0005);
+      repeat (40) begin
+        @(posedge clk);
+        if (egr_vld[0]) saw_egr = 1;
+      end
+      if (!fail && !saw_egr) begin
+        fail_at("RT=00 DCNA=5 bitmap port0",
+                "egr_vld[0] (xbar grant + VOQ pop)",
+                "no egress",
+                "u_fab.xb_v / egr_sop");
       end
     end
     if (!fail) $display("PASS tc_fabric_line_holes");

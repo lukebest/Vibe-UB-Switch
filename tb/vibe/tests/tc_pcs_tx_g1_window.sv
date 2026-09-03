@@ -29,6 +29,38 @@ module tc_pcs_tx_g1_window;
       @(posedge clk);
       if (win_vld) saw = 1;
     end
+    // Isolated 4-flit beat then idle: nflit==4 complete with 2 Nulls (:65)
+    rst_n = 0;
+    @(posedge clk);
+    rst_n = 1;
+    in_vld = 0; win_ready = 1; link_up = 1; in_data = 640'hB;
+    repeat (2) @(posedge clk);
+    @(negedge clk);
+    in_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 0;
+    repeat (8) @(posedge clk);
+    // Two beats with nflit==4 between them (rem-complete :51).
+    // Hold win_ready=0 after beat 1 so idle :65 cannot complete the window.
+    rst_n = 0;
+    @(posedge clk);
+    rst_n = 1;
+    in_vld = 0; win_ready = 0; link_up = 1; in_data = 640'hC;
+    repeat (2) @(posedge clk);
+    @(negedge clk);
+    in_vld = 1;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 0;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 1; in_data = 640'hD;
+    @(posedge clk);
+    @(negedge clk);
+    in_vld = 0;
+    win_ready = 1;
+    repeat (8) @(posedge clk);
     if (!saw) begin
       $display("FAIL tc_pcs_tx_g1_window");
       $display("  stimulus : several 640b beats link_up=1");

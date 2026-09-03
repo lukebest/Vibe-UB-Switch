@@ -2,7 +2,7 @@
 `timescale 1ns/1ps
 module tc_pcs_rx_fec;
   `include "vibe_ub_params.vh"
-  logic clk, rst_n, beat_vld, beat_ready, win_vld, win_ready, fec_fail;
+  logic clk, rst_n, beat_vld, beat_ready, win_vld, win_ready, fec_fail, am_gap;
   logic [2:0] fec_mode;
   logic [511:0] beat_data;
   logic [959:0] win_data;
@@ -13,11 +13,11 @@ module tc_pcs_rx_fec;
     .clk(clk), .rst_n(rst_n), .fec_mode(fec_mode),
     .beat_data(beat_data), .beat_vld(beat_vld), .beat_ready(beat_ready),
     .win_data(win_data), .win_vld(win_vld), .win_ready(win_ready),
-    .fec_fail(fec_fail)
+    .am_gap(am_gap), .fec_fail(fec_fail)
   );
   initial begin
     fail = 0; saw = 0;
-    rst_n = 0; fec_mode = VIBE_FEC_BYPASS; beat_vld = 0; win_ready = 1;
+    rst_n = 0; fec_mode = VIBE_FEC_BYPASS; beat_vld = 0; win_ready = 1; am_gap = 0;
     beat_data = 0;
     repeat (3) @(posedge clk);
     rst_n = 1;
@@ -43,6 +43,12 @@ module tc_pcs_rx_fec;
     // consume win
     win_ready = 1;
     repeat (2) @(posedge clk);
+    // am_gap clears have_hi (:77)
+    @(negedge clk);
+    am_gap = 1;
+    @(posedge clk);
+    @(negedge clk);
+    am_gap = 0;
     // T=4 feed path
     fec_mode = VIBE_FEC_T4;
     @(negedge clk);

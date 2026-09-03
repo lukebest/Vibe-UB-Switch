@@ -23,6 +23,19 @@ INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
 WARN="-Wno-fatal -Wno-BLKLOOPINIT -Wno-UNOPTFLAT -Wno-WIDTH -Wno-WIDTHTRUNC -Wno-UNUSED -Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL -Wno-VARHIDDEN -Wno-IMPORTSTAR -Wno-EOFNEWLINE"
 COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
 
+# Verilator 5.020 treats `input … = 1'b0` as %Error-UNSUPPORTED (and
+# -Wno-UNSUPPORTED is not a valid warning name on this build — it aborts
+# every cluster). Strip defaults into a sim-only tree. Do not touch rtl/.
+RTL_SRC="$RTL"
+RTL="$COV/rtl_nodedef"
+rm -rf "$RTL"
+mkdir -p "$RTL"
+cp -a "$RTL_SRC/." "$RTL/"
+find "$RTL" -name 'vibe_*.sv' -print0 | xargs -0 sed -i -E \
+  "s/(input[[:space:]]+logic[[:space:]]+[A-Za-z0-9_]+)[[:space:]]*=[[:space:]]*1'b[01]/\1/g"
+INC="-I$RTL/common -I$TB/common -I$TB/env -I$TB/tests"
+COMMON="$VERILATOR --cc --timing --coverage --coverage-line --coverage-toggle --build -j 0 $INC $WARN"
+
 write_main() {
   local top="$1"
   local dest="$2"
@@ -152,18 +165,25 @@ run_cluster mgmt tc_mgmt "$T/tc_mgmt.sv" \
   "$RTL/mgmt/vibe_irq_agg.sv" "$RTL/mgmt/vibe_rst_ctl.sv"
 run_cluster saf tc_saf_ing "$T/tc_saf_ing.sv" "$RTL/fabric/vibe_saf_ing.sv"
 run_cluster route tc_route_lu "$T/tc_route_lu.sv" "$RTL/fabric/vibe_route_lu.sv"
-run_cluster pcs_rx_am tc_pcs_rx_amctl "$T/tc_pcs_rx_amctl.sv" \
+# --inline-mult 0: dec_lid case arms (same 5.020 function-inline class as tmr_load)
+run_cluster pcs_rx_am tc_pcs_rx_amctl --vl "--inline-mult 0" \
+  "$T/tc_pcs_rx_amctl.sv" \
   "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_ebch16.sv"
 run_cluster pcs_rx_dsk tc_pcs_rx_deskew "$T/tc_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv"
 run_cluster pcs_rx_un tc_pcs_rx_unpack --vl "--public-flat-rw" \
   "$T/tc_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv"
 run_cluster pcs_rx_fec tc_pcs_rx_fec "$T/tc_pcs_rx_fec.sv" \
   "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
-run_cluster pcs_rx tc_pcs_rx "$T/tc_pcs_rx.sv" \
-  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_scramble.sv" \
-  "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" "$RTL/pcs/vibe_pcs_rx_deskew.sv" \
-  "$RTL/pcs/vibe_pcs_rx_unpack.sv" "$RTL/pcs/vibe_pcs_rx_fec.sv" \
-  "$RTL/pcs/vibe_rs128_120_dec.sv" "$RTL/pcs/vibe_ebch16.sv"
+# tc_pcs_rx binds TX+RX; TX sources were missing (compile rc=1, 0 records).
+run_cluster pcs_rx tc_pcs_rx --vl "--public-flat-rw" "$T/tc_pcs_rx.sv" \
+  "$RTL/pcs/vibe_pcs_tx.sv" "$RTL/pcs/vibe_pcs_tx_g1.sv" \
+  "$RTL/pcs/vibe_pcs_tx_fec.sv" "$RTL/pcs/vibe_rs128_120_enc.sv" \
+  "$RTL/pcs/vibe_pcs_tx_cw2beat.sv" "$RTL/pcs/vibe_pcs_tx_pack.sv" \
+  "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv" \
+  "$RTL/pcs/vibe_pcs_scramble.sv" \
+  "$RTL/pcs/vibe_pcs_rx.sv" "$RTL/pcs/vibe_pcs_rx_amctl_lock.sv" \
+  "$RTL/pcs/vibe_pcs_rx_deskew.sv" "$RTL/pcs/vibe_pcs_rx_unpack.sv" \
+  "$RTL/pcs/vibe_pcs_rx_fec.sv" "$RTL/pcs/vibe_rs128_120_dec.sv"
 run_cluster pcs_tx_pack tc_pcs_tx_pack --vl "--public-flat-rw" \
   "$T/tc_pcs_tx_pack.sv" \
   "$RTL/pcs/vibe_pcs_tx_pack.sv" "$RTL/pcs/vibe_pcs_tx_amctl.sv" "$RTL/pcs/vibe_ebch16.sv"
@@ -212,7 +232,7 @@ run_cluster dll tc_dll "$T/tc_dll.sv" \
   "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv"
 
 # One port + top smoke: try; skip on OOM. Never bind vibe_suite here.
-run_cluster port tc_port_smoke "$T/tc_port_smoke.sv" \
+run_cluster port tc_port_smoke --vl "--public-flat-rw" "$T/tc_port_smoke.sv" \
   "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
   "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
   "$RTL/pma/vibe_pma_bnd.sv" \
@@ -231,7 +251,7 @@ run_cluster port tc_port_smoke "$T/tc_port_smoke.sv" \
   "$RTL/dll/vibe_dll_rx.sv" "$RTL/dll/vibe_bcrc.sv" \
   "$RTL/nw/vibe_nw_adapt.sv" "$RTL/port/vibe_port.sv"
 
-run_cluster top tc_top_smoke "$T/tc_top_smoke.sv" \
+run_cluster top tc_top_smoke --vl "--public-flat-rw" "$T/tc_top_smoke.sv" \
   "$RTL/cdc/vibe_sync2.sv" "$RTL/cdc/vibe_afifo.sv" "$RTL/cdc/vibe_rst_sync.sv" \
   "$RTL/cdc/vibe_gear_160_128.sv" "$RTL/cdc/vibe_gear_128_160.sv" \
   "$RTL/pma/vibe_pma_bnd.sv" \
