@@ -27,6 +27,8 @@ No liberty ⇒ no Sky130 area. That is not a license to invent one.
 
 ## `reports/signoff/` (after STA / later DRC-LVS)
 
+下一闸提案（空目录期间的计划，**不是**签核通过）：[`signoff/PLAN-2026-09-04.md`](signoff/PLAN-2026-09-04.md)。
+
 | File | Who writes it |
 |------|----------------|
 | `sta.log` | OpenSTA stdout/stderr |

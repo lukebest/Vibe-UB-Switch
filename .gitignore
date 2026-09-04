@@ -13,6 +13,7 @@ coverage.dat
 scripts/synth/work/
 reports/signoff/*
 !reports/signoff/.gitkeep
+!reports/signoff/*.md
 *.gds
 *.gds.gz
 *.lef
