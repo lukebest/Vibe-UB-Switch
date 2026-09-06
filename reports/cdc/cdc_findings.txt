@@ -1,1 +1,9 @@
-CDC-WARN vibe_port.sv:244 ovf_l 2FF (baseline, unchanged)
+CDC structural audit 2026-09-07 (SGT)
+DUT: 32a7f5e0c3f04762aa27dae73b000e55773195da
+Tool: structural (no SpyGlass/Ascent)
+
+SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
+AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
+BASELINE_WARN: rtl/port/vibe_port.sv:244 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2) — UNCHANGED
+NEW: 0
+ERROR: 0
