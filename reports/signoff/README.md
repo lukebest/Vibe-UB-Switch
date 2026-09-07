@@ -9,6 +9,9 @@ Do not hand-write WNS/TNS.
 Luke selected path **B** on 2026-09-05:
 [`DECISION-2026-09-05.md`](DECISION-2026-09-05.md)
 
+Luke selected **F1** on 2026-09-07 (`ovf_l` permanent frozen WARN):
+[`DECISION-F-2026-09-07.md`](DECISION-F-2026-09-07.md)
+
 工具若跑过，应出现：`sta.log`、`sta_wns_tns.rpt`、`sta_checks.rpt`；
 未跑 DRC/LVS 时为 `drc.rpt` / `lvs.rpt` 的 `STATUS: not_run`。
 见 [`../README.md`](../README.md)。
