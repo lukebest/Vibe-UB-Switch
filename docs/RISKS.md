@@ -2,8 +2,8 @@
 
 | Item | Value |
 |------|--------|
-| Snapshot date | **2026-09-07** (Asia/Shanghai) |
-| `origin/main` HEAD | `b08e3f54` (PR42) |
+| Snapshot date | **2026-09-07** (Asia/Shanghai) — evening refresh |
+| `origin/main` HEAD | `2e177e8d` (PR43) |
 | RTL freeze SHA | `32a7f5e0` — `rtl/` unchanged vs this SHA |
 | Companion | [`docs/STATUS.md`](STATUS.md) |
 

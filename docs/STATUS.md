@@ -3,8 +3,8 @@
 | Item | Value |
 |------|--------|
 | Project | Vibe-UB-Switch |
-| Snapshot date | **2026-09-07** (Asia/Shanghai) |
-| `origin/main` HEAD | `b08e3f54` — STATUS/RISKS snapshot 2026-09-07 / PR42 (`b08e3f54ee3fd36a413b5028bca65e9cbdcffbd5`) |
+| Snapshot date | **2026-09-07** (Asia/Shanghai) — evening refresh |
+| `origin/main` HEAD | `2e177e8d` — docs: decision F1 ovf_l permanent frozen WARN / PR43 (`2e177e8d707684842d3def26333e1162328d52a7`) |
 | RTL freeze SHA | `32a7f5e0` (`32a7f5e0c3f04762aa27dae73b000e55773195da`) |
 | `git diff 32a7f5e0 -- rtl/` | **empty** — no `rtl/` functional diff vs freeze SHA (docs/reports only after PR30) |
 | SPEC | **SPEC-0.1** — status **已冻结** (PR28, 2026-09-03, human approved; aligned RTL `32a7f5e0`) |
@@ -12,7 +12,7 @@
 
 This file is an in-repo snapshot for 芯片开发PM. Numbers below are copied from committed reports. **No WNS/TNS/slack is stated** because none exists in-repo.
 
-This snapshot follows PR42 (`b08e3f54`, STATUS/RISKS 2026-09-07) and PR41 (nightly lint+CDC). Decision **F** is now **F1** (2026-09-07). Previous STATUS/RISKS snapshot recorded HEAD `c8638a56` (PR41) while F was still OPEN.
+This evening refresh follows PR43 (`2e177e8d`, docs: decision F1 ovf_l permanent frozen WARN). RTL freeze is still `32a7f5e0` (`git diff 32a7f5e0...main -- rtl/` empty; `rtl_changed=0`). Decision **E** remains path **B**; decision **F** remains **F1**. Previous STATUS/RISKS snapshot recorded HEAD `b08e3f54` (PR42).
 
 ---
 
@@ -54,7 +54,7 @@ Legend: **done** = locked / present at freeze SHA; **PASS** = committed gate or 
 |------|------:|--------|
 | Open GitHub issues | **0** | 2026-09-07, `lukebest/Vibe-UB-Switch` |
 | Closed GitHub issues | **0** | same |
-| Open GitHub PRs | **0** | same (`origin/main` `b08e3f54`) |
+| Open GitHub PRs | **0** | same (`origin/main` `2e177e8d`) |
 
 No issue was opened from lint, CDC, or nightly health. Known debts stay in [`docs/RISKS.md`](RISKS.md), not as fake signoff gaps.
 
