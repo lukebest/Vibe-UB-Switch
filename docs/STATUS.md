@@ -3,8 +3,8 @@
 | Item | Value |
 |------|--------|
 | Project | Vibe-UB-Switch |
-| Snapshot date | **2026-09-05** (Asia/Shanghai) |
-| `origin/main` HEAD | `da76d8da` — Merge PR35: nightly lint+CDC 2026-09-05 (`da76d8dabdb0c013e97e87ac3737d8e7df175f68`) |
+| Snapshot date | **2026-09-07** (Asia/Shanghai) |
+| `origin/main` HEAD | `c8638a56` — nightly lint+CDC 2026-09-07 / PR41 (`c8638a56f2e7a6e8d38455a0f565183608974531`) |
 | RTL freeze SHA | `32a7f5e0` (`32a7f5e0c3f04762aa27dae73b000e55773195da`) |
 | `git diff 32a7f5e0 -- rtl/` | **empty** — no `rtl/` functional diff vs freeze SHA (docs/reports only after PR30) |
 | SPEC | **SPEC-0.1** — status **已冻结** (PR28, 2026-09-03, human approved; aligned RTL `32a7f5e0`) |
@@ -12,7 +12,7 @@
 
 This file is an in-repo snapshot for 芯片开发PM. Numbers below are copied from committed reports. **No WNS/TNS/slack is stated** because none exists in-repo.
 
-This snapshot follows PR35 (`da76d8da`, nightly lint+CDC 2026-09-05) and PR34 (nightly health). Evening 2026-09-04 STATUS/RISKS was PR33.
+This snapshot follows PR41 (`c8638a56`, nightly lint+CDC 2026-09-07) and PR40 (nightly health). Previous STATUS/RISKS snapshot date was 2026-09-05 (PR36 path B record; nightly PR38–PR39 on 2026-09-06 were reports only).
 
 ---
 
@@ -21,11 +21,11 @@ This snapshot follows PR35 (`da76d8da`, nightly lint+CDC 2026-09-05) and PR34 (n
 | Gate | Result | Evidence |
 |------|--------|----------|
 | SPEC freeze | **PASS** | [`docs/SPEC.md`](SPEC.md) header / intro / §18: **已冻结**, 2026-09-03, RTL `32a7f5e0`. PR28. |
-| Lint | **PASS** | [`reports/lint/2026-09-05.md`](../reports/lint/2026-09-05.md): **0** `%Error-*`, **0** new `file:line:rule` keys vs 2026-09-04. DUT `32a7f5e0`. |
+| Lint | **PASS** | [`reports/lint/2026-09-07.md`](../reports/lint/2026-09-07.md): **0** `%Error-*`, **0** new `file:line:rule` keys vs 2026-09-06. DUT `32a7f5e0`. |
 | Verification (consecutive green) | **PASS — 3/3 CLOSED** (2026-09-03) | [`reports/regress/2026-09-03.md`](../reports/regress/2026-09-03.md) / [`-run2.md`](../reports/regress/2026-09-03-run2.md) / [`-run3.md`](../reports/regress/2026-09-03-run3.md). Do **not** count nightly health as 4/3. |
 | Impl signoff | **NOT PASS** | [`reports/signoff/`](../reports/signoff/) has [`PLAN-2026-09-04.md`](../reports/signoff/PLAN-2026-09-04.md) + [`DECISION-2026-09-05.md`](../reports/signoff/DECISION-2026-09-05.md) + [`README.md`](../reports/signoff/README.md) + `.gitkeep`. Luke chose **path B** (2026-09-05). PLAN stays historical. Directory stays PLAN + keepers. Methodology QoR still [`reports/synth/2026-09-03.md`](../reports/synth/2026-09-03.md) — **no top netlist**, **no WNS/TNS**. Do not claim signoff. |
 
-Post-gate nightly health (not a new consecutive-green series): [`reports/regress/2026-09-05.md`](../reports/regress/2026-09-05.md) — **PASS**. LINE **708/737 = 96.1%**; functional **159 TP 100%** (9 HOLE = SPEC §非目标). Explicitly **not** a 4/3 count.
+Post-gate nightly health (not a new consecutive-green series): [`reports/regress/2026-09-07.md`](../reports/regress/2026-09-07.md) — **PASS**. LINE **708/737 = 96.1%**; functional **159 TP 100%** (9 HOLE = SPEC §非目标). Explicitly **not** a 4/3 count.
 
 FPGA is **not** a fifth gate. It is deferred.
 
@@ -43,7 +43,7 @@ Legend: **done** = locked / present at freeze SHA; **PASS** = committed gate or 
 | PCS / LMSM | SPEC §15 + AS §4–5 | Frozen (`vibe_pcs_*`, `vibe_lmsm`) | Covered; LMSM `tmr_load` TOOL waiver | Leaf QoR mapped (RS left as written) | FPGA **deferred** |
 | fabric / xbar / mgmt | SPEC §2 + AS §4 | Frozen | Suite 27/27; fabric G1/routing TPs | **NOT mapped**: xbar unroll, fabric/mgmt slang fail, `voq_egr` timeout. Lint debt: xbar **LATCH×2**, fabric **UNOPTFLAT×2** | FPGA **deferred** |
 | CFG / headers | SPEC + register-map + RDL | Frozen (`vibe_cfg_space`, `include/vibe_ub_switch_regs.h`) | PR22/PR25 4-bit + RW1C checkers on main | `vibe_cfg_space` Yosys `proc_dff` FAIL — tool, RTL not rewritten | FPGA **deferred** |
-| CDC | AS CDC + SPEC clocks | Frozen (`vibe_sync2`, `vibe_afifo`, `vibe_rst_sync`; gears not CDC) | Nightly [`reports/cdc/2026-09-05.md`](../reports/cdc/2026-09-05.md): 0 CDC-ERROR; **CDC-WARN** `vibe_port.sv:244` `ovf_l` (unchanged vs 2026-09-04 baseline) | CDC leaves mapped. WARN is frozen, not ECO | FPGA **deferred** |
+| CDC | AS CDC + SPEC clocks | Frozen (`vibe_sync2`, `vibe_afifo`, `vibe_rst_sync`; gears not CDC) | Nightly [`reports/cdc/2026-09-07.md`](../reports/cdc/2026-09-07.md): 0 CDC-ERROR; **CDC-WARN** `vibe_port.sv:244` `ovf_l` (unchanged vs 2026-09-06 / 2026-09-04 baseline) | CDC leaves mapped. WARN is frozen, not ECO | FPGA **deferred** |
 | Signoff package | SPEC §16: QoR is **not** a SPEC must | N/A (no RTL ECO for signoff) | N/A | **NOT PASS** — path **B** chosen; Sky130 scripts/docs only; OpenSTA **not run**; no `sta_wns_tns.rpt`; do not run tapeout flow | FPGA **deferred** |
 
 ---
@@ -52,9 +52,9 @@ Legend: **done** = locked / present at freeze SHA; **PASS** = committed gate or 
 
 | Item | Count | As of |
 |------|------:|--------|
-| Open GitHub issues | **0** | 2026-09-05, `lukebest/Vibe-UB-Switch` |
+| Open GitHub issues | **0** | 2026-09-07, `lukebest/Vibe-UB-Switch` |
 | Closed GitHub issues | **0** | same |
-| Open GitHub PRs | **0** | same (`origin/main` `da76d8da`) |
+| Open GitHub PRs | **0** | same (`origin/main` `c8638a56`) |
 
 No issue was opened from lint, CDC, or nightly health. Known debts stay in [`docs/RISKS.md`](RISKS.md), not as fake signoff gaps.
 
