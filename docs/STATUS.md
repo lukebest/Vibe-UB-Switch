@@ -59,7 +59,7 @@ Progress: **SPEC** = 0.2 naming frozen; **RTL** = Lint ECO freeze `982ddd0a` (CR
 |------|------:|--------|
 | Open GitHub issues | **0** | 2026-09-08, `lukebest/Vibe-UB-Switch` |
 | Closed GitHub issues | **0** | same |
-| Open GitHub PRs | **0** | same (`origin/main` `c500fdf0`; PR64 merged). This PR is the docs-only STATUS/RISKS refresh. |
+| Open GitHub PRs | **1** | same (`origin/main` `c500fdf0`; PR64 merged): #65 this STATUS/RISKS Lint ECO 1/3 refresh. |
 
 No issue was opened from lint, CDC, nightly health, the CR-B rename, Lint ECO, or re-gate 1/3. Known debts stay in [`docs/RISKS.md`](RISKS.md), not as fake signoff gaps.
 
