@@ -8,8 +8,8 @@
 | Requested rule | Luke: interface signal names = `source_module_dest_module_meaning` |
 | Luke example | `nw_dl_data` = network → datalink data |
 | Repo token | This tree uses **`dll`**, not `dl`. This draft proposes **`dll`** as the datalink token. Equivalent of Luke’s example: `nw_dll_data`. |
-| SPEC | **SPEC-0.1 已冻结**, aligned RTL `32a7f5e0` (`32a7f5e0c3f04762aa27dae73b000e55773195da`) |
-| This PR | Docs only. **Do not implement the rename here.** |
+| SPEC | SPEC-0.1 freeze (RTL `32a7f5e0`) broken **for naming only** by CR-B. Xia pin tables: SPEC-0.2 / AS. Functional widths still `32a7f5e0`. |
+| This file | Inventory only (kept). Formal decision: [`CR-IFACE-RENAME-B-2026-09-08.md`](CR-IFACE-RENAME-B-2026-09-08.md). **Do not implement the RTL/TB rename here.** |
 
 SPEC §1 / §18: after freeze, changing `cfg_wr_*`, `irq_logic`, per-port PMA `txdata`/`rxdata`/`txclk`/`rxclk`, or NW↔DLL `data[511:0]` `vld`/`ready` **semantics** needs a change request. A rename of those names is an interface change even if widths and fire rules stay the same.
 
@@ -263,8 +263,8 @@ Old `tb/{pcs,dll,nw,cdc,switch}/ub_*` (~26 files) is already **void** (`tb/vibe/
 
 ## 5. Explicit non-goals of this draft PR
 
-1. **SPEC remains frozen at `32a7f5e0`.** This file does not rewrite SPEC functional body.
-2. **Do not implement the rename in this PR.** No edits under `rtl/`, `tb/`, `include/`, or SPEC sections other than adding this CR draft.
+1. **No functional rewrite.** Overlay B widths / fire / protocol stay as at `32a7f5e0`. SPEC-0.2 / AS pin tables use proposed names; this file keeps the current-vs-proposed inventory.
+2. **Do not implement the RTL/TB rename in the docs PRs.** No edits under `rtl/`, `tb/`, or `include/`.
 3. No waiver of lint/CDC/QoR. No new consecutive-green claim.
 4. Approval of Option A vs B was a human decision. **Luke chose Option B on 2026-09-08.** See [`CR-IFACE-RENAME-B-2026-09-08.md`](CR-IFACE-RENAME-B-2026-09-08.md). This file keeps the inventory; it does not implement the rename.
 

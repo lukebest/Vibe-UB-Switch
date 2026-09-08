@@ -9,7 +9,7 @@ Inventory and current-vs-proposed names stay in [`CR-IFACE-NAMING-DRAFT-2026-09-
 | Item | Value |
 |------|--------|
 | ID | CR-IFACE-RENAME-B-2026-09-08 |
-| Status | **APPROVED** — Option B. Rename **in progress** (pending Xia / Design / Verification). Do **not** claim rename done. |
+| Status | **APPROVED** — Option B (Luke, 2026-09-08). Xia SPEC/AS/CHANGELOG names: **landed** (docs follow-up). Design / Verification rename **in progress**. Do **not** claim rename done. |
 | Decision | **Option B** — formal CR + full interface rename to `{src}_{dst}_{meaning}` |
 | Chosen by | Luke |
 | Date | 2026-09-08 Asia/Shanghai |
@@ -53,12 +53,12 @@ Rename to match the draft inventory. No functional width or protocol change.
 
 | Owner | Work |
 |-------|------|
-| **Xia** | `docs/SPEC.md` and AS pin / datapath tables; SPEC / project CHANGELOG freeze-break note. Functional body semantics stay as frozen; names follow `{src}_{dst}_{meaning}`. |
+| **Xia** | `docs/SPEC.md` and AS pin / datapath tables; SPEC / project CHANGELOG freeze-break note. Functional body semantics stay as frozen; names follow `{src}_{dst}_{meaning}`. **Done** in the SPEC-0.2 docs PR (names ahead of RTL). |
 | **Design** | `rtl/` boundary ports on both ends of every draft §2 row (`vibe_nw_adapt`, `vibe_dll*`, `vibe_pcs_*`, `vibe_pma_bnd`, `vibe_port`, `vibe_ub_switch`, `vibe_fabric`, `vibe_mgmt` / `vibe_cna_ep` / `vibe_mgmt_byp`). |
 | **Verification** | `tb/` suite, units, dumpvars, waves, checker hier strings; re-gate after the new SHA. |
 | **芯片开发PM** | Acceptance of the CR and of the later rename landing. Not a signoff claim. |
 
-This docs PR records the approval only. It does **not** edit `rtl/`, `tb/`, or SPEC functional sections.
+This file is the **primary** Approved Option B record. It does **not** edit `rtl/` or `tb/`. SPEC/AS product interface names are updated in the Xia docs PR; functional semantics are not rewritten.
 
 ---
 
@@ -79,15 +79,15 @@ This docs PR records the approval only. It does **not** edit `rtl/`, `tb/`, or S
 1. **No functional width / protocol change.** Overlay B 512b, DLL↔PCS 640b window, PMA 512b without `_ready`, fire rules, and CFG6 / bypass paths stay as at `32a7f5e0`.
 2. **No signoff claim.** This CR is naming + change control only.
 3. **Path B still NOT PASS.** Sky130 scripts/docs only; no top map / STA chase.
-4. **Do not claim the rename is done** until Xia / Design / Verification land their pieces and PM accepts.
+4. **Do not claim the rename is done** until Design / Verification land `rtl/` / `tb/` and PM accepts.
 5. **No `ovf_l` ECO.** F1 is unchanged.
-6. **This file does not rewrite SPEC functional body.** Xia owns the freeze-break note and pin-table rename when the implementation CR lands.
+6. **This file does not rewrite SPEC functional body.** Xia pin-table + CHANGELOG freeze-break are in SPEC-0.2 / AS; widths and protocol stay as at `32a7f5e0`.
 
 ---
 
 ## 6. Next actions (owners)
 
-1. **Xia** — SPEC / AS pin tables + CHANGELOG freeze-break note when names land. Do not rewrite FS-0.2.7 behavior.
-2. **Design** — rename `rtl/` ports to the draft inventory.
+1. **Xia** — SPEC / AS pin tables + CHANGELOG freeze-break note. **Landed** (SPEC-0.2 CR-applied naming). Do not rewrite FS-0.2.7 behavior.
+2. **Design** — rename `rtl/` ports to the draft inventory. New RTL freeze SHA left blank for Design to fill.
 3. **Verification** — update `tb/` and re-gate against the new SHA; open a new consecutive-green series only after those reports land.
-4. **芯片开发PM** — accept the later landing; do not treat this approval record as rename-complete or as signoff.
+4. **芯片开发PM** — accept this docs landing and the later RTL/TB landing; do not treat this approval record as rename-complete or as signoff.

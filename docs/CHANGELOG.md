@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-08 (CR-B interface naming)
+
+### Changed
+
+- **Breaks** the SPEC-0.1 freeze aligned to RTL `32a7f5e0`, **naming only**. Record: [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md) (Luke Option B, 2026-09-08). Inventory: [`docs/cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md`](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md).
+- `docs/SPEC.md` → SPEC-0.2 **CR-applied（命名）**; `docs/Vibe-UB-Switch-architecture-spec.md` product / datapath tables use `{src}_{dst}_{meaning}` (`dll` not `dl`). Names updated in SPEC/AS **ahead of RTL**. Rename **in progress** (Design / Verification). Do not claim rename done.
+- Functional widths, fire rules, handshake semantics, and protocol are **unchanged**. Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is unchanged. Consecutive greens 3/3 void when the renamed DUT lands; new series only after reports against the new SHA.
+- New RTL freeze SHA: *(blank — Design fills after `rtl/` rename lands)* 
+
+### Added
+
+- SPEC §1.1 naming convention (tokens, `_vld`/`_ready`, clocks/resets exempt, approved interface table).
+
 ## Unreleased
 
 ### Changed

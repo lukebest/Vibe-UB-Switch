@@ -1,9 +1,10 @@
 # Vibe-UB-Switch Architecture Specification AS-0.1
 
-Status: locked subset for this RTL revision (AS-0.1).  
+Status: locked subset for this RTL revision (AS-0.1). Interface names follow CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`); rename in progress — names in this file are ahead of `rtl/`.  
 Function-spec alignment for this RTL: **FS-0.2.3** (true source is outside this repo; not modified here).  
 Sources: public Unified Bus (UB) 2.0 + this architecture spec only.  
-This document does not add musts beyond AS-0.1.
+This document does not add musts beyond AS-0.1.  
+CR-B: [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md). Inventory: [`docs/cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md`](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md).
 
 ---
 
@@ -38,10 +39,15 @@ This revision implements synthesizable Verilog/SystemVerilog RTL for the locked 
 ## 3. Clocks and product boundary
 
 - `clk_fab` 1.25 GHz: fabric, DLL, PCS digital, LMSM, mgmt.
-- Per port independent `txclk` / `rxclk` 922 MHz. Do not assume they are common.
-- Product PMA (NO extra handshake names): `txdata[511:0]`, `txclk`, `rxdata[511:0]`, `rxclk`.
+- Per port independent `txclk` / `rxclk` 922 MHz. Do not assume they are common. Clocks and resets are **exempt** from `{src}_{dst}_{meaning}`.
+- Product PMA (NO extra handshake names): `pcs_pma_txdata[511:0]`, `txclk`, `pma_pcs_rxdata[511:0]`, `rxclk`.
   - Slice: `[127:0]` = lane0, `[255:128]` = lane1, `[383:256]` = lane2, `[511:384]` = lane3.
-- NW↔DLL and NW↔fabric: 640-bit `data` + `vld`/`ready` @ `clk_fab`. LinkReady participates in ready (U21). No extra enable names.
+- Interface names: `{src}_{dst}_{meaning}`. Datalink token is **`dll`**, not `dl`. One name on both ends of a wire. Handshake suffix `_vld` / `_ready`.
+- NW↔DLL (Overlay B 512b @ `clk_fab`): `nw_dll_data` / `nw_dll_vld` / `nw_dll_ready` and `dll_nw_data` / `dll_nw_vld` / `dll_nw_ready`.
+- NW↔fabric (Overlay B 512b @ `clk_fab`): `fab_nw_data` / `fab_nw_vld` / `fab_nw_ready` and `nw_fab_data` / `nw_fab_vld` / `nw_fab_ready`.
+- DLL↔PCS window (640b @ `clk_fab`): `dll_pcs_data` / `dll_pcs_vld` / `dll_pcs_ready` and `pcs_dll_data` / `pcs_dll_vld` / `pcs_dll_ready`.
+- FAB↔mgmt: `fab_mgmt_cfg6_data` / `fab_mgmt_cfg6_hit`; consume `mgmt_fab_cfg6_consume`. Mgmt inject to NW (bypass, not xbar): `mgmt_nw_data` / `mgmt_nw_vld` / `mgmt_nw_ready`.
+- LinkReady participates in ready (U21). No extra enable names.
 - Flit = 20 bytes, never 640-bit.
 
 ---
@@ -72,15 +78,15 @@ No UBFM, no CAQM, no NPI filter datapath, no Transport/Transaction/Function endp
 
 | Stage | Function |
 |-------|----------|
-| T0 | `nw_adapt` 640b `vld`/`ready` |
-| T1 | `dll_tx`: slice 640b = 4 flits + BCRC; backpressure if credit low / retry full / REQ\|WAIT dropping data / pending credit ≥ 1024. Short EOP remainder is Null-padded to the next 4-flit group so the beat can emit; `dll_rx` drops that leftover after delivering the declared packet. |
+| T0 | `nw_adapt` Overlay B 512b: `fab_nw_*` / `nw_dll_*` `vld`/`ready`; mgmt inject `mgmt_nw_*` |
+| T1 | `dll_tx`: slice Overlay B 512b into 20-byte flits; emit one `dll_pcs_data[639:0]` beat (4 flits + BCRC) + `dll_pcs_vld`/`dll_pcs_ready`; backpressure if credit low / retry full / REQ\|WAIT dropping data / pending credit ≥ 1024. Short EOP remainder is Null-padded to the next 4-flit group so the beat can emit; `dll_rx` drops that leftover after delivering the declared packet. |
 | T2 | `pcs_tx_g1`: collect 6 flits (640b = 4 flits so 1.5 beats + 320b remainder). Idle: insert Null Block to fill FEC window. |
 | T3 | `pcs_tx_fec`: two RS(128,120) interleaved; T=4 default / T=2 / bypass (`3'b010` / `3'b001` / `3'b000`). Bypass skips encoder, still 6-flit align. |
 | T4 | `pcs_tx_cw2beat`: 1024b codeword as two 512b beats. |
 | T5 | `pcs_tx_pack` G2: 512b beats + AMCTL (outside FEC) → 640b = 4×160 into AFIFOs. `almost_full` backpresses. |
 | T6 | `afifo_tx` write 160b @ `clk_fab` |
 | T7 | read 128b @ `txclk` with 32b residue gearbox |
-| T8 | `pma_bnd` concatenates to `txdata`. NO PMA ready. |
+| T8 | `pma_bnd` concatenates to `pcs_pma_txdata`. NO PMA ready. |
 
 AMCTL: 40 symbol/lane, eBCH-16; data period every 640 symbols after SDF; other LMSM states every 512 symbols. Insert after FEC, before G2.
 
@@ -92,7 +98,7 @@ TX may backpressure NW stage by stage.
 
 ## 6. RX inverse
 
-`rxdata` 4×128 @ `rxclk` → `afifo_rx` (overflow: drop beat, count, irq; no PMA ready) → 160b @ `clk_fab` → unpack/strip AMCTL/deskew → 2×512 codeword → RS decode (fail → `fec_fail` to DLL for Go-Back-N; no `hi_FEC_BER`) → `dll_rx` BCRC + CFG0 terminate → `nw_adapt` 640b to fabric.
+`pma_pcs_rxdata` 4×128 @ `rxclk` → `afifo_rx` (overflow: drop beat, count, irq; no PMA ready) → 160b @ `clk_fab` → unpack/strip AMCTL/deskew → 2×512 codeword → RS decode (fail → `fec_fail` to DLL for Go-Back-N; no `hi_FEC_BER`) → `pcs_dll_*` → `dll_rx` BCRC + CFG0 terminate → `nw_adapt` `dll_nw_*` / `nw_fab_data[511:0]` to fabric.
 
 U24: no polarity/lane-swap training. Factory assume physical lane = logical. If `AMCTL.LID` not `{0,1,2,3}`, fail to Link_Idle or Retrain, do not swap lanes.
 
@@ -121,7 +127,7 @@ FECN: if `CCI.Mode` is `3'b100` or `3'b010`, and local congestion (VOQ occ ≥ `
 
 Deadlock timeout 1 µs = 1250 `clk_fab` cycles from VOQ enqueue; expire → drop+count+irq. Separate from credit-return 1 µs.
 
-xbar: output queued, ingress RR on conflict, one full packet per grant. Down ports get no data DLLDP. mgmt bypass FIFO does not enter xbar; mgmt reply injects on the ingress port's TX before `nw_adapt_tx`, priority over VOQ.
+xbar: output queued, ingress RR on conflict, one full packet per grant. Down ports get no data DLLDP. mgmt bypass FIFO does not enter xbar; mgmt reply injects on `mgmt_nw_*` on the ingress port's TX before `nw_adapt`, priority over VOQ.
 
 ---
 
@@ -286,7 +292,7 @@ Mode-2 PAM4 106.25 Gbit/s x4 symmetric only. FEC RS(128,120) T=4 / T=2 / bypass,
 ## 17. Coding rules
 
 - Verilog/SV, synthesizable. Explicit clocks/resets. No delays in RTL (`#0` ok in assertions only).
-- Top module `vibe_ub_switch` with 4-port PMA + `clk_fab` + `rst_n` (logical) + `cfg_wr_*` + `irq_logic`.
+- Top module `vibe_ub_switch` with 4-port PMA (`pcs_pma_txdata_*` / `pma_pcs_rxdata_*`) + `clk_fab` + `rst_n` (logical) + `cfg_wr_*` + `irq_logic`.
 - Comments cite this AS section, not prior-revision RTL.
 - If a protocol constant is unknown in AS, keep it a parameter; do not invent pin names.
 
@@ -297,7 +303,7 @@ Mode-2 PAM4 106.25 Gbit/s x4 symmetric only. FEC RS(128,120) T=4 / T=2 / bypass,
 Logical only:
 
 - `clk_fab`, `rst_n`
-- per port: `txclk`, `rxclk`, `txdata[511:0]`, `rxdata[511:0]`
+- per port: `txclk`, `rxclk`, `pcs_pma_txdata[511:0]` (top `pcs_pma_txdata_0`..`_3`), `pma_pcs_rxdata[511:0]` (top `pma_pcs_rxdata_0`..`_3`)
 - `cfg_wr_vld`, `cfg_wr_ready`, `cfg_wr_cmd`, `cfg_wr_idx[15:0]`, `cfg_wr_data[31:0]`
 - `irq_logic`
 
