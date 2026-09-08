@@ -5,9 +5,9 @@
 ### Changed
 
 - **Breaks** the SPEC-0.1 freeze aligned to RTL `32a7f5e0`, **naming only**. Record: [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md) (Luke Option B, 2026-09-08). Inventory: [`docs/cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md`](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md).
-- `docs/SPEC.md` → SPEC-0.2 **CR-applied（命名）**; `docs/Vibe-UB-Switch-architecture-spec.md` product / datapath tables use `{src}_{dst}_{meaning}` (`dll` not `dl`). Names updated in SPEC/AS **ahead of RTL**. Rename **in progress** (Design / Verification). Do not claim rename done.
-- Functional widths, fire rules, handshake semantics, and protocol are **unchanged**. Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is unchanged. Consecutive greens 3/3 void when the renamed DUT lands; new series only after reports against the new SHA.
-- New RTL freeze SHA: *(blank — Design fills after `rtl/` rename lands)* 
+- `docs/SPEC.md` → SPEC-0.2 **CR-applied（命名）**; `docs/Vibe-UB-Switch-architecture-spec.md` product / datapath tables use `{src}_{dst}_{meaning}` (`dll` not `dl`). RTL ports landed at freeze SHA `1ed4d350` (PR51 merge `777865f0` / `777865f073faba87a564f876636db1ebe0e19790`). Old freeze `32a7f5e0` is **superseded for ports**.
+- Functional widths, fire rules, handshake semantics, and protocol are **unchanged**. Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is unchanged. Consecutive greens 3/3 **voided** (renamed DUT landed); new series only after reports against `1ed4d350`.
+- New RTL freeze SHA: `1ed4d350` (`1ed4d35006848e6275e93d9bd2fc4e7f7af348f1`). Merge: `777865f0` (`777865f073faba87a564f876636db1ebe0e19790`). Same role as old `32a7f5e0`, now superseded for ports. 
 
 ### Added
 

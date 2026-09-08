@@ -3,8 +3,8 @@
 | 项 | 内容 |
 |----|------|
 | 文档编号 | SPEC-0.2 |
-| 状态 | **CR-applied（命名）** — 进行中 |
-| 前版冻结 | SPEC-0.1 **已冻结**（2026-09-03，人批准），对齐 RTL `32a7f5e0` |
+| 状态 | **CR-applied（命名）** — RTL 端口已落地 `1ed4d350` |
+| 前版冻结 | SPEC-0.1 **已冻结**（2026-09-03，人批准），对齐 RTL `32a7f5e0`（端口冻结已由 `1ed4d350` 取代） |
 | 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — Luke 批准 Option B（2026-09-08 Asia/Shanghai） |
 | 作者 | Xia |
 | 协议 | Unified Bus (UB) Base 2.0 |
@@ -12,12 +12,13 @@
 | 对齐架构 | [AS-0.1](Vibe-UB-Switch-architecture-spec.md) / AS-0.1.2，含 Overlay B |
 | 对齐固件头 | [`include/vibe_ub_switch_regs.h`](../include/vibe_ub_switch_regs.h)（PR21 / `main`） |
 | 对齐寄存器手册 | [Vibe-UB-Switch-register-map.md](Vibe-UB-Switch-register-map.md) |
-| 对齐 RTL（功能） | SHA `32a7f5e0`（功能宽度 / 协议 / 握手语义仍对齐该 SHA；**不是**功能改写） |
-| 接口名 | `{src}_{dst}_{meaning}`，datalink token 为 **`dll`**（不是 `dl`）。RTL 端口更名尚未落地 |
+| 对齐 RTL（端口冻结） | SHA `1ed4d350`（`1ed4d35006848e6275e93d9bd2fc4e7f7af348f1`）；merge `777865f0`。旧冻结 `32a7f5e0` 对端口已失效 |
+| 对齐 RTL（功能） | 宽度 / 协议 / 握手语义仍同 `32a7f5e0`；**不是**功能改写 |
+| 接口名 | `{src}_{dst}_{meaning}`，datalink token 为 **`dll`**（不是 `dl`）。RTL 端口更名已落地 `1ed4d350` |
 
-本文件是冻结门：芯片开发 PM 据此验收。SPEC-0.1 于 2026-09-03 人批准、对齐 RTL `32a7f5e0`。**CR-B 打破该冻结，仅限接口命名**；功能宽度、时序、fire 规则与协议不变。更名进行中：本文件产品接口表已用 CR-B 名；`rtl/` 仍为 `32a7f5e0` 旧脚名，直至 Design 落地。
+本文件是冻结门：芯片开发 PM 据此验收。SPEC-0.1 于 2026-09-03 人批准、对齐 RTL `32a7f5e0`。**CR-B 打破该冻结，仅限接口命名**；功能宽度、时序、fire 规则与协议不变。RTL 端口更名已落地：本文件产品接口表与 `rtl/` 均为 CR-B 名；端口冻结 SHA 为 `1ed4d350`（PR51 merge `777865f0`）。旧冻结 `32a7f5e0` 对端口已失效。
 
-本修订不改写 FS-0.2.7 已实现功能。SHA `32a7f5e0` 只标明对齐的功能 RTL，不构成规格功能变更。
+本修订不改写 FS-0.2.7 已实现功能。`1ed4d350` 是新的端口冻结 SHA（角色同旧 `32a7f5e0`）。`32a7f5e0` 只标明功能宽度 / 协议 / 握手语义未改，不构成规格功能变更。
 
 覆盖空洞（`tb/vibe/results/COVERAGE_HOLES.md` 九项 HOLE）以及其余不在本冻结范围内的项，一律放在 **§非目标**。需求正文只写已锁定事实，不写未发布占位。
 
@@ -545,12 +546,12 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 
 | 项 | 规则 |
 |----|------|
-| 当前状态 | **CR-applied（命名）** — SPEC-0.2 进行中。SPEC-0.1 冻结（2026-09-03 / RTL `32a7f5e0`）已被 CR-B 打破，**仅限命名** |
+| 当前状态 | **CR-applied（命名）** — SPEC-0.2。SPEC-0.1 冻结（2026-09-03 / RTL `32a7f5e0`）已被 CR-B 打破，**仅限命名**。RTL 端口已落地 `1ed4d350` |
 | 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md)（Luke Option B，2026-09-08）。清单 [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) |
 | 再变更接口 | `cfg_wr_*`、`irq_logic`、PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、NW `nw_dll_*`/`dll_nw_*`/`fab_nw_*`/`nw_fab_*` 的**语义**须变更请求 |
-| 功能改写 | 不得以“对齐 SHA `32a7f5e0`”或“CR-B 命名”为由改写 FS-0.2.7 已锁定行为 |
+| 功能改写 | 不得以“对齐 SHA `32a7f5e0` / `1ed4d350`”或“CR-B 命名”为由改写 FS-0.2.7 已锁定行为 |
 | 空洞升级 | §非目标项若要进入冻结正文，须变更请求，并更新本文件版本号 |
-| RTL 更名 | 未落地。新冻结 SHA 由 Design 在 `rtl/` 端口更名后填写 |
+| RTL 更名 | 已落地。新端口冻结 SHA `1ed4d350`（`1ed4d35006848e6275e93d9bd2fc4e7f7af348f1`）；merge `777865f0`。旧冻结 `32a7f5e0` 对端口已失效 |
 
 ---
 
@@ -565,4 +566,4 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 - [`reports/synth/`](../reports/synth/) — 实现 QoR（非本 SPEC 必须项）
 - [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — 接口命名 Option B
 - [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) — current→proposed 清单
-- RTL SHA `32a7f5e0`（功能对齐；端口名按本 CR，RTL 未更名）
+- RTL SHA `1ed4d350`（端口冻结；PR51 merge `777865f0`）。功能宽度 / 协议 / 握手语义仍同 `32a7f5e0`
