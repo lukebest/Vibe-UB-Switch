@@ -24,6 +24,11 @@ module vibe_xbar (
   logic [1:0] win;
 
   always @* begin
+    // Full combo defaults: req/win were only written on the unlocked-up
+    // path, so Verilator inferred LATCH. Arbitration is unchanged —
+    // unlocked ports still rebuild req and start win at rr[e].
+    req = 4'd0;
+    win = 2'd0;
     for (e = 0; e < 4; e = e + 1) begin
       in_ready[e] = 1'b0;
       out_data[e] = 512'd0;
@@ -32,6 +37,8 @@ module vibe_xbar (
       out_eop[e]  = 1'b0;
     end
     for (e = 0; e < 4; e = e + 1) begin
+      req = 4'd0;
+      win = 2'd0;
       if (!status_up[e]) begin
         // Down ports get no data DLLDP
       end else if (locked[e]) begin
@@ -43,7 +50,6 @@ module vibe_xbar (
           in_ready[lock[e]]     = 1'b1;
         end
       end else begin
-        req = 4'd0;
         for (i = 0; i < 4; i = i + 1)
           if (in_vld[i] && in_dst[i] == e[1:0]) req[i] = 1'b1;
         win = rr[e];

@@ -34,6 +34,12 @@ module vibe_saf_ing #(
   assign pkt_eop  = pkt_vld && (rptr + 7'd1 == wptr);
   assign pkt_bytes= bytes;
 
+  // Header-derived temps are combo, not sequential blocking assigns (BLKSEQ).
+  always @* begin
+    plen   = vibe_lph_plength(vibe_nw512_flit0(in_data));
+    dflits = vibe_decl_flits(plen);
+  end
+
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       wptr        <= 7'd0;
@@ -51,8 +57,6 @@ module vibe_saf_ing #(
         wptr      <= wptr + 7'd1;
         if (!assembling) begin
           assembling <= 1'b1;
-          plen       = vibe_lph_plength(vibe_nw512_flit0(in_data));
-          dflits     = vibe_decl_flits(plen);
           decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
           bytes      <= dflits * 20;
           beat_cnt   <= 7'd1;
