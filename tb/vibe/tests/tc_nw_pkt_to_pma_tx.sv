@@ -239,8 +239,8 @@ module tc_nw_pkt_to_pma_tx;
       @(posedge clk_fab);
       if (glv && u_p.pcs_afifo_lane_vld) begin
         lane_n = lane_n + 1;
-        if (gl0 !== u_p.txl0 || gl1 !== u_p.txl1 ||
-            gl2 !== u_p.txl2 || gl3 !== u_p.txl3)
+        if (gl0 !== u_p.pcs_afifo_lane0 || gl1 !== u_p.pcs_afifo_lane1 ||
+            gl2 !== u_p.pcs_afifo_lane2 || gl3 !== u_p.pcs_afifo_lane3)
           lane_mis = lane_mis + 1;
       end
       @(posedge txclk);
@@ -282,7 +282,7 @@ module tc_nw_pkt_to_pma_tx;
       fail_at("TB golden vibe_pcs_tx (T=4, same dll_pcs_data stream, AMCTL in both)",
               "DUT lane0..3 match golden lanes whenever both lane_vld",
               "see detail line",
-              "u_gold_pcs.lane* vs u_p.txl*");
+              "u_gold_pcs.pcs_afifo_lane* vs u_p.pcs_afifo_lane*");
       $finish;
     end
     if (gold_n == 0 || !gold_ok) begin
