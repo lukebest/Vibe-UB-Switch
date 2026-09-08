@@ -22,7 +22,12 @@ module vibe_xbar (
   integer     e, i;
   logic [3:0] req;
   logic [1:0] win;
+  logic [3:0] cand_vld;
+  logic [1:0] cand_src [0:3];
 
+  // Candidate grant is independent of out_ready so VOQ wr_vl (from
+  // out_data/out_sop) cannot combo-loop with wr_ready (UNOPTFLAT xb_r).
+  // Accept (out_vld / in_ready) still requires out_ready — same fire.
   always @* begin
     // Full combo defaults: req/win were only written on the unlocked-up
     // path, so Verilator inferred LATCH. Arbitration is unchanged —
@@ -30,11 +35,11 @@ module vibe_xbar (
     req = 4'd0;
     win = 2'd0;
     for (e = 0; e < 4; e = e + 1) begin
-      in_ready[e] = 1'b0;
       out_data[e] = 512'd0;
-      out_vld[e]  = 1'b0;
       out_sop[e]  = 1'b0;
       out_eop[e]  = 1'b0;
+      cand_vld[e] = 1'b0;
+      cand_src[e] = 2'd0;
     end
     for (e = 0; e < 4; e = e + 1) begin
       req = 4'd0;
@@ -42,28 +47,41 @@ module vibe_xbar (
       if (!status_up[e]) begin
         // Down ports get no data DLLDP
       end else if (locked[e]) begin
-        if (in_vld[lock[e]] && in_dst[lock[e]] == e[1:0] && out_ready[e]) begin
-          out_data[e]           = in_data[lock[e]];
-          out_vld[e]            = 1'b1;
-          out_sop[e]            = in_sop[lock[e]];
-          out_eop[e]            = in_eop[lock[e]];
-          in_ready[lock[e]]     = 1'b1;
+        if (in_vld[lock[e]] && in_dst[lock[e]] == e[1:0]) begin
+          out_data[e] = in_data[lock[e]];
+          out_sop[e]  = in_sop[lock[e]];
+          out_eop[e]  = in_eop[lock[e]];
+          cand_vld[e] = 1'b1;
+          cand_src[e] = lock[e];
         end
       end else begin
         for (i = 0; i < 4; i = i + 1)
           if (in_vld[i] && in_dst[i] == e[1:0]) req[i] = 1'b1;
         win = rr[e];
         for (i = 0; i < 4; i = i + 1) begin
-          if (req[win] && out_ready[e]) begin
-            out_data[e]   = in_data[win];
-            out_vld[e]    = 1'b1;
-            out_sop[e]    = in_sop[win];
-            out_eop[e]    = in_eop[win];
-            in_ready[win] = 1'b1;
+          if (req[win]) begin
+            out_data[e] = in_data[win];
+            out_sop[e]  = in_sop[win];
+            out_eop[e]  = in_eop[win];
+            cand_vld[e] = 1'b1;
+            cand_src[e] = win;
             i = 4;
           end else
             win = win + 2'd1;
         end
+      end
+    end
+  end
+
+  always @* begin
+    for (e = 0; e < 4; e = e + 1) begin
+      in_ready[e] = 1'b0;
+      out_vld[e]  = 1'b0;
+    end
+    for (e = 0; e < 4; e = e + 1) begin
+      if (cand_vld[e] && out_ready[e]) begin
+        out_vld[e]            = 1'b1;
+        in_ready[cand_src[e]] = 1'b1;
       end
     end
   end

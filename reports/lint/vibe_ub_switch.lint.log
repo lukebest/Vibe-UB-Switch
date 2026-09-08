@@ -14,15 +14,15 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:49:73: Cell pin connected by name with empty reference: 'sdf'
    49 |     .locked(am_locked[3]), .lid(lid3), .lid_bad(bad3), .is_amctl(am3), .sdf(), .edf(edf3));
       |                                                                         ^~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:84:65: Cell pin connected by name with empty reference: 'out_vld'
-   84 |     .en(lane_vld && !am1), .in_vld(lane_vld), .in_data(lane1), .out_vld(), .out_data(d1));
-      |                                                                 ^~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:87:65: Cell pin connected by name with empty reference: 'out_vld'
-   87 |     .en(lane_vld && !am2), .in_vld(lane_vld), .in_data(lane2), .out_vld(), .out_data(d2));
-      |                                                                 ^~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:90:65: Cell pin connected by name with empty reference: 'out_vld'
-   90 |     .en(lane_vld && !am3), .in_vld(lane_vld), .in_data(lane3), .out_vld(), .out_data(d3));
-      |                                                                 ^~~~~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:84:95: Cell pin connected by name with empty reference: 'out_vld'
+   84 |     .en(afifo_pcs_lane_vld && !am1), .in_vld(afifo_pcs_lane_vld), .in_data(afifo_pcs_lane1), .out_vld(), .out_data(d1));
+      |                                                                                               ^~~~~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:87:95: Cell pin connected by name with empty reference: 'out_vld'
+   87 |     .en(afifo_pcs_lane_vld && !am2), .in_vld(afifo_pcs_lane_vld), .in_data(afifo_pcs_lane2), .out_vld(), .out_data(d2));
+      |                                                                                               ^~~~~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:90:95: Cell pin connected by name with empty reference: 'out_vld'
+   90 |     .en(afifo_pcs_lane_vld && !am3), .in_vld(afifo_pcs_lane_vld), .in_data(afifo_pcs_lane3), .out_vld(), .out_data(d3));
+      |                                                                                               ^~~~~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx.sv:59:51: Cell pin connected by name with empty reference: 'out_vld'
    59 |     .en(!am_word), .in_vld(p_vld), .in_data(p1), .out_vld(), .out_data(s1));
       |                                                   ^~~~~~~
@@ -50,14 +50,14 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:131:43: Cell pin connected by name with empty reference: 'drop_down_cnt'
   131 |         .egr(egr[gi]), .drop(pdrop[gi]), .drop_down_cnt()
       |                                           ^~~~~~~~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:262:56: Cell pin connected by name with empty reference: 'rd_eop'
-  262 |         .rd_data(egr_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
-      |                                                        ^~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:264:45: Cell pin connected by name with empty reference: 'deadlock_cnt'
-  264 |         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:269:59: Cell pin connected by name with empty reference: 'rd_eop'
+  269 |         .rd_data(fab_nw_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
+      |                                                           ^~~~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:271:45: Cell pin connected by name with empty reference: 'deadlock_cnt'
+  271 |         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
       |                                             ^~~~~~~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:276:10: Cell pin connected by name with empty reference: 'marked'
-  276 |         .marked()
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:283:10: Cell pin connected by name with empty reference: 'marked'
+  283 |         .marked()
       |          ^~~~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/mgmt/vibe_mgmt.sv:60:6: Cell pin connected by name with empty reference: 'guid0'
    60 |     .guid0(), .class_code(), .port_basic(), .port_cap()
@@ -71,41 +71,41 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/mgmt/vibe_mgmt.sv:60:46: Cell pin connected by name with empty reference: 'port_cap'
    60 |     .guid0(), .class_code(), .port_basic(), .port_cap()
       |                                              ^~~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:115:6: Cell pin connected by name with empty reference: 'wfull'
-  115 |     .wfull(), .almost_full(af_tx[0]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:116:6: Cell pin connected by name with empty reference: 'wfull'
+  116 |     .wfull(), .almost_full(af_tx[0]), .wocc(),
       |      ^~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:115:40: Cell pin connected by name with empty reference: 'wocc'
-  115 |     .wfull(), .almost_full(af_tx[0]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:116:40: Cell pin connected by name with empty reference: 'wocc'
+  116 |     .wfull(), .almost_full(af_tx[0]), .wocc(),
       |                                        ^~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:120:6: Cell pin connected by name with empty reference: 'wfull'
-  120 |     .wfull(), .almost_full(af_tx[1]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:121:6: Cell pin connected by name with empty reference: 'wfull'
+  121 |     .wfull(), .almost_full(af_tx[1]), .wocc(),
       |      ^~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:120:40: Cell pin connected by name with empty reference: 'wocc'
-  120 |     .wfull(), .almost_full(af_tx[1]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:121:40: Cell pin connected by name with empty reference: 'wocc'
+  121 |     .wfull(), .almost_full(af_tx[1]), .wocc(),
       |                                        ^~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:125:6: Cell pin connected by name with empty reference: 'wfull'
-  125 |     .wfull(), .almost_full(af_tx[2]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:126:6: Cell pin connected by name with empty reference: 'wfull'
+  126 |     .wfull(), .almost_full(af_tx[2]), .wocc(),
       |      ^~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:125:40: Cell pin connected by name with empty reference: 'wocc'
-  125 |     .wfull(), .almost_full(af_tx[2]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:126:40: Cell pin connected by name with empty reference: 'wocc'
+  126 |     .wfull(), .almost_full(af_tx[2]), .wocc(),
       |                                        ^~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:130:6: Cell pin connected by name with empty reference: 'wfull'
-  130 |     .wfull(), .almost_full(af_tx[3]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:131:6: Cell pin connected by name with empty reference: 'wfull'
+  131 |     .wfull(), .almost_full(af_tx[3]), .wocc(),
       |      ^~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:130:40: Cell pin connected by name with empty reference: 'wocc'
-  130 |     .wfull(), .almost_full(af_tx[3]), .wocc(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:131:40: Cell pin connected by name with empty reference: 'wocc'
+  131 |     .wfull(), .almost_full(af_tx[3]), .wocc(),
       |                                        ^~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:207:43: Cell pin connected by name with empty reference: 'wocc'
-  207 |     .wfull(wf0), .almost_full(af_rx[0]), .wocc(),
-      |                                           ^~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:212:43: Cell pin connected by name with empty reference: 'wocc'
-  212 |     .wfull(wf1), .almost_full(af_rx[1]), .wocc(),
+  212 |     .wfull(wf0), .almost_full(af_rx[0]), .wocc(),
       |                                           ^~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:217:43: Cell pin connected by name with empty reference: 'wocc'
-  217 |     .wfull(wf2), .almost_full(af_rx[2]), .wocc(),
+  217 |     .wfull(wf1), .almost_full(af_rx[1]), .wocc(),
       |                                           ^~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:222:43: Cell pin connected by name with empty reference: 'wocc'
-  222 |     .wfull(wf3), .almost_full(af_rx[3]), .wocc(),
+  222 |     .wfull(wf2), .almost_full(af_rx[2]), .wocc(),
+      |                                           ^~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/port/vibe_port.sv:227:43: Cell pin connected by name with empty reference: 'wocc'
+  227 |     .wfull(wf3), .almost_full(af_rx[3]), .wocc(),
       |                                           ^~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/top/vibe_ub_switch.sv:84:10: Cell pin connected by name with empty reference: 'cfg0_hit'
    84 |         .cfg0_hit(), .cfg0_data()
@@ -324,13 +324,13 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
   125 |     vibe_nw512_decl_beats = (b + 16'd63) >> 6;
       |                           ^
                      /workspace/rtl/fabric/vibe_saf_ing.sv:21:1: ... note: In file included from 'vibe_saf_ing.sv'
-%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:56:22: Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's FUNCREF 'vibe_nw512_decl_beats' generates 8 bits.
+%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:60:22: Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's FUNCREF 'vibe_nw512_decl_beats' generates 8 bits.
                                                                 : ... note: In instance 'vibe_ub_switch.u_fab.g_saf[3].u_saf'
-   56 |           decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
+   60 |           decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
       |                      ^~
-%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:57:22: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's MULS generates 32 bits.
+%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:61:22: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's MULS generates 32 bits.
                                                                 : ... note: In instance 'vibe_ub_switch.u_fab.g_saf[3].u_saf'
-   57 |           bytes      <= dflits * 20;
+   61 |           bytes      <= dflits * 20;
       |                      ^~
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:94:25: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 4 bits.
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_prx'
@@ -376,10 +376,10 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                                                                  : ... note: In instance 'vibe_ub_switch'
    32 |   logic [3:0]   status_up, disabled;
       |                            ^~~~~~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/top/vibe_ub_switch.sv:48:51: Signal is not used: 'cfg6_cons'
+%Warning-UNUSEDSIGNAL: /workspace/rtl/top/vibe_ub_switch.sv:48:60: Signal is not used: 'mgmt_fab_cfg6_consume'
                                                                  : ... note: In instance 'vibe_ub_switch'
-   48 |   logic [3:0]   len_err, deadlock_drop, cfg6_hit, cfg6_cons;
-      |                                                   ^~~~~~~~~
+   48 |   logic [3:0]   len_err, deadlock_drop, fab_mgmt_cfg6_hit, mgmt_fab_cfg6_consume;
+      |                                                            ^~~~~~~~~~~~~~~~~~~~~
 %Warning-UNUSEDSIGNAL: /workspace/rtl/top/vibe_ub_switch.sv:50:17: Signal is not used: 'rt_shortest_unimpl'
                                                                  : ... note: In instance 'vibe_ub_switch'
    50 |   logic [31:0]  rt_shortest_unimpl, drop_down;
@@ -978,37 +978,13 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                                                              : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
    38 |   logic        lid_bad, deskew_ok, fec_fail, retrain_req;
       |                         ^~~~~~~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:45:17: Signal is not driven, nor used: 'rxl0'
+%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:52:23: Signal is not used: 'af_rx'
                                                              : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   45 |   logic [159:0] rxl0, rxl1, rxl2, rxl3;
-      |                 ^~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:45:23: Signal is not driven, nor used: 'rxl1'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   45 |   logic [159:0] rxl0, rxl1, rxl2, rxl3;
-      |                       ^~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:45:29: Signal is not driven, nor used: 'rxl2'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   45 |   logic [159:0] rxl0, rxl1, rxl2, rxl3;
-      |                             ^~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:45:35: Signal is not driven, nor used: 'rxl3'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   45 |   logic [159:0] rxl0, rxl1, rxl2, rxl3;
-      |                                   ^~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:46:16: Signal is not driven, nor used: 'rxlv'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   46 |   logic        rxlv;
-      |                ^~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:51:23: Signal is not used: 'af_rx'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   51 |   logic [3:0]  af_tx, af_rx, afr_e;
+   52 |   logic [3:0]  af_tx, af_rx;
       |                       ^~~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:51:30: Signal is not driven, nor used: 'afr_e'
-                                                             : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-   51 |   logic [3:0]  af_tx, af_rx, afr_e;
-      |                              ^~~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:180:17: Signal is not used: 'rx_got'
+%Warning-UNUSEDSIGNAL: /workspace/rtl/port/vibe_port.sv:184:17: Signal is not used: 'rx_got'
                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port'
-  180 |   logic [3:0]   rx_got;
+  184 |   logic [3:0]   rx_got;
       |                 ^~~~~~
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:5:16: Parameter is not used: 'VIBE_FLIT_W'
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
@@ -2540,10 +2516,10 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                                                               : ... note: In instance 'vibe_ub_switch.u_mgmt.u_cna'
     9 |   input  logic         rst_n,
       |                        ^~~~~
-%Warning-UNUSEDSIGNAL: /workspace/rtl/mgmt/vibe_cna_ep.sv:17:24: Signal is not used: 'reply_ready'
+%Warning-UNUSEDSIGNAL: /workspace/rtl/mgmt/vibe_cna_ep.sv:17:24: Signal is not used: 'mgmt_nw_ready'
                                                                : ... note: In instance 'vibe_ub_switch.u_mgmt.u_cna'
-   17 |   input  logic [3:0]   reply_ready,
-      |                        ^~~~~~~~~~~
+   17 |   input  logic [3:0]   mgmt_nw_ready,
+      |                        ^~~~~~~~~~~~~
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:5:23: Bits of signal are not used: 'flit'[159:12,7:0]
                                                                : ... note: In instance 'vibe_ub_switch.u_mgmt.u_cna'
     5 |   input logic [159:0] flit;
@@ -5276,40 +5252,3 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
   105 |   input logic [511:0] beat;
       |                       ^~~~
                        /workspace/rtl/pcs/vibe_rs128_120_enc.sv:14:1: ... note: In file included from 'vibe_rs128_120_enc.sv'
-%Warning-LATCH: /workspace/rtl/fabric/vibe_xbar.sv:26:3: Latch inferred for signal 'vibe_ub_switch.u_fab.u_xbar.req' (not all control paths of combinational always assign a value)
-                                                       : ... Suggest use of always_latch for intentional latches
-   26 |   always @* begin
-      |   ^~~~~~
-%Warning-LATCH: /workspace/rtl/fabric/vibe_xbar.sv:26:3: Latch inferred for signal 'vibe_ub_switch.u_fab.u_xbar.win' (not all control paths of combinational always assign a value)
-                                                       : ... Suggest use of always_latch for intentional latches
-   26 |   always @* begin
-      |   ^~~~~~
-%Warning-BLKSEQ: /workspace/rtl/fabric/vibe_saf_ing.sv:54:22: Blocking assignment '=' in sequential logic process
-                                                            : ... Suggest using delayed assignment '<='
-   54 |           plen       = vibe_lph_plength(vibe_nw512_flit0(in_data));
-      |                      ^
-%Warning-BLKSEQ: /workspace/rtl/fabric/vibe_saf_ing.sv:55:22: Blocking assignment '=' in sequential logic process
-                                                            : ... Suggest using delayed assignment '<='
-   55 |           dflits     = vibe_decl_flits(plen);
-      |                      ^
-%Warning-UNOPTFLAT: /workspace/rtl/fabric/vibe_fabric.sv:223:15: Signal unoptimizable: Circular combinational logic: 'vibe_ub_switch.u_fab.x_in_v'
-  223 |   logic [3:0] x_in_v;
-      |               ^~~~~~
-                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
-                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS
-                    /workspace/rtl/fabric/vibe_fabric.sv:140:51:      Example path: vibe_ub_switch.u_fab.xb_in_r
-                    /workspace/rtl/fabric/vibe_fabric.sv:182:3:      Example path: ALWAYS
-                    /workspace/rtl/top/vibe_ub_switch.sv:48:41:      Example path: vibe_ub_switch.cfg6_hit
-                    /workspace/rtl/fabric/vibe_fabric.sv:224:3:      Example path: ALWAYS
-                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
-%Warning-UNOPTFLAT: /workspace/rtl/fabric/vibe_fabric.sv:50:39: Signal unoptimizable: Circular combinational logic: 'vibe_ub_switch.u_fab.xb_r'
-   50 |   logic [3:0]   xb_v, xb_sop, xb_eop, xb_r;
-      |                                       ^~~~
-                    /workspace/rtl/fabric/vibe_fabric.sv:50:39:      Example path: vibe_ub_switch.u_fab.xb_r
-                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS
-                    /workspace/rtl/fabric/vibe_fabric.sv:140:51:      Example path: vibe_ub_switch.u_fab.xb_in_r
-                    /workspace/rtl/fabric/vibe_fabric.sv:182:3:      Example path: ALWAYS
-                    /workspace/rtl/top/vibe_ub_switch.sv:48:41:      Example path: vibe_ub_switch.cfg6_hit
-                    /workspace/rtl/fabric/vibe_fabric.sv:224:3:      Example path: ALWAYS
-                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
-                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS
