@@ -4,33 +4,33 @@ module vibe_nw_adapt (
   input  logic         clk,
   input  logic         rst_n,
   input  logic         link_ready,
-  // fabric / VOQ → TX
-  input  logic [511:0] fab_tx_data,
-  input  logic         fab_tx_vld,
-  output logic         fab_tx_ready,
-  // mgmt inject (priority)
-  input  logic [511:0] mgmt_tx_data,
-  input  logic         mgmt_tx_vld,
-  output logic         mgmt_tx_ready,
-  // to DLL TX
-  output logic [511:0] dll_tx_data,
-  output logic         dll_tx_vld,
-  input  logic         dll_tx_ready,
-  // from DLL RX
-  input  logic [511:0] dll_rx_data,
-  input  logic         dll_rx_vld,
-  output logic         dll_rx_ready,
-  // to fabric ingress
-  output logic [511:0] fab_rx_data,
-  output logic         fab_rx_vld,
-  input  logic         fab_rx_ready
+  // FAB → NW (VOQ egress)
+  input  logic [511:0] fab_nw_data,
+  input  logic         fab_nw_vld,
+  output logic         fab_nw_ready,
+  // mgmt → NW inject (priority)
+  input  logic [511:0] mgmt_nw_data,
+  input  logic         mgmt_nw_vld,
+  output logic         mgmt_nw_ready,
+  // NW → DLL
+  output logic [511:0] nw_dll_data,
+  output logic         nw_dll_vld,
+  input  logic         nw_dll_ready,
+  // DLL → NW
+  input  logic [511:0] dll_nw_data,
+  input  logic         dll_nw_vld,
+  output logic         dll_nw_ready,
+  // NW → FAB (SAF ingress)
+  output logic [511:0] nw_fab_data,
+  output logic         nw_fab_vld,
+  input  logic         nw_fab_ready
 );
-  assign mgmt_tx_ready = link_ready && dll_tx_ready;
-  assign fab_tx_ready  = link_ready && dll_tx_ready && !mgmt_tx_vld;
-  assign dll_tx_vld    = link_ready && (mgmt_tx_vld || fab_tx_vld);
-  assign dll_tx_data   = mgmt_tx_vld ? mgmt_tx_data : fab_tx_data;
+  assign mgmt_nw_ready = link_ready && nw_dll_ready;
+  assign fab_nw_ready  = link_ready && nw_dll_ready && !mgmt_nw_vld;
+  assign nw_dll_vld    = link_ready && (mgmt_nw_vld || fab_nw_vld);
+  assign nw_dll_data   = mgmt_nw_vld ? mgmt_nw_data : fab_nw_data;
 
-  assign dll_rx_ready = fab_rx_ready;
-  assign fab_rx_vld   = dll_rx_vld;
-  assign fab_rx_data  = dll_rx_data;
+  assign dll_nw_ready = nw_fab_ready;
+  assign nw_fab_vld   = dll_nw_vld;
+  assign nw_fab_data  = dll_nw_data;
 endmodule

@@ -11,12 +11,12 @@ module vibe_fabric #(
   input  logic         rt_wr_en,
   input  logic [15:0]  rt_wr_idx,
   input  logic [31:0]  rt_wr_data,
-  input  logic [511:0] ing_data [0:3],
-  input  logic [3:0]   ing_vld,
-  output logic [3:0]   ing_ready,
-  output logic [511:0] egr_data [0:3],
-  output logic [3:0]   egr_vld,
-  input  logic [3:0]   egr_ready,
+  input  logic [511:0] nw_fab_data [0:3],
+  input  logic [3:0]   nw_fab_vld,
+  output logic [3:0]   nw_fab_ready,
+  output logic [511:0] fab_nw_data [0:3],
+  output logic [3:0]   fab_nw_vld,
+  input  logic [3:0]   fab_nw_ready,
   output logic [3:0]   len_err,
   output logic         drop_g1,
   output logic [31:0]  rt_shortest_unimpl,
@@ -27,8 +27,8 @@ module vibe_fabric #(
   input  logic [15:0]  cna,
   input  logic         cna_written,
   // to cna_ep: only terminate-class CFG6 (not all CFG6)
-  output logic [3:0]   cfg6_hit,
-  output logic [511:0] cfg6_data [0:3]
+  output logic [3:0]   fab_mgmt_cfg6_hit,
+  output logic [511:0] fab_mgmt_cfg6_data [0:3]
 );
   `include "vibe_ub_fn.vh"
   `include "vibe_ub_params.vh"
@@ -60,7 +60,7 @@ module vibe_fabric #(
     for (gi = 0; gi < 4; gi = gi + 1) begin : g_saf
       vibe_saf_ing #(.DEPTH(VIBE_SAF_PKT_DEPTH)) u_saf (
         .clk(clk), .rst_n(rst_n),
-        .in_data(ing_data[gi]), .in_vld(ing_vld[gi]), .in_ready(ing_ready[gi]),
+        .in_data(nw_fab_data[gi]), .in_vld(nw_fab_vld[gi]), .in_ready(nw_fab_ready[gi]),
         .pkt_data(saf_d[gi]), .pkt_vld(saf_v[gi]), .pkt_ready(saf_r[gi]),
         .pkt_sop(saf_sop[gi]), .pkt_eop(saf_eop[gi]),
         .pkt_bytes(saf_b[gi]), .len_err(len_err[gi])
@@ -184,12 +184,12 @@ module vibe_fabric #(
       cfg6_term[p] = saf_v[p] &&
                      (vibe_lph_cfg(hdr[p]) == 4'd6) &&
                      vibe_cfg6_should_term(cna_written, cna, hdr[p]);
-      cfg6_hit[p]  = cfg6_term[p] || cfg6_drain[p];
-      cfg6_data[p] = saf_sop[p] ? saf_d[p] : cfg6_hold[p];
+      fab_mgmt_cfg6_hit[p]  = cfg6_term[p] || cfg6_drain[p];
+      fab_mgmt_cfg6_data[p] = saf_sop[p] ? saf_d[p] : cfg6_hold[p];
       // Drain G1 drops and terminate-CFG6; non-term CFG6 uses xbar ready.
       saf_r[p]     = g1_evt[p] || g1_drain[p] || pdrop[p] ||
                      cfg6_term[p] || cfg6_drain[p] ||
-                     (xb_in_r[p] && !g1_comb[p] && !cfg6_hit[p]);
+                     (xb_in_r[p] && !g1_comb[p] && !fab_mgmt_cfg6_hit[p]);
     end
   end
 
@@ -223,7 +223,7 @@ module vibe_fabric #(
   logic [3:0] x_in_v;
   always @* begin
     for (p = 0; p < 4; p = p + 1)
-      x_in_v[p] = saf_v[p] && !pdrop[p] && !cfg6_hit[p] &&
+      x_in_v[p] = saf_v[p] && !pdrop[p] && !fab_mgmt_cfg6_hit[p] &&
                   !g1_comb[p] && !g1_drain[p];
   end
 
@@ -246,7 +246,7 @@ module vibe_fabric #(
         if (xb_v[p] && xb_sop[p])
           xb_vl_q[p] <= vibe_lph_vl(vibe_nw512_flit0(xb_d[p]));
         if (vl_ok[p] && egr_sop[p])
-          egr_hdr_q[p] <= vibe_nw512_flit0(egr_data[p]);
+          egr_hdr_q[p] <= vibe_nw512_flit0(fab_nw_data[p]);
       end
     end
   end
@@ -258,24 +258,24 @@ module vibe_fabric #(
         .wr_vl(xb_sop[gi] ? vibe_lph_vl(vibe_nw512_flit0(xb_d[gi])) : xb_vl_q[gi]),
         .wr_en(xb_v[gi]), .wr_data(xb_d[gi]),
         .wr_sop(xb_sop[gi]), .wr_eop(xb_eop[gi]), .wr_ready(xb_r[gi]),
-        .rd_vl(vl_sel[gi]), .rd_en(egr_ready[gi] && vl_ok[gi]),
-        .rd_data(egr_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
+        .rd_vl(vl_sel[gi]), .rd_en(fab_nw_ready[gi] && vl_ok[gi]),
+        .rd_data(fab_nw_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
         .nonempty(ne[gi]), .occ_vl0(occ0[gi]),
         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
       );
       vibe_vl_rr u_rr (
         .clk(clk), .rst_n(rst_n), .nonempty(ne[gi]),
-        .grant(egr_ready[gi] && vl_ok[gi]),
+        .grant(fab_nw_ready[gi] && vl_ok[gi]),
         .vl_sel(vl_sel[gi]), .valid(vl_ok[gi])
       );
       vibe_fecn_mark #(.FECN_WM(VIBE_FECN_WM)) u_fecn (
-        .cci_in(vibe_nth_cci(egr_sop[gi] ? vibe_nw512_flit0(egr_data[gi])
+        .cci_in(vibe_nth_cci(egr_sop[gi] ? vibe_nw512_flit0(fab_nw_data[gi])
                                          : egr_hdr_q[gi])),
         .voq_occ(occ0[gi]),
         .cci_out(cci_m[gi]),
         .marked()
       );
-      assign egr_vld[gi] = vl_ok[gi];
+      assign fab_nw_vld[gi] = vl_ok[gi];
     end
   endgenerate
 endmodule
