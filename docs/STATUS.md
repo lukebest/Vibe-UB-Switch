@@ -57,7 +57,7 @@ Progress: **SPEC** = 0.2 naming frozen; **RTL** = CR-B landed at freeze `1ed4d35
 |------|------:|--------|
 | Open GitHub issues | **0** | 2026-09-08, `lukebest/Vibe-UB-Switch` |
 | Closed GitHub issues | **0** | same |
-| Open GitHub PRs | **1** | same (`origin/main` `3fc359b8`; PR58 merged): this STATUS/RISKS refresh. |
+| Open GitHub PRs | **1** | same (`origin/main` `3fc359b8`; PR58 merged): #59 this STATUS/RISKS refresh. |
 
 No issue was opened from lint, CDC, nightly health, the CR-B rename, or re-gate 1/3 / 2/3 / 3/3. Known debts stay in [`docs/RISKS.md`](RISKS.md), not as fake signoff gaps.
 
