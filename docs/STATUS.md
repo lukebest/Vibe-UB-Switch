@@ -5,16 +5,16 @@
 | Project | Vibe-UB-Switch |
 | Snapshot date | **2026-09-08** (Asia/Shanghai) |
 | `origin/main` HEAD | `473df7a4` — nightly lint+CDC 2026-09-08 / PR46 (`473df7a4e658ab435fbf0d4f9eb5d23c4b9817b8`) |
-| RTL freeze SHA | `32a7f5e0` (`32a7f5e0c3f04762aa27dae73b000e55773195da`) |
-| `git diff 32a7f5e0 -- rtl/` | **empty** — no `rtl/` functional diff vs freeze SHA (docs/reports only after PR30) |
+| RTL freeze SHA | `1ed4d350` (`1ed4d35006848e6275e93d9bd2fc4e7f7af348f1`) — CR-B ports; supersedes `32a7f5e0` for ports. Merge PR51 `777865f0` |
+| `git diff 1ed4d350 -- rtl/` | **empty** vs new freeze (ports landed). Old `32a7f5e0` superseded for ports. |
 | SPEC | **SPEC-0.1** — status **已冻结** (PR28, 2026-09-03, human approved; aligned RTL `32a7f5e0`) |
 | FPGA / proto | **Deferred** — no FPGA tree, no board bring-up in this repo |
 
 This file is an in-repo snapshot for 芯片开发PM. Numbers below are copied from committed reports. **No WNS/TNS/slack is stated** because none exists in-repo.
 
-This snapshot follows PR46 (`473df7a4`, nightly lint+CDC 2026-09-08). Prior: PR45 health regress 2026-09-08 merged at `9a52f3e9`; PR44 evening STATUS was at `95f1f731` (that snapshot referenced HEAD `2e177e8d`). RTL freeze is still `32a7f5e0` (`git diff 32a7f5e0 -- rtl/` empty; `rtl_changed=0`). Decision **E** remains path **B**; decision **F** remains **F1**.
+This snapshot follows PR46 (`473df7a4`, nightly lint+CDC 2026-09-08). Prior: PR45 health regress 2026-09-08 merged at `9a52f3e9`; PR44 evening STATUS was at `95f1f731` (that snapshot referenced HEAD `2e177e8d`). RTL freeze for ports is now `1ed4d350` (PR51 merge `777865f0`); old `32a7f5e0` superseded for ports. Decision **E** remains path **B**; decision **F** remains **F1**.
 
-**CR-B (iface rename) is APPROVED, not landed.** Luke chose Option B on 2026-09-08 Asia/Shanghai: `{src}_{dst}_{meaning}` (`dll` not `dl`). Formal record [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md); inventory [`docs/cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md`](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md). Rename is **in progress** (pending Xia / Design / Verification). Do **not** claim rename done. Xia owns the SPEC/AS/CHANGELOG freeze-break note when names land — this STATUS line is the pointer only; SPEC functional body is not rewritten here.
+**CR-B RTL ports landed** at `1ed4d350` (PR51 merge `777865f0`). Luke chose Option B on 2026-09-08 Asia/Shanghai: `{src}_{dst}_{meaning}` (`dll` not `dl`). Formal record [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md); inventory [`docs/cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md`](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md). 3/3 greens **voided**. F1 unchanged. SPEC functional body is not rewritten here.
 
 ---
 
@@ -65,8 +65,8 @@ No issue was opened from lint, CDC, or nightly health. Known debts stay in [`doc
 ## 4. Next actions
 
 1. **Path B chosen** (Luke, 2026-09-05 Asia/Shanghai; human **decision E**). Keep Sky130 scripts/docs only. Do **not** chase top-level map / STA. [`reports/signoff/`](../reports/signoff/) stays PLAN + keepers. Impl gate remains **NOT PASS**. Do not claim signoff. Do not run tapeout flow. See [`reports/signoff/DECISION-2026-09-05.md`](../reports/signoff/DECISION-2026-09-05.md). PLAN-2026-09-04 stays historical.
-2. **Freeze watch** — keep `git diff 32a7f5e0 -- rtl/` empty until Design lands CR-B. Interface / function change after SPEC-0.1 **已冻结** needs a change request. **CR-B is that request** (approved 2026-09-08); rename is **not** done. RTL freeze still `32a7f5e0`.
-3. **`ovf_l` decided F1** (Luke, 2026-09-07 Asia/Shanghai; human **decision F**). Permanent frozen CDC-WARN/waiver at `rtl/port/vibe_port.sv:244`. RTL freeze still `32a7f5e0`. No ECO. No issue. Not a signoff hole. See [`reports/signoff/DECISION-F-2026-09-07.md`](../reports/signoff/DECISION-F-2026-09-07.md).
-4. **CR-B iface rename in progress** (Luke Option B, 2026-09-08 Asia/Shanghai). Pending **Xia** (SPEC/AS/CHANGELOG freeze-break note + pin tables), **Design** (`rtl/` ports), **Verification** (`tb/` + re-gate). Effects when landed: breaks freeze SHA `32a7f5e0`; voids 3/3 greens; new series only after reports/regress against the new SHA. No functional width/protocol change. No signoff claim. Path B still **NOT PASS**. See [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md).
+2. **Freeze watch** — new RTL freeze is `1ed4d350` (PR51 `777865f0`). Old `32a7f5e0` superseded for ports. Keep `git diff 1ed4d350 -- rtl/` empty except via CR. F1 unchanged. 3/3 greens voided.
+3. **`ovf_l` decided F1** (Luke, 2026-09-07 Asia/Shanghai; human **decision F**). Permanent frozen CDC-WARN/waiver at `rtl/port/vibe_port.sv:244`. F1 unchanged (no ECO). No issue. Not a signoff hole. See [`reports/signoff/DECISION-F-2026-09-07.md`](../reports/signoff/DECISION-F-2026-09-07.md).
+4. **CR-B RTL ports landed** at `1ed4d350` (merge `777865f0`). 3/3 voided; new series only after reports against `1ed4d350`. F1 unchanged. Verification re-gate still pending. No signoff claim. Path B still **NOT PASS**. See [`docs/cr/CR-IFACE-RENAME-B-2026-09-08.md`](cr/CR-IFACE-RENAME-B-2026-09-08.md).
 
-Do not reopen consecutive-green as 4/3. Do not hand-write WNS/TNS. Do not claim the iface rename is done.
+Do not reopen consecutive-green as 4/3. Do not hand-write WNS/TNS.

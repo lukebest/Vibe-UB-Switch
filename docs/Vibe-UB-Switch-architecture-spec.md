@@ -1,6 +1,6 @@
 # Vibe-UB-Switch Architecture Specification AS-0.1
 
-Status: locked subset for this RTL revision (AS-0.1). Interface names follow CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`); rename in progress — names in this file are ahead of `rtl/`.  
+Status: locked subset for this RTL revision (AS-0.1). Interface names follow CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`); RTL ports landed at `1ed4d350` (PR51 merge `777865f0`).  
 Function-spec alignment for this RTL: **FS-0.2.3** (true source is outside this repo; not modified here).  
 Sources: public Unified Bus (UB) 2.0 + this architecture spec only.  
 This document does not add musts beyond AS-0.1.  
