@@ -49,16 +49,25 @@ module tc_nw_pkt_pma_loopback;
         dump_fn = "nw_pkt_pma_loopback_data512.vcd";
         if ($value$plusargs("DUMPFILE=%s", dump_fn)) ;
         $dumpfile(dump_fn);
-        // Selected pins only — not $dumpvars(0, tc). 100 pkts stay small.
-        $dumpvars(0, clk_fab, txclk, rxclk, rst_n,
+        // Overlay-B product interfaces + scoreboard. Not $dumpvars(0, tc).
+        // CR-B names on vibe_port (u_p): {src}_{dst}_{meaning}.
+        $dumpvars(0, clk_fab, txclk, rxclk, rst_n, port_rst, device_rst,
                   fab_nw_vld, fab_nw_ready, nw_fab_vld, nw_fab_ready,
-                  fab_nw_data, nw_fab_data, golden_tx,
-                  wav_tx_sop, wav_tx_pld, wav_rx_sop, wav_rx_pld,
+                  fab_nw_data, nw_fab_data, golden_tx, status_up);
+        $dumpvars(0, nw_dll_vld, nw_dll_ready, nw_dll_data,
+                  dll_nw_vld, dll_nw_ready, dll_nw_data);
+        $dumpvars(0, dll_pcs_vld, dll_pcs_ready, dll_pcs_data,
+                  pcs_dll_vld, pcs_dll_ready, pcs_dll_data);
+        $dumpvars(0, pcs_pma_txdata, pma_pcs_rxdata,
+                  afifo_pma_lane_vld, pma_afifo_lane_vld,
+                  afifo_pma_lane0, afifo_pma_lane1, afifo_pma_lane2, afifo_pma_lane3,
+                  pma_afifo_lane0, pma_afifo_lane1, pma_afifo_lane2, pma_afifo_lane3);
+        $dumpvars(0, wav_tx_sop, wav_tx_pld, wav_rx_sop, wav_rx_pld,
                   wav_tx_cfg, wav_tx_rt, wav_tx_scna, wav_tx_dcna,
                   wav_rx_cfg, wav_rx_rt, wav_rx_scna, wav_rx_dcna,
                   wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_lane0, wav_lane3,
                   wav_ptxv, wav_txlv, wav_am, wav_pcs_rx, wav_fec,
-                  wav_rx_eq, pcs_pma_txdata, pma_pcs_rxdata, tx_n, rx_n);
+                  wav_rx_eq, tx_n, rx_n, link_ready);
       end
     end
   end
@@ -74,6 +83,32 @@ module tc_nw_pkt_pma_loopback;
     .retry_error(retry_error), .proto_err(proto_err), .fc_ovf(fc_ovf),
     .rx_ovf(rx_ovf), .afifo_ovf(afifo_ovf),     .cfg0_hit(cfg0_hit), .cfg0_data(cfg0_data)
   );
+
+  // CR-B Overlay-B interfaces live on vibe_port (freeze 1ed4d350). Aliases
+  // keep VCD leaf names identical to the DUT wires (not invented).
+  wire [511:0] nw_dll_data  = u_p.nw_dll_data;
+  wire         nw_dll_vld   = u_p.nw_dll_vld;
+  wire         nw_dll_ready = u_p.nw_dll_ready;
+  wire [511:0] dll_nw_data  = u_p.dll_nw_data;
+  wire         dll_nw_vld   = u_p.dll_nw_vld;
+  wire         dll_nw_ready = u_p.dll_nw_ready;
+  wire [639:0] dll_pcs_data  = u_p.dll_pcs_data;
+  wire         dll_pcs_vld   = u_p.dll_pcs_vld;
+  wire         dll_pcs_ready = u_p.dll_pcs_ready;
+  wire [639:0] pcs_dll_data  = u_p.pcs_dll_data;
+  wire         pcs_dll_vld   = u_p.pcs_dll_vld;
+  wire         pcs_dll_ready = u_p.pcs_dll_ready;
+  wire         link_ready    = u_p.link_ready;
+  wire [127:0] afifo_pma_lane0 = u_p.afifo_pma_lane0;
+  wire [127:0] afifo_pma_lane1 = u_p.afifo_pma_lane1;
+  wire [127:0] afifo_pma_lane2 = u_p.afifo_pma_lane2;
+  wire [127:0] afifo_pma_lane3 = u_p.afifo_pma_lane3;
+  wire         afifo_pma_lane_vld = u_p.afifo_pma_lane_vld;
+  wire [127:0] pma_afifo_lane0 = u_p.pma_afifo_lane0;
+  wire [127:0] pma_afifo_lane1 = u_p.pma_afifo_lane1;
+  wire [127:0] pma_afifo_lane2 = u_p.pma_afifo_lane2;
+  wire [127:0] pma_afifo_lane3 = u_p.pma_afifo_lane3;
+  wire         pma_afifo_lane_vld = u_p.pma_afifo_lane_vld;
 
   assign wav_tx_nz   = |pcs_pma_txdata;
   assign wav_rx_nz   = |pma_pcs_rxdata;

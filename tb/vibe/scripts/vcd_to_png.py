@@ -602,24 +602,34 @@ def render_loopback(waves: str) -> None:
     v = parse_vcd(src)
     p = v.period
     t_inj = first_rise(_need(v, "fab_nw_vld")) or (20 * p)
+    t_nwdll = first_rise(_need(v, "nw_dll_vld"), tmin=max(0, t_inj - p)) or t_inj
+    t_dllpcs = first_rise(_need(v, "dll_pcs_vld"), tmin=t_inj) or t_nwdll
     t_pma = first_rise(_need(v, "wav_tx_nz")) or first_rise(_need(v, "wav_ptxv"))
     if t_pma is None:
         t_pma = t_inj + 40 * p
+    t_pcsdll = first_rise(_need(v, "pcs_dll_vld"), tmin=t_inj) or first_rise(
+        _need(v, "wav_pcs_rx"), tmin=t_inj
+    )
     t_rx = first_rise(_need(v, "wav_rx_eq")) or first_rise(_need(v, "nw_fab_vld"))
     if t_rx is None:
         t_rx = last_time(v)
-    t_pcs = first_rise(_need(v, "wav_pcs_rx"), tmin=t_inj) or t_rx
+    t_pcs = t_pcsdll or t_rx
+    t_dll = min(t_nwdll, t_dllpcs)
+    t_dll1 = max(t_dllpcs, t_pcs if t_pcs else t_dll) + 8 * p
     marks_all = [
         (t_inj, "inject GOLDEN_TX data[511:0]", "#1f4e79"),
+        (t_dllpcs, "DLL→PCS dll_pcs_vld (640b)", "#1e8449"),
         (t_pma, "PMA pcs_pma_txdata nonzero (pma_pcs_rxdata=pcs_pma_txdata)", "#b9770e"),
         (t_rx, "nw_fab_data[511:0] === GOLDEN_TX", "#c0392b"),
     ]
     tx_png = os.path.join(waves, "_lb512_tx.png")
+    dll_png = os.path.join(waves, "_lb512_dll.png")
     pma_png = os.path.join(waves, "_lb512_pma.png")
     rx_png = os.path.join(waves, "_lb512_rx.png")
     draw_window(
         tx_png, v,
         [
+            ("clk_fab", "clk_fab", "bit"),
             ("fab_nw_vld", "fab_nw_vld", "bit"),
             ("fab_nw_ready", "fab_nw_ready", "bit"),
             ("fab_nw_data", "fab_nw_data[511:0]", "hex"),
@@ -632,17 +642,43 @@ def render_loopback(waves: str) -> None:
         ],
         max(0, t_inj - 6 * p), t_inj + 20 * p,
         marks_all,
-        "TX  NW data[511:0] GOLDEN inject  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
+        "TX  Fabric↔NW GOLDEN inject  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
         "Expected: handshake + fab_nw_data === GOLDEN_TX. SOP LPH is [511:352] "
         "(CFG=3 RT=00 SCNA=A11A DCNA=B22B). [351:0] is payload. Not README [511:496].",
         notes=[(t_inj, "inject")],
     )
     draw_window(
+        dll_png, v,
+        [
+            ("nw_dll_vld", "nw_dll_vld", "bit"),
+            ("nw_dll_ready", "nw_dll_ready", "bit"),
+            ("nw_dll_data", "nw_dll_data[511:0]", "hex"),
+            ("dll_pcs_vld", "dll_pcs_vld", "bit"),
+            ("dll_pcs_ready", "dll_pcs_ready", "bit"),
+            ("dll_pcs_data", "dll_pcs_data[639:0]", "hex"),
+            ("pcs_dll_vld", "pcs_dll_vld", "bit"),
+            ("pcs_dll_ready", "pcs_dll_ready", "bit"),
+            ("pcs_dll_data", "pcs_dll_data[639:0]", "hex"),
+            ("dll_nw_vld", "dll_nw_vld", "bit"),
+            ("dll_nw_ready", "dll_nw_ready", "bit"),
+            ("dll_nw_data", "dll_nw_data[511:0]", "hex"),
+        ],
+        max(0, t_dll - 8 * p), max(t_dll + 28 * p, t_dll1),
+        marks_all,
+        "Link  NW↔DLL (512b) + DLL↔PCS (640b)  —  same TC  (u_p CR-B wires)",
+        "Expected: accepted fab_nw beat appears on nw_dll_data[511:0]; DLL emits "
+        "dll_pcs_data[639:0]; after PMA loopback pcs_dll_* then dll_nw_* recover the beat.",
+        notes=[(t_nwdll, "NW→DLL"), (t_dllpcs, "DLL→PCS")],
+    )
+    draw_window(
         pma_png, v,
         [
+            ("txclk", "txclk", "bit"),
             ("pcs_pma_txdata", "pcs_pma_txdata[511:0]", "hex"),
             ("pma_pcs_rxdata", "pma_pcs_rxdata[511:0]", "hex"),
             ("wav_lb_eq", "pma_pcs_rxdata==pcs_pma_txdata", "bit"),
+            ("afifo_pma_lane_vld", "afifo_pma_lane_vld", "bit"),
+            ("pma_afifo_lane_vld", "pma_afifo_lane_vld", "bit"),
             ("wav_ptxv", "u_p.afifo_pma_lane_vld", "bit"),
             ("wav_txlv", "u_p.pcs_afifo_lane_vld", "bit"),
             ("wav_lane0", "pcs_pma_txdata[31:0] lane0", "hex"),
@@ -660,6 +696,8 @@ def render_loopback(waves: str) -> None:
         [
             ("wav_am", "u_p.am_locked", "hex"),
             ("wav_pcs_rx", "u_p.pcs_dll_vld", "bit"),
+            ("pcs_dll_vld", "pcs_dll_vld", "bit"),
+            ("dll_nw_vld", "dll_nw_vld", "bit"),
             ("wav_fec", "u_p.fec_fail", "bit"),
             ("nw_fab_vld", "nw_fab_vld", "bit"),
             ("nw_fab_data", "nw_fab_data[511:0]", "hex"),
@@ -678,7 +716,7 @@ def render_loopback(waves: str) -> None:
         "SCNA=A11A DCNA=B22B; fec_fail=0.  Actual: wav_rx_eq=1 (PASS).",
         notes=[(t_pcs, "pcs_dll_vld"), (t_rx, "nw_fab score")],
     )
-    stitch(out_png, tx_png, pma_png, rx_png)
+    stitch(out_png, tx_png, dll_png, pma_png, rx_png)
 
 
 def main() -> int:
