@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-08 (Lint ECO freeze)
+
+### Changed
+
+- **Breaks** the CR-B port freeze aligned to RTL `1ed4d350`. Luke-approved Lint ECO (PR62): structural clear of LATCH / UNOPTFLAT / BLKSEQ. UNUSEDPARAM stays waiver. Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is **unchanged** (`rtl/port/vibe_port.sv` untouched).
+- Naming and functional interfaces are **unchanged**. Ports remain CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`). Widths, fire rules, handshake semantics, and protocol remain SPEC-0.1 / `32a7f5e0`.
+- New RTL freeze SHA: `982ddd0a` (`982ddd0a54cf19dbeb39cf8f8f523c4e26e593f6`). Merge: `581d9d34` (`581d9d34c6f7e27f80bdbd46e648343af5e40780`) — **merge-trace only**, not the freeze pin. Same role as old `1ed4d350` / earlier `32a7f5e0`.
+- CR-B consecutive greens 3/3 **voided**. Verification restarts 1/3 against `982ddd0a`.
+
 ## 2026-09-08 (CR-B interface naming)
 
 ### Changed
