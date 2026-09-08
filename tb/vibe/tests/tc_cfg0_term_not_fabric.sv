@@ -5,9 +5,9 @@ module tc_cfg0_term_not_fabric;
   `include "vibe_tb_defs.svh"
 
   logic         clk, rst_n, port_rst, link_up, fec_fail;
-  logic [639:0] pcs_data, cfg0_data;
-  logic [511:0] nw_data;
-  logic         pcs_vld, pcs_ready, nw_vld, nw_ready;
+  logic [639:0] pcs_dll_data, cfg0_data;
+  logic [511:0] dll_nw_data;
+  logic         pcs_dll_vld, pcs_dll_ready, dll_nw_vld, dll_nw_ready;
   logic         cfg0_hit, bcrc_fail, start_retry, rx_ovf, start_ack;
   logic         saw_cfg0, saw_nw, saw_nw_during_cfg0;
   integer       fail;
@@ -18,8 +18,8 @@ module tc_cfg0_term_not_fabric;
   vibe_dll_rx #(.RXBUF(32)) u_rx (
     .clk(clk), .rst_n(rst_n), .port_rst(port_rst), .link_up(link_up),
     .fec_fail(fec_fail),
-    .pcs_data(pcs_data), .pcs_vld(pcs_vld), .pcs_ready(pcs_ready),
-    .nw_data(nw_data), .nw_vld(nw_vld), .nw_ready(nw_ready),
+    .pcs_dll_data(pcs_dll_data), .pcs_dll_vld(pcs_dll_vld), .pcs_dll_ready(pcs_dll_ready),
+    .dll_nw_data(dll_nw_data), .dll_nw_vld(dll_nw_vld), .dll_nw_ready(dll_nw_ready),
     .cfg0_hit(cfg0_hit), .cfg0_data(cfg0_data),
     .bcrc_fail(bcrc_fail), .start_retry(start_retry),
     .rx_ovf(rx_ovf), .start_ack(start_ack)
@@ -29,26 +29,26 @@ module tc_cfg0_term_not_fabric;
     input [3:0] cfg;
     begin
       @(negedge clk);
-      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+      pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
           cfg, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
           16'd0, 8'd0, 3'd0, 8'd0));
-      pcs_vld = 1'b1;
+      pcs_dll_vld = 1'b1;
       @(posedge clk);
       @(negedge clk);
-      pcs_vld = 1'b0;
+      pcs_dll_vld = 1'b0;
     end
   endtask
 
   always @(posedge clk) begin
     if (cfg0_hit) saw_cfg0 <= 1'b1;
-    if (nw_vld)   saw_nw   <= 1'b1;
-    if (nw_vld && saw_cfg0 && !saw_nw) saw_nw_during_cfg0 <= 1'b1;
+    if (dll_nw_vld)   saw_nw   <= 1'b1;
+    if (dll_nw_vld && saw_cfg0 && !saw_nw) saw_nw_during_cfg0 <= 1'b1;
   end
 
   initial begin
     fail = 0;
     rst_n = 0; port_rst = 0; link_up = 1; fec_fail = 0;
-    pcs_vld = 0; pcs_data = 640'd0; nw_ready = 1;
+    pcs_dll_vld = 0; pcs_dll_data = 640'd0; dll_nw_ready = 1;
     saw_cfg0 = 0; saw_nw = 0; saw_nw_during_cfg0 = 0;
     repeat (4) @(posedge clk);
     rst_n = 1;
@@ -68,9 +68,9 @@ module tc_cfg0_term_not_fabric;
     if (saw_nw) begin
       $display("FAIL tc_cfg0_term_not_fabric");
       $display("  stimulus : CFG0 beat");
-      $display("  expected : nw_vld never rises (does not enter fabric)");
-      $display("  actual   : nw_vld pulsed");
-      $display("  hier     : u_rx.nw_vld");
+      $display("  expected : dll_nw_vld never rises (does not enter fabric)");
+      $display("  actual   : dll_nw_vld pulsed");
+      $display("  hier     : u_rx.dll_nw_vld");
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
@@ -81,9 +81,9 @@ module tc_cfg0_term_not_fabric;
     if (!saw_nw) begin
       $display("FAIL tc_cfg0_term_not_fabric");
       $display("  stimulus : CFG=3 beat (must reach NW/fabric)");
-      $display("  expected : nw_vld pulse");
-      $display("  actual   : no nw_vld");
-      $display("  hier     : u_rx.have / nw_vld");
+      $display("  expected : dll_nw_vld pulse");
+      $display("  actual   : no dll_nw_vld");
+      $display("  hier     : u_rx.have / dll_nw_vld");
       $display("  reproduce: make -C tb/vibe units");
       fail = 1;
     end
@@ -94,69 +94,69 @@ module tc_cfg0_term_not_fabric;
       integer w;
       w = 0;
       @(negedge clk);
-      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
-      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+      while (!pcs_dll_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      pcs_vld = 1'b1;
+      pcs_dll_vld = 1'b1;
       @(posedge clk);
       @(negedge clk);
-      pcs_vld = 1'b0;
+      pcs_dll_vld = 1'b0;
       repeat (4) @(posedge clk);
       port_rst = 1;
       @(posedge clk);
       port_rst = 0;
     end
 
-    // need_hdr :128 — nw_ready=0 before the first emit so nw_vld sticks,
+    // need_hdr :128 — dll_nw_ready=0 before the first emit so dll_nw_vld sticks,
     // then a second SOP unpacks with can_emit=0.
     begin : needhdr
       integer w;
-      nw_ready = 1'b0;
+      dll_nw_ready = 1'b0;
       w = 0;
       @(negedge clk);
-      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
-      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+      while (!pcs_dll_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
           16'd0, 8'd0, 3'd0, 8'd0));
-      pcs_vld = 1'b1;
+      pcs_dll_vld = 1'b1;
       @(posedge clk);
       @(negedge clk);
-      pcs_vld = 1'b0;
+      pcs_dll_vld = 1'b0;
       repeat (6) @(posedge clk);
       w = 0;
       @(negedge clk);
-      while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
-      pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+      while (!pcs_dll_ready && w < 40) begin @(posedge clk); w = w + 1; end
+      pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
           16'd0, 8'd0, 3'd0, 8'd0));
-      pcs_vld = 1'b1;
+      pcs_dll_vld = 1'b1;
       @(posedge clk);
       @(negedge clk);
-      pcs_vld = 1'b0;
+      pcs_dll_vld = 1'b0;
       repeat (6) @(posedge clk);
-      nw_ready = 1'b1;
+      dll_nw_ready = 1'b1;
       port_rst = 1;
       @(posedge clk);
       port_rst = 0;
     end
 
     // rx_ovf :100 — RXBUF=32, +4 wptr/accept, rptr never pops. Drain
-    // each 1-flit so pcs_ready returns. wptr is not cleared by port_rst.
+    // each 1-flit so pcs_dll_ready returns. wptr is not cleared by port_rst.
     begin : ovf
       integer k, w;
-      nw_ready = 1'b1;
+      dll_nw_ready = 1'b1;
       for (k = 0; k < 12; k = k + 1) begin
         w = 0;
         @(negedge clk);
-        while (!pcs_ready && w < 40) begin @(posedge clk); w = w + 1; end
-        pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+        while (!pcs_dll_ready && w < 40) begin @(posedge clk); w = w + 1; end
+        pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
             4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
             16'd0, 8'd0, 3'd0, 8'd0));
-        pcs_vld = 1'b1;
+        pcs_dll_vld = 1'b1;
         @(posedge clk);
         @(negedge clk);
-        pcs_vld = 1'b0;
+        pcs_dll_vld = 1'b0;
         repeat (6) @(posedge clk);
       end
       if (!rx_ovf) begin
@@ -185,19 +185,19 @@ module tc_cfg0_term_not_fabric;
     // and consumed on the next posedge if link_up stays 1 — drop link_up
     // on the intervening negedge (no extra cycle).
     @(negedge clk);
-    pcs_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
+    pcs_dll_data = vibe_tb_mk_pcs_beat(vibe_tb_mk_flit(
         4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    pcs_vld = 1'b1;
-    nw_ready = 1'b0;
+    pcs_dll_vld = 1'b1;
+    dll_nw_ready = 1'b0;
     @(posedge clk);
     @(negedge clk);
-    pcs_vld = 1'b0;
+    pcs_dll_vld = 1'b0;
     // have is live this cycle only — drop link_up now (no extra posedge).
     link_up = 0;
     repeat (3) @(posedge clk);
     link_up = 1;
-    nw_ready = 1;
+    dll_nw_ready = 1;
     port_rst = 1;
     @(posedge clk);
     port_rst = 0;

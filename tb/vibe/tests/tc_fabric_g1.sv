@@ -3,13 +3,13 @@
 module tc_fabric_g1;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, device_rst, rt_wr_en, drop_g1, cna_written, irq_rt;
-  logic [3:0] status_up, default_bm, ing_vld, ing_ready, egr_vld, egr_ready;
-  logic [3:0] len_err, deadlock_drop, cfg6_hit;
+  logic [3:0] status_up, default_bm, nw_fab_vld, nw_fab_ready, fab_nw_vld, fab_nw_ready;
+  logic [3:0] len_err, deadlock_drop, fab_mgmt_cfg6_hit;
   logic [15:0] rt_wr_idx, cna;
   logic [31:0] rt_wr_data, rt_shortest_unimpl, drop_down_cnt;
-  logic [511:0] ing_data [0:3];
-  logic [511:0] egr_data [0:3];
-  logic [511:0] cfg6_data [0:3];
+  logic [511:0] nw_fab_data [0:3];
+  logic [511:0] fab_nw_data [0:3];
+  logic [511:0] fab_mgmt_cfg6_data [0:3];
   integer fail, p;
   initial clk = 0;
   always #1 clk = ~clk;
@@ -17,20 +17,20 @@ module tc_fabric_g1;
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
     .status_up(status_up), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .ing_data(ing_data), .ing_vld(ing_vld), .ing_ready(ing_ready),
-    .egr_data(egr_data), .egr_vld(egr_vld), .egr_ready(egr_ready),
+    .nw_fab_data(nw_fab_data), .nw_fab_vld(nw_fab_vld), .nw_fab_ready(nw_fab_ready),
+    .fab_nw_data(fab_nw_data), .fab_nw_vld(fab_nw_vld), .fab_nw_ready(fab_nw_ready),
     .len_err(len_err), .drop_g1(drop_g1),
     .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down_cnt),
     .deadlock_drop(deadlock_drop), .irq_rt(irq_rt),
     .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_data)
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data)
   );
   initial begin
     fail = 0;
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
-    default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
+    default_bm = 4'd0; nw_fab_vld = 0; fab_nw_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
-    for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
+    for (p = 0; p < 4; p = p + 1) nw_fab_data[p] = 512'd0;
     repeat (4) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
@@ -42,17 +42,17 @@ module tc_fabric_g1;
     rt_wr_en = 0;
     // RT=10 G1 drop (2 beats so SAF done is definite)
     @(negedge clk);
-    while (!ing_ready[0]) @(posedge clk);
-    ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    while (!nw_fab_ready[0]) @(posedge clk);
+    nw_fab_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd3, 2'b10, 4'd0, 16'h1, 16'h0002, vibe_tb_plen_nflit(5),
         16'd0, 8'd0, 3'd0, 8'd0));
-    ing_vld[0] = 1;
+    nw_fab_vld[0] = 1;
     @(posedge clk);
     @(negedge clk);
-    ing_data[0] = 512'h2;
+    nw_fab_data[0] = 512'h2;
     @(posedge clk);
     @(negedge clk);
-    ing_vld[0] = 0;
+    nw_fab_vld[0] = 0;
     repeat (40) @(posedge clk);
     if (rt_shortest_unimpl === 32'd0) begin
       $display("FAIL tc_fabric_g1");
@@ -64,23 +64,23 @@ module tc_fabric_g1;
     end
     // CFG6 terminate-class
     @(negedge clk);
-    ing_data[1] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    nw_fab_data[1] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    ing_vld[1] = 1;
+    nw_fab_vld[1] = 1;
     @(posedge clk);
     @(negedge clk);
-    ing_vld[1] = 0;
+    nw_fab_vld[1] = 0;
     repeat (16) @(posedge clk);
     // multi-port G1
     @(negedge clk);
-    ing_data[2] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    nw_fab_data[2] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd3, 2'b11, 4'd0, 16'h1, 16'h0003, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    ing_vld[2] = 1;
+    nw_fab_vld[2] = 1;
     @(posedge clk);
     @(negedge clk);
-    ing_vld[2] = 0;
+    nw_fab_vld[2] = 0;
     repeat (16) @(posedge clk);
     device_rst = 1;
     @(posedge clk);

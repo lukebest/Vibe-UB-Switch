@@ -1,4 +1,4 @@
-// Top: reset/CNA plus a real packet on PMA rxdata. Score irq_logic (G1) at top.
+// Top: reset/CNA plus a real packet on PMA pma_pcs_rxdata. Score irq_logic (G1) at top.
 `timescale 1ns/1ps
 module tc_top_smoke;
   `include "vibe_tb_defs.svh"
@@ -6,8 +6,8 @@ module tc_top_smoke;
   logic         clk_fab, rst_n;
   logic         txclk_0, txclk_1, txclk_2, txclk_3;
   logic         rxclk_0, rxclk_1, rxclk_2, rxclk_3;
-  logic [511:0] txdata_0, txdata_1, txdata_2, txdata_3;
-  logic [511:0] rxdata_0, rxdata_1, rxdata_2, rxdata_3;
+  logic [511:0] pcs_pma_txdata_0, pcs_pma_txdata_1, pcs_pma_txdata_2, pcs_pma_txdata_3;
+  logic [511:0] pma_pcs_rxdata_0, pma_pcs_rxdata_1, pma_pcs_rxdata_2, pma_pcs_rxdata_3;
   logic         cfg_wr_vld, cfg_wr_ready, irq_logic;
   logic [3:0]   cfg_wr_cmd;
   logic [15:0]  cfg_wr_idx;
@@ -36,18 +36,18 @@ module tc_top_smoke;
   assign rxclk_3 = txclk_3;
   assign ptxc = txclk_0;
   assign prxc = txclk_0;
-  assign rxdata_0 = ptx;
-  assign rxdata_1 = 512'd0;
-  assign rxdata_2 = 512'd0;
-  assign rxdata_3 = 512'd0;
+  assign pma_pcs_rxdata_0 = ptx;
+  assign pma_pcs_rxdata_1 = 512'd0;
+  assign pma_pcs_rxdata_2 = 512'd0;
+  assign pma_pcs_rxdata_3 = 512'd0;
   assign prx = 512'd0;
 
   vibe_ub_switch dut (
     .clk_fab(clk_fab), .rst_n(rst_n),
     .txclk_0(txclk_0), .txclk_1(txclk_1), .txclk_2(txclk_2), .txclk_3(txclk_3),
     .rxclk_0(rxclk_0), .rxclk_1(rxclk_1), .rxclk_2(rxclk_2), .rxclk_3(rxclk_3),
-    .txdata_0(txdata_0), .txdata_1(txdata_1), .txdata_2(txdata_2), .txdata_3(txdata_3),
-    .rxdata_0(rxdata_0), .rxdata_1(rxdata_1), .rxdata_2(rxdata_2), .rxdata_3(rxdata_3),
+    .pcs_pma_txdata_0(pcs_pma_txdata_0), .pcs_pma_txdata_1(pcs_pma_txdata_1), .pcs_pma_txdata_2(pcs_pma_txdata_2), .pcs_pma_txdata_3(pcs_pma_txdata_3),
+    .pma_pcs_rxdata_0(pma_pcs_rxdata_0), .pma_pcs_rxdata_1(pma_pcs_rxdata_1), .pma_pcs_rxdata_2(pma_pcs_rxdata_2), .pma_pcs_rxdata_3(pma_pcs_rxdata_3),
     .cfg_wr_vld(cfg_wr_vld), .cfg_wr_ready(cfg_wr_ready),
     .cfg_wr_cmd(cfg_wr_cmd), .cfg_wr_idx(cfg_wr_idx), .cfg_wr_data(cfg_wr_data),
     .irq_logic(irq_logic)
@@ -56,10 +56,10 @@ module tc_top_smoke;
   vibe_port u_peer (
     .clk_fab(clk_fab), .rst_n(rst_n), .port_rst(prst), .device_rst(pdrst),
     .lmsm_go(plgo), .txclk(ptxc), .rxclk(prxc),
-    .txdata(ptx), .rxdata(prx),
-    .fab_tx_data(p_fab_tx), .fab_tx_vld(p_ftv), .fab_tx_ready(p_ftr),
-    .fab_rx_data(p_fab_rx), .fab_rx_vld(p_frv), .fab_rx_ready(p_frr),
-    .mgmt_tx_data(p_mgmt), .mgmt_tx_vld(p_mv), .mgmt_tx_ready(p_mr),
+    .pcs_pma_txdata(ptx), .pma_pcs_rxdata(prx),
+    .fab_nw_data(p_fab_tx), .fab_nw_vld(p_ftv), .fab_nw_ready(p_ftr),
+    .nw_fab_data(p_fab_rx), .nw_fab_vld(p_frv), .nw_fab_ready(p_frr),
+    .mgmt_nw_data(p_mgmt), .mgmt_nw_vld(p_mv), .mgmt_nw_ready(p_mr),
     .status_up(p_up), .disabled(p_dis),
     .retry_error(p_rty), .proto_err(p_pe), .fc_ovf(p_fc),
     .rx_ovf(p_rxo), .afifo_ovf(p_afo), .cfg0_hit(p_c0), .cfg0_data(p_cfg0)
@@ -172,7 +172,7 @@ module tc_top_smoke;
       $finish;
     end
 
-    // RT=10 packet through peer PMA TX onto dut.rxdata_0 → G1 irq_logic.
+    // RT=10 packet through peer PMA TX onto dut.pma_pcs_rxdata_0 → G1 irq_logic.
     p_fab_tx = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd3, 2'b10, 4'd0, 16'hA11A, 16'hB22B, vibe_tb_plen_nflit(1),
         16'hC33C, 8'h5A, 3'd0, 8'd0));
@@ -189,8 +189,8 @@ module tc_top_smoke;
     end
     p_ftv = 0;
     if (!accepted) begin
-      fail_at("peer fab_tx RT=10 after LinkReady",
-              "peer fab_tx_ready handshake",
+      fail_at("peer fab_nw RT=10 after LinkReady",
+              "peer fab_nw_ready handshake",
               "encoder did not accept packet",
               "u_peer.u_nw / u_peer.u_dll.u_tx");
       $finish;
@@ -203,14 +203,14 @@ module tc_top_smoke;
     end
 
     if (!saw_peer_tx) begin
-      fail_at("peer accepted RT=10; watch peer txdata → dut.rxdata_0",
-              "peer txdata nonzero (PMA encoded packet)",
-              "peer txdata stayed 0",
-              "u_peer.u_pma.txdata");
+      fail_at("peer accepted RT=10; watch peer pcs_pma_txdata → dut.pma_pcs_rxdata_0",
+              "peer pcs_pma_txdata nonzero (PMA encoded packet)",
+              "peer pcs_pma_txdata stayed 0",
+              "u_peer.u_pma.pcs_pma_txdata");
       $finish;
     end
     if (!irq_logic) begin
-      fail_at("rxdata_0 = peer txdata (RT=10 LPH); wait 20000 clk_fab",
+      fail_at("pma_pcs_rxdata_0 = peer pcs_pma_txdata (RT=10 LPH); wait 20000 clk_fab",
               "irq_logic=1 (G1 at top pin)",
               "irq_logic stayed 0",
               "dut.irq_logic / dut.u_fab.drop_g1 / dut.u_mgmt");

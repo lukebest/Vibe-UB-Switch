@@ -4,42 +4,42 @@ module tc_cna_ep;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, cna_written, icrc_fail;
   logic [15:0] cna;
-  logic [3:0] cfg6_hit, consume, reply_vld, reply_ready;
-  logic [511:0] cfg6_data [0:3];
-  logic [511:0] reply_data [0:3];
+  logic [3:0] fab_mgmt_cfg6_hit, consume, mgmt_nw_vld, mgmt_nw_ready;
+  logic [511:0] fab_mgmt_cfg6_data [0:3];
+  logic [511:0] mgmt_nw_data [0:3];
   integer fail, p;
   initial clk = 0;
   always #1 clk = ~clk;
   vibe_cna_ep u_c (
     .clk(clk), .rst_n(rst_n), .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_data),
-    .consume(consume), .reply_data(reply_data), .reply_vld(reply_vld),
-    .reply_ready(reply_ready), .icrc_fail(icrc_fail)
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data),
+    .mgmt_fab_cfg6_consume(consume), .mgmt_nw_data(mgmt_nw_data), .mgmt_nw_vld(mgmt_nw_vld),
+    .mgmt_nw_ready(mgmt_nw_ready), .icrc_fail(icrc_fail)
   );
   initial begin
     fail = 0;
-    rst_n = 0; cna = 16'h1111; cna_written = 1; cfg6_hit = 0; reply_ready = 4'b1111;
-    for (p = 0; p < 4; p = p + 1) cfg6_data[p] = 512'd0;
+    rst_n = 0; cna = 16'h1111; cna_written = 1; fab_mgmt_cfg6_hit = 0; mgmt_nw_ready = 4'b1111;
+    for (p = 0; p < 4; p = p + 1) fab_mgmt_cfg6_data[p] = 512'd0;
     repeat (2) @(posedge clk);
     rst_n = 1;
     // 本CNA
-    cfg6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    fab_mgmt_cfg6_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    #1; cfg6_hit[0] = 1; #1;
-    if (!consume[0] || !reply_vld[0]) begin
+    #1; fab_mgmt_cfg6_hit[0] = 1; #1;
+    if (!consume[0] || !mgmt_nw_vld[0]) begin
       $display("FAIL tc_cna_ep");
       $display("  stimulus : DCNA==written CNA");
       $display("  expected : consume+reply (terminate)");
-      $display("  actual   : cons=%0b vld=%0b", consume[0], reply_vld[0]);
+      $display("  actual   : cons=%0b vld=%0b", consume[0], mgmt_nw_vld[0]);
       fail = 1;
     end
-    cfg6_hit[0] = 0; #1;
+    fab_mgmt_cfg6_hit[0] = 0; #1;
     // NLP=1
-    cfg6_data[1] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    fab_mgmt_cfg6_data[1] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd1, 8'd0));
-    cfg6_hit[1] = 1; #1;
+    fab_mgmt_cfg6_hit[1] = 1; #1;
     if (!consume[1]) begin
       $display("FAIL tc_cna_ep");
       $display("  stimulus : NLP=1 DCNA!=CNA");
@@ -47,12 +47,12 @@ module tc_cna_ep;
       $display("  actual   : 0");
       fail = 1;
     end
-    cfg6_hit[1] = 0; #1;
+    fab_mgmt_cfg6_hit[1] = 0; #1;
     // else forward
-    cfg6_data[2] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    fab_mgmt_cfg6_data[2] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h2, 16'h2222, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    cfg6_hit[2] = 1; #1;
+    fab_mgmt_cfg6_hit[2] = 1; #1;
     if (consume[2]) begin
       $display("FAIL tc_cna_ep");
       $display("  stimulus : miss CNA NLP=0");
@@ -60,13 +60,13 @@ module tc_cna_ep;
       $display("  actual   : consume=1");
       fail = 1;
     end
-    cfg6_hit = 0;
+    fab_mgmt_cfg6_hit = 0;
     // unwritten
     cna_written = 0;
-    cfg6_data[3] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    fab_mgmt_cfg6_data[3] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h2, 16'h1111, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    cfg6_hit[3] = 1; #1;
+    fab_mgmt_cfg6_hit[3] = 1; #1;
     if (consume[3]) begin
       $display("FAIL tc_cna_ep");
       $display("  stimulus : CNA unwritten");

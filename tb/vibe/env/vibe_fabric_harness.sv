@@ -11,8 +11,8 @@ module vibe_fabric_harness (
   output logic [31:0]  rt_shortest_unimpl,
   output logic         drop_g1,
   output logic [3:0]   len_err,
-  output logic [3:0]   egr_vld,
-  output logic [3:0]   ing_ready
+  output logic [3:0]   fab_nw_vld,
+  output logic [3:0]   nw_fab_ready
 );
   `include "vibe_tb_defs.svh"
 
@@ -31,14 +31,14 @@ module vibe_fabric_harness (
   logic [15:0]  cna;
   logic         cna_written;
 
-  logic [511:0] ing_data [0:3];
-  logic [3:0]   ing_vld;
-  logic [511:0] egr_data [0:3];
-  logic [3:0]   egr_ready;
+  logic [511:0] nw_fab_data [0:3];
+  logic [3:0]   nw_fab_vld;
+  logic [511:0] fab_nw_data [0:3];
+  logic [3:0]   fab_nw_ready;
   logic [31:0]  drop_down;
   logic [3:0]   deadlock_drop;
-  logic [3:0]   cfg6_hit, cfg6_cons;
-  logic [511:0] cfg6_d [0:3];
+  logic [3:0]   fab_mgmt_cfg6_hit, mgmt_fab_cfg6_consume;
+  logic [511:0] fab_mgmt_cfg6_data [0:3];
   logic [511:0] reply_d [0:3];
   logic [3:0]   reply_v, reply_r;
 
@@ -60,13 +60,13 @@ module vibe_fabric_harness (
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
     .status_up(status_up), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .ing_data(ing_data), .ing_vld(ing_vld), .ing_ready(ing_ready),
-    .egr_data(egr_data), .egr_vld(egr_vld), .egr_ready(egr_ready),
+    .nw_fab_data(nw_fab_data), .nw_fab_vld(nw_fab_vld), .nw_fab_ready(nw_fab_ready),
+    .fab_nw_data(fab_nw_data), .fab_nw_vld(fab_nw_vld), .fab_nw_ready(fab_nw_ready),
     .len_err(len_err), .drop_g1(drop_g1),
     .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down),
     .deadlock_drop(deadlock_drop), .irq_rt(),
     .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d)
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data)
   );
 
   vibe_mgmt #(.ROUTE_TABLE_DEPTH(256)) u_mgmt (
@@ -76,9 +76,9 @@ module vibe_fabric_harness (
     .cna(cna), .cna_written(cna_written), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
     .port_rst(port_rst), .device_rst(device_rst), .lmsm_go(lmsm_go),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d),
-    .cfg6_consume(cfg6_cons),
-    .reply_data(reply_d), .reply_vld(reply_v), .reply_ready(reply_r),
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data),
+    .mgmt_fab_cfg6_consume(mgmt_fab_cfg6_consume),
+    .mgmt_nw_data(reply_d), .mgmt_nw_vld(reply_v), .mgmt_nw_ready(reply_r),
     .rx_ovf(4'd0), .fc_ovf(4'd0), .proto_err(4'd0),
     .retry_error(4'd0), .len_err(len_err),
     .deadlock_drop(deadlock_drop), .drop_g1(drop_g1),
@@ -104,11 +104,11 @@ module vibe_fabric_harness (
       saw_len_err <= saw_len_err | len_err;
       saw_xin     <= saw_xin | u_fab.x_in_v;
       for (mi = 0; mi < 4; mi = mi + 1) begin
-        if (egr_vld[mi] && egr_ready[mi]) begin
+        if (fab_nw_vld[mi] && fab_nw_ready[mi]) begin
           saw_egr[mi]     <= 1'b1;
           egr_cnt[mi]     <= egr_cnt[mi] + 1;
-          egr_last[mi]    <= egr_data[mi];
-          last_rt_egr[mi] <= vibe_lph_rt(vibe_nw512_flit0(egr_data[mi]));
+          egr_last[mi]    <= fab_nw_data[mi];
+          last_rt_egr[mi] <= vibe_lph_rt(vibe_nw512_flit0(fab_nw_data[mi]));
         end
       end
     end
@@ -145,10 +145,10 @@ module vibe_fabric_harness (
       cfg_wr_idx  = 16'd0;
       cfg_wr_data = 32'd0;
       status_up   = 4'b1111;
-      ing_vld     = 4'd0;
-      egr_ready   = 4'b1111;
+      nw_fab_vld     = 4'd0;
+      fab_nw_ready   = 4'b1111;
       // pass/fail accumulate across TCs; do not clear here
-      for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
+      for (p = 0; p < 4; p = p + 1) nw_fab_data[p] = 512'd0;
       tb_cycles(4);
       rst_n = 1'b1;
       tb_cycles(4);
@@ -200,14 +200,14 @@ module vibe_fabric_harness (
       if (n < 1) n = 1;
       for (b = 0; b < n; b = b + 1) begin
         @(negedge clk);
-        while (!ing_ready[port]) @(posedge clk);
+        while (!nw_fab_ready[port]) @(posedge clk);
         // Continuation: no SOP LPH. Payload window [351:0] only.
-        ing_data[port] = (b == 0) ? beat0 : {160'd0, beat0[351:0]};
-        ing_vld[port]  = 1'b1;
+        nw_fab_data[port] = (b == 0) ? beat0 : {160'd0, beat0[351:0]};
+        nw_fab_vld[port]  = 1'b1;
         @(posedge clk);
       end
       @(negedge clk);
-      ing_vld[port] = 1'b0;
+      nw_fab_vld[port] = 1'b0;
     end
   endtask
 
@@ -233,7 +233,7 @@ module vibe_fabric_harness (
   task automatic tb_hold_egr;
     input hold;
     begin
-      egr_ready = hold ? 4'd0 : 4'b1111;
+      fab_nw_ready = hold ? 4'd0 : 4'b1111;
     end
   endtask
 
@@ -246,7 +246,7 @@ module vibe_fabric_harness (
       while ((t < timeout) && !any) begin
         @(posedge clk);
         t = t + 1;
-        any = |egr_vld;
+        any = |fab_nw_vld;
       end
     end
   endtask
@@ -285,8 +285,8 @@ module vibe_fabric_harness (
       $display("  actual   : %0s", actual);
       $display("  hier     : %0s", hier);
       $display("  reproduce: make -C tb/vibe TC=%0s", name);
-      $display("  dump     : irq=%0b drop_g1=%0b cnt=%0h egr_vld=%04b saw_egr=%04b len_err=%04b",
-               irq_logic, drop_g1, rt_shortest_unimpl, egr_vld, saw_egr, len_err);
+      $display("  dump     : irq=%0b drop_g1=%0b cnt=%0h fab_nw_vld=%04b saw_egr=%04b len_err=%04b",
+               irq_logic, drop_g1, rt_shortest_unimpl, fab_nw_vld, saw_egr, len_err);
       $display("  dump     : u_fab.g1_evt=%04b u_fab.g1_comb=%04b u_fab.saf_v=%04b pdrop=%04b",
                u_fab.g1_evt, u_fab.g1_comb, u_fab.saf_v, u_fab.pdrop);
       $display("  dump     : x_in_v=%04b saf_r=%04b xb_in_r=%04b xb_v=%04b egr0=%0d bm=%04b",

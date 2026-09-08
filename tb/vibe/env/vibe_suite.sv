@@ -13,12 +13,12 @@ module vibe_suite;
 
   // Wave probes (TB-only; not RTL). Narrow names for +DUMP PNG.
   wire        wav_clk     = h.clk;
-  wire        wav_ing0    = h.ing_vld[0];
-  wire        wav_egr0    = h.egr_vld[0];
-  wire [3:0]  wav_egr     = h.egr_vld;
+  wire        wav_ing0    = h.nw_fab_vld[0];
+  wire        wav_egr0    = h.fab_nw_vld[0];
+  wire [3:0]  wav_egr     = h.fab_nw_vld;
   // SOP LPH [511:352]. Use a slice, not a function, so Icarus does not
   // storm-evaluate vibe_nw512_flit0 on an unpacked array every delta.
-  wire [159:0] wav_flit0  = h.ing_data[0][511:352];
+  wire [159:0] wav_flit0  = h.nw_fab_data[0][511:352];
   wire [1:0]  wav_rt      = wav_flit0[23:22];
   wire [3:0]  wav_cfg     = wav_flit0[11:8];
   wire [2:0]  wav_nlp     = wav_flit0[95:93];
@@ -26,10 +26,10 @@ module vibe_suite;
   wire        wav_irq     = h.irq_logic;
   wire        wav_g1      = h.drop_g1;
   wire [31:0] wav_g1cnt   = h.rt_shortest_unimpl;
-  wire        wav_cfg6h0  = h.u_fab.cfg6_hit[0];
+  wire        wav_cfg6h0  = h.u_fab.fab_mgmt_cfg6_hit[0];
   wire        wav_xin0    = h.u_fab.x_in_v[0];
 
-  // CFG6 unit (cna_ep) — fabric cfg6_hit is combo on stuck SAF
+  // CFG6 unit (cna_ep) — fabric fab_mgmt_cfg6_hit is combo on stuck SAF
   logic [3:0]   c6_hit, c6_cons, c6_rready, c6_rvld;
   logic [511:0] c6_data [0:3];
   logic [511:0] c6_reply [0:3];
@@ -42,9 +42,9 @@ module vibe_suite;
   end
   vibe_cna_ep u_c6 (
     .clk(h.clk), .rst_n(h.rst_n), .cna(c6_cna), .cna_written(c6_written),
-    .cfg6_hit(c6_hit), .cfg6_data(c6_data),
-    .consume(c6_cons), .reply_data(c6_reply), .reply_vld(c6_rvld),
-    .reply_ready(c6_rready), .icrc_fail(c6_icrc)
+    .fab_mgmt_cfg6_hit(c6_hit), .fab_mgmt_cfg6_data(c6_data),
+    .mgmt_fab_cfg6_consume(c6_cons), .mgmt_nw_data(c6_reply), .mgmt_nw_vld(c6_rvld),
+    .mgmt_nw_ready(c6_rready), .icrc_fail(c6_icrc)
   );
 
   task automatic expect_drop_only;
@@ -59,7 +59,7 @@ module vibe_suite;
           "inject RT=1x 2-beat pkt dest=1 vl=0",
           "no egress beat; packet dropped (not shortest-path / not RT=00)",
           "saw_egr != 0 (forwarded)",
-          "h.u_fab.x_in_v / h.egr_vld / h.saw_egr");
+          "h.u_fab.x_in_v / h.fab_nw_vld / h.saw_egr");
       end else if (cnt_before != 32'hFFFF_FFFF &&
                    h.rt_shortest_unimpl !== (cnt_before + 32'd1)) begin
         h.tb_fail(name,
@@ -336,7 +336,7 @@ module vibe_suite;
           "RT=00 forwarded packet",
           "egress LPH.RT still 00",
           "RT field rewritten",
-          "egr_data[511:352] flit[23:22]");
+          "fab_nw_data[511:352] flit[23:22]");
       end else if (bad == 2) begin
         h.tb_fail("tc_rt_no_rewrite",
           "RT=10 (must drop; if anything leaked)",
@@ -520,7 +520,7 @@ module vibe_suite;
           "oversize declared length",
           "drop (no egress)",
           "packet forwarded",
-          "h.egr_vld");
+          "h.fab_nw_vld");
       end else if (h.irq_logic !== 1'b1) begin
         h.tb_fail("tc_pkt_len_err_drop",
           "len_err observed",
@@ -603,7 +603,7 @@ module vibe_suite;
       @(posedge h.clk);
       h.tb_reset();
       h.tb_cfg(VIBE_TB_CMD_CNA, 16'd0, 32'h0000_1111);
-      // Fabric terminate (本CNA): cfg6_hit, no xbar — visible on +DUMP
+      // Fabric terminate (本CNA): fab_mgmt_cfg6_hit, no xbar — visible on +DUMP
       h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h1111,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
       h.tb_cycles(16);
@@ -611,8 +611,8 @@ module vibe_suite;
       h.tb_inject_hdr(0, 4'd6, 2'b00, 4'd0, 16'h2, 16'h2222,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
       h.tb_cycles(32);
-      $display("  hier cfg6_hit=%04b x_in_v=%04b consume=%04b cna_written=%0b cna=%h",
-               h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.cfg6_cons,
+      $display("  hier fab_mgmt_cfg6_hit=%04b x_in_v=%04b consume=%04b cna_written=%0b cna=%h",
+               h.u_fab.fab_mgmt_cfg6_hit, h.u_fab.x_in_v, h.mgmt_fab_cfg6_consume,
                h.cna_written, h.cna);
       if (!term_us) begin
         h.tb_fail("tc_cfg6_term_vs_fwd",
@@ -650,12 +650,12 @@ module vibe_suite;
           "consume=0 (do not match until write)",
           "consume=1",
           "u_c6.us / cna_written");
-      end else if (h.u_fab.cfg6_hit[0] && !h.saw_xin[0] && !h.u_fab.g1_comb[0]) begin
+      end else if (h.u_fab.fab_mgmt_cfg6_hit[0] && !h.saw_xin[0] && !h.u_fab.g1_comb[0]) begin
         h.tb_fail("tc_cfg6_term_vs_fwd",
           "fabric CFG6 DCNA!=CNA (must forward per AS-0.1 s9)",
           "x_in_v=1 (forward path)",
-          "cfg6_hit excludes packet from xbar (RTL)",
-          "h.u_fab.cfg6_hit / x_in_v");
+          "fab_mgmt_cfg6_hit excludes packet from xbar (RTL)",
+          "h.u_fab.fab_mgmt_cfg6_hit / x_in_v");
       end else
         h.tb_pass("tc_cfg6_term_vs_fwd");
     end
@@ -674,23 +674,23 @@ module vibe_suite;
       h.tb_hold_egr(1'b0);
       // 5 flits => 2 declared beats; drive only the first beat
       @(negedge h.clk);
-      while (!h.ing_ready[0]) @(posedge h.clk);
-      h.ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      while (!h.nw_fab_ready[0]) @(posedge h.clk);
+      h.nw_fab_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h0001, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      h.ing_vld[0] = 1'b1;
+      h.nw_fab_vld[0] = 1'b1;
       @(posedge h.clk);
       @(negedge h.clk);
-      h.ing_vld[0] = 1'b0;
+      h.nw_fab_vld[0] = 1'b0;
       h.tb_cycles(8);
       early = |h.u_fab.saf_v;
       // complete packet
       @(negedge h.clk);
-      h.ing_data[0] = 512'd0;
-      h.ing_vld[0] = 1'b1;
+      h.nw_fab_data[0] = 512'd0;
+      h.nw_fab_vld[0] = 1'b1;
       @(posedge h.clk);
       @(negedge h.clk);
-      h.ing_vld[0] = 1'b0;
+      h.nw_fab_vld[0] = 1'b0;
       h.tb_cycles(8);
       if (early) begin
         h.tb_fail("tc_saf_full_pkt",
@@ -754,7 +754,7 @@ module vibe_suite;
     end
   endtask
 
-  // CFG 3/4/5/7/9 and reserved (1,2,8,10-15) must take xbar, not cfg6_hit.
+  // CFG 3/4/5/7/9 and reserved (1,2,8,10-15) must take xbar, not fab_mgmt_cfg6_hit.
   task automatic expect_cfg_fwd;
     input [3:0]        cfg;
     input [8*40-1:0]   name;
@@ -765,12 +765,12 @@ module vibe_suite;
       h.tb_inject_hdr(0, cfg, 2'b00, 4'd0, 16'h0001, 16'h0001,
                       vibe_tb_plen_nflit(5), 3'd0, 8'd0);
       h.tb_cycles(14);
-      if (h.u_fab.cfg6_hit[0]) begin
+      if (h.u_fab.fab_mgmt_cfg6_hit[0]) begin
         h.tb_fail(name,
           "inject CFG to dest=1 bitmap=1111",
-          "cfg6_hit=0 (not terminate-class CFG6)",
-          "cfg6_hit=1",
-          "h.u_fab.cfg6_hit / x_in_v");
+          "fab_mgmt_cfg6_hit=0 (not terminate-class CFG6)",
+          "fab_mgmt_cfg6_hit=1",
+          "h.u_fab.fab_mgmt_cfg6_hit / x_in_v");
       end else if (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)) begin
         h.tb_fail(name,
           "inject non-term CFG RT=00",
@@ -802,16 +802,16 @@ module vibe_suite;
         h.tb_inject_hdr(0, cfgs[i], 2'b00, 4'd0, 16'h0001, 16'h0001,
                         vibe_tb_plen_nflit(5), 3'd0, 8'd0);
         h.tb_cycles(14);
-        if (h.u_fab.cfg6_hit[0] ||
+        if (h.u_fab.fab_mgmt_cfg6_hit[0] ||
             (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
           nfail = nfail + 1;
       end
       if (nfail) begin
         h.tb_fail("tc_cfg_reserved_fwd",
           "CFG 1,2,8,10,15 RT=00 dest=1",
-          "each x_in_v=1 and cfg6_hit=0",
+          "each x_in_v=1 and fab_mgmt_cfg6_hit=0",
           "one or more reserved CFGs not forwarded",
-          "h.u_fab.x_in_v / cfg6_hit");
+          "h.u_fab.x_in_v / fab_mgmt_cfg6_hit");
       end else
         h.tb_pass("tc_cfg_reserved_fwd");
     end
@@ -833,16 +833,16 @@ module vibe_suite;
         h.tb_inject_hdr(0, cfgs[i], 2'b00, 4'd0, 16'h0001, 16'h0001,
                         vibe_tb_plen_nflit(5), 3'd0, 8'd0);
         h.tb_cycles(14);
-        if (h.u_fab.cfg6_hit[0] ||
+        if (h.u_fab.fab_mgmt_cfg6_hit[0] ||
             (!h.saw_xin[0] && !h.u_fab.g1_comb[0] && !(|h.saw_egr)))
           nfail = nfail + 1;
       end
       if (nfail) begin
         h.tb_fail("tc_cfg_fwd_class",
           "CFG 3/4/5/7/9 + reserved 1/2/8/10/15 RT=00 dest=1",
-          "each forwarded (x_in_v or egr) and cfg6_hit=0",
+          "each forwarded (x_in_v or egr) and fab_mgmt_cfg6_hit=0",
           "one or more CFGs terminated or dropped",
-          "h.u_fab.x_in_v / cfg6_hit");
+          "h.u_fab.x_in_v / fab_mgmt_cfg6_hit");
       end else
         h.tb_pass("tc_cfg_fwd_class");
     end
@@ -1061,9 +1061,9 @@ module vibe_suite;
         $dumpvars(0, wav_clk, wav_ing0, wav_egr0, wav_egr, wav_rt, wav_cfg,
                   wav_nlp, wav_opc, wav_irq, wav_g1, wav_g1cnt,
                   wav_cfg6h0, wav_xin0, c6_hit, c6_cons);
-        $dumpvars(0, h.ing_vld, h.egr_vld, h.irq_logic, h.rt_shortest_unimpl,
+        $dumpvars(0, h.nw_fab_vld, h.fab_nw_vld, h.irq_logic, h.rt_shortest_unimpl,
                   h.drop_g1, h.cna, h.cna_written);
-        $dumpvars(0, h.u_fab.cfg6_hit, h.u_fab.x_in_v, h.u_fab.g1_comb);
+        $dumpvars(0, h.u_fab.fab_mgmt_cfg6_hit, h.u_fab.x_in_v, h.u_fab.g1_comb);
         $dumpvars(0, c6_hit, c6_cons, c6_written, c6_cna);
       end
     end

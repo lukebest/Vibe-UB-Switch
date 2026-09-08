@@ -52,7 +52,7 @@ add("TP-PHY-006", "tc_phy_flit_20b",
     "Flit 20 字节；640b 是 DLL↔PCS 窗，不是 flit",
     "tc_pkt_len_legal_16_4300", "tb/vibe/env/vibe_suite.sv", "MAPPED")
 add("TP-PHY-007", "tc_phy_pma_pcs_boundary",
-    "txdata/rxdata[511:0] @922MHz 无额外握手",
+    "pcs_pma_txdata/pma_pcs_rxdata[511:0] @922MHz 无额外握手",
     "tc_pma_512b_slice", "tb/vibe/tests/tc_pma_512b_slice.sv", "MAPPED")
 add("TP-PHY-008", "tc_phy_nw_dll_512b",
     "NW↔DLL 仅 data[511:0] @1.25GHz（vld/ready）",
@@ -578,11 +578,11 @@ def main():
         "512-vs-LPH packing inside the NW word is **not** invented (HOLE if FS silent).",
         "",
         "SHELL→REAL (same 159 IDs): `tc_port_smoke` scores PMA lane-pack + RX LPH",
-        "(TP-PHY-001). `tc_pcs_tx` / `tc_pcs_rx` score `lane_vld` / `dll_vld` vs golden.",
+        "(TP-PHY-001). `tc_pcs_tx` / `tc_pcs_rx` score `pcs_afifo_lane_vld` / `pcs_dll_vld` vs golden.",
         "`tc_fabric_line_holes` scores CFG6 hit + TP-RT-013 sat (not a hole punch).",
         "`tc_neg_official` greps `rtl/vibe_*.sv` (one PASS per official NEG after clean).",
         "`tc_credit_1024_hole` is a thin 1023→1024 **cell** `bp_nw` wrapper.",
-        "`tc_top_smoke` drives a real RT=10 packet on `rxdata_0` and scores `irq_logic`.",
+        "`tc_top_smoke` drives a real RT=10 packet on `pma_pcs_rxdata_0` and scores `irq_logic`.",
         "`tc_tp_holes` remains HOLE documentation — do not invent Max Index / pins.",
         "",
         f"Counts: MAPPED={counts.get('MAPPED',0)} "
