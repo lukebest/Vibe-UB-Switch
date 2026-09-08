@@ -2,12 +2,12 @@
 
 | Item | Value |
 |------|--------|
-| Snapshot date | **2026-09-08** (Asia/Shanghai) |
-| `origin/main` HEAD | `3fc359b8` (PR58 merge) |
+| Snapshot date | **2026-09-08** (Asia/Shanghai) — evening refresh after PR60 |
+| `origin/main` HEAD | `34712f3d` (PR60 merge; tb/waves-only, not a gate event) |
 | RTL freeze SHA | `1ed4d350` (`1ed4d35006848e6275e93d9bd2fc4e7f7af348f1`) — rename head; **same role as old `32a7f5e0`**. PR51 `777865f0` is merge-trace only. Old freeze `32a7f5e0` is **VOID**. |
 | Companion | [`docs/STATUS.md`](STATUS.md) |
 
-Facts only. **No WNS, TNS, or slack numbers** — OpenSTA was not run; [`reports/signoff/`](../reports/signoff/) has [`PLAN-2026-09-04.md`](../reports/signoff/PLAN-2026-09-04.md) + [`DECISION-2026-09-05.md`](../reports/signoff/DECISION-2026-09-05.md) + [`DECISION-F-2026-09-07.md`](../reports/signoff/DECISION-F-2026-09-07.md) + [`README.md`](../reports/signoff/README.md) + `.gitkeep` (PLAN is historical proposal; E is path **B**; F is **F1**; not signoff); [`reports/synth/timing_summary.rpt`](../reports/synth/timing_summary.rpt) is `STATUS: not_run`. Coverage for the renamed DUT is the committed 3/3 report: [`reports/regress/2026-09-08-crb-3of3.md`](../reports/regress/2026-09-08-crb-3of3.md) — **124/124**, LINE **708/737 = 96.1%**, functional **159/159**, **0 fail**. 1/3 remains [`reports/regress/2026-09-08-crb-1of3.md`](../reports/regress/2026-09-08-crb-1of3.md). 2/3 remains [`reports/regress/2026-09-08-crb-2of3.md`](../reports/regress/2026-09-08-crb-2of3.md).
+Facts only. Evening refresh after PR60 (`34712f3d`, tb/waves Overlay-B NW/DLL/PMA dump on loopback VCD — **not** a gate event; `1ed4d350...main` rtl/ file list **empty**). **No WNS, TNS, or slack numbers** — OpenSTA was not run; [`reports/signoff/`](../reports/signoff/) has [`PLAN-2026-09-04.md`](../reports/signoff/PLAN-2026-09-04.md) + [`DECISION-2026-09-05.md`](../reports/signoff/DECISION-2026-09-05.md) + [`DECISION-F-2026-09-07.md`](../reports/signoff/DECISION-F-2026-09-07.md) + [`README.md`](../reports/signoff/README.md) + `.gitkeep` (PLAN is historical proposal; E is path **B**; F is **F1**; not signoff); [`reports/synth/timing_summary.rpt`](../reports/synth/timing_summary.rpt) is `STATUS: not_run`. Coverage for the renamed DUT is the committed 3/3 report: [`reports/regress/2026-09-08-crb-3of3.md`](../reports/regress/2026-09-08-crb-3of3.md) — **124/124**, LINE **708/737 = 96.1%**, functional **159/159**, **0 fail**. 1/3 remains [`reports/regress/2026-09-08-crb-1of3.md`](../reports/regress/2026-09-08-crb-1of3.md). 2/3 remains [`reports/regress/2026-09-08-crb-2of3.md`](../reports/regress/2026-09-08-crb-2of3.md).
 
 ---
 
