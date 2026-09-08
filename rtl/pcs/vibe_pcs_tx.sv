@@ -6,14 +6,14 @@ module vibe_pcs_tx (
   input  logic         sdf_period,
   input  logic [2:0]   fec_mode,
   input  logic         afifo_afull,
-  input  logic [639:0] dll_data,
-  input  logic         dll_vld,
-  output logic         dll_ready,
-  output logic [159:0] lane0,
-  output logic [159:0] lane1,
-  output logic [159:0] lane2,
-  output logic [159:0] lane3,
-  output logic         lane_vld
+  input  logic [639:0] dll_pcs_data,
+  input  logic         dll_pcs_vld,
+  output logic         dll_pcs_ready,
+  output logic [159:0] pcs_afifo_lane0,
+  output logic [159:0] pcs_afifo_lane1,
+  output logic [159:0] pcs_afifo_lane2,
+  output logic [159:0] pcs_afifo_lane3,
+  output logic         pcs_afifo_lane_vld
 );
   logic [959:0]  win;
   logic          win_vld, win_rdy;
@@ -29,7 +29,7 @@ module vibe_pcs_tx (
 
   vibe_pcs_tx_g1 u_g1 (
     .clk(clk), .rst_n(rst_n), .link_up(link_up),
-    .in_data(dll_data), .in_vld(dll_vld), .in_ready(dll_ready),
+    .in_data(dll_pcs_data), .in_vld(dll_pcs_vld), .in_ready(dll_pcs_ready),
     .win_data(win), .win_vld(win_vld), .win_ready(win_rdy)
   );
   vibe_pcs_tx_fec u_fec (
@@ -62,9 +62,9 @@ module vibe_pcs_tx (
   vibe_pcs_scramble u_s3 (.clk(clk), .rst_n(rst_n), .lane_id(2'd3), .seed_load(!link_up),
     .en(!am_word), .in_vld(p_vld), .in_data(p3), .out_vld(), .out_data(s3));
 
-  assign lane0 = s0;
-  assign lane1 = s1;
-  assign lane2 = s2;
-  assign lane3 = s3;
-  assign lane_vld = s_vld;
+  assign pcs_afifo_lane0 = s0;
+  assign pcs_afifo_lane1 = s1;
+  assign pcs_afifo_lane2 = s2;
+  assign pcs_afifo_lane3 = s3;
+  assign pcs_afifo_lane_vld = s_vld;
 endmodule

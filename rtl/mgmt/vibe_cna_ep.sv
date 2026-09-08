@@ -9,12 +9,12 @@ module vibe_cna_ep (
   input  logic         rst_n,
   input  logic [15:0]  cna,
   input  logic         cna_written,
-  input  logic [3:0]   cfg6_hit,
-  input  logic [511:0] cfg6_data [0:3],
-  output logic [3:0]   consume,
-  output logic [511:0] reply_data [0:3],
-  output logic [3:0]   reply_vld,
-  input  logic [3:0]   reply_ready,
+  input  logic [3:0]   fab_mgmt_cfg6_hit,
+  input  logic [511:0] fab_mgmt_cfg6_data [0:3],
+  output logic [3:0]   mgmt_fab_cfg6_consume,
+  output logic [511:0] mgmt_nw_data [0:3],
+  output logic [3:0]   mgmt_nw_vld,
+  input  logic [3:0]   mgmt_nw_ready,
   output logic         icrc_fail
 );
   `include "vibe_ub_fn.vh"
@@ -28,7 +28,7 @@ module vibe_cna_ep (
   logic        us, term;
 
   always @* begin
-    consume   = 4'd0;
+    mgmt_fab_cfg6_consume = 4'd0;
     icrc_fail = 1'b0;
     flit      = 160'd0;
     cfg       = 4'd0;
@@ -38,10 +38,10 @@ module vibe_cna_ep (
     us        = 1'b0;
     term      = 1'b0;
     for (p = 0; p < 4; p = p + 1) begin
-      reply_data[p] = 512'd0;
-      reply_vld[p]  = 1'b0;
-      if (cfg6_hit[p]) begin
-        flit = vibe_nw512_flit0(cfg6_data[p]);
+      mgmt_nw_data[p] = 512'd0;
+      mgmt_nw_vld[p]  = 1'b0;
+      if (fab_mgmt_cfg6_hit[p]) begin
+        flit = vibe_nw512_flit0(fab_mgmt_cfg6_data[p]);
         cfg  = vibe_lph_cfg(flit);
         dcna = vibe_nth_dcna(flit);
         nlp  = vibe_nth_nlp(flit);
@@ -49,9 +49,9 @@ module vibe_cna_ep (
         us   = cna_written && (dcna == cna);
         term = us || (nlp == 3'd1) || (opc == 8'h10 && us);
         if (term) begin
-          consume[p]    = 1'b1;
-          reply_vld[p]  = 1'b1;
-          reply_data[p] = cfg6_data[p]; // echo; cna_ep generates CFG6 reply
+          mgmt_fab_cfg6_consume[p] = 1'b1;
+          mgmt_nw_vld[p]           = 1'b1;
+          mgmt_nw_data[p]          = fab_mgmt_cfg6_data[p]; // echo; cna_ep generates CFG6 reply
         end
       end
     end

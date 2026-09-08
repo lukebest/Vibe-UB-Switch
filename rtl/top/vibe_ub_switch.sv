@@ -14,14 +14,14 @@ module vibe_ub_switch #(
   input  logic         rxclk_1,
   input  logic         rxclk_2,
   input  logic         rxclk_3,
-  output logic [511:0] txdata_0,
-  output logic [511:0] txdata_1,
-  output logic [511:0] txdata_2,
-  output logic [511:0] txdata_3,
-  input  logic [511:0] rxdata_0,
-  input  logic [511:0] rxdata_1,
-  input  logic [511:0] rxdata_2,
-  input  logic [511:0] rxdata_3,
+  output logic [511:0] pcs_pma_txdata_0,
+  output logic [511:0] pcs_pma_txdata_1,
+  output logic [511:0] pcs_pma_txdata_2,
+  output logic [511:0] pcs_pma_txdata_3,
+  input  logic [511:0] pma_pcs_rxdata_0,
+  input  logic [511:0] pma_pcs_rxdata_1,
+  input  logic [511:0] pma_pcs_rxdata_2,
+  input  logic [511:0] pma_pcs_rxdata_3,
   input  logic         cfg_wr_vld,
   output logic         cfg_wr_ready,
   input  logic [3:0]   cfg_wr_cmd,
@@ -39,32 +39,32 @@ module vibe_ub_switch #(
   logic [31:0]  rt_wr_data;
   logic [15:0]  cna;
   logic         cna_written;
-  logic [511:0] fab_tx [0:3];
-  logic [3:0]   fab_tx_v, fab_tx_r;
-  logic [511:0] fab_rx [0:3];
-  logic [3:0]   fab_rx_v, fab_rx_r;
-  logic [511:0] mgmt_tx [0:3];
-  logic [3:0]   mgmt_tx_v, mgmt_tx_r;
-  logic [3:0]   len_err, deadlock_drop, cfg6_hit, cfg6_cons;
+  logic [511:0] fab_nw_data [0:3];
+  logic [3:0]   fab_nw_vld, fab_nw_ready;
+  logic [511:0] nw_fab_data [0:3];
+  logic [3:0]   nw_fab_vld, nw_fab_ready;
+  logic [511:0] mgmt_nw_data [0:3];
+  logic [3:0]   mgmt_nw_vld, mgmt_nw_ready;
+  logic [3:0]   len_err, deadlock_drop, fab_mgmt_cfg6_hit, mgmt_fab_cfg6_consume;
   logic         drop_g1;
   logic [31:0]  rt_shortest_unimpl, drop_down;
-  logic [511:0] cfg6_d [0:3];
-  logic [511:0] reply_d [0:3];
-  logic [3:0]   reply_v, reply_r;
-  logic [511:0] txd [0:3];
-  logic [511:0] rxd [0:3];
+  logic [511:0] fab_mgmt_cfg6_data [0:3];
+  logic [511:0] mgmt_nw_push [0:3];
+  logic [3:0]   mgmt_nw_push_vld, mgmt_nw_push_ready;
+  logic [511:0] pcs_pma_txdata [0:3];
+  logic [511:0] pma_pcs_rxdata [0:3];
   logic [3:0]   txclk, rxclk;
 
   assign txclk = {txclk_3, txclk_2, txclk_1, txclk_0};
   assign rxclk = {rxclk_3, rxclk_2, rxclk_1, rxclk_0};
-  assign rxd[0] = rxdata_0;
-  assign rxd[1] = rxdata_1;
-  assign rxd[2] = rxdata_2;
-  assign rxd[3] = rxdata_3;
-  assign txdata_0 = txd[0];
-  assign txdata_1 = txd[1];
-  assign txdata_2 = txd[2];
-  assign txdata_3 = txd[3];
+  assign pma_pcs_rxdata[0] = pma_pcs_rxdata_0;
+  assign pma_pcs_rxdata[1] = pma_pcs_rxdata_1;
+  assign pma_pcs_rxdata[2] = pma_pcs_rxdata_2;
+  assign pma_pcs_rxdata[3] = pma_pcs_rxdata_3;
+  assign pcs_pma_txdata_0 = pcs_pma_txdata[0];
+  assign pcs_pma_txdata_1 = pcs_pma_txdata[1];
+  assign pcs_pma_txdata_2 = pcs_pma_txdata[2];
+  assign pcs_pma_txdata_3 = pcs_pma_txdata[3];
 
   genvar gi;
   generate
@@ -74,10 +74,10 @@ module vibe_ub_switch #(
         .port_rst(port_rst[gi]), .device_rst(device_rst),
         .lmsm_go(lmsm_go[gi]),
         .txclk(txclk[gi]), .rxclk(rxclk[gi]),
-        .txdata(txd[gi]), .rxdata(rxd[gi]),
-        .fab_tx_data(fab_tx[gi]), .fab_tx_vld(fab_tx_v[gi]), .fab_tx_ready(fab_tx_r[gi]),
-        .fab_rx_data(fab_rx[gi]), .fab_rx_vld(fab_rx_v[gi]), .fab_rx_ready(fab_rx_r[gi]),
-        .mgmt_tx_data(mgmt_tx[gi]), .mgmt_tx_vld(mgmt_tx_v[gi]), .mgmt_tx_ready(mgmt_tx_r[gi]),
+        .pcs_pma_txdata(pcs_pma_txdata[gi]), .pma_pcs_rxdata(pma_pcs_rxdata[gi]),
+        .fab_nw_data(fab_nw_data[gi]), .fab_nw_vld(fab_nw_vld[gi]), .fab_nw_ready(fab_nw_ready[gi]),
+        .nw_fab_data(nw_fab_data[gi]), .nw_fab_vld(nw_fab_vld[gi]), .nw_fab_ready(nw_fab_ready[gi]),
+        .mgmt_nw_data(mgmt_nw_data[gi]), .mgmt_nw_vld(mgmt_nw_vld[gi]), .mgmt_nw_ready(mgmt_nw_ready[gi]),
         .status_up(status_up[gi]), .disabled(disabled[gi]),
         .retry_error(retry_error[gi]), .proto_err(proto_err[gi]),
         .fc_ovf(fc_ovf[gi]), .rx_ovf(rx_ovf[gi]), .afifo_ovf(afifo_ovf[gi]),
@@ -90,13 +90,13 @@ module vibe_ub_switch #(
     .clk(clk_fab), .rst_n(rst_n), .device_rst(device_rst),
     .status_up(status_up), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .ing_data(fab_rx), .ing_vld(fab_rx_v), .ing_ready(fab_rx_r),
-    .egr_data(fab_tx), .egr_vld(fab_tx_v), .egr_ready(fab_tx_r),
+    .nw_fab_data(nw_fab_data), .nw_fab_vld(nw_fab_vld), .nw_fab_ready(nw_fab_ready),
+    .fab_nw_data(fab_nw_data), .fab_nw_vld(fab_nw_vld), .fab_nw_ready(fab_nw_ready),
     .len_err(len_err), .drop_g1(drop_g1),
     .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down),
     .deadlock_drop(deadlock_drop), .irq_rt(),
     .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d)
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data)
   );
 
   vibe_mgmt #(.ROUTE_TABLE_DEPTH(ROUTE_TABLE_DEPTH)) u_mgmt (
@@ -106,9 +106,9 @@ module vibe_ub_switch #(
     .cna(cna), .cna_written(cna_written), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
     .port_rst(port_rst), .device_rst(device_rst), .lmsm_go(lmsm_go),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_d),
-    .cfg6_consume(cfg6_cons),
-    .reply_data(reply_d), .reply_vld(reply_v), .reply_ready(reply_r),
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data),
+    .mgmt_fab_cfg6_consume(mgmt_fab_cfg6_consume),
+    .mgmt_nw_data(mgmt_nw_push), .mgmt_nw_vld(mgmt_nw_push_vld), .mgmt_nw_ready(mgmt_nw_push_ready),
     .rx_ovf(rx_ovf), .fc_ovf(fc_ovf), .proto_err(proto_err),
     .retry_error(retry_error), .len_err(len_err),
     .deadlock_drop(deadlock_drop), .drop_g1(drop_g1),
@@ -119,8 +119,8 @@ module vibe_ub_switch #(
     for (gi = 0; gi < 4; gi = gi + 1) begin : g_byp
       vibe_mgmt_byp u_byp (
         .clk(clk_fab), .rst_n(rst_n),
-        .in_data(reply_d[gi]), .in_vld(reply_v[gi]), .in_ready(reply_r[gi]),
-        .out_data(mgmt_tx[gi]), .out_vld(mgmt_tx_v[gi]), .out_ready(mgmt_tx_r[gi])
+        .in_data(mgmt_nw_push[gi]), .in_vld(mgmt_nw_push_vld[gi]), .in_ready(mgmt_nw_push_ready[gi]),
+        .out_data(mgmt_nw_data[gi]), .out_vld(mgmt_nw_vld[gi]), .out_ready(mgmt_nw_ready[gi])
       );
     end
   endgenerate

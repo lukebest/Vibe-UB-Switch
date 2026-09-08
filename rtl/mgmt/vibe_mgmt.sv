@@ -19,12 +19,12 @@ module vibe_mgmt #(
   output logic [3:0]   port_rst,
   output logic         device_rst,
   output logic [3:0]   lmsm_go,
-  input  logic [3:0]   cfg6_hit,
-  input  logic [511:0] cfg6_data [0:3],
-  output logic [3:0]   cfg6_consume,
-  output logic [511:0] reply_data [0:3],
-  output logic [3:0]   reply_vld,
-  input  logic [3:0]   reply_ready,
+  input  logic [3:0]   fab_mgmt_cfg6_hit,
+  input  logic [511:0] fab_mgmt_cfg6_data [0:3],
+  output logic [3:0]   mgmt_fab_cfg6_consume,
+  output logic [511:0] mgmt_nw_data [0:3],
+  output logic [3:0]   mgmt_nw_vld,
+  input  logic [3:0]   mgmt_nw_ready,
   input  logic [3:0]   rx_ovf,
   input  logic [3:0]   fc_ovf,
   input  logic [3:0]   proto_err,
@@ -68,9 +68,9 @@ module vibe_mgmt #(
 
   vibe_cna_ep u_cna (
     .clk(clk), .rst_n(rst_n), .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_data),
-    .consume(cfg6_consume),
-    .reply_data(reply_data), .reply_vld(reply_vld), .reply_ready(reply_ready),
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data),
+    .mgmt_fab_cfg6_consume(mgmt_fab_cfg6_consume),
+    .mgmt_nw_data(mgmt_nw_data), .mgmt_nw_vld(mgmt_nw_vld), .mgmt_nw_ready(mgmt_nw_ready),
     .icrc_fail(icrc_fail)
   );
 
