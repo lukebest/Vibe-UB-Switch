@@ -2,22 +2,24 @@
 
 | 项 | 内容 |
 |----|------|
-| 文档编号 | SPEC-0.1 |
-| 状态 | **已冻结** |
-| 冻结日期 | 2026-09-03，人批准，对齐 RTL `32a7f5e0` |
+| 文档编号 | SPEC-0.2 |
+| 状态 | **CR-applied（命名）** — 进行中 |
+| 前版冻结 | SPEC-0.1 **已冻结**（2026-09-03，人批准），对齐 RTL `32a7f5e0` |
+| 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — Luke 批准 Option B（2026-09-08 Asia/Shanghai） |
 | 作者 | Xia |
 | 协议 | Unified Bus (UB) Base 2.0 |
 | 对齐功能规格 | FS-0.2.7（已实现锁定事实；真源不在本仓库） |
 | 对齐架构 | [AS-0.1](Vibe-UB-Switch-architecture-spec.md) / AS-0.1.2，含 Overlay B |
 | 对齐固件头 | [`include/vibe_ub_switch_regs.h`](../include/vibe_ub_switch_regs.h)（PR21 / `main`） |
 | 对齐寄存器手册 | [Vibe-UB-Switch-register-map.md](Vibe-UB-Switch-register-map.md) |
-| 对齐 RTL | SHA `32a7f5e0`（匹配 RTL 的引用，不是本 SPEC 对功能的改写） |
+| 对齐 RTL（功能） | SHA `32a7f5e0`（功能宽度 / 协议 / 握手语义仍对齐该 SHA；**不是**功能改写） |
+| 接口名 | `{src}_{dst}_{meaning}`，datalink token 为 **`dll`**（不是 `dl`）。RTL 端口更名尚未落地 |
 
-本文件是冻结门：芯片开发 PM 据此验收。状态为 **已冻结**（2026-09-03，人批准）。对齐 RTL `32a7f5e0`。冻结后接口变更须走变更申请。
+本文件是冻结门：芯片开发 PM 据此验收。SPEC-0.1 于 2026-09-03 人批准、对齐 RTL `32a7f5e0`。**CR-B 打破该冻结，仅限接口命名**；功能宽度、时序、fire 规则与协议不变。更名进行中：本文件产品接口表已用 CR-B 名；`rtl/` 仍为 `32a7f5e0` 旧脚名，直至 Design 落地。
 
-本修订不改写 FS-0.2.7 已实现功能。SHA `32a7f5e0` 只标明对齐的 RTL，不构成规格功能变更。
+本修订不改写 FS-0.2.7 已实现功能。SHA `32a7f5e0` 只标明对齐的功能 RTL，不构成规格功能变更。
 
-覆盖空洞（`tb/vibe/results/COVERAGE_HOLES.md` 九项 HOLE）以及其余不在本冻结范围内的项，一律放在 **§非目标**。冻结需求正文只写已锁定事实，不写未发布占位。
+覆盖空洞（`tb/vibe/results/COVERAGE_HOLES.md` 九项 HOLE）以及其余不在本冻结范围内的项，一律放在 **§非目标**。需求正文只写已锁定事实，不写未发布占位。
 
 ---
 
@@ -26,7 +28,47 @@
 - 本文件冻结的是 **产品逻辑接口与已锁定行为**，不是封装球图，也不是模拟 PMA。
 - 验收对象：4 端口独立 UB Switch（Entity 0，Port 0..3），协议 2.0，无 UBFM。
 - 固件接口是顶层静态写握手，**不是 MMIO**，没有地址译码，没有 APB / AXI / I2C / JTAG。
-- 冻结后变更 `cfg_wr_*`、`irq_logic`、每端口 PMA `txdata`/`rxdata`/`txclk`/`rxclk`、以及 NW↔DLL `data[511:0]` `vld`/`ready` 的语义，须提变更请求。
+- 接口名遵循 §1.1。时钟 / 复位豁免。
+- 再变更 `cfg_wr_*`、`irq_logic`、每端口 PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、以及 NW↔DLL `nw_dll_*` / `dll_nw_*` 的**语义**（宽度、fire、协议），须提变更请求。CR-B 已批准命名本身。
+
+### 1.1 接口命名约定
+
+模式：`{src}_{dst}_{meaning}`。源 / 宿是模块 token，方向是拍的绝对路径（谁驱动 → 谁接收），不是本地 `tx` / `rx`。同一根线两端用**同一个**名字。Datalink token 为 **`dll`**（Luke 口令 `nw_dl_data` → 本仓库 `nw_dll_data`）。
+
+| Token | 模块 / 含义 |
+|-------|-------------|
+| `nw` | `vibe_nw_adapt` |
+| `dll` | `vibe_dll` / `vibe_dll_tx` / `vibe_dll_rx`（不是 `dl`） |
+| `pcs` | `vibe_pcs_tx` / `vibe_pcs_rx` |
+| `pma` | `vibe_pma_bnd` |
+| `fab` | `vibe_fabric` |
+| `mgmt` | `vibe_mgmt` / `vibe_mgmt_byp` / `vibe_cna_ep` |
+| `cfg` | 固件静态写产品脚族 `cfg_wr_*` |
+| `afifo` | `vibe_afifo`（内部 lane） |
+
+Ready/valid 数据接口后缀保持 `_vld`（源）/ `_ready`（宿）；fire 当 `_vld && _ready`。不改成 `_valid`。不增加第三 enable 名。
+
+**豁免（保持产品 / 域名）：** `clk_fab`、`clk`、`rst_n`、`txclk` / `rxclk`（及 `_0`..`_3`）、`port_rst`、`device_rst`。
+
+产品与端口间数据接口（CR-B / 草案清单 proposed；宽度与 fire 同 SPEC-0.1 / `32a7f5e0`）：
+
+| 方向 | 宽度 | 两端同名 |
+|------|-----:|----------|
+| NW → DLL | 512 | `nw_dll_data` / `nw_dll_vld` / `nw_dll_ready` |
+| DLL → NW | 512 | `dll_nw_data` / `dll_nw_vld` / `dll_nw_ready` |
+| DLL → PCS | 640 | `dll_pcs_data` / `dll_pcs_vld` / `dll_pcs_ready` |
+| PCS → DLL | 640 | `pcs_dll_data` / `pcs_dll_vld` / `pcs_dll_ready` |
+| FAB → NW | 512 | `fab_nw_data` / `fab_nw_vld` / `fab_nw_ready` |
+| NW → FAB | 512 | `nw_fab_data` / `nw_fab_vld` / `nw_fab_ready` |
+| mgmt → NW 注入 | 512 | `mgmt_nw_data` / `mgmt_nw_vld` / `mgmt_nw_ready` |
+| FAB → mgmt CFG6 | 512 + hit | `fab_mgmt_cfg6_data` / `fab_mgmt_cfg6_hit` |
+| mgmt → FAB consume | 4 | `mgmt_fab_cfg6_consume` |
+| chip → PMA | 512 | `pcs_pma_txdata`（顶层 `_0`..`_3`）；无 `_ready` |
+| PMA → chip | 512 | `pma_pcs_rxdata`（顶层 `_0`..`_3`）；无 `_ready` |
+
+内部 lane（非封装球）：`pcs_afifo_lane0`..`lane3` / `pcs_afifo_lane_vld`；`afifo_pma_lane0`..`lane3` / `afifo_pma_lane_vld`；`pma_afifo_lane0`..`lane3` / `pma_afifo_lane_vld`；`afifo_pcs_lane0`..`lane3` / `afifo_pcs_lane_vld`。
+
+完整 current→proposed 对照见 [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) §2。
 
 ---
 
@@ -48,7 +90,7 @@
 | 死锁超时 | 1 µs，VOQ 超时丢弃 + 计数 + `irq_logic`；与信用 1 µs 独立 |
 | 交换网 | 存储转发（SAF），不做 cut-through |
 | `clk_fab` | 1.25 GHz |
-| PMA | `txdata[511:0]` / `rxdata[511:0]` @ 922 MHz，无额外握手 |
+| PMA | `pcs_pma_txdata[511:0]` / `pma_pcs_rxdata[511:0]` @ 922 MHz，无额外握手 |
 | LinkReady | 参与 NW `vld`/`ready`（U21） |
 | UBFM | 不实例化 |
 | CNA | 仅静态写；DCNA 匹配由 `cna_written` 门控 |
@@ -60,7 +102,7 @@
 
 ## 3. 顶层框图
 
-产品脚只使用 AS §18 / 顶层模块已点名的名字。NW `data[511:0]` 是端口内架构接口（NW↔DLL / NW↔fabric），不是封装球。
+产品脚只使用 §1.1 / AS §18 已点名的名字。NW Overlay B `nw_dll_*` / `dll_nw_*` / `fab_nw_*` / `nw_fab_*` 是端口内架构接口，不是封装球。
 
 ```mermaid
 flowchart TB
@@ -71,20 +113,20 @@ flowchart TB
     MGMT["mgmt<br/>cfg_space / cna_ep / irq_agg / rst_ctl"]
     FAB["fabric SAF<br/>saf_ing / route_lu / port_sel / xbar<br/>voq_egr x16 VL / vl_rr / fecn_mark"]
     subgraph P0["port 0"]
-      PMA0["pma_bnd<br/>txdata_0[511:0] txclk_0<br/>rxdata_0[511:0] rxclk_0"]
+      PMA0["pma_bnd<br/>pcs_pma_txdata_0[511:0] txclk_0<br/>pma_pcs_rxdata_0[511:0] rxclk_0"]
       PCS0["pcs_tx / pcs_rx / afifo / lmsm"]
-      DLL0["dll + nw_adapt<br/>NW data[511:0] vld/ready"]
+      DLL0["dll + nw_adapt<br/>nw_dll_* / dll_nw_* 512b vld/ready"]
     end
     subgraph P1["port 1"]
-      PMA1["pma_bnd txdata_1 / rxdata_1"]
+      PMA1["pma_bnd pcs_pma_txdata_1 / pma_pcs_rxdata_1"]
       DLL1["dll + nw_adapt"]
     end
     subgraph P2["port 2"]
-      PMA2["pma_bnd txdata_2 / rxdata_2"]
+      PMA2["pma_bnd pcs_pma_txdata_2 / pma_pcs_rxdata_2"]
       DLL2["dll + nw_adapt"]
     end
     subgraph P3["port 3"]
-      PMA3["pma_bnd txdata_3 / rxdata_3"]
+      PMA3["pma_bnd pcs_pma_txdata_3 / pma_pcs_rxdata_3"]
       DLL3["dll + nw_adapt"]
     end
   end
@@ -134,8 +176,8 @@ vibe_ub_switch
 | `rst_n` | in | 1 | 逻辑复位（本冻结只要求该逻辑脚） |
 | `txclk_0`..`txclk_3` | in | 1 | 每端口独立 TX 时钟，922 MHz |
 | `rxclk_0`..`rxclk_3` | in | 1 | 每端口独立 RX 时钟，922 MHz |
-| `txdata_0`..`txdata_3` | out | 512 | PMA TX；`[127:0]`=lane0 … `[511:384]`=lane3 |
-| `rxdata_0`..`rxdata_3` | in | 512 | PMA RX；切片同 TX |
+| `pcs_pma_txdata_0`..`pcs_pma_txdata_3` | out | 512 | PMA TX；`[127:0]`=lane0 … `[511:384]`=lane3 |
+| `pma_pcs_rxdata_0`..`pma_pcs_rxdata_3` | in | 512 | PMA RX；切片同 TX |
 | `cfg_wr_vld` | in | 1 | 静态写选通 |
 | `cfg_wr_ready` | out | 1 | 静态写就绪；`vibe_cfg_space` 中恒为 1 |
 | `cfg_wr_cmd` | in | 4 | 命令编码 = 固件“地址” |
@@ -161,35 +203,43 @@ sequenceDiagram
   FW->>PIN: cfg_wr_vld = 0
 ```
 
-### 4.3 NW `data[511:0]` `vld`/`ready`
+### 4.3 NW Overlay B `vld`/`ready`（512）
 
-时钟：`clk_fab`。Overlay B：NW↔DLL 与 NW↔fabric 仅为 `data[511:0]` + `vld`/`ready`。LinkReady 参与 `ready`。无额外 enable 名。Fire 当拍 `vld==1` 且 `ready==1`，该拍 `data[511:0]` 被接收。TX 可逐级向 NW 反压。
+时钟：`clk_fab`。Overlay B：NW↔DLL 与 NW↔fabric 仅为 512 位数据 + `vld`/`ready`。LinkReady 参与 `ready`。无额外 enable 名。Fire 当拍 `_vld==1` 且 `_ready==1`，该拍数据被接收。TX 可逐级向 NW 反压。
+
+| 方向 | 信号 |
+|------|------|
+| NW → DLL | `nw_dll_data[511:0]` / `nw_dll_vld` / `nw_dll_ready` |
+| DLL → NW | `dll_nw_data[511:0]` / `dll_nw_vld` / `dll_nw_ready` |
+| FAB → NW（VOQ egress） | `fab_nw_data[511:0]` / `fab_nw_vld` / `fab_nw_ready` |
+| NW → FAB（SAF ingress） | `nw_fab_data[511:0]` / `nw_fab_vld` / `nw_fab_ready` |
+| mgmt → NW 注入 | `mgmt_nw_data[511:0]` / `mgmt_nw_vld` / `mgmt_nw_ready` |
 
 ```mermaid
 sequenceDiagram
   participant SRC as 源（fabric/VOQ 或 mgmt 注入）
   participant NW as nw_adapt / DLL
   Note over NW: clk_fab；LinkReady 参与 ready
-  SRC->>NW: data[511:0], vld=1
+  SRC->>NW: *_data[511:0], *_vld=1
   alt ready=1
-    Note over SRC,NW: fire：本拍接收 data[511:0]
+    Note over SRC,NW: fire：本拍接收 *_data[511:0]
   else ready=0
-    Note over SRC,NW: 源保持 data 与 vld，直到 ready
+    Note over SRC,NW: 源保持 *_data 与 *_vld，直到 *_ready
   end
 ```
 
-### 4.4 PMA `txdata`/`rxdata`（无额外握手）
+### 4.4 PMA `pcs_pma_txdata` / `pma_pcs_rxdata`（无额外握手）
 
-每端口 `txclk` / `rxclk` 独立，922 MHz，不假定同源。产品 PMA 只有 `txdata[511:0]`、`txclk`、`rxdata[511:0]`、`rxclk`。没有 PMA `ready`、没有额外握手名。`txdata` 在 `txclk` 上每拍都是数据；`rxdata` 在 `rxclk` 上每拍都是数据。RX AFIFO 溢出：丢拍、计数、置 `irq_logic`。
+每端口 `txclk` / `rxclk` 独立，922 MHz，不假定同源。产品 PMA 只有 `pcs_pma_txdata[511:0]`、`txclk`、`pma_pcs_rxdata[511:0]`、`rxclk`。没有 PMA `ready`、没有额外握手名。`pcs_pma_txdata` 在 `txclk` 上每拍都是数据；`pma_pcs_rxdata` 在 `rxclk` 上每拍都是数据。RX AFIFO 溢出：丢拍、计数、置 `irq_logic`。
 
 ```mermaid
 sequenceDiagram
   participant FAB as PCS / AFIFO
   participant PMA as pma_bnd
   Note over PMA: txclk / rxclk 922 MHz，无 ready
-  FAB->>PMA: tx 路径 4x128 拼成 txdata[511:0]
-  PMA-->>FAB: 每 txclk 更新 txdata（无握手）
-  PMA->>FAB: 每 rxclk 采样 rxdata[511:0]（无握手）
+  FAB->>PMA: tx 路径 4x128 拼成 pcs_pma_txdata[511:0]
+  PMA-->>FAB: 每 txclk 更新 pcs_pma_txdata（无握手）
+  PMA->>FAB: 每 rxclk 采样 pma_pcs_rxdata[511:0]（无握手）
 ```
 
 ---
@@ -222,21 +272,21 @@ Flit = 20 字节。640 位窗只出现在 DLL↔PCS（4 flit / 拍）。NW 与 f
 
 | 级 | 功能 |
 |----|------|
-| T0 | `nw_adapt`：`data[511:0]` `vld`/`ready`；LinkReady 参与 `ready`；mgmt 回复在 ingress TX、`nw_adapt` 之前注入，优先于 VOQ |
-| T1 | `dll_tx`：512 位 NW 字节流切成 20 字节 flit；凑齐 4 flit 后向 PCS 发一拍 640 位（末 32 位 BCRC）。信用不足 / retry 满 / `REQ`\|`WAIT` 丢数据 / pending credit ≥ 1024 cell 时反压。短 EOP 余数 Null 填充到下一个 4-flit 组；`dll_rx` 在交出已声明包后丢掉该填充 |
+| T0 | `nw_adapt`：`fab_nw_data[511:0]` / `fab_nw_vld` / `fab_nw_ready` 与 `nw_dll_*`；LinkReady 参与 `ready`；mgmt 回复经 `mgmt_nw_*` 在 ingress TX、`nw_adapt` 之前注入，优先于 VOQ |
+| T1 | `dll_tx`：512 位 NW 字节流切成 20 字节 flit；凑齐 4 flit 后向 PCS 发一拍 `dll_pcs_data[639:0]`（末 32 位 BCRC）+ `dll_pcs_vld`/`dll_pcs_ready`。信用不足 / retry 满 / `REQ`\|`WAIT` 丢数据 / pending credit ≥ 1024 cell 时反压。短 EOP 余数 Null 填充到下一个 4-flit 组；`dll_rx` 在交出已声明包后丢掉该填充 |
 | T2 | `pcs_tx_g1`：收集 6 flit（640 位 = 4 flit，故 1.5 拍 + 320 位余数）。空闲插入 Null Block 填满 FEC 窗 |
 | T3 | `pcs_tx_fec`：双路 RS(128,120) 交织；T=4 默认 / T=2 / bypass（`3'b010` / `3'b001` / `3'b000`）。bypass 跳过编码器，仍 6-flit 对齐 |
 | T4 | `pcs_tx_cw2beat`：1024 位码字拆成两拍 512 位 |
 | T5 | `pcs_tx_pack` G2：512 位拍 + AMCTL（FEC 外）→ 640 位 = 4×160 进 AFIFO；`almost_full` 反压 |
 | T6 | `afifo_tx` 写 160 位 @ `clk_fab` |
 | T7 | 读 128 位 @ `txclk`，32 位余数齿轮箱 |
-| T8 | `pma_bnd` 拼成 `txdata`。无 PMA ready |
+| T8 | `pma_bnd` 拼成 `pcs_pma_txdata`。无 PMA ready |
 
 AMCTL：每 lane 40 symbol，eBCH-16；SDF 之后数据期每 640 symbol，其余 LMSM 状态每 512 symbol。插在 FEC 之后、G2 之前。扰码覆盖 LTB，不覆盖 AMCTL/EEIB。Gray / 预编码不实现（模拟 PMA，§非目标）。
 
 ### 6.2 RX（TX 的逆）
 
-`rxdata` 4×128 @ `rxclk` → `afifo_rx` → 160 位 @ `clk_fab` → 解包 / 去 AMCTL / deskew → 2×512 码字 → RS 译码（失败 → `fec_fail` 给 DLL 做 Go-Back-N；不实现 `hi_FEC_BER`）→ `dll_rx` BCRC + CFG0 终结 → `nw_adapt` `data[511:0]` 进 fabric。
+`pma_pcs_rxdata` 4×128 @ `rxclk` → `afifo_rx` → 160 位 @ `clk_fab` → 解包 / 去 AMCTL / deskew → 2×512 码字 → RS 译码（失败 → `fec_fail` 给 DLL 做 Go-Back-N；不实现 `hi_FEC_BER`）→ `pcs_dll_*` → `dll_rx` BCRC + CFG0 终结 → `nw_adapt` `dll_nw_*` / `nw_fab_data[511:0]` 进 fabric。
 
 U24：不做极性 / 车道对调训练。出厂假定物理 lane = 逻辑 lane。`AMCTL.LID` 不是 `{0,1,2,3}` 则失败到 `Link_Idle` 或 Retrain，不对调车道。
 
@@ -495,10 +545,12 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 
 | 项 | 规则 |
 |----|------|
-| 当前状态 | **已冻结**（2026-09-03，人批准） |
-| 冻结后接口 | `cfg_wr_*`、`irq_logic`、PMA `txdata`/`rxdata`/`txclk`/`rxclk`、NW `data[511:0]` `vld`/`ready` 变更须变更请求 |
-| 功能改写 | 不得以“对齐 SHA `32a7f5e0`”为由改写 FS-0.2.7 已锁定行为 |
+| 当前状态 | **CR-applied（命名）** — SPEC-0.2 进行中。SPEC-0.1 冻结（2026-09-03 / RTL `32a7f5e0`）已被 CR-B 打破，**仅限命名** |
+| 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md)（Luke Option B，2026-09-08）。清单 [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) |
+| 再变更接口 | `cfg_wr_*`、`irq_logic`、PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、NW `nw_dll_*`/`dll_nw_*`/`fab_nw_*`/`nw_fab_*` 的**语义**须变更请求 |
+| 功能改写 | 不得以“对齐 SHA `32a7f5e0`”或“CR-B 命名”为由改写 FS-0.2.7 已锁定行为 |
 | 空洞升级 | §非目标项若要进入冻结正文，须变更请求，并更新本文件版本号 |
+| RTL 更名 | 未落地。新冻结 SHA 由 Design 在 `rtl/` 端口更名后填写 |
 
 ---
 
@@ -511,4 +563,6 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 - [Vibe-UB-Switch-testpoints.md](Vibe-UB-Switch-testpoints.md) — TP-0.3
 - `tb/vibe/results/COVERAGE_HOLES.md` — 九项 HOLE
 - [`reports/synth/`](../reports/synth/) — 实现 QoR（非本 SPEC 必须项）
-- RTL SHA `32a7f5e0`
+- [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — 接口命名 Option B
+- [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) — current→proposed 清单
+- RTL SHA `32a7f5e0`（功能对齐；端口名按本 CR，RTL 未更名）
