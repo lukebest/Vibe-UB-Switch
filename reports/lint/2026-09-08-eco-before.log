@@ -50,14 +50,14 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:131:43: Cell pin connected by name with empty reference: 'drop_down_cnt'
   131 |         .egr(egr[gi]), .drop(pdrop[gi]), .drop_down_cnt()
       |                                           ^~~~~~~~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:269:59: Cell pin connected by name with empty reference: 'rd_eop'
-  269 |         .rd_data(fab_nw_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:262:59: Cell pin connected by name with empty reference: 'rd_eop'
+  262 |         .rd_data(fab_nw_data[gi]), .rd_sop(egr_sop[gi]), .rd_eop(),
       |                                                           ^~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:271:45: Cell pin connected by name with empty reference: 'deadlock_cnt'
-  271 |         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:264:45: Cell pin connected by name with empty reference: 'deadlock_cnt'
+  264 |         .deadlock_drop(deadlock_drop[gi]), .deadlock_cnt()
       |                                             ^~~~~~~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:283:10: Cell pin connected by name with empty reference: 'marked'
-  283 |         .marked()
+%Warning-PINCONNECTEMPTY: /workspace/rtl/fabric/vibe_fabric.sv:276:10: Cell pin connected by name with empty reference: 'marked'
+  276 |         .marked()
       |          ^~~~~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/mgmt/vibe_mgmt.sv:60:6: Cell pin connected by name with empty reference: 'guid0'
    60 |     .guid0(), .class_code(), .port_basic(), .port_cap()
@@ -324,13 +324,13 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
   125 |     vibe_nw512_decl_beats = (b + 16'd63) >> 6;
       |                           ^
                      /workspace/rtl/fabric/vibe_saf_ing.sv:21:1: ... note: In file included from 'vibe_saf_ing.sv'
-%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:60:22: Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's FUNCREF 'vibe_nw512_decl_beats' generates 8 bits.
+%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:56:22: Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's FUNCREF 'vibe_nw512_decl_beats' generates 8 bits.
                                                                 : ... note: In instance 'vibe_ub_switch.u_fab.g_saf[3].u_saf'
-   60 |           decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
+   56 |           decl_beats <= vibe_nw512_decl_beats(vibe_nw512_flit0(in_data));
       |                      ^~
-%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:61:22: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's MULS generates 32 bits.
+%Warning-WIDTHTRUNC: /workspace/rtl/fabric/vibe_saf_ing.sv:57:22: Operator ASSIGNDLY expects 16 bits on the Assign RHS, but Assign RHS's MULS generates 32 bits.
                                                                 : ... note: In instance 'vibe_ub_switch.u_fab.g_saf[3].u_saf'
-   61 |           bytes      <= dflits * 20;
+   57 |           bytes      <= dflits * 20;
       |                      ^~
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:94:25: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 4 bits.
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_prx'
@@ -5252,3 +5252,40 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
   105 |   input logic [511:0] beat;
       |                       ^~~~
                        /workspace/rtl/pcs/vibe_rs128_120_enc.sv:14:1: ... note: In file included from 'vibe_rs128_120_enc.sv'
+%Warning-LATCH: /workspace/rtl/fabric/vibe_xbar.sv:26:3: Latch inferred for signal 'vibe_ub_switch.u_fab.u_xbar.req' (not all control paths of combinational always assign a value)
+                                                       : ... Suggest use of always_latch for intentional latches
+   26 |   always @* begin
+      |   ^~~~~~
+%Warning-LATCH: /workspace/rtl/fabric/vibe_xbar.sv:26:3: Latch inferred for signal 'vibe_ub_switch.u_fab.u_xbar.win' (not all control paths of combinational always assign a value)
+                                                       : ... Suggest use of always_latch for intentional latches
+   26 |   always @* begin
+      |   ^~~~~~
+%Warning-BLKSEQ: /workspace/rtl/fabric/vibe_saf_ing.sv:54:22: Blocking assignment '=' in sequential logic process
+                                                            : ... Suggest using delayed assignment '<='
+   54 |           plen       = vibe_lph_plength(vibe_nw512_flit0(in_data));
+      |                      ^
+%Warning-BLKSEQ: /workspace/rtl/fabric/vibe_saf_ing.sv:55:22: Blocking assignment '=' in sequential logic process
+                                                            : ... Suggest using delayed assignment '<='
+   55 |           dflits     = vibe_decl_flits(plen);
+      |                      ^
+%Warning-UNOPTFLAT: /workspace/rtl/fabric/vibe_fabric.sv:223:15: Signal unoptimizable: Circular combinational logic: 'vibe_ub_switch.u_fab.x_in_v'
+  223 |   logic [3:0] x_in_v;
+      |               ^~~~~~
+                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
+                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS
+                    /workspace/rtl/fabric/vibe_fabric.sv:140:51:      Example path: vibe_ub_switch.u_fab.xb_in_r
+                    /workspace/rtl/fabric/vibe_fabric.sv:182:3:      Example path: ALWAYS
+                    /workspace/rtl/top/vibe_ub_switch.sv:48:41:      Example path: vibe_ub_switch.fab_mgmt_cfg6_hit
+                    /workspace/rtl/fabric/vibe_fabric.sv:224:3:      Example path: ALWAYS
+                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
+%Warning-UNOPTFLAT: /workspace/rtl/fabric/vibe_fabric.sv:50:39: Signal unoptimizable: Circular combinational logic: 'vibe_ub_switch.u_fab.xb_r'
+   50 |   logic [3:0]   xb_v, xb_sop, xb_eop, xb_r;
+      |                                       ^~~~
+                    /workspace/rtl/fabric/vibe_fabric.sv:50:39:      Example path: vibe_ub_switch.u_fab.xb_r
+                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS
+                    /workspace/rtl/fabric/vibe_fabric.sv:140:51:      Example path: vibe_ub_switch.u_fab.xb_in_r
+                    /workspace/rtl/fabric/vibe_fabric.sv:182:3:      Example path: ALWAYS
+                    /workspace/rtl/top/vibe_ub_switch.sv:48:41:      Example path: vibe_ub_switch.fab_mgmt_cfg6_hit
+                    /workspace/rtl/fabric/vibe_fabric.sv:224:3:      Example path: ALWAYS
+                    /workspace/rtl/fabric/vibe_fabric.sv:223:15:      Example path: vibe_ub_switch.u_fab.x_in_v
+                    /workspace/rtl/fabric/vibe_xbar.sv:26:3:      Example path: ALWAYS

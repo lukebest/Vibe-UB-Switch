@@ -178,6 +178,8 @@ module vibe_fabric #(
 
   // CFG6: terminate only if us / NLP=1 / opcode 0x10 targeting us (AS-0.1 §9).
   // Non-term CFG6 must take the xbar like CFG3/4/5/7/9. Do not flood.
+  // Split from saf_r so xbar ready (xb_in_r) is not in the same combo
+  // process as fab_mgmt_cfg6_hit / x_in_v (false UNOPTFLAT loop).
   logic [3:0] cfg6_term, cfg6_drain, cfg6_seen;
   always @* begin
     for (p = 0; p < 4; p = p + 1) begin
@@ -186,7 +188,12 @@ module vibe_fabric #(
                      vibe_cfg6_should_term(cna_written, cna, hdr[p]);
       fab_mgmt_cfg6_hit[p]  = cfg6_term[p] || cfg6_drain[p];
       fab_mgmt_cfg6_data[p] = saf_sop[p] ? saf_d[p] : cfg6_hold[p];
-      // Drain G1 drops and terminate-CFG6; non-term CFG6 uses xbar ready.
+    end
+  end
+
+  // Drain G1 drops and terminate-CFG6; non-term CFG6 uses xbar ready.
+  always @* begin
+    for (p = 0; p < 4; p = p + 1) begin
       saf_r[p]     = g1_evt[p] || g1_drain[p] || pdrop[p] ||
                      cfg6_term[p] || cfg6_drain[p] ||
                      (xb_in_r[p] && !g1_comb[p] && !fab_mgmt_cfg6_hit[p]);
