@@ -399,10 +399,10 @@ def render_g1(waves: str) -> None:
         os.path.join(waves, "g1_rt10.png"),
         v,
         [
-            ("wav_ing0", "ing_vld[0]", "bit"),
+            ("wav_ing0", "nw_fab_vld[0]", "bit"),
             ("wav_rt", "RT field", "dec"),
-            ("wav_egr0", "egr_vld[0]", "bit"),
-            ("wav_egr", "egr_vld[3:0]", "hex"),
+            ("wav_egr0", "fab_nw_vld[0]", "bit"),
+            ("wav_egr", "fab_nw_vld[3:0]", "hex"),
             ("wav_g1", "drop_g1", "bit"),
             ("wav_g1cnt", "rt_shortest_unimpl", "dec"),
             ("wav_irq", "irq_logic", "bit"),
@@ -458,21 +458,21 @@ def render_cfg6(waves: str) -> None:
     draw_window(
         fab_png, v,
         [
-            ("wav_ing0", "ing_vld[0]", "bit"),
+            ("wav_ing0", "nw_fab_vld[0]", "bit"),
             ("wav_cfg", "CFG field", "dec"),
             ("wav_nlp", "NLP", "dec"),
             ("wav_opc", "opcode flit[103:96]", "hex"),
-            ("wav_cfg6h0", "fab.cfg6_hit[0]", "bit"),
+            ("wav_cfg6h0", "fab.fab_mgmt_cfg6_hit[0]", "bit"),
             ("wav_xin0", "fab.x_in_v[0]", "bit"),
-            ("wav_egr0", "egr_vld[0]", "bit"),
+            ("wav_egr0", "fab_nw_vld[0]", "bit"),
         ],
         max(0, t_fab0 - 4 * p), (xin or t_fab0) + 12 * p,
         [
-            (cfg6h, "TERM: cfg6_hit / no xbar (local-CNA)", "#c0392b"),
+            (cfg6h, "TERM: fab_mgmt_cfg6_hit / no xbar (local-CNA)", "#c0392b"),
             (xin or (t_fab0 + 20 * p), "FORWARD: x_in_v=1 / egress", "#1e8449"),
         ],
         "CFG6 fabric: terminate vs FORWARD — tc_cfg6_term_vs_fwd",
-        "Expected: local-CNA beat cfg6_hit=1 and x_in_v=0; FORWARD beat (DCNA!=CNA, NLP=0, opc=0) "
+        "Expected: local-CNA beat fab_mgmt_cfg6_hit=1 and x_in_v=0; FORWARD beat (DCNA!=CNA, NLP=0, opc=0) "
         "x_in_v=1.  Actual: TERM marker then FORWARD x_in_v=1 (PASS tc_cfg6_term_vs_fwd).",
     )
     stitch(os.path.join(waves, "cfg6_term_vs_fwd.png"), unit_png, fab_png)
@@ -601,18 +601,18 @@ def render_loopback(waves: str) -> None:
         return
     v = parse_vcd(src)
     p = v.period
-    t_inj = first_rise(_need(v, "fab_tx_vld")) or (20 * p)
+    t_inj = first_rise(_need(v, "fab_nw_vld")) or (20 * p)
     t_pma = first_rise(_need(v, "wav_tx_nz")) or first_rise(_need(v, "wav_ptxv"))
     if t_pma is None:
         t_pma = t_inj + 40 * p
-    t_rx = first_rise(_need(v, "wav_rx_eq")) or first_rise(_need(v, "fab_rx_vld"))
+    t_rx = first_rise(_need(v, "wav_rx_eq")) or first_rise(_need(v, "nw_fab_vld"))
     if t_rx is None:
         t_rx = last_time(v)
     t_pcs = first_rise(_need(v, "wav_pcs_rx"), tmin=t_inj) or t_rx
     marks_all = [
         (t_inj, "inject GOLDEN_TX data[511:0]", "#1f4e79"),
-        (t_pma, "PMA txdata nonzero (rxdata=txdata)", "#b9770e"),
-        (t_rx, "fab_rx_data[511:0] === GOLDEN_TX", "#c0392b"),
+        (t_pma, "PMA pcs_pma_txdata nonzero (pma_pcs_rxdata=pcs_pma_txdata)", "#b9770e"),
+        (t_rx, "nw_fab_data[511:0] === GOLDEN_TX", "#c0392b"),
     ]
     tx_png = os.path.join(waves, "_lb512_tx.png")
     pma_png = os.path.join(waves, "_lb512_pma.png")
@@ -620,9 +620,9 @@ def render_loopback(waves: str) -> None:
     draw_window(
         tx_png, v,
         [
-            ("fab_tx_vld", "fab_tx_vld", "bit"),
-            ("fab_tx_ready", "fab_tx_ready", "bit"),
-            ("fab_tx_data", "fab_tx_data[511:0]", "hex"),
+            ("fab_nw_vld", "fab_nw_vld", "bit"),
+            ("fab_nw_ready", "fab_nw_ready", "bit"),
+            ("fab_nw_data", "fab_nw_data[511:0]", "hex"),
             ("wav_tx_sop", "SOP LPH [511:352]", "hex"),
             ("wav_tx_cfg", "SOP CFG (160b [11:8])", "dec"),
             ("wav_tx_rt", "SOP RT (160b [23:22])", "dec"),
@@ -633,36 +633,36 @@ def render_loopback(waves: str) -> None:
         max(0, t_inj - 6 * p), t_inj + 20 * p,
         marks_all,
         "TX  NW data[511:0] GOLDEN inject  —  tc_nw_pkt_pma_loopback  (TP-PHY-012)",
-        "Expected: handshake + fab_tx_data === GOLDEN_TX. SOP LPH is [511:352] "
+        "Expected: handshake + fab_nw_data === GOLDEN_TX. SOP LPH is [511:352] "
         "(CFG=3 RT=00 SCNA=A11A DCNA=B22B). [351:0] is payload. Not README [511:496].",
         notes=[(t_inj, "inject")],
     )
     draw_window(
         pma_png, v,
         [
-            ("txdata", "txdata[511:0]", "hex"),
-            ("rxdata", "rxdata[511:0]", "hex"),
-            ("wav_lb_eq", "rxdata==txdata", "bit"),
-            ("wav_ptxv", "u_p.p_txv", "bit"),
-            ("wav_txlv", "u_p.txlv (lane_vld)", "bit"),
-            ("wav_lane0", "txdata[31:0] lane0", "hex"),
-            ("wav_lane3", "txdata[511:480] lane3", "hex"),
+            ("pcs_pma_txdata", "pcs_pma_txdata[511:0]", "hex"),
+            ("pma_pcs_rxdata", "pma_pcs_rxdata[511:0]", "hex"),
+            ("wav_lb_eq", "pma_pcs_rxdata==pcs_pma_txdata", "bit"),
+            ("wav_ptxv", "u_p.afifo_pma_lane_vld", "bit"),
+            ("wav_txlv", "u_p.pcs_afifo_lane_vld", "bit"),
+            ("wav_lane0", "pcs_pma_txdata[31:0] lane0", "hex"),
+            ("wav_lane3", "pcs_pma_txdata[511:480] lane3", "hex"),
         ],
         max(0, t_pma - 12 * p), t_pma + 40 * p,
         marks_all,
-        "PMA  txdata[511:0] + loopback tie  —  same TC",
-        "Expected: txdata nonzero; [127:0]=lane0 .. [511:384]=lane3; "
-        "rxdata=txdata (assign).  Actual: lb_eq=1 when p_txv.",
+        "PMA  pcs_pma_txdata[511:0] + loopback tie  —  same TC",
+        "Expected: pcs_pma_txdata nonzero; [127:0]=lane0 .. [511:384]=lane3; "
+        "pma_pcs_rxdata=pcs_pma_txdata (assign).  Actual: lb_eq=1 when afifo_pma_lane_vld.",
         notes=[(t_pma, "PMA activity")],
     )
     draw_window(
         rx_png, v,
         [
             ("wav_am", "u_p.am_locked", "hex"),
-            ("wav_pcs_rx", "u_p.pcs_rx_v", "bit"),
+            ("wav_pcs_rx", "u_p.pcs_dll_vld", "bit"),
             ("wav_fec", "u_p.fec_fail", "bit"),
-            ("fab_rx_vld", "fab_rx_vld", "bit"),
-            ("fab_rx_data", "fab_rx_data[511:0]", "hex"),
+            ("nw_fab_vld", "nw_fab_vld", "bit"),
+            ("nw_fab_data", "nw_fab_data[511:0]", "hex"),
             ("wav_rx_sop", "RX SOP LPH [511:352]", "hex"),
             ("wav_rx_cfg", "RX CFG", "dec"),
             ("wav_rx_rt", "RX RT", "dec"),
@@ -674,9 +674,9 @@ def render_loopback(waves: str) -> None:
         max(0, t_rx - 20 * p), t_rx + 16 * p,
         marks_all,
         "RX  recovered NW data[511:0] === GOLDEN  —  tc_nw_pkt_pma_loopback",
-        "Expected: fab_rx_data[511:0] === GOLDEN_TX; SOP [511:352] CFG=3 RT=00 "
+        "Expected: nw_fab_data[511:0] === GOLDEN_TX; SOP [511:352] CFG=3 RT=00 "
         "SCNA=A11A DCNA=B22B; fec_fail=0.  Actual: wav_rx_eq=1 (PASS).",
-        notes=[(t_pcs, "pcs_rx_v"), (t_rx, "fab_rx score")],
+        notes=[(t_pcs, "pcs_dll_vld"), (t_rx, "nw_fab score")],
     )
     stitch(out_png, tx_png, pma_png, rx_png)
 

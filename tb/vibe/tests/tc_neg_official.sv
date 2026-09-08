@@ -51,7 +51,7 @@ module tc_neg_official;
     one(HIT_OFFCHIP, "tc_neg_no_offchip_mgmt",     "i2c_sda / jtag_tck");
     one(HIT_README,  "tc_neg_no_readme_numbers",   "OLD_README / ub_v0_nport");
     one(HIT_FS7,     "tc_neg_no_fs7_bundle",       "FS7_ / fs7_bundle");
-    one(HIT_P5,      "tc_neg_no_fifth_port",       "txdata_4 / vibe_port_4");
+    one(HIT_P5,      "tc_neg_no_fifth_port",       "pcs_pma_txdata_4 / vibe_port_4");
     if (!fail) $display("PASS tc_neg_official");
     $finish;
   end

@@ -1,6 +1,6 @@
 // PCS RX: 4×160 from vibe_pcs_tx (T=4, same pin as vibe_port). Score
-// dll_vld/dll_data vs the injected beat (inverse of TX pack). FAIL if
-// dll never valid or LPH mismatches. Coverage-only wv/win/remv force is gone.
+// pcs_dll_vld/pcs_dll_data vs the injected beat (inverse of TX pack). FAIL if
+// pcs_dll never valid or LPH mismatches. Coverage-only wv/win/remv force is gone.
 `timescale 1ns/1ps
 module tc_pcs_rx;
   `include "vibe_tb_defs.svh"
@@ -23,14 +23,16 @@ module tc_pcs_rx;
   vibe_pcs_tx u_tx (
     .clk(clk), .rst_n(rst_n), .link_up(link_up), .sdf_period(sdf_period),
     .fec_mode(fec_mode), .afifo_afull(afifo_afull),
-    .dll_data(dll_in), .dll_vld(dll_in_v), .dll_ready(dll_in_r),
-    .lane0(lane0), .lane1(lane1), .lane2(lane2), .lane3(lane3), .lane_vld(lane_vld)
+    .dll_pcs_data(dll_in), .dll_pcs_vld(dll_in_v), .dll_pcs_ready(dll_in_r),
+    .pcs_afifo_lane0(lane0), .pcs_afifo_lane1(lane1),
+    .pcs_afifo_lane2(lane2), .pcs_afifo_lane3(lane3), .pcs_afifo_lane_vld(lane_vld)
   );
 
   vibe_pcs_rx u_rx (
     .clk(clk), .rst_n(rst_n), .link_up(link_up), .fec_mode(fec_mode),
-    .lane0(lane0), .lane1(lane1), .lane2(lane2), .lane3(lane3), .lane_vld(lane_vld),
-    .dll_data(dll_out), .dll_vld(dll_out_v), .dll_ready(dll_out_r),
+    .afifo_pcs_lane0(lane0), .afifo_pcs_lane1(lane1),
+    .afifo_pcs_lane2(lane2), .afifo_pcs_lane3(lane3), .afifo_pcs_lane_vld(lane_vld),
+    .pcs_dll_data(dll_out), .pcs_dll_vld(dll_out_v), .pcs_dll_ready(dll_out_r),
     .fec_fail(fec_fail), .am_locked(am_locked), .lid_bad(lid_bad),
     .deskew_ok(deskew_ok)
   );
@@ -100,9 +102,9 @@ module tc_pcs_rx;
 
     if (!accepted) begin
       fail_at("legal 640b LPH beat after link_up (T=4)",
-              "u_tx.dll_ready handshake",
-              "TX never accepted dll_vld",
-              "u_tx.dll_ready / u_tx.u_g1");
+              "u_tx.dll_pcs_ready handshake",
+              "TX never accepted dll_pcs_vld",
+              "u_tx.dll_pcs_ready / u_tx.u_g1");
       $finish;
     end
 
@@ -124,16 +126,16 @@ module tc_pcs_rx;
       $display("  detail   : lock=%04b deskew=%0b fec_fail=%0b lid_bad=%0b last=%h",
                am_locked, deskew_ok, fec_fail, lid_bad, last_dll);
       fail_at("TX lanes looped into RX after AM lock + 1 legal dll beat",
-              "dll_vld=1 with nonzero dll_data (inverse TX pack)",
-              "dll_vld stayed 0",
-              "u_rx.dll_vld / u_rx.u_fec / u_rx.u_dsk");
+              "pcs_dll_vld=1 with nonzero pcs_dll_data (inverse TX pack)",
+              "pcs_dll_vld stayed 0",
+              "u_rx.pcs_dll_vld / u_rx.u_fec / u_rx.u_dsk");
       $finish;
     end
     if (last_dll === 640'd0) begin
-      fail_at("RX dll_vld after TX pack",
-              "dll_data nonzero (known LPH/payload)",
-              "dll_data=0",
-              "u_rx.dll_data");
+      fail_at("RX pcs_dll_vld after TX pack",
+              "pcs_dll_data nonzero (known LPH/payload)",
+              "pcs_dll_data=0",
+              "u_rx.pcs_dll_data");
       $finish;
     end
     if (!lph_ok) begin
@@ -144,7 +146,7 @@ module tc_pcs_rx;
       fail_at("RX dll after TX T=4 pack of CFG=3 A11A/B22B",
               "LPH CFG=3 SCNA=A11A DCNA=B22B (inverse of TX pack)",
               "see detail line",
-              "u_rx.dll_data");
+              "u_rx.pcs_dll_data");
       $finish;
     end
     if (!saw_lock) begin

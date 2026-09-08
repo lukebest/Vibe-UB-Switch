@@ -32,7 +32,8 @@ RULES = [
     ("HIT_OFFCHIP", "tc_neg_no_offchip_mgmt", r"\bi2c_sda\b|\bjtag_tck\b|\boffchip_mgmt\b"),
     ("HIT_README", "tc_neg_no_readme_numbers", r"\bOLD_README\b|\bub_v0_nport\b"),
     ("HIT_FS7", "tc_neg_no_fs7_bundle", r"\bFS7_\b|\bfs7_bundle\b"),
-    ("HIT_P5", "tc_neg_no_fifth_port", r"\btxdata_4\b|\brxdata_4\b|\bvibe_port_4\b"),
+    ("HIT_P5", "tc_neg_no_fifth_port",
+     r"\bpcs_pma_txdata_4\b|\bpma_pcs_rxdata_4\b|\btxdata_4\b|\brxdata_4\b|\bvibe_port_4\b"),
 ]
 
 COMMENT_OK = re.compile(

@@ -93,17 +93,17 @@ Compute/check as **sender/receiver**. Transit does **not** recompute.
 
 ---
 
-## NW packet → PMA `txdata[511:0]` (FS-0.2.7 Overlay B / AS-0.1.2)
+## NW packet → PMA `pcs_pma_txdata[511:0]` (FS-0.2.7 Overlay B / AS-0.1.2)
 
-Product boundary: `txdata[511:0]`, no extra handshake; `[127:0]=lane0` … `[511:384]=lane3`.
+Product boundary: `pcs_pma_txdata[511:0]`, no extra handshake; `[127:0]=lane0` … `[511:384]=lane3`.
 
-Previously missing: `tc_port_smoke` drives one `fab_tx` beat and never scores `txdata`. `tc_top_smoke` notes no packet BFM. PHY units use synthetic DLL/lane patterns.
+Previously missing: `tc_port_smoke` drives one `fab_nw` beat and never scores `pcs_pma_txdata`. `tc_top_smoke` notes no packet BFM. PHY units use synthetic DLL/lane patterns.
 
 | Checker | Spec | Verdict |
 |---|---|---|
-| `tc_nw_pkt_to_pma_tx` | TX NW→DLL: accepted beat `dll_tx_data[511:0] === GOLDEN_TX`; then PMA pack | **FIXED** — unique 512b GOLDEN (not a 640 slice, no LPH extract). Width≠512 cannot PASS. |
+| `tc_nw_pkt_to_pma_tx` | TX NW→DLL: accepted beat `nw_dll_data[511:0] === GOLDEN_TX`; then PMA pack | **FIXED** — unique 512b GOLDEN (not a 640 slice, no LPH extract). Width≠512 cannot PASS. |
 | `tc_nw_pkt_pma_loopback` | E2E: **100** unique GOLDEN packets; each TX + RX `data[511:0]` in order | **FIXED** — 100 distinct SOP beats (LPH `[511:352]`, unique `[351:0]`). `fec_fail=0`. |
-| `tc_phy_nw_dll_512b` | TX `dll_tx===GOLDEN_TX` and RX `fab_rx===GOLDEN_RX` | **FIXED** — beat-by-beat 512b content both directions. Width gate kept; PASS illegal without content. |
+| `tc_phy_nw_dll_512b` | TX `nw_dll===GOLDEN_TX` and RX `nw_fab===GOLDEN_RX` | **FIXED** — beat-by-beat 512b content both directions. Width gate kept; PASS illegal without content. |
 | `tc_nw_adapt_linkready` | Same 512b TX+RX GOLDEN + LinkReady / mgmt pri | **FIXED** — content compare always attempted. |
 
 DUT cannot be put in FEC bypass without an `rtl/` edit (`assign fec_mode = VIBE_FEC_T4`). Golden uses T=4.
@@ -124,14 +124,14 @@ Each of these can FAIL with stimulus / expected / actual / hier. No `$display("P
 
 | Checker | Was | Now |
 |---|---|---|
-| `tc_port_smoke` (TP-PHY-001) | one `fab_tx` beat, never scored `txdata` | TX `dll_tx===GOLDEN_TX`; RX `fab_rx===GOLDEN_TX` after PMA loopback. PMA pack supporting. |
-| `tc_pcs_tx` | PASS if no `lane_vld` | FAIL if no `lane_vld` after legal dll + `link_up`. Lane words vs second `vibe_pcs_tx` golden (bypass). |
-| `tc_pcs_rx` | force `wv`/`win`/`remv`; `fail` never set | TX→RX T=4 (port pin). Score `dll_vld` + LPH vs injected pack. No coverage-only force as pass. |
-| `tc_fabric_line_holes` | coverage stimulus, FAIL=0 | CFG6 1-beat + 2-beat `cfg6_hit[0]`; G1 sat `FFFFFFFE`→`FFFFFFFF` then stay. |
+| `tc_port_smoke` (TP-PHY-001) | one `fab_nw` beat, never scored `pcs_pma_txdata` | TX `nw_dll===GOLDEN_TX`; RX `nw_fab===GOLDEN_TX` after PMA loopback. PMA pack supporting. |
+| `tc_pcs_tx` | PASS if no `pcs_afifo_lane_vld` | FAIL if no `pcs_afifo_lane_vld` after legal dll + `link_up`. Lane words vs second `vibe_pcs_tx` golden (bypass). |
+| `tc_pcs_rx` | force `wv`/`win`/`remv`; `fail` never set | TX→RX T=4 (port pin). Score `pcs_dll_vld` + LPH vs injected pack. No coverage-only force as pass. |
+| `tc_fabric_line_holes` | coverage stimulus, FAIL=0 | CFG6 1-beat + 2-beat `fab_mgmt_cfg6_hit[0]`; G1 sat `FFFFFFFE`→`FFFFFFFF` then stay. |
 | `tc_neg_official` | 19 PASS, no RTL scan | `scan_official_neg.py` → include; FAIL if forbidden id in `vibe_*.sv` code. One PASS per official NEG after clean scan. |
 | `tc_credit_1024_hole` | NOTE+PASS stub | Same 1023→1024 **cell** `bp_nw` as `tc_credit_1024_flit_bp` (G7 closed as cell). |
-| `tc_phy_nw_dll_512b` | (new Overlay B) | FAIL if `$bits(fab_tx_data)!==512`. Compiles against 640 DUT; FAIL goes to 设计. |
-| `tc_top_smoke` | reset/CNA only, no packet BFM | Peer encodes RT=10 onto `rxdata_0`; score top `irq_logic`. FAIL if no packet / no irq (no NOTE skip). |
+| `tc_phy_nw_dll_512b` | (new Overlay B) | FAIL if `$bits(fab_nw_data)!==512`. Compiles against 640 DUT; FAIL goes to 设计. |
+| `tc_top_smoke` | reset/CNA only, no packet BFM | Peer encodes RT=10 onto `pma_pcs_rxdata_0`; score top `irq_logic`. FAIL if no packet / no irq (no NOTE skip). |
 
 Optional (same pass): `tc_credit_no_underflow` scans `vibe_dll_credit` for underflow tokens + exercises return-without-consume. `tc_timers_indep` instantiates credit + VOQ; credit expiry must not set VOQ drop.
 

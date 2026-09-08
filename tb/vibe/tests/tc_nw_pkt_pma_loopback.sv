@@ -10,11 +10,11 @@ module tc_nw_pkt_pma_loopback;
   localparam BEAT_TO  = 4096;
 
   logic clk_fab, rst_n, port_rst, device_rst, lmsm_go, txclk, rxclk;
-  logic [511:0] txdata, rxdata;
-  logic [511:0] fab_tx_data, fab_rx_data, mgmt_tx_data;
+  logic [511:0] pcs_pma_txdata, pma_pcs_rxdata;
+  logic [511:0] fab_nw_data, nw_fab_data, mgmt_nw_data;
   logic [639:0] cfg0_data;
-  logic fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready;
-  logic mgmt_tx_vld, mgmt_tx_ready, status_up, disabled, retry_error;
+  logic fab_nw_vld, fab_nw_ready, nw_fab_vld, nw_fab_ready;
+  logic mgmt_nw_vld, mgmt_nw_ready, status_up, disabled, retry_error;
   logic proto_err, fc_ovf, rx_ovf, afifo_ovf, cfg0_hit;
   integer fail, i, j, accepted, dump_hold;
   integer saw_afrv, saw_pcs_rx, saw_am, saw_txnz;
@@ -30,7 +30,7 @@ module tc_nw_pkt_pma_loopback;
   initial txclk = 0;
   always #2 txclk = ~txclk;
   assign rxclk  = txclk;
-  assign rxdata = txdata;
+  assign pma_pcs_rxdata = pcs_pma_txdata;
 
   logic        wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_pcs_rx, wav_fec;
   logic        wav_ptxv, wav_txlv, wav_rx_eq;
@@ -51,14 +51,14 @@ module tc_nw_pkt_pma_loopback;
         $dumpfile(dump_fn);
         // Selected pins only — not $dumpvars(0, tc). 100 pkts stay small.
         $dumpvars(0, clk_fab, txclk, rxclk, rst_n,
-                  fab_tx_vld, fab_tx_ready, fab_rx_vld, fab_rx_ready,
-                  fab_tx_data, fab_rx_data, golden_tx,
+                  fab_nw_vld, fab_nw_ready, nw_fab_vld, nw_fab_ready,
+                  fab_nw_data, nw_fab_data, golden_tx,
                   wav_tx_sop, wav_tx_pld, wav_rx_sop, wav_rx_pld,
                   wav_tx_cfg, wav_tx_rt, wav_tx_scna, wav_tx_dcna,
                   wav_rx_cfg, wav_rx_rt, wav_rx_scna, wav_rx_dcna,
                   wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_lane0, wav_lane3,
                   wav_ptxv, wav_txlv, wav_am, wav_pcs_rx, wav_fec,
-                  wav_rx_eq, txdata, rxdata, tx_n, rx_n);
+                  wav_rx_eq, pcs_pma_txdata, pma_pcs_rxdata, tx_n, rx_n);
       end
     end
   end
@@ -66,37 +66,37 @@ module tc_nw_pkt_pma_loopback;
   vibe_port u_p (
     .clk_fab(clk_fab), .rst_n(rst_n), .port_rst(port_rst), .device_rst(device_rst),
     .lmsm_go(lmsm_go), .txclk(txclk), .rxclk(rxclk),
-    .txdata(txdata), .rxdata(rxdata),
-    .fab_tx_data(fab_tx_data), .fab_tx_vld(fab_tx_vld), .fab_tx_ready(fab_tx_ready),
-    .fab_rx_data(fab_rx_data), .fab_rx_vld(fab_rx_vld), .fab_rx_ready(fab_rx_ready),
-    .mgmt_tx_data(mgmt_tx_data), .mgmt_tx_vld(mgmt_tx_vld), .mgmt_tx_ready(mgmt_tx_ready),
+    .pcs_pma_txdata(pcs_pma_txdata), .pma_pcs_rxdata(pma_pcs_rxdata),
+    .fab_nw_data(fab_nw_data), .fab_nw_vld(fab_nw_vld), .fab_nw_ready(fab_nw_ready),
+    .nw_fab_data(nw_fab_data), .nw_fab_vld(nw_fab_vld), .nw_fab_ready(nw_fab_ready),
+    .mgmt_nw_data(mgmt_nw_data), .mgmt_nw_vld(mgmt_nw_vld), .mgmt_nw_ready(mgmt_nw_ready),
     .status_up(status_up), .disabled(disabled),
     .retry_error(retry_error), .proto_err(proto_err), .fc_ovf(fc_ovf),
     .rx_ovf(rx_ovf), .afifo_ovf(afifo_ovf),     .cfg0_hit(cfg0_hit), .cfg0_data(cfg0_data)
   );
 
-  assign wav_tx_nz   = |txdata;
-  assign wav_rx_nz   = |rxdata;
-  assign wav_lb_eq   = (rxdata === txdata);
-  assign wav_lane0   = txdata[31:0];
-  assign wav_lane3   = txdata[511:480];
+  assign wav_tx_nz   = |pcs_pma_txdata;
+  assign wav_rx_nz   = |pma_pcs_rxdata;
+  assign wav_lb_eq   = (pma_pcs_rxdata === pcs_pma_txdata);
+  assign wav_lane0   = pcs_pma_txdata[31:0];
+  assign wav_lane3   = pcs_pma_txdata[511:480];
   assign wav_am      = u_p.am_locked;
-  assign wav_pcs_rx  = u_p.pcs_rx_v;
+  assign wav_pcs_rx  = u_p.pcs_dll_vld;
   assign wav_fec     = u_p.fec_fail;
-  assign wav_ptxv    = u_p.p_txv;
-  assign wav_txlv    = u_p.txlv;
+  assign wav_ptxv    = u_p.afifo_pma_lane_vld;
+  assign wav_txlv    = u_p.pcs_afifo_lane_vld;
   always @(*) begin
-    if (fab_rx_vld && rx_n >= 0 && rx_n < NPKT)
-      wav_rx_eq = (fab_rx_data === exp_sop[rx_n]) &&
-                  ($bits(u_p.fab_rx_data) === 512);
+    if (nw_fab_vld && rx_n >= 0 && rx_n < NPKT)
+      wav_rx_eq = (nw_fab_data === exp_sop[rx_n]) &&
+                  ($bits(u_p.nw_fab_data) === 512);
     else
       wav_rx_eq = 1'b0;
   end
   // 设计: SOP LPH is [511:352] (160b); [351:0] is payload. Not [511:496].
-  assign wav_tx_sop  = fab_tx_data[511:352];
-  assign wav_tx_pld  = fab_tx_data[351:0];
-  assign wav_rx_sop  = fab_rx_data[511:352];
-  assign wav_rx_pld  = fab_rx_data[351:0];
+  assign wav_tx_sop  = fab_nw_data[511:352];
+  assign wav_tx_pld  = fab_nw_data[351:0];
+  assign wav_rx_sop  = nw_fab_data[511:352];
+  assign wav_rx_pld  = nw_fab_data[351:0];
   assign wav_tx_cfg  = wav_tx_sop[11:8];
   assign wav_tx_rt   = wav_tx_sop[23:22];
   assign wav_tx_scna = wav_tx_sop[47:32];
@@ -126,8 +126,8 @@ module tc_nw_pkt_pma_loopback;
     integer w;
     begin
       rst_n = 0; port_rst = 0; device_rst = 0; lmsm_go = 0;
-      fab_tx_vld = 0; fab_rx_ready = 1; mgmt_tx_vld = 0;
-      fab_tx_data = 0; mgmt_tx_data = 0;
+      fab_nw_vld = 0; nw_fab_ready = 1; mgmt_nw_vld = 0;
+      fab_nw_data = 0; mgmt_nw_data = 0;
       repeat (8) @(posedge clk_fab);
       rst_n = 1;
       repeat (8) @(posedge clk_fab);
@@ -163,25 +163,25 @@ module tc_nw_pkt_pma_loopback;
   task automatic peek_rx;
     begin
       if (u_p.afrv0 & u_p.afrv1 & u_p.afrv2 & u_p.afrv3) saw_afrv = 1;
-      if (u_p.pcs_rx_v) saw_pcs_rx = 1;
+      if (u_p.pcs_dll_vld) saw_pcs_rx = 1;
       if (|u_p.am_locked) saw_am = 1;
-      if (txdata !== 512'd0) saw_txnz = 1;
+      if (pcs_pma_txdata !== 512'd0) saw_txnz = 1;
       if (u_p.fec_fail) saw_fec_fail = 1;
       if (u_p.deskew_ok) saw_deskew = 1;
-      if (!fab_rx_vld)
+      if (!nw_fab_vld)
         ;
       else begin
         saw_fab_rx = 1;
-        last_rx = fab_rx_data;
+        last_rx = nw_fab_data;
         if (rx_n >= NPKT)
           ;
-        else if (fab_rx_data === exp_sop[rx_n]) begin
-          if (vibe_tb_nw512_vec_fail(rx_w, exp_sop[rx_n], fab_rx_data) ||
-              vibe_tb_nw512_sop_lph_fail(exp_sop[rx_n], fab_rx_data)) begin
+        else if (nw_fab_data === exp_sop[rx_n]) begin
+          if (vibe_tb_nw512_vec_fail(rx_w, exp_sop[rx_n], nw_fab_data) ||
+              vibe_tb_nw512_sop_lph_fail(exp_sop[rx_n], nw_fab_data)) begin
             vibe_tb_nw512_fail_print_pkt(
                 "tc_nw_pkt_pma_loopback", rx_n, NPKT,
-                "RX fab_rx_data[511:0] === GOLDEN of this packet",
-                exp_sop[rx_n], rx_w, fab_rx_data, "u_p.fab_rx_data");
+                "RX nw_fab_data[511:0] === GOLDEN of this packet",
+                exp_sop[rx_n], rx_w, nw_fab_data, "u_p.nw_fab_data");
             fail = 1;
           end else
             rx_n = rx_n + 1;
@@ -190,13 +190,13 @@ module tc_nw_pkt_pma_loopback;
           // (DUT may re-pack the 16 B). Only a different packet's SOP is order-FAIL.
           hit_other = -1;
           for (j = 0; j < NPKT; j = j + 1)
-            if (fab_rx_data === exp_sop[j] && j != rx_n)
+            if (nw_fab_data === exp_sop[j] && j != rx_n)
               hit_other = j;
           if (hit_other >= 0) begin
             vibe_tb_nw512_fail_print_pkt(
                 "tc_nw_pkt_pma_loopback", rx_n, NPKT,
                 "RX order: packet i TX must match packet i RX",
-                exp_sop[rx_n], rx_w, fab_rx_data, "u_p.fab_rx_data");
+                exp_sop[rx_n], rx_w, nw_fab_data, "u_p.nw_fab_data");
             $display("  note     : recovered SOP of packet %0d while waiting for %0d",
                      hit_other, rx_n);
             fail = 1;
@@ -211,7 +211,7 @@ module tc_nw_pkt_pma_loopback;
     input integer score_tx;
     input integer pkt_i;
     begin
-      fab_tx_data = beat;
+      fab_nw_data = beat;
       if (score_tx)
         golden_tx = beat;
       accepted = 0;
@@ -222,41 +222,41 @@ module tc_nw_pkt_pma_loopback;
         if (fail)
           ;
         else begin
-          fab_tx_vld = 1;
-          if (fab_tx_ready) begin
+          fab_nw_vld = 1;
+          if (fab_nw_ready) begin
             @(posedge clk_fab);
             if (score_tx) begin
-              if (vibe_tb_nw512_vec_fail(dll_w, beat, u_p.dll_tx_d)) begin
+              if (vibe_tb_nw512_vec_fail(dll_w, beat, u_p.nw_dll_data)) begin
                 vibe_tb_nw512_fail_print_pkt(
                     "tc_nw_pkt_pma_loopback", pkt_i, NPKT,
                     "TX NW→DLL accepted beat === this packet GOLDEN",
-                    beat, dll_w, u_p.dll_tx_d, "u_p.dll_tx_d");
+                    beat, dll_w, u_p.nw_dll_data, "u_p.nw_dll_data");
                 fail = 1;
-              end else if (vibe_tb_nw512_sop_lph_fail(beat, u_p.dll_tx_d)) begin
+              end else if (vibe_tb_nw512_sop_lph_fail(beat, u_p.nw_dll_data)) begin
                 $display("FAIL tc_nw_pkt_pma_loopback");
                 $display("  packet   : %0d / %0d", pkt_i, NPKT);
                 vibe_tb_nw512_sop_lph_print(
                     "tc_nw_pkt_pma_loopback",
                     "TX SOP LPH GOLDEN[511:352] vs DUT[511:352]",
-                    beat, u_p.dll_tx_d, "u_p.dll_tx_d[511:352]");
+                    beat, u_p.nw_dll_data, "u_p.nw_dll_data[511:352]");
                 fail = 1;
               end else
                 tx_n = tx_n + 1;
             end
-            fab_tx_vld = 0;
+            fab_nw_vld = 0;
             accepted = 1;
           end else
             @(posedge clk_fab);
         end
         beat_w = beat_w + 1;
       end
-      fab_tx_vld = 0;
+      fab_nw_vld = 0;
       if (!accepted && !fail) begin
         vibe_tb_nw512_fail_print_pkt(
             "tc_nw_pkt_pma_loopback", pkt_i, NPKT,
-            "fab_tx handshake for this packet beat",
-            beat, 1, {511'd0, fab_tx_ready}, "u_p.u_nw / u_p.u_dll.u_tx");
-        $display("  note     : fab_tx_ready never rose (timeout %0d cycles)", BEAT_TO);
+            "fab_nw handshake for this packet beat",
+            beat, 1, {511'd0, fab_nw_ready}, "u_p.u_nw / u_p.u_dll.u_tx");
+        $display("  note     : fab_nw_ready never rose (timeout %0d cycles)", BEAT_TO);
         $display("  note     : link_ready=%0b status_up=%0b crd.cells=%0d crd.pend=%0d credit_low=%0b bp_nw=%0b proto_err=%0b",
                  u_p.link_ready, status_up, u_p.u_dll.u_crd.cells, u_p.u_dll.u_crd.pend,
                  u_p.u_dll.u_crd.credit_low, u_p.u_dll.u_crd.bp_nw, u_p.proto_err);
@@ -271,9 +271,9 @@ module tc_nw_pkt_pma_loopback;
     saw_fab_rx = 0; saw_fec_fail = 0; saw_deskew = 0;
     last_rx = 512'd0;
     tx_n = 0; rx_n = 0;
-    nw_w  = $bits(u_p.fab_tx_data);
-    dll_w = $bits(u_p.dll_tx_d);
-    rx_w  = $bits(u_p.fab_rx_data);
+    nw_w  = $bits(u_p.fab_nw_data);
+    dll_w = $bits(u_p.nw_dll_data);
+    rx_w  = $bits(u_p.nw_fab_data);
 
     for (i = 0; i < NPKT; i = i + 1) begin
       exp_sop[i] = vibe_tb_nw512_golden_tx_n(i);
@@ -317,13 +317,13 @@ module tc_nw_pkt_pma_loopback;
           wait_i = wait_i + 1;
         end
         if (!fail && rx_n <= pkt) begin
-          $display("  detail   : vld=%0b last_rx=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b",
-                   fab_rx_vld, last_rx, u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail,
+          $display("  detail   : vld=%0b last_rx=%h pcs_dll_vld=%0b am_lock=%04b fec_fail=%0b deskew=%0b",
+                   nw_fab_vld, last_rx, u_p.pcs_dll_vld, u_p.am_locked, u_p.fec_fail,
                    u_p.deskew_ok);
           vibe_tb_nw512_fail_print_pkt(
               "tc_nw_pkt_pma_loopback", pkt, NPKT,
               "PMA loopback; recover this packet GOLDEN (timeout, not a pass)",
-              exp_sop[pkt], rx_w, last_rx, "u_p.fab_rx_data");
+              exp_sop[pkt], rx_w, last_rx, "u_p.nw_fab_data");
           fail = 1;
         end
         if (!fail && ((pkt % 10) == 9))
@@ -343,8 +343,8 @@ module tc_nw_pkt_pma_loopback;
       $finish;
     end
     if (rx_n !== NPKT) begin
-      $display("  detail   : vld=%0b last_rx=%h pcs_rx_v=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b",
-               fab_rx_vld, last_rx, u_p.pcs_rx_v, u_p.am_locked, u_p.fec_fail,
+      $display("  detail   : vld=%0b last_rx=%h pcs_dll_vld=%0b am_lock=%04b fec_fail=%0b deskew=%0b afrv=%0b%0b%0b%0b",
+               nw_fab_vld, last_rx, u_p.pcs_dll_vld, u_p.am_locked, u_p.fec_fail,
                u_p.deskew_ok, u_p.afrv0, u_p.afrv1, u_p.afrv2, u_p.afrv3);
       $display("  peak     : tx_n=%0d rx_n=%0d saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d",
                tx_n, rx_n, saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew);
@@ -352,7 +352,7 @@ module tc_nw_pkt_pma_loopback;
           "tc_nw_pkt_pma_loopback", rx_n, NPKT,
           "PMA loopback; recover each GOLDEN in order (timeout, not a pass)",
           (rx_n < NPKT) ? exp_sop[rx_n] : 512'd0, rx_w, last_rx,
-          "u_p.fab_rx_data");
+          "u_p.nw_fab_data");
       $finish;
     end
     if (!saw_am) begin
@@ -370,7 +370,7 @@ module tc_nw_pkt_pma_loopback;
     end
 
     $display("PASS tc_nw_pkt_pma_loopback");
-    $display("  scored : %0d / %0d packets; each TX GOLDEN and RX fab_rx_data[511:0] matched in order",
+    $display("  scored : %0d / %0d packets; each TX GOLDEN and RX nw_fab_data[511:0] matched in order",
              rx_n, NPKT);
     $display("  peak     : tx_n=%0d rx_n=%0d saw_txnz=%0d saw_afrv=%0d saw_am=%0d saw_pcs_rx=%0d saw_fab_rx=%0d saw_fec_fail=%0d saw_deskew=%0d am_lock_end=%04b",
              tx_n, rx_n, saw_txnz, saw_afrv, saw_am, saw_pcs_rx, saw_fab_rx, saw_fec_fail, saw_deskew,

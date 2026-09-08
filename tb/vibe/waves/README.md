@@ -45,17 +45,17 @@ vvp tb/vibe/results/tc_nw_pkt_pma_loopback_waves.vvp \
 python3 tb/vibe/scripts/vcd_to_png.py --waves tb/vibe/waves
 ```
 
-PNG is three stitched windows: TX inject of `fab_tx_data[511:0]` / PMA `txdata`+`rxdata==txdata` / RX `fab_rx_data[511:0]===GOLDEN`.
+PNG is three stitched windows: TX inject of `fab_nw_data[511:0]` / PMA `pcs_pma_txdata`+`pma_pcs_rxdata==pcs_pma_txdata` / RX `nw_fab_data[511:0]===GOLDEN`.
 SOP LPH is **`[511:352]`** (160b CFG/RT/SCNA/DCNA). Payload is **`[351:0]`**. Not README `[511:496]`.
 
 ### Signals dumped and labeled
 
 | Group | VCD name | Meaning |
 |-------|----------|---------|
-| TX/NW | `fab_tx_vld`, `fab_tx_ready`, `fab_tx_data[511:0]` | Overlay B NW pin |
-| TX SOP | `wav_tx_sop[159:0]` | `fab_tx_data[511:352]` |
+| TX/NW | `fab_nw_vld`, `fab_nw_ready`, `fab_nw_data[511:0]` | Overlay B NW pin |
+| TX SOP | `wav_tx_sop[159:0]` | `fab_nw_data[511:352]` |
 | TX LPH fields | `wav_tx_cfg/rt/scna/dcna` | 160b layout on that SOP window |
-| TX payload | `wav_tx_pld[351:0]` | `fab_tx_data[351:0]` |
-| PMA | `txdata[511:0]`, `rxdata[511:0]`, `wav_lb_eq`, `wav_ptxv`, `wav_txlv` | product pins; `rxdata=txdata` |
-| RX | `fab_rx_vld`, `fab_rx_data[511:0]`, `wav_rx_sop`, `wav_rx_pld` | recovered NW beat |
+| TX payload | `wav_tx_pld[351:0]` | `fab_nw_data[351:0]` |
+| PMA | `pcs_pma_txdata[511:0]`, `pma_pcs_rxdata[511:0]`, `wav_lb_eq`, `wav_ptxv`, `wav_txlv` | product pins; `pma_pcs_rxdata=pcs_pma_txdata` |
+| RX | `nw_fab_vld`, `nw_fab_data[511:0]`, `wav_rx_sop`, `wav_rx_pld` | recovered NW beat |
 | RX score | `wav_rx_eq`, `wav_am`, `wav_pcs_rx`, `wav_fec` | GOLDEN match; `am_locked`; `fec_fail` |

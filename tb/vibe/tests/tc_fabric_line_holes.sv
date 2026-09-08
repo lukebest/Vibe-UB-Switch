@@ -3,13 +3,13 @@
 module tc_fabric_line_holes;
   `include "vibe_tb_defs.svh"
   logic clk, rst_n, device_rst, rt_wr_en, drop_g1, cna_written, irq_rt;
-  logic [3:0] status_up, default_bm, ing_vld, ing_ready, egr_vld, egr_ready;
-  logic [3:0] len_err, deadlock_drop, cfg6_hit;
+  logic [3:0] status_up, default_bm, nw_fab_vld, nw_fab_ready, fab_nw_vld, fab_nw_ready;
+  logic [3:0] len_err, deadlock_drop, fab_mgmt_cfg6_hit;
   logic [15:0] rt_wr_idx, cna;
   logic [31:0] rt_wr_data, rt_shortest_unimpl, drop_down_cnt;
-  logic [511:0] ing_data [0:3];
-  logic [511:0] egr_data [0:3];
-  logic [511:0] cfg6_data [0:3];
+  logic [511:0] nw_fab_data [0:3];
+  logic [511:0] fab_nw_data [0:3];
+  logic [511:0] fab_mgmt_cfg6_data [0:3];
   integer fail, p, saw6, saw6b;
 
   initial clk = 0;
@@ -19,13 +19,13 @@ module tc_fabric_line_holes;
     .clk(clk), .rst_n(rst_n), .device_rst(device_rst),
     .status_up(status_up), .default_bm(default_bm),
     .rt_wr_en(rt_wr_en), .rt_wr_idx(rt_wr_idx), .rt_wr_data(rt_wr_data),
-    .ing_data(ing_data), .ing_vld(ing_vld), .ing_ready(ing_ready),
-    .egr_data(egr_data), .egr_vld(egr_vld), .egr_ready(egr_ready),
+    .nw_fab_data(nw_fab_data), .nw_fab_vld(nw_fab_vld), .nw_fab_ready(nw_fab_ready),
+    .fab_nw_data(fab_nw_data), .fab_nw_vld(fab_nw_vld), .fab_nw_ready(fab_nw_ready),
     .len_err(len_err), .drop_g1(drop_g1),
     .rt_shortest_unimpl(rt_shortest_unimpl), .drop_down_cnt(drop_down_cnt),
     .deadlock_drop(deadlock_drop), .irq_rt(irq_rt),
     .cna(cna), .cna_written(cna_written),
-    .cfg6_hit(cfg6_hit), .cfg6_data(cfg6_data)
+    .fab_mgmt_cfg6_hit(fab_mgmt_cfg6_hit), .fab_mgmt_cfg6_data(fab_mgmt_cfg6_data)
   );
 
   task automatic fail_at;
@@ -51,17 +51,17 @@ module tc_fabric_line_holes;
     input [15:0] dcna;
     begin
       @(negedge clk);
-      while (!ing_ready[port]) @(posedge clk);
-      ing_data[port] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      while (!nw_fab_ready[port]) @(posedge clk);
+      nw_fab_data[port] = vibe_tb_mk_beat(vibe_tb_mk_flit(
           cfg, rt, 4'd0, 16'h1, dcna, vibe_tb_plen_nflit(5),
           16'd0, 8'd0, 3'd0, 8'd0));
-      ing_vld[port] = 1;
+      nw_fab_vld[port] = 1;
       @(posedge clk);
       @(negedge clk);
-      ing_data[port] = 512'h2;
+      nw_fab_data[port] = 512'h2;
       @(posedge clk);
       @(negedge clk);
-      ing_vld[port] = 0;
+      nw_fab_vld[port] = 0;
     end
   endtask
 
@@ -77,45 +77,45 @@ module tc_fabric_line_holes;
     force u_fab.g_egr[3].u_voq.wr_vl = 4'd0;
 `endif
     rst_n = 0; device_rst = 0; rt_wr_en = 0; status_up = 4'b1111;
-    default_bm = 4'd0; ing_vld = 0; egr_ready = 4'b1111;
+    default_bm = 4'd0; nw_fab_vld = 0; fab_nw_ready = 4'b1111;
     cna = 16'h1111; cna_written = 1;
-    for (p = 0; p < 4; p = p + 1) ing_data[p] = 512'd0;
+    for (p = 0; p < 4; p = p + 1) nw_fab_data[p] = 512'd0;
     repeat (4) @(posedge clk);
     rst_n = 1;
     @(posedge clk);
 
     // 1-beat CFG6 terminate (本CNA)
     @(negedge clk);
-    while (!ing_ready[0]) @(posedge clk);
-    ing_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    while (!nw_fab_ready[0]) @(posedge clk);
+    nw_fab_data[0] = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd6, 2'b00, 4'd0, 16'h1, 16'h1111, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
-    ing_vld[0] = 1;
+    nw_fab_vld[0] = 1;
     @(posedge clk);
-    if (cfg6_hit[0]) saw6 = 1;
+    if (fab_mgmt_cfg6_hit[0]) saw6 = 1;
     @(negedge clk);
-    ing_vld[0] = 0;
+    nw_fab_vld[0] = 0;
     repeat (12) begin
       @(posedge clk);
-      if (cfg6_hit[0]) saw6 = 1;
+      if (fab_mgmt_cfg6_hit[0]) saw6 = 1;
     end
     if (!saw6) begin
       fail_at("1-beat CFG6 DCNA==CNA written",
-              "cfg6_hit[0]=1 (terminate, not xbar)",
-              "cfg6_hit stayed 0",
-              "u_fab.cfg6_hit / cfg6_term");
+              "fab_mgmt_cfg6_hit[0]=1 (terminate, not xbar)",
+              "fab_mgmt_cfg6_hit stayed 0",
+              "u_fab.fab_mgmt_cfg6_hit / cfg6_term");
     end
 
     // Multi-beat CFG6 terminate
     send2(0, 4'd6, 2'b00, 16'h1111);
     repeat (20) begin
       @(posedge clk);
-      if (cfg6_hit[0]) saw6b = 1;
+      if (fab_mgmt_cfg6_hit[0]) saw6b = 1;
     end
     if (!fail && !saw6b) begin
       fail_at("2-beat CFG6 DCNA==CNA (drain)",
-              "cfg6_hit[0]=1 during SOP or drain",
-              "cfg6_hit stayed 0",
+              "fab_mgmt_cfg6_hit[0]=1 during SOP or drain",
+              "fab_mgmt_cfg6_hit stayed 0",
               "u_fab.cfg6_drain");
     end
 
@@ -160,11 +160,11 @@ module tc_fabric_line_holes;
       send2(1, 4'd3, 2'b00, 16'h0005);
       repeat (40) begin
         @(posedge clk);
-        if (egr_vld[0]) saw_egr = 1;
+        if (fab_nw_vld[0]) saw_egr = 1;
       end
       if (!fail && !saw_egr) begin
         fail_at("RT=00 DCNA=5 bitmap port0",
-                "egr_vld[0] (xbar grant + VOQ pop)",
+                "fab_nw_vld[0] (xbar grant + VOQ pop)",
                 "no egress",
                 "u_fab.xb_v / egr_sop");
       end

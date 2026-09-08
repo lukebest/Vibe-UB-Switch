@@ -5,9 +5,9 @@ module tc_dll_tx_cfg0;
   logic clk, rst_n, link_up, status_up, credit_low, bp_pending, drop_data, can_send;
   logic replay, send_idle, send_req, send_ack;
   logic [159:0] replay_flit;
-  logic [511:0] nw_data;
-  logic [639:0] pcs_data;
-  logic nw_vld, nw_ready, pcs_vld, pcs_ready;
+  logic [511:0] nw_dll_data;
+  logic [639:0] dll_pcs_data;
+  logic nw_dll_vld, nw_dll_ready, dll_pcs_vld, dll_pcs_ready;
   logic wr_en, is_null, is_retry, consume_vld, consume_cfg0;
   logic [159:0] wr_flit;
   logic [9:0] consume_flits;
@@ -21,8 +21,8 @@ module tc_dll_tx_cfg0;
     .credit_low(credit_low), .bp_pending(bp_pending), .drop_data(drop_data),
     .can_send(can_send), .replay(replay), .replay_flit(replay_flit),
     .send_idle(send_idle), .send_req(send_req), .send_ack(send_ack),
-    .nw_data(nw_data), .nw_vld(nw_vld), .nw_ready(nw_ready),
-    .pcs_data(pcs_data), .pcs_vld(pcs_vld), .pcs_ready(pcs_ready),
+    .nw_dll_data(nw_dll_data), .nw_dll_vld(nw_dll_vld), .nw_dll_ready(nw_dll_ready),
+    .dll_pcs_data(dll_pcs_data), .dll_pcs_vld(dll_pcs_vld), .dll_pcs_ready(dll_pcs_ready),
     .wr_en(wr_en), .wr_flit(wr_flit), .is_null(is_null), .is_retry(is_retry),
     .consume_flits(consume_flits), .consume_vld(consume_vld), .consume_cfg0(consume_cfg0)
   );
@@ -37,18 +37,18 @@ module tc_dll_tx_cfg0;
     fail = 0;
     rst_n = 0; port_rst = 0; link_up = 1; status_up = 1; credit_low = 0;
     bp_pending = 0; drop_data = 0; can_send = 1; replay = 0; replay_flit = 0;
-    send_idle = 0; send_req = 0; send_ack = 0; pcs_ready = 1; nw_vld = 0;
+    send_idle = 0; send_req = 0; send_ack = 0; dll_pcs_ready = 1; nw_dll_vld = 0;
     credit_ret = 0; credit_ret_n = 0;
-    nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    nw_dll_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd0, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     repeat (3) @(posedge clk);
     rst_n = 1;
     @(negedge clk);
-    nw_vld = 1;
+    nw_dll_vld = 1;
     @(posedge clk);
     @(negedge clk);
-    nw_vld = 0;
+    nw_dll_vld = 0;
     repeat (8) @(posedge clk);
     if (u_crd.cells !== 16'd0) begin
       $display("FAIL tc_dll_tx_cfg0");
@@ -62,10 +62,10 @@ module tc_dll_tx_cfg0;
     // send_idle / send_req / send_ack / replay / !link_up
     send_idle = 1;
     @(posedge clk);
-    // pcs_vld=1, now stall ready → else of send_* emit
-    pcs_ready = 0;
+    // dll_pcs_vld=1, now stall ready → else of send_* emit
+    dll_pcs_ready = 0;
     @(posedge clk);
-    pcs_ready = 1;
+    dll_pcs_ready = 1;
     send_idle = 0;
     send_req = 1;
     @(posedge clk);
@@ -75,19 +75,19 @@ module tc_dll_tx_cfg0;
     send_ack = 0;
     replay = 1; replay_flit = 160'hA5;
     @(posedge clk);
-    pcs_ready = 0;
+    dll_pcs_ready = 0;
     @(posedge clk);
-    pcs_ready = 1;
+    dll_pcs_ready = 1;
     replay = 0;
     // non-CFG0 consume
-    nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+    nw_dll_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
         4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(1),
         16'd0, 8'd0, 3'd0, 8'd0));
     @(negedge clk);
-    nw_vld = 1;
+    nw_dll_vld = 1;
     @(posedge clk);
     @(negedge clk);
-    nw_vld = 0;
+    nw_dll_vld = 0;
     repeat (8) @(posedge clk);
 
     // Coverage: EOP Null-pad leftover (1/2/3 flits → 4-flit group) and
@@ -96,52 +96,52 @@ module tc_dll_tx_cfg0;
       integer b;
       // 2-flit (40 B) and 3-flit (60 B): n_flits>=2/3 + pad
       @(negedge clk);
-      while (!nw_ready) @(posedge clk);
-      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      while (!nw_dll_ready) @(posedge clk);
+      nw_dll_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(2),
           16'd0, 8'd0, 3'd0, 8'd0));
-      nw_vld = 1;
+      nw_dll_vld = 1;
       @(posedge clk);
       @(negedge clk);
-      nw_vld = 0;
+      nw_dll_vld = 0;
       repeat (8) @(posedge clk);
       @(negedge clk);
-      while (!nw_ready) @(posedge clk);
-      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      while (!nw_dll_ready) @(posedge clk);
+      nw_dll_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(3),
           16'd0, 8'd0, 3'd0, 8'd0));
-      nw_vld = 1;
+      nw_dll_vld = 1;
       @(posedge clk);
       @(negedge clk);
-      nw_vld = 0;
+      nw_dll_vld = 0;
       repeat (8) @(posedge clk);
       // 16 flits = 320 B = five 64 B beats: rem accumulates to 16 so
       // beat 5 has n_flits>=4; beats 2–4 take cur_left>val_b (:208 else).
       @(negedge clk);
-      while (!nw_ready) @(posedge clk);
-      nw_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
+      while (!nw_dll_ready) @(posedge clk);
+      nw_dll_data = vibe_tb_mk_beat(vibe_tb_mk_flit(
           4'd3, 2'b00, 4'd0, 16'h1, 16'h2, vibe_tb_plen_nflit(16),
           16'd0, 8'd0, 3'd0, 8'd0));
-      nw_vld = 1;
+      nw_dll_vld = 1;
       @(posedge clk);
       for (b = 0; b < 4; b = b + 1) begin
         @(negedge clk);
-        while (!nw_ready) @(posedge clk);
-        nw_data = 512'hA5A5_A5A5;
-        nw_vld = 1;
+        while (!nw_dll_ready) @(posedge clk);
+        nw_dll_data = 512'hA5A5_A5A5;
+        nw_dll_vld = 1;
         @(posedge clk);
       end
       @(negedge clk);
-      nw_vld = 0;
+      nw_dll_vld = 0;
       repeat (16) @(posedge clk);
       // Probe val_b==0 combo (legal SOP is always >=20 B; expect dead).
       @(negedge clk);
-      while (!nw_ready) @(posedge clk);
-      nw_data = 512'd0;
-      nw_vld = 1;
+      while (!nw_dll_ready) @(posedge clk);
+      nw_dll_data = 512'd0;
+      nw_dll_vld = 1;
       @(posedge clk);
       @(negedge clk);
-      nw_vld = 0;
+      nw_dll_vld = 0;
       repeat (4) @(posedge clk);
     end
     link_up = 0;

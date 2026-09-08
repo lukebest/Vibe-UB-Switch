@@ -48,7 +48,7 @@ Dijkstra). Overlay B: `tc_phy_nw_dll_512b` requires NW `data[511:0]`.
 
 | Test | TP / AS |
 |------|---------|
-| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH on NW `data[511:0]` → score PMA `txdata[511:0]`. **FAIL vs `d6549521`:** DUT NW pin is still 640 (Overlay B not wired). |
+| `tc_nw_pkt_to_pma_tx` | TP-PHY-009/010/018: legal NW/LPH on NW `data[511:0]` → score PMA `pcs_pma_txdata[511:0]`. **FAIL vs `d6549521`:** DUT NW pin is still 640 (Overlay B not wired). |
 | `tc_nw_pkt_pma_loopback` | TP-PHY-012: recover LPH+payload on NW `data[511:0]` after PMA loopback. **FAIL vs `d6549521`:** same 512-vs-640 width. LPH values unchanged if Overlay B lands. |
 
 Select one suite test: `make -C tb/vibe suite TC=tc_rt10_must_drop`
