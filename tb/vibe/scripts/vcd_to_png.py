@@ -614,8 +614,10 @@ def render_loopback(waves: str) -> None:
     if t_rx is None:
         t_rx = last_time(v)
     t_pcs = t_pcsdll or t_rx
+    # First NW→DLL accept and first DLL→PCS emit only. Stretching this
+    # window to RX pcs_dll (hundreds of ns later) hides the handshake.
     t_dll = min(t_nwdll, t_dllpcs)
-    t_dll1 = max(t_dllpcs, t_pcs if t_pcs else t_dll) + 8 * p
+    t_dll1 = max(t_nwdll, t_dllpcs) + 28 * p
     marks_all = [
         (t_inj, "inject GOLDEN_TX data[511:0]", "#1f4e79"),
         (t_dllpcs, "DLL→PCS dll_pcs_vld (640b)", "#1e8449"),
@@ -650,18 +652,18 @@ def render_loopback(waves: str) -> None:
     draw_window(
         dll_png, v,
         [
-            ("nw_dll_vld", "nw_dll_vld", "bit"),
-            ("nw_dll_ready", "nw_dll_ready", "bit"),
-            ("nw_dll_data", "nw_dll_data[511:0]", "hex"),
-            ("dll_pcs_vld", "dll_pcs_vld", "bit"),
-            ("dll_pcs_ready", "dll_pcs_ready", "bit"),
-            ("dll_pcs_data", "dll_pcs_data[639:0]", "hex"),
-            ("pcs_dll_vld", "pcs_dll_vld", "bit"),
-            ("pcs_dll_ready", "pcs_dll_ready", "bit"),
-            ("pcs_dll_data", "pcs_dll_data[639:0]", "hex"),
-            ("dll_nw_vld", "dll_nw_vld", "bit"),
-            ("dll_nw_ready", "dll_nw_ready", "bit"),
-            ("dll_nw_data", "dll_nw_data[511:0]", "hex"),
+            ("nw_dll_vld", "u_p.nw_dll_vld", "bit"),
+            ("nw_dll_ready", "u_p.nw_dll_ready", "bit"),
+            ("nw_dll_data", "u_p.nw_dll_data[511:0]", "hex"),
+            ("dll_pcs_vld", "u_p.dll_pcs_vld", "bit"),
+            ("dll_pcs_ready", "u_p.dll_pcs_ready", "bit"),
+            ("dll_pcs_data", "u_p.dll_pcs_data[639:0]", "hex"),
+            ("pcs_dll_vld", "u_p.pcs_dll_vld", "bit"),
+            ("pcs_dll_ready", "u_p.pcs_dll_ready", "bit"),
+            ("pcs_dll_data", "u_p.pcs_dll_data[639:0]", "hex"),
+            ("dll_nw_vld", "u_p.dll_nw_vld", "bit"),
+            ("dll_nw_ready", "u_p.dll_nw_ready", "bit"),
+            ("dll_nw_data", "u_p.dll_nw_data[511:0]", "hex"),
         ],
         max(0, t_dll - 8 * p), max(t_dll + 28 * p, t_dll1),
         marks_all,

@@ -99,6 +99,36 @@ PORT_RTL="\
   $RTL/dll/vibe_dll_rx.sv $RTL/dll/vibe_bcrc.sv \
   $RTL/nw/vibe_nw_adapt.sv $RTL/port/vibe_port.sv"
 
+require_vcd_ifaces() {
+    local vcd="$1"
+    local hdr missing n
+    # Header only — value dumps after $enddefinitions are huge.
+    hdr=$(awk 'BEGIN{h=1} /\$enddefinitions/{print; exit} {print}' "$vcd")
+    missing=0
+    echo "VCD interface audit: $vcd"
+    if ! printf '%s\n' "$hdr" | grep -q '\$scope module u_p'; then
+        echo "FAIL: VCD has no \$scope module u_p (DUT NW/DLL/PCS dump missing)" >&2
+        missing=1
+    else
+        printf '%s\n' "$hdr" | grep '\$scope module u_p' | head -1
+    fi
+    for n in nw_dll_vld nw_dll_ready nw_dll_data \
+             dll_nw_vld dll_nw_ready dll_nw_data \
+             dll_pcs_vld dll_pcs_ready dll_pcs_data \
+             pcs_dll_vld pcs_dll_ready pcs_dll_data; do
+        if ! printf '%s\n' "$hdr" | grep -E "\\\$var .* ${n}( |\\\$)" >/dev/null; then
+            echo "FAIL: VCD missing \$var ${n}" >&2
+            missing=1
+        else
+            printf '%s\n' "$hdr" | grep -E "\\\$var .* ${n}( |\\\$)" | head -2
+        fi
+    done
+    if [ "$missing" -ne 0 ]; then
+        echo "FAIL: loopback VCD lacks NW↔DLL / DLL↔PCS product interfaces" >&2
+        exit 1
+    fi
+}
+
 if want tc_nw_pkt_pma_loopback; then
 echo "== unit tc_nw_pkt_pma_loopback (TP-PHY-012) 512b data =="
 # shellcheck disable=SC2086
@@ -106,6 +136,7 @@ run_unit tc_nw_pkt_pma_loopback "$TB/tests/tc_nw_pkt_pma_loopback.sv" \
     "$WAVES/nw_pkt_pma_loopback_data512.vcd" "$WAVES/nw_pkt_pma_loopback_data512.log" \
     $PORT_RTL
 pass_or_die "$WAVES/nw_pkt_pma_loopback_data512.log" tc_nw_pkt_pma_loopback
+require_vcd_ifaces "$WAVES/nw_pkt_pma_loopback_data512.vcd"
 fi
 
 echo "== render PNGs =="

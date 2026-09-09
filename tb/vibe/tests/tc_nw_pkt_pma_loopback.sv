@@ -51,9 +51,15 @@ module tc_nw_pkt_pma_loopback;
         $dumpfile(dump_fn);
         // Overlay-B product interfaces + scoreboard. Not $dumpvars(0, tc).
         // CR-B names on vibe_port (u_p): {src}_{dst}_{meaning}.
+        // Dump DUT hierarchy (u_p.*) so gtkwave/Surfer under vibe_port shows
+        // NW↔DLL / DLL↔PCS. TB aliases alone sit only at TC top.
         $dumpvars(0, clk_fab, txclk, rxclk, rst_n, port_rst, device_rst,
                   fab_nw_vld, fab_nw_ready, nw_fab_vld, nw_fab_ready,
                   fab_nw_data, nw_fab_data, golden_tx, status_up);
+        $dumpvars(0, u_p.nw_dll_vld, u_p.nw_dll_ready, u_p.nw_dll_data,
+                  u_p.dll_nw_vld, u_p.dll_nw_ready, u_p.dll_nw_data);
+        $dumpvars(0, u_p.dll_pcs_vld, u_p.dll_pcs_ready, u_p.dll_pcs_data,
+                  u_p.pcs_dll_vld, u_p.pcs_dll_ready, u_p.pcs_dll_data);
         $dumpvars(0, nw_dll_vld, nw_dll_ready, nw_dll_data,
                   dll_nw_vld, dll_nw_ready, dll_nw_data);
         $dumpvars(0, dll_pcs_vld, dll_pcs_ready, dll_pcs_data,
