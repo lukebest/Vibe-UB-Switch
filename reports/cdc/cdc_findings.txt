@@ -1,4 +1,4 @@
-CDC structural audit 2026-09-12 (SGT)
+CDC structural audit 2026-09-13 (SGT)
 DUT: 982ddd0a54cf19dbeb39cf8f8f523c4e26e593f6
 Tool: structural (no SpyGlass/Ascent)
 
