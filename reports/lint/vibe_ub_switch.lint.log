@@ -23,15 +23,6 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:90:95: Cell pin connected by name with empty reference: 'out_vld'
    90 |     .en(afifo_pcs_lane_vld && !am3), .in_vld(afifo_pcs_lane_vld), .in_data(afifo_pcs_lane3), .out_vld(), .out_data(d3));
       |                                                                                               ^~~~~~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:33:34: Cell pin connected by name with empty reference: 'ack'
-   33 |     .lane_id(2'd1), .req(1'b1), .ack(), .amctl_40B(am1));
-      |                                  ^~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:35:34: Cell pin connected by name with empty reference: 'ack'
-   35 |     .lane_id(2'd2), .req(1'b1), .ack(), .amctl_40B(am2));
-      |                                  ^~~
-%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:37:34: Cell pin connected by name with empty reference: 'ack'
-   37 |     .lane_id(2'd3), .req(1'b1), .ack(), .amctl_40B(am3));
-      |                                  ^~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx.sv:59:51: Cell pin connected by name with empty reference: 'out_vld'
    59 |     .en(!am_word), .in_vld(p_vld), .in_data(p1), .out_vld(), .out_data(s1));
       |                                                   ^~~~~~~
@@ -41,6 +32,15 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx.sv:63:51: Cell pin connected by name with empty reference: 'out_vld'
    63 |     .en(!am_word), .in_vld(p_vld), .in_data(p3), .out_vld(), .out_data(s3));
       |                                                   ^~~~~~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:33:34: Cell pin connected by name with empty reference: 'ack'
+   33 |     .lane_id(2'd1), .req(1'b1), .ack(), .amctl_40B(am1));
+      |                                  ^~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:35:34: Cell pin connected by name with empty reference: 'ack'
+   35 |     .lane_id(2'd2), .req(1'b1), .ack(), .amctl_40B(am2));
+      |                                  ^~~
+%Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_tx_pack.sv:37:34: Cell pin connected by name with empty reference: 'ack'
+   37 |     .lane_id(2'd3), .req(1'b1), .ack(), .amctl_40B(am3));
+      |                                  ^~~
 %Warning-PINCONNECTEMPTY: /workspace/rtl/dll/vibe_dll.sv:76:6: Cell pin connected by name with empty reference: 'send_cnt'
    76 |     .send_cnt()
       |      ^~~~~~~~
@@ -5253,5 +5253,5 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
       |                       ^~~~
                        /workspace/rtl/pcs/vibe_rs128_120_enc.sv:14:1: ... note: In file included from 'vibe_rs128_120_enc.sv'
 - V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
-- Verilator: Built from 6.364 MB sources in 50 modules, into 5.555 MB in 22 C++ files needing 0.000 MB
-- Verilator: Walltime 1.246 s (elab=0.057, cvt=1.050, bld=0.000); cpu 1.245 s on 1 threads; alloced 87.066 MB
+- Verilator: Built from 6.376 MB sources in 50 modules, into 5.555 MB in 22 C++ files needing 0.000 MB
+- Verilator: Walltime 1.140 s (elab=0.044, cvt=0.960, bld=0.000); cpu 1.139 s on 1 threads; alloced 87.066 MB
