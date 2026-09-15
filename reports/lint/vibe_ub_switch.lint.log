@@ -1,4 +1,4 @@
-tool: Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
+tool: Verilator 5.020 2024-01-01 rev (Debian 5.020-1)
 top: vibe_ub_switch
 flags: --lint-only -Wall -Wno-fatal
 waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT route_lu)
@@ -6,7 +6,7 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:45:73: Cell pin connected by name with empty reference: 'sdf'
    45 |     .locked(am_locked[1]), .lid(lid1), .lid_bad(bad1), .is_amctl(am1), .sdf(), .edf(edf1));
       |                                                                         ^~~
-                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.032
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.020
                           ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
 %Warning-PINCONNECTEMPTY: /workspace/rtl/pcs/vibe_pcs_rx.sv:47:73: Cell pin connected by name with empty reference: 'sdf'
    47 |     .locked(am_locked[2]), .lid(lid2), .lid_bad(bad2), .is_amctl(am2), .sdf(), .edf(edf2));
@@ -265,22 +265,22 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
       |                           ^
                      /workspace/rtl/pcs/vibe_pcs_rx_fec.sv:19:1: ... note: In file included from 'vibe_pcs_rx_fec.sv'
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:94:25: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 4 bits.
-                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
+                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
    94 |     nblk  = plen[13:10] + 1;
       |                         ^
                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:95:23: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 5 bits.
-                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
+                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
    95 |     lastn = plen[9:5] + 1;
       |                       ^
                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHTRUNC: /workspace/rtl/common/vibe_ub_fn.vh:116:20: Operator ASSIGN expects 16 bits on the Assign RHS, but Assign RHS's MUL generates 32 bits.
-                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
+                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
   116 |     vibe_pkt_bytes = n * 16'd20;
       |                    ^
                      /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHTRUNC: /workspace/rtl/common/vibe_ub_fn.vh:125:27: Operator ASSIGN expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 16 bits.
-                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
+                                                               : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
   125 |     vibe_nw512_decl_beats = (b + 16'd63) >> 6;
       |                           ^
                      /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
@@ -5252,6 +5252,3 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
   105 |   input logic [511:0] beat;
       |                       ^~~~
                        /workspace/rtl/pcs/vibe_rs128_120_enc.sv:14:1: ... note: In file included from 'vibe_rs128_120_enc.sv'
-- V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
-- Verilator: Built from 6.376 MB sources in 50 modules, into 5.555 MB in 22 C++ files needing 0.000 MB
-- Verilator: Walltime 0.732 s (elab=0.034, cvt=0.604, bld=0.000); cpu 0.732 s on 1 threads; alloced 87.070 MB
