@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="waves/nw_pkt_pma_loopback.wdb" id="1">
+         <top_modules>
+            <top_module name="std" />
+            <top_module name="uvm_pkg" />
+            <top_module name="vibe_port_tb_top" />
+            <top_module name="vibe_uvm_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+   </zoom_setting>
+   <column_width_setting>
+   </column_width_setting>
+   <WVObjectSize size="38" />
+   <wvobject fp_name="divider1" type="divider">
+      <obj_property name="label">clocks / reset / link</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/clk_fab">
+      <obj_property name="ElementShortName">clk_fab</obj_property>
+      <obj_property name="ObjectShortName">clk_fab</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/txclk">
+      <obj_property name="ElementShortName">txclk</obj_property>
+      <obj_property name="ObjectShortName">txclk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/rxclk">
+      <obj_property name="ElementShortName">rxclk</obj_property>
+      <obj_property name="ObjectShortName">rxclk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/rst_n">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/link_ready">
+      <obj_property name="ElementShortName">link_ready</obj_property>
+      <obj_property name="ObjectShortName">link_ready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/status_up">
+      <obj_property name="ElementShortName">status_up</obj_property>
+      <obj_property name="ObjectShortName">status_up</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/am_locked">
+      <obj_property name="ElementShortName">am_locked[3:0]</obj_property>
+      <obj_property name="ObjectShortName">am_locked[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider9" type="divider">
+      <obj_property name="label">TX Fabric-&gt;NW 512b</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/pif/fab_nw_vld">
+      <obj_property name="ElementShortName">fab_nw_vld</obj_property>
+      <obj_property name="ObjectShortName">fab_nw_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/pif/fab_nw_ready">
+      <obj_property name="ElementShortName">fab_nw_ready</obj_property>
+      <obj_property name="ObjectShortName">fab_nw_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/pif/fab_nw_data">
+      <obj_property name="ElementShortName">fab_nw_data[511:0]</obj_property>
+      <obj_property name="ObjectShortName">fab_nw_data[511:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider13" type="divider">
+      <obj_property name="label">NW&lt;-&gt;DLL 512b</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/nw_dll_vld">
+      <obj_property name="ElementShortName">nw_dll_vld</obj_property>
+      <obj_property name="ObjectShortName">nw_dll_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/nw_dll_ready">
+      <obj_property name="ElementShortName">nw_dll_ready</obj_property>
+      <obj_property name="ObjectShortName">nw_dll_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/nw_dll_data">
+      <obj_property name="ElementShortName">nw_dll_data[511:0]</obj_property>
+      <obj_property name="ObjectShortName">nw_dll_data[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/dll_nw_vld">
+      <obj_property name="ElementShortName">dll_nw_vld</obj_property>
+      <obj_property name="ObjectShortName">dll_nw_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/dll_nw_ready">
+      <obj_property name="ElementShortName">dll_nw_ready</obj_property>
+      <obj_property name="ObjectShortName">dll_nw_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/dll_nw_data">
+      <obj_property name="ElementShortName">dll_nw_data[511:0]</obj_property>
+      <obj_property name="ObjectShortName">dll_nw_data[511:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider20" type="divider">
+      <obj_property name="label">DLL&lt;-&gt;PCS 640b</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/dll_pcs_vld">
+      <obj_property name="ElementShortName">dll_pcs_vld</obj_property>
+      <obj_property name="ObjectShortName">dll_pcs_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/dll_pcs_ready">
+      <obj_property name="ElementShortName">dll_pcs_ready</obj_property>
+      <obj_property name="ObjectShortName">dll_pcs_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/dll_pcs_data">
+      <obj_property name="ElementShortName">dll_pcs_data[639:0]</obj_property>
+      <obj_property name="ObjectShortName">dll_pcs_data[639:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/pcs_dll_vld">
+      <obj_property name="ElementShortName">pcs_dll_vld</obj_property>
+      <obj_property name="ObjectShortName">pcs_dll_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/pcs_dll_ready">
+      <obj_property name="ElementShortName">pcs_dll_ready</obj_property>
+      <obj_property name="ObjectShortName">pcs_dll_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/pcs_dll_data">
+      <obj_property name="ElementShortName">pcs_dll_data[639:0]</obj_property>
+      <obj_property name="ObjectShortName">pcs_dll_data[639:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider27" type="divider">
+      <obj_property name="label">PMA loopback 512b</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/pcs_pma_txdata">
+      <obj_property name="ElementShortName">pcs_pma_txdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">pcs_pma_txdata[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/pma_pcs_rxdata">
+      <obj_property name="ElementShortName">pma_pcs_rxdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">pma_pcs_rxdata[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/afifo_pma_lane_vld">
+      <obj_property name="ElementShortName">afifo_pma_lane_vld</obj_property>
+      <obj_property name="ObjectShortName">afifo_pma_lane_vld</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/afifo_pma_lane0">
+      <obj_property name="ElementShortName">afifo_pma_lane0[127:0]</obj_property>
+      <obj_property name="ObjectShortName">afifo_pma_lane0[127:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/afifo_pma_lane1">
+      <obj_property name="ElementShortName">afifo_pma_lane1[127:0]</obj_property>
+      <obj_property name="ObjectShortName">afifo_pma_lane1[127:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/afifo_pma_lane2">
+      <obj_property name="ElementShortName">afifo_pma_lane2[127:0]</obj_property>
+      <obj_property name="ObjectShortName">afifo_pma_lane2[127:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/afifo_pma_lane3">
+      <obj_property name="ElementShortName">afifo_pma_lane3[127:0]</obj_property>
+      <obj_property name="ObjectShortName">afifo_pma_lane3[127:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider35" type="divider">
+      <obj_property name="label">RX NW Fabric 512b</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/nw_fab_vld">
+      <obj_property name="ElementShortName">nw_fab_vld</obj_property>
+      <obj_property name="ObjectShortName">nw_fab_vld</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/vibe_port_tb_top/u_p/nw_fab_ready">
+      <obj_property name="ElementShortName">nw_fab_ready</obj_property>
+      <obj_property name="ObjectShortName">nw_fab_ready</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/vibe_port_tb_top/u_p/nw_fab_data">
+      <obj_property name="ElementShortName">nw_fab_data[511:0]</obj_property>
+      <obj_property name="ObjectShortName">nw_fab_data[511:0]</obj_property>
+   </wvobject>
+</wave_config>

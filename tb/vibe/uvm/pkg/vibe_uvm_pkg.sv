@@ -1,0 +1,21 @@
+package vibe_uvm_pkg;
+  import uvm_pkg::*;
+  `include "uvm_macros.svh"
+  `include "vibe_tb_defs.svh"
+  `include "vibe_tb_nw512.svh"
+  `include "neg_official_scan.inc"
+  `include "vibe_report.svh"
+  `include "vibe_items.svh"
+  `include "vibe_agents.svh"
+  `include "vibe_scoreboard.svh"
+  `include "vibe_env.svh"
+  `include "vibe_seqs.svh"
+  `include "vibe_fab_tests.svh"
+  `include "vibe_switch_tests.svh"
+  `include "vibe_unit_tests.svh"
+  `include "vibe_unit_tp_tests.svh"
+  `include "vibe_unit_tp2_tests.svh"
+  `include "vibe_unit_tp3_tests.svh"
+  `include "vibe_unit_tp4_tests.svh"
+  `include "vibe_port_tests.svh"
+endpackage

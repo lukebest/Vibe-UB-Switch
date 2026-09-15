@@ -1,5 +1,9 @@
 # Named TP-0.3 testcases
 
+UVM class names match these identifiers (`+UVM_TESTNAME=`). Run with
+`make -C tb/vibe suite` / `units` / `top` (xsim). Icarus module TCs in
+this directory remain for `make sim-icarus`.
+
 Each name is the gate identifier. G1 TCs are unchanged. One TC per remaining
 MUST TP where the RTL implements it. Negatives are explicit absent-feature TCs.
 

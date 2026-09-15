@@ -1,0 +1,63 @@
+# Legacy Icarus Verilog gate (pre-UVM). Prefer `make -C tb/vibe sim` (xsim+UVM).
+ROOT      := $(abspath ../..)
+RTL       := $(ROOT)/rtl
+TB        := $(ROOT)/tb/vibe
+RES       := $(TB)/results
+IVERILOG  ?= iverilog
+VVP       ?= vvp
+VERILATOR ?= verilator
+
+INC := -I$(RTL)/common -I$(TB)/common -I$(TB)/env -I$(TB)/tests
+
+FAB_RTL := \
+  $(RTL)/fabric/vibe_saf_ing.sv \
+  $(RTL)/fabric/vibe_route_lu.sv \
+  $(RTL)/fabric/vibe_port_sel.sv \
+  $(RTL)/fabric/vibe_xbar.sv \
+  $(RTL)/fabric/vibe_voq_egr.sv \
+  $(RTL)/fabric/vibe_vl_rr.sv \
+  $(RTL)/fabric/vibe_fecn_mark.sv \
+  $(RTL)/fabric/vibe_fabric.sv \
+  $(RTL)/mgmt/vibe_cfg_space.sv \
+  $(RTL)/mgmt/vibe_cna_ep.sv \
+  $(RTL)/mgmt/vibe_irq_agg.sv \
+  $(RTL)/mgmt/vibe_rst_ctl.sv \
+  $(RTL)/mgmt/vibe_mgmt.sv
+
+TOP_RTL := \
+  $(RTL)/cdc/vibe_sync2.sv $(RTL)/cdc/vibe_afifo.sv \
+  $(RTL)/cdc/vibe_rst_sync.sv $(RTL)/cdc/vibe_gear_160_128.sv \
+  $(RTL)/cdc/vibe_gear_128_160.sv \
+  $(RTL)/pma/vibe_pma_bnd.sv \
+  $(wildcard $(RTL)/pcs/*.sv) \
+  $(RTL)/lmsm/vibe_lmsm.sv \
+  $(wildcard $(RTL)/dll/*.sv) \
+  $(RTL)/nw/vibe_nw_adapt.sv $(RTL)/nw/vibe_icrc.sv \
+  $(wildcard $(RTL)/fabric/*.sv) \
+  $(wildcard $(RTL)/mgmt/*.sv) \
+  $(RTL)/port/vibe_port.sv \
+  $(RTL)/top/vibe_ub_switch.sv
+
+.PHONY: sim suite units top neg
+suite: $(RES)
+	$(IVERILOG) -g2012 $(INC) -o $(RES)/vibe_suite.vvp \
+	  $(TB)/env/vibe_fabric_harness.sv $(TB)/env/vibe_psel_harness.sv \
+	  $(TB)/env/vibe_suite.sv $(FAB_RTL)
+	$(VVP) $(RES)/vibe_suite.vvp $(if $(TC),+TC=$(TC),) | tee $(RES)/suite.log
+
+units: $(RES)
+	$(TB)/scripts/run_units.sh
+
+top: $(RES)
+	$(IVERILOG) -g2012 $(INC) -o $(RES)/tc_top.vvp \
+	  $(TB)/tests/tc_top_smoke.sv $(TOP_RTL)
+	$(VVP) $(RES)/tc_top.vvp | tee $(RES)/tc_top.log
+
+neg: $(RES)
+	$(TB)/scripts/scan_absent.sh $(RTL) | tee $(RES)/neg_absent.log
+
+sim: suite units top neg
+	@$(TB)/scripts/summarize.sh $(RES)
+
+$(RES):
+	mkdir -p $(RES)
