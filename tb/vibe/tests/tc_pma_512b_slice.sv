@@ -3,7 +3,7 @@
 module tc_pma_512b_slice;
   logic txclk, rxclk, afifo_pma_lane_vld, pma_afifo_lane_vld;
   logic [127:0] t0, t1, t2, t3, r0, r1, r2, r3;
-  logic [511:0] pcs_pma_txdata, pma_pcs_rxdata;
+  logic [511:0] pcs_pma_txdata, pma_pcs_rxdata, idle0;
   integer fail;
   initial txclk = 0;
   always #2 txclk = ~txclk;
@@ -22,6 +22,22 @@ module tc_pma_512b_slice;
     t0 = 128'h11; t1 = 128'h22; t2 = 128'h33; t3 = 128'h44;
     afifo_pma_lane_vld = 0; pma_pcs_rxdata = 512'd0;
     repeat (2) @(posedge txclk);
+    if (pcs_pma_txdata === 512'd0) begin
+      $display("FAIL tc_pma_512b_slice");
+      $display("  stimulus : afifo_pma_lane_vld=0");
+      $display("  expected : pcs_pma_txdata PRBS23 nonzero");
+      $display("  actual   : 0");
+      fail = 1;
+    end
+    idle0 = pcs_pma_txdata;
+    @(posedge txclk);
+    if (pcs_pma_txdata === 512'd0 || pcs_pma_txdata === idle0) begin
+      $display("FAIL tc_pma_512b_slice");
+      $display("  stimulus : second idle txclk");
+      $display("  expected : new PRBS23 beat");
+      $display("  actual   : %h", pcs_pma_txdata);
+      fail = 1;
+    end
     afifo_pma_lane_vld = 1;
     @(posedge txclk);
     @(posedge txclk);

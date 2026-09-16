@@ -30,7 +30,13 @@ module tc_nw_pkt_pma_loopback;
   initial txclk = 0;
   always #2 txclk = ~txclk;
   assign rxclk  = txclk;
-  assign pma_pcs_rxdata = pcs_pma_txdata;
+  logic [511:0] lb_pcs = 512'd0;
+  always @(posedge txclk) begin
+    if (u_p.afifo_pma_lane_vld)
+      lb_pcs <= {u_p.afifo_pma_lane3, u_p.afifo_pma_lane2,
+                 u_p.afifo_pma_lane1, u_p.afifo_pma_lane0};
+  end
+  assign pma_pcs_rxdata = lb_pcs;
 
   logic        wav_tx_nz, wav_rx_nz, wav_lb_eq, wav_pcs_rx, wav_fec;
   logic        wav_ptxv, wav_txlv, wav_rx_eq;

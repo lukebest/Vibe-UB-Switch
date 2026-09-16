@@ -162,7 +162,7 @@ module vibe_port (
   assign tren3 = g3r && !te3 && !tx_hold_wait;
 
   vibe_pma_bnd u_pma (
-    .txclk(txclk), .rxclk(rxclk),
+    .txclk(txclk), .rxclk(rxclk), .txrst_n(txrst_n),
     .afifo_pma_lane0(afifo_pma_lane0), .afifo_pma_lane1(afifo_pma_lane1),
     .afifo_pma_lane2(afifo_pma_lane2), .afifo_pma_lane3(afifo_pma_lane3),
     .afifo_pma_lane_vld(afifo_pma_lane_vld),

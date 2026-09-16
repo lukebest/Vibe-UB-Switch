@@ -215,6 +215,22 @@ class tc_pma_512b_slice extends vibe_unit_base;
     pma.t0 = 128'h11; pma.t1 = 128'h22; pma.t2 = 128'h33; pma.t3 = 128'h44;
     pma.afifo_pma_lane_vld = 0; pma.pma_pcs_rxdata = 512'd0;
     repeat (2) @(posedge pma.txclk);
+    if (pma.pcs_pma_txdata === 512'd0) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "afifo_pma_lane_vld=0",
+                    "pcs_pma_txdata PRBS23 nonzero", "0", "u_pma");
+      fail = 1;
+    end
+    begin
+      logic [511:0] idle0;
+      idle0 = pma.pcs_pma_txdata;
+      @(posedge pma.txclk);
+      if (pma.pcs_pma_txdata === 512'd0 || pma.pcs_pma_txdata === idle0) begin
+        vibe_uvm_fail("tc_pma_512b_slice", "second idle txclk",
+                      "new PRBS23 beat", $sformatf("%h", pma.pcs_pma_txdata),
+                      "u_pma");
+        fail = 1;
+      end
+    end
     pma.afifo_pma_lane_vld = 1;
     @(posedge pma.txclk);
     @(posedge pma.txclk);

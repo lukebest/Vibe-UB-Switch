@@ -19,7 +19,15 @@ module vibe_port_tb_top;
 
   vibe_port_if pif (clk_fab, txclk, rxclk);
 
-  assign pif.pma_pcs_rxdata = pif.loop_en ? pif.pcs_pma_txdata : 512'd0;
+  // Loop PCS beats only. Idle PRBS on pcs_pma_txdata must not enter RX
+  // (would slip 128→160). Pin still emits PRBS every txclk when !vld.
+  logic [511:0] lb_pcs = 512'd0;
+  always @(posedge txclk) begin
+    if (pif.afifo_pma_lane_vld)
+      lb_pcs <= {pif.afifo_pma_lane3, pif.afifo_pma_lane2,
+                 pif.afifo_pma_lane1, pif.afifo_pma_lane0};
+  end
+  assign pif.pma_pcs_rxdata = pif.loop_en ? lb_pcs : 512'd0;
 
   initial clk_if.rst_n = 1'b0;
 

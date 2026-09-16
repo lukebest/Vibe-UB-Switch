@@ -36,7 +36,13 @@ module tc_top_smoke;
   assign rxclk_3 = txclk_3;
   assign ptxc = txclk_0;
   assign prxc = txclk_0;
-  assign pma_pcs_rxdata_0 = ptx;
+  logic [511:0] lb_pcs = 512'd0;
+  always @(posedge ptxc) begin
+    if (u_peer.afifo_pma_lane_vld)
+      lb_pcs <= {u_peer.afifo_pma_lane3, u_peer.afifo_pma_lane2,
+                 u_peer.afifo_pma_lane1, u_peer.afifo_pma_lane0};
+  end
+  assign pma_pcs_rxdata_0 = lb_pcs;
   assign pma_pcs_rxdata_1 = 512'd0;
   assign pma_pcs_rxdata_2 = 512'd0;
   assign pma_pcs_rxdata_3 = 512'd0;
