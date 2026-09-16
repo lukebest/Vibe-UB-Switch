@@ -79,10 +79,13 @@ module vibe_port_tb_top;
   assign pif.dll_sm_st = u_p.u_dll.sm_st;
 
   always @* begin
-    if (pif.force_am_lock) force u_p.u_lmsm.am_locked = 4'b1111;
-    else release u_p.u_lmsm.am_locked;
-    if (pif.force_lid_ok) force u_p.u_lmsm.lid_bad = 1'b0;
-    else release u_p.u_lmsm.lid_bad;
+    // Force the port net (PCS RX output + LMSM input). Forcing only
+    // u_lmsm.am_locked does not back-drive u_p.am_locked, so waves stay 0
+    // while Link_Active (AS-0.1) requires all four lanes locked.
+    if (pif.force_am_lock) force u_p.am_locked = 4'b1111;
+    else release u_p.am_locked;
+    if (pif.force_lid_ok) force u_p.lid_bad = 1'b0;
+    else release u_p.lid_bad;
     if (pif.force_st_active) force u_p.u_lmsm.st = 5'd9;
     else release u_p.u_lmsm.st;
     if (pif.force_crd64) force u_p.u_dll.u_crd.cells = 16'd64;

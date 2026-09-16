@@ -172,8 +172,8 @@ module tc_nw_pkt_pma_loopback;
       repeat (8) @(posedge clk_fab);
       rst_n = 1;
       repeat (8) @(posedge clk_fab);
-      force u_p.u_lmsm.am_locked = 4'b1111;
-      force u_p.u_lmsm.lid_bad   = 1'b0;
+      force u_p.am_locked = 4'b1111;
+      force u_p.lid_bad   = 1'b0;
       @(negedge clk_fab);
       lmsm_go = 1;
       @(posedge clk_fab);
@@ -195,8 +195,8 @@ module tc_nw_pkt_pma_loopback;
       force u_p.u_dll.u_crd.cells = 16'd512;
       force u_p.u_dll.u_crd.pend  = 16'd0;
       force u_p.u_lmsm.st = 5'd9;
-      release u_p.u_lmsm.am_locked;
-      release u_p.u_lmsm.lid_bad;
+      // Keep am_locked=1111: AS-0.1 Link_Active is x4 locked. Releasing
+      // left u_p.am_locked at 0 (PCS hunter) on the waveform.
       @(posedge clk_fab);
     end
   endtask
@@ -396,10 +396,10 @@ module tc_nw_pkt_pma_loopback;
           "u_p.nw_fab_data");
       $finish;
     end
-    if (!saw_am) begin
-      fail_at("supporting: am_locked during GOLDEN loopback",
-              "am_locked nonzero",
-              "am_locked stayed 0",
+    if (u_p.am_locked !== 4'b1111) begin
+      fail_at("AS-0.1 Link_Active: four-lane AMCTL lock during GOLDEN loopback",
+              "am_locked=1111",
+              "am_locked stayed 0 or not all lanes",
               "u_p.am_locked");
       $finish;
     end

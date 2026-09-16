@@ -4,7 +4,10 @@ class vibe_port_base_test extends vibe_unit_base;
   // which_cells: 64 or 512 — literals only (xsim rejects automatic force RHS).
   // hold_crd: keep cells/pend forced (Icarus loopback holds 512/0 so the 1µs
   // Crd_Ack timeout cannot tear the link while PMA RX of 100 packets drains).
-  task bring_link(bit loop, int which_cells, bit hold_crd);
+  // hold_am: keep am_locked=1111 / lid_bad=0. AS-0.1 Link_Active is x4 locked;
+  // PMA loopback has no peer AM during Discovery, so the TB holds lock after
+  // ACTIVE. Default 1 — do not release or u_p.am_locked drops to 0 on waves.
+  task bring_link(bit loop, int which_cells, bit hold_crd, bit hold_am = 1'b1);
     int w;
     port.loop_en = loop;
     port.rst_n = 0; port.port_rst = 0; port.device_rst = 0; port.lmsm_go = 0;
@@ -43,8 +46,10 @@ class vibe_port_base_test extends vibe_unit_base;
       port.force_pend0 = 0;
     end
     port.force_st_active = 1;
-    port.force_am_lock = 0;
-    port.force_lid_ok = 0;
+    if (!hold_am) begin
+      port.force_am_lock = 0;
+      port.force_lid_ok = 0;
+    end
     @(posedge clk_vif.clk);
   endtask
 
@@ -260,7 +265,14 @@ class tc_nw_pkt_pma_loopback extends vibe_port_base_test;
       while (!accepted && !fail && beat_w < BEAT_TO) begin
         @(negedge clk_vif.clk);
         if (port.fec_fail) saw_fec_fail = 1;
-        if (|port.am_locked) saw_am = 1;
+        if (port.am_locked === 4'b1111) saw_am = 1;
+        else begin
+          vibe_uvm_fail("tc_nw_pkt_pma_loopback",
+                        "AS-0.1 Link_Active: four-lane AMCTL lock",
+                        "am_locked=1111", $sformatf("am_locked=%04b", port.am_locked),
+                        "u_p.am_locked");
+          fail = 1;
+        end
         if (port.nw_fab_vld) begin
           last_rx = port.nw_fab_data;
           if (rx_n < NPKT && port.nw_fab_data === exp_sop[rx_n]) begin
@@ -298,7 +310,14 @@ class tc_nw_pkt_pma_loopback extends vibe_port_base_test;
       while (rx_n <= pkt && !fail && wait_i < WAIT_MAX) begin
         @(negedge clk_vif.clk);
         if (port.fec_fail) saw_fec_fail = 1;
-        if (|port.am_locked) saw_am = 1;
+        if (port.am_locked === 4'b1111) saw_am = 1;
+        else begin
+          vibe_uvm_fail("tc_nw_pkt_pma_loopback",
+                        "AS-0.1 Link_Active: four-lane AMCTL lock",
+                        "am_locked=1111", $sformatf("am_locked=%04b", port.am_locked),
+                        "u_p.am_locked");
+          fail = 1;
+        end
         if (port.nw_fab_vld) begin
           last_rx = port.nw_fab_data;
           if (rx_n < NPKT && port.nw_fab_data === exp_sop[rx_n])
@@ -327,10 +346,11 @@ class tc_nw_pkt_pma_loopback extends vibe_port_base_test;
           (rx_n < NPKT) ? exp_sop[rx_n] : 512'd0, rx_w, last_rx, "u_p.nw_fab_data");
       fail = 1;
     end
-    if (!saw_am) begin
+    if (!saw_am || port.am_locked !== 4'b1111) begin
       vibe_uvm_fail("tc_nw_pkt_pma_loopback",
-                    "supporting: am_locked during GOLDEN loopback",
-                    "am_locked nonzero", "am_locked stayed 0", "u_p.am_locked");
+                    "AS-0.1 Link_Active: four-lane AMCTL lock during GOLDEN loopback",
+                    "am_locked=1111", $sformatf("am_locked=%04b", port.am_locked),
+                    "u_p.am_locked");
       fail = 1;
     end
     if (!fail) begin
