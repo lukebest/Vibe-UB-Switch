@@ -36,6 +36,8 @@ module tc_top_smoke;
   assign rxclk_3 = txclk_3;
   assign ptxc = txclk_0;
   assign prxc = txclk_0;
+  // Peer pin → DUT RX. Not near-end loopback of the same PMA: hold last
+  // peer PCS beat so peer idle PRBS does not slip DUT 128→160.
   logic [511:0] lb_pcs = 512'd0;
   always @(posedge ptxc) begin
     if (u_peer.afifo_pma_lane_vld)

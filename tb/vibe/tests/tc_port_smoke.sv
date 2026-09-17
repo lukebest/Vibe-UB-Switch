@@ -20,13 +20,7 @@ module tc_port_smoke;
   initial txclk = 0;
   always #2 txclk = ~txclk;
   assign rxclk  = txclk;
-  logic [511:0] lb_pcs = 512'd0;
-  always @(posedge txclk) begin
-    if (u_p.afifo_pma_lane_vld)
-      lb_pcs <= {u_p.afifo_pma_lane3, u_p.afifo_pma_lane2,
-                 u_p.afifo_pma_lane1, u_p.afifo_pma_lane0};
-  end
-  assign pma_pcs_rxdata = lb_pcs;
+  assign pma_pcs_rxdata = pcs_pma_txdata;
 
   vibe_port u_p (
     .clk_fab(clk_fab), .rst_n(rst_n), .port_rst(port_rst), .device_rst(device_rst),

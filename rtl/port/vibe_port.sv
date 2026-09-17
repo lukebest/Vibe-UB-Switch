@@ -162,7 +162,7 @@ module vibe_port (
   assign tren3 = g3r && !te3 && !tx_hold_wait;
 
   vibe_pma_bnd u_pma (
-    .txclk(txclk), .rxclk(rxclk), .txrst_n(txrst_n),
+    .txclk(txclk), .rxclk(rxclk), .txrst_n(txrst_n), .rxrst_n(rxrst_n),
     .afifo_pma_lane0(afifo_pma_lane0), .afifo_pma_lane1(afifo_pma_lane1),
     .afifo_pma_lane2(afifo_pma_lane2), .afifo_pma_lane3(afifo_pma_lane3),
     .afifo_pma_lane_vld(afifo_pma_lane_vld),
@@ -178,8 +178,8 @@ module vibe_port (
   logic         rren0, rren1, rren2, rren3;
   logic         wf0, wf1, wf2, wf3;
 
-  // PMA has no valid: TX holds last pcs_pma_txdata when idle. Writing every rxclk
-  // duplicates 128b beats and makes 128→160 unrestorable. Change-detect only.
+  // PMA pin has no extra valid. vibe_pma_bnd drops idle PRBS (not a PCS 128b).
+  // Change-detect still drops a held/repeated 512 so 128→160 stays grouped.
   logic [127:0] rxh0, rxh1, rxh2, rxh3;
   logic [3:0]   rx_got;
   always @(posedge rxclk or negedge rxrst_n) begin
