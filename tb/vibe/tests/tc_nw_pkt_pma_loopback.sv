@@ -178,8 +178,12 @@ module tc_nw_pkt_pma_loopback;
       repeat (8) @(posedge clk_fab);
       rst_n = 1;
       repeat (8) @(posedge clk_fab);
-      force u_p.am_locked = 4'b1111;
-      force u_p.lid_bad   = 1'b0;
+      // Icarus-safe LMSM input forces (same path as tc_port_smoke /
+      // tc_nw_pkt_to_pma_tx). Do not force u_p.am_locked / u_p.lid_bad:
+      // those nets are also vibe_pcs_rx outputs; Icarus treats a force
+      // there as reg and rejects the PCS port connection.
+      force u_p.u_lmsm.am_locked = 4'b1111;
+      force u_p.u_lmsm.lid_bad   = 1'b0;
       @(negedge clk_fab);
       lmsm_go = 1;
       @(posedge clk_fab);
@@ -190,7 +194,7 @@ module tc_nw_pkt_pma_loopback;
         w = w + 1;
       end
       if (!u_p.link_ready || !status_up) begin
-        fail_at("lmsm_go + force am_locked/lid_bad",
+        fail_at("lmsm_go + force u_p.u_lmsm.am_locked/lid_bad",
                 "link_ready=1 status_up=1",
                 "LMSM/DLL did not reach ACTIVE/NRM",
                 "u_p.u_lmsm / u_p.u_dll.u_sm");
@@ -201,8 +205,9 @@ module tc_nw_pkt_pma_loopback;
       force u_p.u_dll.u_crd.cells = 16'd512;
       force u_p.u_dll.u_crd.pend  = 16'd0;
       force u_p.u_lmsm.st = 5'd9;
-      // Keep am_locked=1111: AS-0.1 Link_Active is x4 locked. Releasing
-      // left u_p.am_locked at 0 (PCS hunter) on the waveform.
+      // Hold LMSM lock/LID inputs (do not release). AS-0.1 Link_Active
+      // still requires x4 lock; PCS-driven u_p.am_locked is observed,
+      // not back-driven, so Icarus can elaborate vibe_pcs_rx.
       @(posedge clk_fab);
     end
   endtask
