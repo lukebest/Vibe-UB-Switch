@@ -1,14 +1,16 @@
-CDC structural audit 2026-09-18 (SGT)
-DUT/tip: 4e575b6aed50d6d4182e0fac5ceaa167d064d9e8
+CDC structural audit 2026-09-19 (SGT)
+DUT/tip: 83c0a1a05708ddc8e553ac0d5bb31efc3ec4af0f
 Written freeze: 982ddd0a54cf19dbeb39cf8f8f523c4e26e593f6 BROKEN/H (not re-pinned)
-rtl/ vs freeze: NON-EMPTY vibe_pma_bnd.sv vibe_port.sv (txrst_n); include/ empty
+rtl/ vs freeze: NON-EMPTY vibe_pma_bnd.sv vibe_port.sv (txrst_n+rxrst_n +102/-14); include/ empty
 Tool: structural (no SpyGlass/Ascent)
-Post-PR101; RTL unchanged vs 2026-09-17 lint/CDC
+First post-rxrst_n tip CDC (Luke 0f783df6)
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
 TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new crossing
-PRBS23: txclk-local LFSR / idle fill — no new unsync multi-bit
+RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
+PRBS23: txclk-local LFSR / idle fill — no new unsync multi-bit from clk_fab
+LOOPBACK: tx_pcs_d + pcs_pma_txdata sampled/compared in rxclk process (vibe_pma_bnd.sv:116) — NEW (same-clock loopback intent; unsync if clocks independent)
 BASELINE_WARN: rtl/port/vibe_port.sv:244 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :249 — UNCHANGED (F1)
-NEW: 0
+NEW: 1
 ERROR: 0
