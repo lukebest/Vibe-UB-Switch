@@ -119,6 +119,9 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
 %Error-UNSUPPORTED: /workspace/rtl/pma/vibe_pma_bnd.sv:8:24: Unsupported: Default value on module input: 'txrst_n'
     8 |   input  logic         txrst_n = 1'b1,
       |                        ^~~~~~~
+%Error-UNSUPPORTED: /workspace/rtl/pma/vibe_pma_bnd.sv:9:24: Unsupported: Default value on module input: 'rxrst_n'
+    9 |   input  logic         rxrst_n = 1'b1,
+      |                        ^~~~~~~
 %Warning-VARHIDDEN: /workspace/rtl/common/vibe_ub_fn.vh:74:22: Declaration of signal hides declaration in upper scope: 'cna_written'
    74 |   input logic        cna_written;
       |                      ^~~~~~~~~~~
@@ -147,4 +150,4 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                     /workspace/rtl/mgmt/vibe_cna_ep.sv:10:24: ... Location of original declaration
    10 |   input  logic [15:0]  cna,
       |                        ^~~
-%Error: Exiting due to 1 error(s)
+%Error: Exiting due to 2 error(s)
