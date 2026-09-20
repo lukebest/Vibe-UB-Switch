@@ -5,8 +5,8 @@
 module vibe_pma_bnd (
   input  logic         txclk,
   input  logic         rxclk,
-  input  logic         txrst_n = 1'b1,
-  input  logic         rxrst_n = 1'b1,
+  input  logic         txrst_n,
+  input  logic         rxrst_n,
   input  logic [127:0] afifo_pma_lane0,
   input  logic [127:0] afifo_pma_lane1,
   input  logic [127:0] afifo_pma_lane2,
@@ -91,15 +91,25 @@ module vibe_pma_bnd (
   end
 
   // Pin is always live. Idle PRBS is not a PCS 128b — writing it slips
-  // 128→160. Near-end loopback (rxdata===txdata, same txclk/rxclk): take
-  // the delayed TX PCS valid so only packed beats enter the RX AFIFO.
-  logic tx_pcs_d;
-  always @(posedge txclk or negedge txrst_n) begin
-    if (!txrst_n)
-      tx_pcs_d <= 1'b0;
-    else
-      tx_pcs_d <= afifo_pma_lane_vld;
-  end
+  // 128→160. Drop a beat when all four lanes satisfy the PRBS23
+  // recurrence (same poly as the TX idle fill). That check is local to
+  // rxclk / pma_pcs_rxdata: do not sample txclk tx_pcs_d or compare
+  // pcs_pma_txdata in this process (was unsanctioned txclk→rxclk).
+  function automatic prbs23_word_ok;
+    input [127:0] w;
+    integer       i;
+    begin
+      prbs23_word_ok = 1'b1;
+      for (i = 23; i < 128; i = i + 1)
+        if (w[i] != (w[i-23] ^ w[i-18]))
+          prbs23_word_ok = 1'b0;
+    end
+  endfunction
+
+  wire idle_prbs = prbs23_word_ok(pma_pcs_rxdata[127:0]) &&
+                   prbs23_word_ok(pma_pcs_rxdata[255:128]) &&
+                   prbs23_word_ok(pma_pcs_rxdata[383:256]) &&
+                   prbs23_word_ok(pma_pcs_rxdata[511:384]);
 
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) begin
@@ -109,14 +119,11 @@ module vibe_pma_bnd (
       pma_afifo_lane3    <= 128'd0;
       pma_afifo_lane_vld <= 1'b0;
     end else begin
-      pma_afifo_lane0 <= pma_pcs_rxdata[127:0];
-      pma_afifo_lane1 <= pma_pcs_rxdata[255:128];
-      pma_afifo_lane2 <= pma_pcs_rxdata[383:256];
-      pma_afifo_lane3 <= pma_pcs_rxdata[511:384];
-      if (pma_pcs_rxdata === pcs_pma_txdata)
-        pma_afifo_lane_vld <= tx_pcs_d;
-      else
-        pma_afifo_lane_vld <= 1'b1;
+      pma_afifo_lane0    <= pma_pcs_rxdata[127:0];
+      pma_afifo_lane1    <= pma_pcs_rxdata[255:128];
+      pma_afifo_lane2    <= pma_pcs_rxdata[383:256];
+      pma_afifo_lane3    <= pma_pcs_rxdata[511:384];
+      pma_afifo_lane_vld <= !idle_prbs;
     end
   end
 endmodule
