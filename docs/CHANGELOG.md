@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-21 (PMA ECO freeze, Asia/Shanghai)
+
+### Changed
+
+- **Breaks** the Lint ECO port freeze aligned to RTL `982ddd0a` (`982ddd0a54cf19dbeb39cf8f8f523c4e26e593f6`). That pin was **BROKEN** after Luke pushed PRBS23 + `txrst_n`/`rxrst_n`. Decision **H** was hold-pin until ECO clean.
+- Since `982ddd0a`: PRBS23 in PMA; `txrst_n`/`rxrst_n` added then ECO removed input defaults (`= 1'b1`); PMA loopback CDC ECO closed (rxclk idle-poly no longer samples txclk data).
+- Naming and functional interfaces are **unchanged**. Ports remain CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`). Widths, fire rules, handshake semantics, and protocol remain SPEC-0.2 **CR-applied（命名）** / `32a7f5e0`.
+- New RTL freeze SHA: `a658d141` (`a658d14163b0e66b3875ee42a7dcc8a10024ba51`). Merge: `f234d4b0` (`f234d4b036a1639fa9855de01743d04696bf5cb7`, PR109) — **merge-trace only**, not the freeze pin. Same role as old `982ddd0a` / earlier `1ed4d350` / `32a7f5e0`.
+- Old `982ddd0a` consecutive greens 3/3 are **CLOSED 历史保留** (historically closed / voided for counting; do not restart from them).
+- Verification must restart new consecutive greens 1/3 against DUT=`a658d141` (not yet started; Xia pin is the gate).
+- Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is **unchanged**.
+- PR111 lint+CDC clean (main `014939c7`) is **evidence only**, not a freeze pin change by itself. Lint Error=0 NEW=0 (GONE `txrst_n`/`rxrst_n` UNSUPPORTED); CDC NEW=0 (GONE PMA loopback); F1 `ovf_l` still frozen WARN.
+
 ## 2026-09-08 (Lint ECO freeze)
 
 ### Changed
