@@ -667,16 +667,17 @@ class tc_pcs_rx_unpack(VibeUnitBaseTest):
         sset(d.lane_vld, 0)
         await self.cycles(10)
         # n==0 && have drain else (coverage; NOTE if force ignored)
+        inst = getattr(d, "u_u", d)
         try:
-            d.n.value = Force(0)
-            d.have.value = Force(1)
+            inst.n.value = Force(0)
+            inst.have.value = Force(1)
         except Exception:
             pass
         sset(d.beat_ready, 1)
         await RisingEdge(d.clk)
         try:
-            d.n.value = Release()
-            d.have.value = Release()
+            inst.n.value = Release()
+            inst.have.value = Release()
         except Exception:
             pass
         await RisingEdge(d.clk)

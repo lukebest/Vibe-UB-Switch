@@ -11,6 +11,8 @@ def _w(*p):
 
 
 PHY_U26_TOP = str(PY / "tb" / "vibe_phy_u26_chain_cocotb_top.sv")
+RX_UNPACK_TOP = str(PY / "tb" / "vibe_pcs_rx_unpack_cocotb_top.sv")
+RX_FEC_TOP = str(PY / "tb" / "vibe_pcs_rx_fec_cocotb_top.sv")
 
 FEC_TX = [_w("pcs", "vibe_pcs_tx_fec.sv"), _w("pcs", "vibe_rs128_120_enc.sv")]
 AMCTL_TX = [_w("pcs", "vibe_pcs_tx_amctl.sv"), _w("pcs", "vibe_ebch16.sv")]
@@ -35,10 +37,10 @@ UNIT_PCS = [
      "entry_unit"),
     ("tc_pcs_rx_deskew", "vibe_pcs_rx_deskew",
      [_w("pcs", "vibe_pcs_rx_deskew.sv")], "entry_unit"),
-    ("tc_pcs_rx_unpack", "vibe_pcs_rx_unpack",
-     [_w("pcs", "vibe_pcs_rx_unpack.sv")], "entry_unit"),
-    ("tc_pcs_rx_fec", "vibe_pcs_rx_fec",
-     [_w("pcs", "vibe_pcs_rx_fec.sv"), _w("pcs", "vibe_rs128_120_dec.sv")],
+    ("tc_pcs_rx_unpack", "vibe_pcs_rx_unpack_cocotb_top",
+     [RX_UNPACK_TOP, _w("pcs", "vibe_pcs_rx_unpack.sv")], "entry_unit"),
+    ("tc_pcs_rx_fec", "vibe_pcs_rx_fec_cocotb_top",
+     [RX_FEC_TOP, _w("pcs", "vibe_pcs_rx_fec.sv"), _w("pcs", "vibe_rs128_120_dec.sv")],
      "entry_unit"),
     ("tc_pcs_tx_pack", "vibe_pcs_tx_pack",
      [_w("pcs", "vibe_pcs_tx_pack.sv"),

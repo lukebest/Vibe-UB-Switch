@@ -21,7 +21,8 @@ async def test_unit(dut):
     for name in ("txclk", "rxclk"):
         if hasattr(dut, name):
             if pma_only:
-                cocotb.start_soon(Clock(getattr(dut, name), 1085, units="ps").start())
+                # Icarus #(1085/2) is integer 542 ps → 1084 ps period.
+                cocotb.start_soon(Clock(getattr(dut, name), 1084, units="ps").start())
             else:
                 cocotb.start_soon(Clock(getattr(dut, name), 4, units="ns").start())
     for name in ("wclk", "rclk"):

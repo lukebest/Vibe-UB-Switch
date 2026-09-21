@@ -12,7 +12,7 @@ PLUSARGS += +UVM_TESTNAME=$(UVM_TESTNAME)
 export UVM_TESTNAME
 
 ifeq ($(SIM),verilator)
-EXTRA_ARGS += --timescale 1ns/1ps -Wno-fatal --public-flat-rw
+EXTRA_ARGS += --timescale 1ns/1ps -Wno-fatal --public-flat-rw -Wno-BLKLOOPINIT
 endif
 ifeq ($(SIM),icarus)
 COMPILE_ARGS += -g2012
