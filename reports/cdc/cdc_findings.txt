@@ -1,19 +1,20 @@
-CDC structural audit 2026-09-21 (SGT)
-DUT/tip: f234d4b036a1639fa9855de01743d04696bf5cb7
-ECO RTL: a658d14163b0e66b3875ee42a7dcc8a10024ba51
-Written freeze: 982ddd0a54cf19dbeb39cf8f8f523c4e26e593f6 BROKEN/H (not re-pinned; Xia after this clean)
-rtl/ vs freeze: NON-EMPTY vibe_pma_bnd.sv (+106/-11) vibe_port.sv (+3/-3); combined +109/-14; include/ empty
-rtl/include vs a658d141: empty (RTL unchanged)
+CDC structural audit 2026-09-21-post115 (SGT)
+DUT/tip: df7c286e184b4a48fedc5d5ae7eff06cee193c5c
+DUT RTL: 302ac943c3737c288f3af6c4857bb3a9b1683a26
+Written freeze: a658d14163b0e66b3875ee42a7dcc8a10024ba51 (not re-pinned; Xia after this clean → 302ac943)
+rtl/ vs freeze: NON-EMPTY vibe_pma_bnd.sv (+27/-16 PMA_IDLE_MARK); include/ empty; rtl/port empty
+rtl/include vs 302ac943: empty (RTL unchanged)
 Tool: structural (no SpyGlass/Ascent)
-Post-PR109 ECO clean; first official post-loopback-close CDC
+Post-#115 / PR116 idle-mark official clean; vs 2026-09-21 CDC NEW=0
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
 TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new crossing
 RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
-PRBS23: txclk-local LFSR / idle fill — no new unsync multi-bit from clk_fab
-LOOPBACK: GONE — tx_pcs_d / pcs_pma_txdata compare removed; RX uses local idle_prbs on pma_pcs_rxdata (rxclk only)
+PRBS23: txclk-local LFSR / idle fill XOR PMA_IDLE_MARK — no new unsync multi-bit from clk_fab
+IDLE_MARK: localparam; TX XOR @txclk; RX un-XOR @rxclk on pma_pcs_rxdata only
+LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; idle-mark did not reopen
 BASELINE_WARN: rtl/port/vibe_port.sv:244 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :249 — UNCHANGED (F1)
 NEW: 0
 ERROR: 0
-GONE: loopback txclk->rxclk
+GONE: 0 (loopback already GONE vs 2026-09-21)
