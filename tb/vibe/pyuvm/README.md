@@ -60,7 +60,9 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | `vibe_uvm/tests/unit_leaf.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
+| Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
 | `make top` / `tc_top_smoke` | `entry_switch` / `tc_top_smoke` |
 | `make neg` / `scan_absent.sh` | `static_tests.run_absent_scan` |
 | `make sim-xsim` | deprecated secondary (needs xvlog) |

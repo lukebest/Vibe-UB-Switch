@@ -142,6 +142,16 @@ def nw512_sop(cfg=3, rt=0, scna=0, dcna=0, plen=None) -> int:
     return mk_flit(cfg=cfg, rt=rt, scna=scna, dcna=dcna, plen=plen)
 
 
+def mk_pcs_beat(flit0: int, payload_lo: int = 0) -> int:
+    """640b DLL↔PCS beat: flit0 in [639:480]."""
+    return ((flit0 & ((1 << 160) - 1)) << 480) | (payload_lo & ((1 << 480) - 1))
+
+
+def nw512_golden_rx() -> int:
+    pld = int("3C3CC3C30F0FF0F0010101010202020203030303040404040505050506060606070707070808080809090A0A", 16)
+    return mk_beat(nw512_sop(3, 0, 0xC33C, 0xD44D, nw512_plen4()), pld)
+
+
 def nw512_golden_tx() -> int:
     pld = int("A5A55A5A0123456789ABCDEFFEDCBA98765432101111222233334444555566667777888899AABBCCDDEEFF00", 16)
     return mk_beat(nw512_sop(3, 0, 0xA11A, 0xB22B, nw512_plen4()), pld)

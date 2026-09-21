@@ -173,7 +173,9 @@ class tc_bcrc_crc30(VibeUnitBaseTest):
         sset(d.last, 1)
         sset(d.in_flit, 0xA5A5A5A5A5A5A5A5A5A5)
         await RisingEdge(d.clk)
-        await ReadOnly()
+        # done is a 1-cycle NBA pulse; Icarus VPI often still shows pre-NBA
+        # on RisingEdge+ReadOnly. Mid-cycle (negedge) is the Icarus-stable window.
+        await FallingEdge(d.clk)
         if not ival(d.done, 0):
             self.bad("tc_bcrc_crc30", "start + one flit last error_flag=1",
                      "done=1", f"done=0 crc={ival(d.crc_word, 0):x}", "u_b.crc")

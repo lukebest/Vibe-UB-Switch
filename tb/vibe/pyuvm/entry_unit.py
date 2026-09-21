@@ -5,6 +5,7 @@ from cocotb.triggers import Timer
 from uvm import run_test, UVMConfigDb
 from uvm.dpi.uvm_hdl import uvm_hdl
 from vibe_uvm.tests import unit_leaf  # noqa: F401
+from vibe_uvm.tests import unit_more  # noqa: F401
 from vibe_uvm.tests import unit_pcs  # noqa: F401
 
 
@@ -25,8 +26,10 @@ async def test_unit(dut):
                 cocotb.start_soon(Clock(getattr(dut, name), 1084, units="ps").start())
             else:
                 cocotb.start_soon(Clock(getattr(dut, name), 4, units="ns").start())
-    for name in ("wclk", "rclk"):
-        if hasattr(dut, name):
-            cocotb.start_soon(Clock(getattr(dut, name), 2, units="ns").start())
+    if hasattr(dut, "wclk"):
+        cocotb.start_soon(Clock(dut.wclk, 2, units="ns").start())
+    if hasattr(dut, "rclk"):
+        # Icarus tc_afifo_afull10: always #2 rclk → 4 ns period.
+        cocotb.start_soon(Clock(dut.rclk, 4, units="ns").start())
     await Timer(1, "NS")
     await run_test(os.environ.get("UVM_TESTNAME", "tc_vl_rr"))
