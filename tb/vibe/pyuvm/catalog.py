@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from catalog_more import UNIT_MORE
-from catalog_pcs import UNIT_PCS
+from catalog_pcs import UNIT_PCS, _no_input_default
 
 ROOT = Path(__file__).resolve().parents[3]
 RTL = ROOT / "rtl"
@@ -51,11 +51,11 @@ PORT_RTL = [
     _w("pcs", "vibe_pcs_tx_amctl.sv"),
     _w("pcs", "vibe_ebch16.sv"),
     _w("pcs", "vibe_pcs_scramble.sv"),
-    _w("pcs", "vibe_pcs_rx.sv"),
+    _no_input_default("pcs", "vibe_pcs_rx.sv"),
     _w("pcs", "vibe_pcs_rx_amctl_lock.sv"),
     _w("pcs", "vibe_pcs_rx_deskew.sv"),
-    _w("pcs", "vibe_pcs_rx_unpack.sv"),
-    _w("pcs", "vibe_pcs_rx_fec.sv"),
+    _no_input_default("pcs", "vibe_pcs_rx_unpack.sv"),
+    _no_input_default("pcs", "vibe_pcs_rx_fec.sv"),
     _w("pcs", "vibe_rs128_120_dec.sv"),
     _w("lmsm", "vibe_lmsm.sv"),
     _w("dll", "vibe_dll.sv"),

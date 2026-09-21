@@ -16,7 +16,10 @@ def _no_input_default(*rel):
     src = ROOT.joinpath("rtl", *rel)
     GEN.mkdir(parents=True, exist_ok=True)
     dest = GEN / src.name
-    dest.write_text(src.read_text().replace("am_gap = 1'b0", "am_gap"))
+    text = src.read_text()
+    text = text.replace("am_gap = 1'b0", "am_gap")
+    text = text.replace("link_up = 1'b0", "link_up")
+    dest.write_text(text)
     return str(dest)
 
 
