@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 sim_build/
+tb/gen/
 results/
 *.vcd
 *.fst
