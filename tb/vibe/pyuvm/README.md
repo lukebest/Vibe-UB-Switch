@@ -74,6 +74,27 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 Identifiers (`tc_rt10_must_drop`, `tc_credit_1024_flit_bp`, …) are unchanged so
 `TP_TC_MATRIX.md` still scores.
 
+## Gate status (this tree)
+
+Icarus (`SIM=icarus`) is the complete no-xvlog gate. Verilator is the
+fabric/unit baseline (`--timing`); port/top hierarchical `Force` of LMSM
+lock does not take effect under Verilator 5.020 + cocotb 1.9.2 VPI, so
+those two stay Icarus.
+
+| Bucket | Icarus | Verilator |
+|--------|--------|-----------|
+| `suite` (`tc_suite_all`, 28) | PASS | PASS |
+| leaf units + static/neg + PCS | PASS (incl. `tc_phy_u26_chain`, `tc_timers_indep`) | `tc_vl_rr` PASS; fabric suite PASS |
+| `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
+| `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
+| `neg` | PASS | n/a (no sim) |
+
+#115 (`tc_port_smoke` / `tc_nw_pkt_pma_loopback` / `tc_top_smoke`) is **not**
+failing on `main` with PR116. Checkers were **not** relaxed.
+
+Not Python-sim in this PR (still `make sim-icarus`): full-stack `tc_pcs_rx`,
+`tc_pcs_tx`, `tc_dll`. Leaf PCS/DLL units cover the same TPs.
+
 ## #115
 
 PMA idle-PRBS ECO (`a658d141`) made Icarus `tc_port_smoke` /
