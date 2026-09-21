@@ -1,48 +1,46 @@
-# Vibe-UB-Switch verification (AS-0.1). Default simulator is AMD Vivado xsim + UVM 1.2.
-# Compiles vibe_*.sv + tb/vibe/uvm. Old tb/ is unused (void). Do not modify rtl/.
+# Vibe-UB-Switch verification (AS-0.1).
+# Default gate is uvm-python + Verilator/Icarus (no xvlog).
+# SV UVM + xsim is deprecated/secondary: `make sim-xsim`.
+# Do not modify rtl/.
 
 ROOT      := $(abspath ../..)
 TB        := $(ROOT)/tb/vibe
 RES       := $(TB)/results
+PYUVM     := $(TB)/pyuvm
+SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg
 all: sim
 
 help:
-	@echo "make suite          - UVM fabric+mgmt G1/TP suite (xsim)"
-	@echo "make suite TC=name  - one UVM suite test"
-	@echo "make units          - UVM leaf-unit + port PHY tests (xsim)"
-	@echo "make port           - UVM vibe_port PHY tests (xsim)"
-	@echo "make top            - UVM vibe_ub_switch smoke (xsim)"
-	@echo "make sim            - suite + units + top + absent-feature scan"
-	@echo "make sim-icarus     - previous iverilog gate (legacy)"
-	@echo "make cov            - verilator line/toggle coverage on vibe_* (if supported)"
+	@echo "make sim            - uvm-python suite + units + top + neg (SIM=verilator|icarus)"
+	@echo "make suite          - fabric+mgmt G1/TP suite (uvm-python)"
+	@echo "make suite TC=name  - one suite test"
+	@echo "make units          - leaf-unit + static/neg + port (uvm-python)"
+	@echo "make port           - vibe_port PHY tests (uvm-python)"
+	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
-	@echo "make waves          - +DUMP VCD + PNG"
+	@echo "make sim-icarus     - legacy iverilog tree (historical 124-bucket)"
+	@echo "make sim-xsim       - deprecated SV UVM + Vivado xsim"
+	@echo "make cov            - verilator line/toggle coverage on vibe_* (if supported)"
 
 $(RES):
 	mkdir -p $(RES)
 
-suite: $(RES)
-	TC="$(TC)" $(TB)/uvm/scripts/run_xsim.sh suite
-
-units: $(RES)
-	TC="$(TC)" $(TB)/uvm/scripts/run_xsim.sh units
-
-port: $(RES)
-	TC="$(TC)" $(TB)/uvm/scripts/run_xsim.sh port
-
-top: $(RES)
-	$(TB)/uvm/scripts/run_xsim.sh top
-
-neg: $(RES)
-	$(TB)/scripts/scan_absent.sh $(ROOT)/rtl | tee $(RES)/neg_absent.log
-
-sim: suite units top neg
-	@$(TB)/scripts/summarize.sh $(RES)
+suite units port top neg sim: $(RES)
+	$(MAKE) -C $(PYUVM) $@ SIM=$(SIM) TC="$(TC)"
+	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
 	$(MAKE) -f $(TB)/Makefile.icarus sim
+
+sim-xsim: $(RES)
+	@echo "DEPRECATED: SV UVM + xsim. Prefer make sim (uvm-python)."
+	TC="$(TC)" $(TB)/uvm/scripts/run_xsim.sh suite
+	TC="$(TC)" $(TB)/uvm/scripts/run_xsim.sh units
+	$(TB)/uvm/scripts/run_xsim.sh top
+	$(TB)/scripts/scan_absent.sh $(ROOT)/rtl | tee $(RES)/neg_absent.log
+	@$(TB)/scripts/summarize.sh $(RES)
 
 waves: $(RES)
 	TC="$(TC)" $(TB)/scripts/run_waves.sh
@@ -52,6 +50,6 @@ cov: $(RES)
 
 clean:
 	rm -rf $(RES)/*
-	rm -rf $(TB)/obj_dir
+	rm -rf $(TB)/obj_dir $(PYUVM)/sim_build $(PYUVM)/results
 	rm -rf xsim.dir xvlog.pb xelab.pb webtalk* *.wdb *.jou *.log
 	rm -rf $(TB)/xsim.dir $(TB)/xvlog.pb $(TB)/xelab.pb $(TB)/*.wdb $(TB)/*.jou

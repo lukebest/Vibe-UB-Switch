@@ -1,0 +1,88 @@
+# Vibe-UB-Switch Python UVM 1.2 (uvm-python)
+
+Primary verification gate. Accellera UVM 1.2 **Python functional equivalence**
+via [lukebest/uvm-python](https://github.com/lukebest/uvm-python) + cocotb 1.9.x.
+
+Does **not** modify `rtl/` or `include/`. Does not require Vivado xsim.
+
+## Install pins
+
+```
+cocotb>=1.9.2,<2          # 2.x cannot import this library
+cocotb-bus
+cocotb-coverage
+regex
+uvm-python @ git+https://github.com/lukebest/uvm-python.git
+```
+
+```bash
+make -C tb/vibe/pyuvm venv
+# or: python3 -m venv tb/vibe/pyuvm/.venv && \
+#      tb/vibe/pyuvm/.venv/bin/pip install -r tb/vibe/pyuvm/requirements.txt
+```
+
+## Run (no xvlog)
+
+```bash
+make -C tb/vibe sim              # default: this tree
+make -C tb/vibe suite            # fabric+mgmt G1/CFG/SAF/length
+make -C tb/vibe suite TC=tc_rt10_must_drop
+make -C tb/vibe units            # leaf units + static/neg + port
+make -C tb/vibe units TC=tc_vl_rr
+make -C tb/vibe port TC=tc_port_smoke
+make -C tb/vibe top              # vibe_ub_switch + peer PMA
+make -C tb/vibe neg              # absent-feature scan
+```
+
+Simulator: `SIM=verilator` (baseline) or `SIM=icarus`.
+
+```bash
+make -C tb/vibe/pyuvm sim SIM=icarus
+make -C tb/vibe/pyuvm units TC=tc_vl_rr SIM=icarus
+```
+
+## Topology
+
+```
+UVMTest
+ └─ UVMEnv
+     ├─ Agent (Sequencer / Driver / Monitor)   # pull-mode
+     └─ VibeAsScoreboard                       # G1, length, CFG6, SAF, ICRC
+```
+
+Phases / sequences / drivers are `async def` + `await`. Objections in `run_phase`.
+ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
+/ `uvm_object_utils`.
+
+## Name mapping (old → new)
+
+| Old gate | New |
+|----------|-----|
+| Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
+| SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
+| Icarus `tb/vibe/tests/tc_*.sv` | `vibe_uvm/tests/unit_leaf.py` / `port_tests.py` / `static_tests.py` |
+| `make top` / `tc_top_smoke` | `entry_switch` / `tc_top_smoke` |
+| `make neg` / `scan_absent.sh` | `static_tests.run_absent_scan` |
+| `make sim-xsim` | deprecated secondary (needs xvlog) |
+
+Identifiers (`tc_rt10_must_drop`, `tc_credit_1024_flit_bp`, …) are unchanged so
+`TP_TC_MATRIX.md` still scores.
+
+## #115
+
+PMA idle-PRBS ECO (`a658d141`) made Icarus `tc_port_smoke` /
+`tc_nw_pkt_pma_loopback` / `tc_top_smoke` fail. PR116 landed a DUT fix on
+`main`. This TB **does not** weaken those checkers. If they fail on a freeze
+without that ECO, report them as DUT fails.
+
+## Layout
+
+```
+tb/vibe/pyuvm/
+  vibe_uvm/          items, vifs, agents, env, scoreboard, tests
+  tb/                cocotb Verilog wrappers (no SV UVM)
+  entry_*.py         @cocotb.test() → await run_test(...)
+  catalog.py         RTL lists + TC map
+  run_gate.py        suite / units / top / neg
+  requirements.txt
+```
