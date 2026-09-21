@@ -41,7 +41,7 @@ def _run_cocotb(name: str, toplevel: str, sources: list[str], module: str,
     env["UVM_TESTNAME"] = name
     env["SIM"] = sim
     cmd = [
-        "make", "-C", str(PYUVM), "-f", "Makefile.cocotb",
+        "make", "-C", str(PYUVM), "-f", "Makefile.cocotb", "sim",
         f"SIM={sim}",
         f"TOPLEVEL={toplevel}",
         f"MODULE={module}",
@@ -58,12 +58,19 @@ def _run_cocotb(name: str, toplevel: str, sources: list[str], module: str,
     for line in text.splitlines():
         if line.startswith(("PASS ", "FAIL ", "NOTE ", "HOLE ", "SUITE", "WARN")):
             print(line, flush=True)
-    if p.returncode != 0 and "PASS " + name not in text and "FAIL " + name not in text:
-        print(f"FAIL {name} (sim rc={p.returncode})", flush=True)
-        with log.open("a") as fh:
-            fh.write(f"\nFAIL {name} (sim rc={p.returncode})\n")
-        return 1
-    if "FAIL " + name in text or f"FAIL {name} " in text:
+    failed = (
+        p.returncode != 0
+        or f"FAIL {name}" in text
+        or " failed" in text and "Traceback" in text
+        or "AttributeError" in text
+        or "UVM_ERROR" in text and "UVM_ERROR : 0" not in text
+    )
+    passed = f"PASS {name}" in text or f"PASS {name} " in text
+    if failed and not passed:
+        if f"FAIL {name}" not in text:
+            print(f"FAIL {name} (sim rc={p.returncode})", flush=True)
+            with log.open("a") as fh:
+                fh.write(f"\nFAIL {name} (sim rc={p.returncode})\n")
         return 1
     return 0
 

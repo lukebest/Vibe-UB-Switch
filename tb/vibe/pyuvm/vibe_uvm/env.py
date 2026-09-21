@@ -13,11 +13,11 @@ class VibeFabEnv(UVMEnv):
 
     def build_phase(self, phase):
         super().build_phase(phase)
+        UVMConfigDb.set(self, "egr", "is_active", UVM_PASSIVE)
         self.cfg = VibeCfgAgent.type_id.create("cfg", self)
         self.ing = VibeNwAgent.type_id.create("ing", self)
         self.egr = VibeNwAgent.type_id.create("egr", self)
         self.sb = VibeAsScoreboard.type_id.create("sb", self)
-        self.egr.set_is_active(UVM_PASSIVE)
         UVMConfigDb.set(self, "ing.mon", "is_ingress", True)
         UVMConfigDb.set(self, "egr.mon", "is_ingress", False)
         for field, key in (

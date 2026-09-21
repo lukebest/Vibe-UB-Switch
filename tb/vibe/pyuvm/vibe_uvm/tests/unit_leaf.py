@@ -1,7 +1,7 @@
 """Leaf-unit TCs ported from tb/vibe/tests/*.sv (same stimulus/score)."""
 
 from uvm import uvm_component_utils
-from cocotb.triggers import RisingEdge, FallingEdge, Timer
+from cocotb.triggers import RisingEdge, FallingEdge, Timer, ReadOnly
 from vibe_uvm import lph
 from vibe_uvm.hdl import ival, sset
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
@@ -173,6 +173,7 @@ class tc_bcrc_crc30(VibeUnitBaseTest):
         sset(d.last, 1)
         sset(d.in_flit, 0xA5A5A5A5A5A5A5A5A5A5)
         await RisingEdge(d.clk)
+        await ReadOnly()
         if not ival(d.done, 0):
             self.bad("tc_bcrc_crc30", "start + one flit last error_flag=1",
                      "done=1", f"done=0 crc={ival(d.crc_word, 0):x}", "u_b.crc")
