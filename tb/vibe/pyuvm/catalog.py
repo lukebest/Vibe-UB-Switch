@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from catalog_pcs import UNIT_PCS
+
 ROOT = Path(__file__).resolve().parents[3]
 RTL = ROOT / "rtl"
 PY = Path(__file__).resolve().parent
@@ -124,7 +126,7 @@ UNIT_SIM = [
     ("tc_credit_1024_hole", "vibe_dll_credit", [_w("dll", "vibe_dll_credit.sv")], "entry_unit"),
     ("tc_identity_cfg_space", "vibe_cfg_space", [_w("mgmt", "vibe_cfg_space.sv")], "entry_unit"),
     ("tc_cna_16bit", "vibe_cfg_space", [_w("mgmt", "vibe_cfg_space.sv")], "entry_unit"),
-]
+] + UNIT_PCS
 
 PORT_TESTS = [
     ("tc_port_smoke", "vibe_port_cocotb_top", [PORT_TOP] + PORT_RTL, "entry_port"),
