@@ -2,8 +2,9 @@
 
 from uvm import UVMTest, UVMConfigDb, uvm_component_utils, uvm_fatal
 from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.handle import Force
 from vibe_uvm import lph
-from vibe_uvm.hdl import ival, sset
+from vibe_uvm.hdl import ival, sset, hier
 from vibe_uvm.report import tb_pass, tb_fail
 
 
@@ -36,8 +37,8 @@ class VibePortBase(UVMTest):
         sset(d.rst_n, 1)
         for _ in range(8):
             await RisingEdge(d.clk_fab)
-        sset(d.u_p.u_lmsm.am_locked, 0xF)
-        sset(d.u_p.u_lmsm.lid_bad, 0)
+        hier(d, "u_p.u_lmsm.am_locked").value = Force(0xF)
+        hier(d, "u_p.u_lmsm.lid_bad").value = Force(0)
         await FallingEdge(d.clk_fab)
         sset(d.lmsm_go, 1)
         await RisingEdge(d.clk_fab)
@@ -48,9 +49,9 @@ class VibePortBase(UVMTest):
             await RisingEdge(d.clk_fab)
         if not (ival(d.u_p.link_ready, 0) and ival(d.status_up, 0)):
             return False
-        sset(d.u_p.u_dll.u_crd.cells, 64)
+        hier(d, "u_p.u_dll.u_crd.cells").value = Force(64)
         await RisingEdge(d.clk_fab)
-        sset(d.u_p.u_lmsm.st, 9)
+        hier(d, "u_p.u_lmsm.st").value = Force(9)
         await RisingEdge(d.clk_fab)
         return True
 

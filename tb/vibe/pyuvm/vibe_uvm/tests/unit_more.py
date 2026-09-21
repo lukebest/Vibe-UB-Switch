@@ -603,6 +603,7 @@ class tc_dll_sm_states(VibeUnitBaseTest):
         await self.cycles(3)
         sset(d.dll_error, 1)
         await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
         sset(d.dll_error, 0)
         if ival(d.state, -1) != 0:
             self.bad("tc_dll_sm_states", "dll_error in Normal",
@@ -1203,15 +1204,20 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
         phase.raise_objection(self)
         d = self.dut
         if hasattr(d, "txrst_n"):
-            sset(d.txrst_n, 1)
+            sset(d.txrst_n, 0)
         if hasattr(d, "rxrst_n"):
-            sset(d.rxrst_n, 1)
+            sset(d.rxrst_n, 0)
         sset(d.afifo_pma_lane0, 0x11)
         sset(d.afifo_pma_lane1, 0x22)
         sset(d.afifo_pma_lane2, 0x33)
         sset(d.afifo_pma_lane3, 0x44)
         sset(d.afifo_pma_lane_vld, 0)
         sset(d.pma_pcs_rxdata, 0)
+        await RisingEdge(d.txclk)
+        if hasattr(d, "txrst_n"):
+            sset(d.txrst_n, 1)
+        if hasattr(d, "rxrst_n"):
+            sset(d.rxrst_n, 1)
         for _ in range(2):
             await RisingEdge(d.txclk)
         if ival(d.pcs_pma_txdata, 0) == 0:

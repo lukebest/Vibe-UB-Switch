@@ -2,8 +2,9 @@
 
 from uvm import UVMTest, UVMConfigDb, uvm_component_utils, uvm_fatal
 from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.handle import Force
 from vibe_uvm import lph
-from vibe_uvm.hdl import ival, sset
+from vibe_uvm.hdl import ival, sset, hier
 from vibe_uvm.report import tb_pass, tb_fail
 
 
@@ -65,12 +66,18 @@ class tc_top_smoke(UVMTest):
                     "CNA not written", "dut.u_mgmt.cna")
             phase.drop_objection(self)
             return
-        sset(d.u_peer.u_lmsm.am_locked, 0xF)
-        sset(d.u_peer.u_lmsm.lid_bad, 0)
-        sset(d.dut.g_port[0].u_port.u_lmsm.am_locked, 0xF)
-        sset(d.dut.g_port[0].u_port.u_lmsm.lid_bad, 0)
-        sset(d.dut.g_port[1].u_port.u_lmsm.am_locked, 0xF)
-        sset(d.dut.g_port[1].u_port.u_lmsm.lid_bad, 0)
+        for path in (
+            "u_peer.u_lmsm.am_locked",
+            "dut.g_port[0].u_port.u_lmsm.am_locked",
+            "dut.g_port[1].u_port.u_lmsm.am_locked",
+        ):
+            hier(d, path).value = Force(0xF)
+        for path in (
+            "u_peer.u_lmsm.lid_bad",
+            "dut.g_port[0].u_port.u_lmsm.lid_bad",
+            "dut.g_port[1].u_port.u_lmsm.lid_bad",
+        ):
+            hier(d, path).value = Force(0)
         await FallingEdge(d.clk_fab)
         sset(d.plgo, 1)
         await self.cfgw(5, 0, 0)
@@ -87,12 +94,12 @@ class tc_top_smoke(UVMTest):
                     "u_peer.u_lmsm")
             phase.drop_objection(self)
             return
-        sset(d.u_peer.u_dll.u_crd.cells, 64)
-        sset(d.dut.g_port[0].u_port.u_dll.u_crd.cells, 64)
+        hier(d, "u_peer.u_dll.u_crd.cells").value = Force(64)
+        hier(d, "dut.g_port[0].u_port.u_dll.u_crd.cells").value = Force(64)
         await RisingEdge(d.clk_fab)
-        sset(d.u_peer.u_lmsm.st, 9)
-        sset(d.dut.g_port[0].u_port.u_lmsm.st, 9)
-        sset(d.dut.g_port[1].u_port.u_lmsm.st, 9)
+        hier(d, "u_peer.u_lmsm.st").value = Force(9)
+        hier(d, "dut.g_port[0].u_port.u_lmsm.st").value = Force(9)
+        hier(d, "dut.g_port[1].u_port.u_lmsm.st").value = Force(9)
         await RisingEdge(d.clk_fab)
         if not ival(d.dut.g_port[0].u_port.link_up, 0):
             tb_fail("tc_top_smoke", "DUT port0 lmsm_go + force ACTIVE",
