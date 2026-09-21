@@ -31,7 +31,7 @@ class VibeFabBodies(VibeFabBaseTest):
         elif p0a != p0b:
             self.bad("tc_rt00_per_flow_rr_fwd", "same flow {CFG,src,dest,VL} twice",
                      "sticky same egr", "egr changed", "psel.sticky")
-        elif (not bit(self.probe.x_in_v, 0)) or bit(self.probe.g1_comb, 0):
+        elif (not (self.probe.saw_xin & 1)) or bit(self.probe.g1_comb, 0):
             self.bad("tc_rt00_per_flow_rr_fwd", "fabric inject RT=00",
                      "x_in_v[0]=1 and not G1", "x_in_v/g1 mismatch", "u_fab.x_in_v")
         else:

@@ -64,8 +64,13 @@ def _run_cocotb(name: str, toplevel: str, sources: list[str], module: str,
         or " failed" in text and "Traceback" in text
         or "AttributeError" in text
         or "UVM_ERROR" in text and "UVM_ERROR : 0" not in text
+        or "SUITE_RESULT FAIL" in text
     )
-    passed = f"PASS {name}" in text or f"PASS {name} " in text
+    passed = (
+        f"PASS {name}" in text
+        or f"PASS {name} " in text
+        or "SUITE_RESULT PASS" in text
+    )
     if failed and not passed:
         if f"FAIL {name}" not in text:
             print(f"FAIL {name} (sim rc={p.returncode})", flush=True)

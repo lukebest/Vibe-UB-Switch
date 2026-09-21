@@ -550,6 +550,7 @@ class tc_dll_sm_states(VibeUnitBaseTest):
             return
         sset(d.param_ok, 1)
         await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
         if ival(d.state, -1) != 2:
             self.bad("tc_dll_sm_states", "param_ok", "Credit_Init (2)",
                      str(ival(d.state, -1)))
@@ -564,6 +565,7 @@ class tc_dll_sm_states(VibeUnitBaseTest):
             return
         sset(d.credit_ok, 1)
         await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
         if ival(d.state, -1) != 3 or not ival(d.status_up, 0):
             self.bad("tc_dll_sm_states", "credit_ok", "Normal status_up=1",
                      f"{ival(d.state, -1)} {ival(d.status_up, 0)}")
@@ -577,6 +579,7 @@ class tc_dll_sm_states(VibeUnitBaseTest):
             return
         sset(d.link_up, 0)
         await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
         if ival(d.state, -1) != 0:
             self.bad("tc_dll_sm_states", "LinkUp=0", "Disabled",
                      str(ival(d.state, -1)))
@@ -1199,6 +1202,10 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
     async def run_phase(self, phase):
         phase.raise_objection(self)
         d = self.dut
+        if hasattr(d, "txrst_n"):
+            sset(d.txrst_n, 1)
+        if hasattr(d, "rxrst_n"):
+            sset(d.rxrst_n, 1)
         sset(d.afifo_pma_lane0, 0x11)
         sset(d.afifo_pma_lane1, 0x22)
         sset(d.afifo_pma_lane2, 0x33)
