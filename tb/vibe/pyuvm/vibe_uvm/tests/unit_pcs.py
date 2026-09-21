@@ -821,16 +821,15 @@ class tc_rs_dec_syndrome(VibeUnitBaseTest):
         sset(d.start, 0)
         for _ in range(128):
             await FallingEdge(d.clk)
-            while not ival(d.in_ready, 0):
+            nwait = 0
+            while not ival(d.in_ready, 0) and nwait < 32:
                 await RisingEdge(d.clk)
                 if ival(d.done, 0):
                     saw_done = 1
+                nwait += 1
             sset(d.in_sym, 0)
             sset(d.in_vld, 1)
             await RisingEdge(d.clk)
-            if ival(d.done, 0):
-                saw_done = 1
-            await FallingEdge(d.clk)
             if ival(d.done, 0):
                 saw_done = 1
         await FallingEdge(d.clk)

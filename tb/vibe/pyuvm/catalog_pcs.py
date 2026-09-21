@@ -4,10 +4,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 PY = Path(__file__).resolve().parent
+GEN = PY / "tb" / "gen"
 
 
 def _w(*p):
     return str(ROOT.joinpath("rtl", *p))
+
+
+def _no_input_default(*rel):
+    """Verilator 5.020 rejects `input ... = default` even on non-top modules."""
+    src = ROOT.joinpath("rtl", *rel)
+    GEN.mkdir(parents=True, exist_ok=True)
+    dest = GEN / src.name
+    dest.write_text(src.read_text().replace("am_gap = 1'b0", "am_gap"))
+    return str(dest)
 
 
 PHY_U26_TOP = str(PY / "tb" / "vibe_phy_u26_chain_cocotb_top.sv")
@@ -38,9 +48,11 @@ UNIT_PCS = [
     ("tc_pcs_rx_deskew", "vibe_pcs_rx_deskew",
      [_w("pcs", "vibe_pcs_rx_deskew.sv")], "entry_unit"),
     ("tc_pcs_rx_unpack", "vibe_pcs_rx_unpack_cocotb_top",
-     [RX_UNPACK_TOP, _w("pcs", "vibe_pcs_rx_unpack.sv")], "entry_unit"),
+     [RX_UNPACK_TOP, _no_input_default("pcs", "vibe_pcs_rx_unpack.sv")],
+     "entry_unit"),
     ("tc_pcs_rx_fec", "vibe_pcs_rx_fec_cocotb_top",
-     [RX_FEC_TOP, _w("pcs", "vibe_pcs_rx_fec.sv"), _w("pcs", "vibe_rs128_120_dec.sv")],
+     [RX_FEC_TOP, _no_input_default("pcs", "vibe_pcs_rx_fec.sv"),
+      _w("pcs", "vibe_rs128_120_dec.sv")],
      "entry_unit"),
     ("tc_pcs_tx_pack", "vibe_pcs_tx_pack",
      [_w("pcs", "vibe_pcs_tx_pack.sv"),
