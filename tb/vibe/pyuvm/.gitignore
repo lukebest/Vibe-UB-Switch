@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+sim_build/
+tb/gen/
+results/
+*.vcd
+*.fst
+*.xml
+*.vvp

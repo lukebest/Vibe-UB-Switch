@@ -1,0 +1,25 @@
+# Single-test cocotb invocation. Variables come from the environment / command line.
+TOPLEVEL_LANG ?= verilog
+SIM           ?= verilator
+WAVES         ?= 0
+
+PYUVM := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+VENV  := $(PYUVM)/.venv
+export PATH := $(VENV)/bin:$(PATH)
+export PYTHONPATH := $(PYUVM):$(PYTHONPATH)
+
+PLUSARGS += +UVM_TESTNAME=$(UVM_TESTNAME)
+export UVM_TESTNAME
+
+ifeq ($(SIM),verilator)
+# --timing: fabric wrapper `initial` preload (NEEDTIMINGOPT). --public-flat-rw: Force internals.
+EXTRA_ARGS += --timescale 1ns/1ps -Wno-fatal --public-flat-rw -Wno-BLKLOOPINIT --timing
+endif
+ifeq ($(SIM),icarus)
+COMPILE_ARGS += -g2012
+endif
+
+COCOTB_REDUCED_LOG_FMT ?= 1
+export COCOTB_REDUCED_LOG_FMT
+
+include $(shell $(VENV)/bin/cocotb-config --makefiles)/Makefile.sim
