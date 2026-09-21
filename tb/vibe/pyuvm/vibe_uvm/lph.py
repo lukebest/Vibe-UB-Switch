@@ -161,6 +161,14 @@ def nw512_golden_tx_b2() -> int:
     return (0xB2B2C3C3D4D4E5E5 << 384)
 
 
+def nw512_golden_tx_b2_n(n: int) -> int:
+    """Second beat of packet n. n=0 is nw512_golden_tx_b2(); else unique k."""
+    if n == 0:
+        return nw512_golden_tx_b2()
+    k = n & 0xFFFFFFFF
+    return (0xB2B2C3C3D4D4E5E5 << 416) | (k << 384)
+
+
 def nw512_golden_tx_n(n: int) -> int:
     if n == 0:
         return nw512_golden_tx()

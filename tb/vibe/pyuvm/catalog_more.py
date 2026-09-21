@@ -78,4 +78,8 @@ UNIT_MORE = [
      [_wrap("vibe_dll_tx_cfg0_cocotb_top"), _w("dll", "vibe_dll_tx.sv"),
       _w("dll", "vibe_bcrc.sv"), _w("dll", "vibe_dll_credit.sv")], "entry_unit"),
     ("tc_mgmt", "vibe_mgmt", MGMT, "entry_unit"),
+    ("tc_timers_indep", "vibe_timers_indep_cocotb_top",
+     [_wrap("vibe_timers_indep_cocotb_top"),
+      _w("dll", "vibe_dll_credit.sv"), _w("fabric", "vibe_voq_egr.sv")],
+     "entry_unit"),
 ]

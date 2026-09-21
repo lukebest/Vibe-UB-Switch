@@ -63,6 +63,10 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
+| Icarus `tc_dll` (full stack) | still Icarus-only; leaf DLL SM/credit/retry/rx/tx units are ported |
+| Icarus `tc_timers_indep` | `tc_timers_indep` (`vibe_timers_indep_cocotb_top`) |
+| Icarus `tc_fabric_g1` / `tc_fabric_line_holes` | fabric suite (`tc_suite_all`) |
+| Icarus `tc_id_nports_entity0` / `tc_tp_holes` / `tc_neg_*` | `static_tests.py` (no simulator) |
 | `make top` / `tc_top_smoke` | `entry_switch` / `tc_top_smoke` |
 | `make neg` / `scan_absent.sh` | `static_tests.run_absent_scan` |
 | `make sim-xsim` | deprecated secondary (needs xvlog) |

@@ -20,7 +20,7 @@ class VibePortBase(UVMTest):
             uvm_fatal(self.get_type_name(), "dut")
         self.dut = dut[0]
 
-    async def bringup_link(self):
+    async def bringup_link(self, cells=64, hold_pend=False):
         d = self.dut
         sset(d.loopback, 1)
         sset(d.rst_n, 0)
@@ -49,17 +49,23 @@ class VibePortBase(UVMTest):
             await RisingEdge(d.clk_fab)
         if not (ival(d.u_p.link_ready, 0) and ival(d.status_up, 0)):
             return False
-        hier(d, "u_p.u_dll.u_crd.cells").value = Force(64)
+        # Icarus loopback holds cells+pend so the 1 µs Crd_Ack timeout does
+        # not tear the link. That TC scores GOLDEN data, not credit.
+        hier(d, "u_p.u_dll.u_crd.cells").value = Force(cells)
+        if hold_pend:
+            hier(d, "u_p.u_dll.u_crd.pend").value = Force(0)
         await RisingEdge(d.clk_fab)
         hier(d, "u_p.u_lmsm.st").value = Force(9)
         await RisingEdge(d.clk_fab)
         return True
 
-    async def accept_nw(self, beat, timeout=32) -> bool:
+    async def accept_nw(self, beat, timeout=32, on_fall=None) -> bool:
         d = self.dut
         sset(d.fab_nw_data, beat)
         for _ in range(timeout):
             await FallingEdge(d.clk_fab)
+            if on_fall is not None:
+                on_fall()
             sset(d.fab_nw_vld, 1)
             if ival(d.fab_nw_ready, 0):
                 await RisingEdge(d.clk_fab)
@@ -166,37 +172,83 @@ class tc_nw_pkt_pma_loopback(VibePortBase):
     async def run_phase(self, phase):
         phase.raise_objection(self)
         d = self.dut
-        if not await self.bringup_link():
+        # Same hold as Icarus tc_nw_pkt_pma_loopback: cells=512, pend=0.
+        if not await self.bringup_link(cells=512, hold_pend=True):
             tb_fail("tc_nw_pkt_pma_loopback", "link bring-up", "link_ready", "0", "u_p.u_lmsm")
             phase.drop_objection(self)
             return
         npkt = 100
+        beat_to = 4096
+        wait_max = 200000
+        exp_sop = [lph.nw512_golden_tx_n(n) for n in range(npkt)]
         rx_n = 0
+        order_fail = None
+
+        def peek_rx():
+            nonlocal rx_n, order_fail
+            if order_fail is not None:
+                return
+            if not ival(d.nw_fab_vld, 0):
+                return
+            got = ival(d.nw_fab_data, 0)
+            if rx_n < npkt and got == exp_sop[rx_n]:
+                rx_n += 1
+                return
+            for j, sop in enumerate(exp_sop):
+                if got == sop and j != rx_n:
+                    order_fail = (rx_n, j, got)
+                    return
+            # Remainder / non-SOP beats are not required to match injected b2.
+
+        def _crd_note():
+            try:
+                cells = ival(hier(d, "u_p.u_dll.u_crd.cells"), -1)
+                pend = ival(hier(d, "u_p.u_dll.u_crd.pend"), -1)
+                cl = ival(hier(d, "u_p.u_dll.u_crd.credit_low"), -1)
+                bp = ival(hier(d, "u_p.u_dll.u_crd.bp_nw"), -1)
+                pe = ival(d.proto_err, -1)
+                return (f"link_ready={ival(d.u_p.link_ready, 0)} status_up={ival(d.status_up, 0)} "
+                        f"cells={cells} pend={pend} credit_low={cl} bp_nw={bp} proto_err={pe}")
+            except Exception:
+                return "credit internals unreadable"
+
         for n in range(npkt):
-            sop = lph.nw512_golden_tx_n(n)
-            b2 = lph.nw512_golden_tx_b2()
-            if not await self.accept_nw(sop):
+            if not await self.accept_nw(exp_sop[n], timeout=beat_to, on_fall=peek_rx):
                 tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} SOP",
-                        "fab_nw_ready accept", "timeout", "u_p.u_nw")
+                        "fab_nw_ready accept",
+                        f"timeout ({_crd_note()})", "u_p.u_nw")
                 phase.drop_objection(self)
                 return
-            await self.accept_nw(b2)
-            hit = False
-            for _ in range(4096):
-                await RisingEdge(d.clk_fab)
-                if ival(d.nw_fab_vld, 0):
-                    got = ival(d.nw_fab_data, 0)
-                    if got != sop:
-                        tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} RX SOP",
-                                f"{sop:x}", f"{got:x}", "u_p.nw_fab_data")
-                        phase.drop_objection(self)
-                        return
-                    hit = True
-                    rx_n += 1
-                    break
-            if not hit:
+            if order_fail is not None:
+                exp_i, got_i, got = order_fail
+                tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} RX order during SOP",
+                        f"SOP of packet {exp_i}", f"SOP of packet {got_i} ({got:x})",
+                        "u_p.nw_fab_data")
+                phase.drop_objection(self)
+                return
+            if not await self.accept_nw(lph.nw512_golden_tx_b2_n(n),
+                                        timeout=beat_to, on_fall=peek_rx):
+                tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} B2",
+                        "fab_nw_ready accept",
+                        f"timeout ({_crd_note()})", "u_p.u_nw")
+                phase.drop_objection(self)
+                return
+            waited = 0
+            while rx_n <= n and order_fail is None and waited < wait_max:
+                await FallingEdge(d.clk_fab)
+                peek_rx()
+                waited += 1
+            if order_fail is not None:
+                exp_i, got_i, got = order_fail
+                tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} RX order",
+                        f"SOP of packet {exp_i}", f"SOP of packet {got_i} ({got:x})",
+                        "u_p.nw_fab_data")
+                phase.drop_objection(self)
+                return
+            if rx_n <= n:
                 tb_fail("tc_nw_pkt_pma_loopback", f"packet {n} wait RX",
-                        "nw_fab_vld recover SOP", "timeout", "u_p.nw_fab_vld")
+                        "nw_fab_vld recover SOP",
+                        f"timeout ({_crd_note()})", "u_p.nw_fab_vld")
                 phase.drop_objection(self)
                 return
         tb_pass(f"tc_nw_pkt_pma_loopback ({rx_n}/{npkt})")

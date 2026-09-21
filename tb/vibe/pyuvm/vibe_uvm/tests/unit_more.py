@@ -1245,9 +1245,12 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
                      "lane slices", hex(tx))
             phase.drop_objection(self)
             return
+        if hasattr(d, "rxrst_n"):
+            sset(d.rxrst_n, 1)
         sset(d.pma_pcs_rxdata, (0xAA << 384) | (0xBB << 256) | (0xCC << 128) | 0xDD)
-        await RisingEdge(d.rxclk)
-        await RisingEdge(d.rxclk)
+        for _ in range(4):
+            await RisingEdge(d.rxclk)
+        await FallingEdge(d.rxclk)
         if ival(d.pma_afifo_lane0, 0) != 0xDD or ival(d.pma_afifo_lane3, 0) != 0xAA:
             self.bad("tc_pma_512b_slice", "rx {AA,BB,CC,DD}",
                      "lane0=DD lane3=AA",
@@ -1789,5 +1792,78 @@ class tc_mgmt(VibeUnitBaseTest):
 
 
 uvm_component_utils(tc_mgmt)
+
+
+class tc_timers_indep(VibeUnitBaseTest):
+    """Credit 1 µs and VOQ deadlock 1 µs are independent (TP-TIM-002)."""
+
+    async def run_phase(self, phase):
+        phase.raise_objection(self)
+        d = self.dut
+        if lph.US_CYC != 1250:
+            self.bad("tc_timers_indep", "VIBE_US_CYC", "1250",
+                     str(lph.US_CYC), "vibe_ub_params.vh")
+            phase.drop_objection(self)
+            return
+        sset(d.port_rst, 0)
+        sset(d.link_up, 1)
+        sset(d.grain_n, 8)
+        sset(d.consume_vld, 0)
+        sset(d.consume_flits, 0)
+        sset(d.is_cfg0, 0)
+        sset(d.credit_ret, 0)
+        sset(d.credit_ret_n, 0)
+        sset(d.wr_en, 0)
+        sset(d.rd_en, 0)
+        sset(d.wr_vl, 0)
+        sset(d.rd_vl, 0)
+        sset(d.wr_data, 1)
+        sset(d.wr_sop, 1)
+        sset(d.wr_eop, 1)
+        await self.reset_n(n_lo=3, n_hi=1)
+        await FallingEdge(d.clk)
+        sset(d.credit_ret, 1)
+        sset(d.credit_ret_n, 1)
+        await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
+        sset(d.credit_ret, 0)
+        await self.cycles(lph.US_CYC + 8)
+        if not ival(d.proto_err, 0):
+            self.bad("tc_timers_indep", "pending=1, no VOQ enqueue, wait >1us",
+                     "proto_err=1 (credit timeout)", "proto_err=0",
+                     "u_crd.to / proto_err")
+            phase.drop_objection(self)
+            return
+        if ival(d.deadlock_drop, 0) or ival(d.deadlock_cnt, 0) != 0:
+            self.bad("tc_timers_indep", "credit timeout, VOQ never written",
+                     "deadlock_drop=0 cnt=0 (independent timer)",
+                     f"drop={ival(d.deadlock_drop, 0)} cnt={ival(d.deadlock_cnt, 0)}",
+                     "u_v.age vs u_crd.to")
+            phase.drop_objection(self)
+            return
+        await FallingEdge(d.clk)
+        sset(d.port_rst, 1)
+        await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
+        sset(d.port_rst, 0)
+        await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
+        sset(d.wr_en, 1)
+        await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
+        sset(d.wr_en, 0)
+        await self.cycles(lph.US_CYC + 16)
+        if not ival(d.deadlock_drop, 0) and ival(d.deadlock_cnt, 0) == 0:
+            self.bad("tc_timers_indep",
+                     "VOQ occupied >=1us, no credit_ret after port_rst",
+                     "deadlock_drop or cnt>0",
+                     f"drop={ival(d.deadlock_drop, 0)} cnt={ival(d.deadlock_cnt, 0)}",
+                     "u_v.age")
+        else:
+            self.ok("tc_timers_indep")
+        phase.drop_objection(self)
+
+
+uvm_component_utils(tc_timers_indep)
 
            
