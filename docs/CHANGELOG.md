@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-21 (#115 idle-mark freeze, Asia/Shanghai)
+
+### Changed
+
+- **Breaks** the PMA ECO port freeze aligned to RTL `a658d141` (`a658d14163b0e66b3875ee42a7dcc8a10024ba51`). That pin's new-series 1/3 (PR114) **FAILED** 121/124 — issue #115: `vibe_pma_bnd` idle-PRBS drop ≠ packed-beat valid on Icarus loopback.
+- Design RTL ECO (PR116 tip) distinguishes PMA pin-idle from PCS scramble(0) so packed RX valid recovers. No TB change for this ECO. No reopen of txclk→rxclk CDC.
+- Naming and functional interfaces are **unchanged**. Ports remain CR-B `{src}_{dst}_{meaning}` (`dll` not `dl`). Widths, fire rules, handshake semantics, and protocol remain SPEC-0.2 **CR-applied（命名）** / `32a7f5e0`.
+- New RTL freeze SHA: `302ac943` (`302ac943c3737c288f3af6c4857bb3a9b1683a26`). Merge: `df7c286e` (`df7c286e184b4a48fedc5d5ae7eff06cee193c5c`, PR116) — **merge-trace only**, not the freeze pin. Same role as old `a658d141` / earlier `982ddd0a` / `1ed4d350` / `32a7f5e0`.
+- Old `a658d141` consecutive greens attempt (PR114 FAIL, not green) does **not** count (do not restart from it).
+- Verification must restart new consecutive greens 1/3 against DUT=`302ac943` using **stock Icarus** (same gate as PR114), after this pin. pyuvm/PR119 is a separate acceptance gate, not this 1/3.
+- Decision **F1** (`ovf_l` permanent frozen WARN/waiver) is **unchanged**.
+- PR118 lint+CDC clean (main `932037f9`) is **evidence only**, not a freeze pin change by itself. Lint Error=0 NEW=0; CDC NEW=0; F1 `ovf_l` still frozen WARN. PR119 TB rewrite is TB-only, not a freeze pin.
+
 ## 2026-09-21 (PMA ECO freeze, Asia/Shanghai)
 
 ### Changed
