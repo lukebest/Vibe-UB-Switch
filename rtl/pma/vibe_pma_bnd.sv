@@ -1,7 +1,8 @@
 // AS-0.1 §3: product PMA boundary. No extra handshake. No PMA ready.
 // Slice: [127:0]=lane0, [255:128]=lane1, [383:256]=lane2, [511:384]=lane3.
-// No DLL/PCS beat: every txclk emits PRBS23 (same poly as PCS scramble) so
-// the SerDes pin is never held at 0 (UB 3.2.6).
+// No DLL/PCS beat: every txclk emits PRBS23 XOR PMA_IDLE_MARK so the
+// SerDes pin is never held at 0 (UB 3.2.6) and pin-idle is not the same
+// stream as PCS scramble(0) (same poly+seed; issue #115).
 module vibe_pma_bnd (
   input  logic         txclk,
   input  logic         rxclk,
@@ -59,6 +60,16 @@ module vibe_pma_bnd (
     end
   endfunction
 
+  // Pin-idle must not be raw PRBS23. vibe_pcs_scramble uses the same
+  // poly and seed {19'd1, lid, 2'b01}. G1 Null Blocks scramble to that
+  // stream; after 160→128 those 128b windows satisfy the undecorated
+  // recurrence, so a658d141's idle_prbs drop ate packed beats (issue
+  // #115). XOR a mark that is not itself a PRBS word. RX undoes the
+  // mark before the recurrence test. Fan-in stays pma_pcs_rxdata /
+  // rxclk — do not sample txclk tx_pcs_d or compare pcs_pma_txdata
+  // (was unsanctioned txclk→rxclk).
+  localparam [127:0] PMA_IDLE_MARK = 128'h8000_0000_0000_0000_0000_0000_0000_0000;
+
   logic [22:0] lfsr0 = {19'd1, 2'd0, 2'b01};
   logic [22:0] lfsr1 = {19'd1, 2'd1, 2'b01};
   logic [22:0] lfsr2 = {19'd1, 2'd2, 2'b01};
@@ -67,6 +78,10 @@ module vibe_pma_bnd (
   wire  [127:0] prbs1 = prbs23_word(lfsr1);
   wire  [127:0] prbs2 = prbs23_word(lfsr2);
   wire  [127:0] prbs3 = prbs23_word(lfsr3);
+  wire  [127:0] idle0 = prbs0 ^ PMA_IDLE_MARK;
+  wire  [127:0] idle1 = prbs1 ^ PMA_IDLE_MARK;
+  wire  [127:0] idle2 = prbs2 ^ PMA_IDLE_MARK;
+  wire  [127:0] idle3 = prbs3 ^ PMA_IDLE_MARK;
 
   always @(posedge txclk or negedge txrst_n) begin
     if (!txrst_n) begin
@@ -74,15 +89,15 @@ module vibe_pma_bnd (
       lfsr1 <= prbs23_seed(2'd1);
       lfsr2 <= prbs23_seed(2'd2);
       lfsr3 <= prbs23_seed(2'd3);
-      pcs_pma_txdata <= {prbs23_word(prbs23_seed(2'd3)),
-                         prbs23_word(prbs23_seed(2'd2)),
-                         prbs23_word(prbs23_seed(2'd1)),
-                         prbs23_word(prbs23_seed(2'd0))};
+      pcs_pma_txdata <= {prbs23_word(prbs23_seed(2'd3)) ^ PMA_IDLE_MARK,
+                         prbs23_word(prbs23_seed(2'd2)) ^ PMA_IDLE_MARK,
+                         prbs23_word(prbs23_seed(2'd1)) ^ PMA_IDLE_MARK,
+                         prbs23_word(prbs23_seed(2'd0)) ^ PMA_IDLE_MARK};
     end else if (afifo_pma_lane_vld) begin
       pcs_pma_txdata <= {afifo_pma_lane3, afifo_pma_lane2,
                          afifo_pma_lane1, afifo_pma_lane0};
     end else begin
-      pcs_pma_txdata <= {prbs3, prbs2, prbs1, prbs0};
+      pcs_pma_txdata <= {idle3, idle2, idle1, idle0};
       lfsr0 <= prbs23_adv128(lfsr0);
       lfsr1 <= prbs23_adv128(lfsr1);
       lfsr2 <= prbs23_adv128(lfsr2);
@@ -90,11 +105,6 @@ module vibe_pma_bnd (
     end
   end
 
-  // Pin is always live. Idle PRBS is not a PCS 128b — writing it slips
-  // 128→160. Drop a beat when all four lanes satisfy the PRBS23
-  // recurrence (same poly as the TX idle fill). That check is local to
-  // rxclk / pma_pcs_rxdata: do not sample txclk tx_pcs_d or compare
-  // pcs_pma_txdata in this process (was unsanctioned txclk→rxclk).
   function automatic prbs23_word_ok;
     input [127:0] w;
     integer       i;
@@ -106,10 +116,11 @@ module vibe_pma_bnd (
     end
   endfunction
 
-  wire idle_prbs = prbs23_word_ok(pma_pcs_rxdata[127:0]) &&
-                   prbs23_word_ok(pma_pcs_rxdata[255:128]) &&
-                   prbs23_word_ok(pma_pcs_rxdata[383:256]) &&
-                   prbs23_word_ok(pma_pcs_rxdata[511:384]);
+  // Drop decorated pin-idle only. Raw PRBS / scramble(0) 128b keeps vld.
+  wire idle_prbs = prbs23_word_ok(pma_pcs_rxdata[127:0]    ^ PMA_IDLE_MARK) &&
+                   prbs23_word_ok(pma_pcs_rxdata[255:128]  ^ PMA_IDLE_MARK) &&
+                   prbs23_word_ok(pma_pcs_rxdata[383:256]  ^ PMA_IDLE_MARK) &&
+                   prbs23_word_ok(pma_pcs_rxdata[511:384]  ^ PMA_IDLE_MARK);
 
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) begin
