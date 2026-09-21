@@ -1010,8 +1010,11 @@ class tc_phy_u26_chain(VibeUnitBaseTest):
         await RisingEdge(d.txclk)
         await RisingEdge(d.txclk)
         sset(d.pma_pcs_rxdata, ival(d.pcs_pma_txdata, 0))
-        await RisingEdge(d.rxclk)
-        await RisingEdge(d.rxclk)
+        # Icarus VPI samples pre-NBA on RisingEdge; extra rxclk + fall
+        # matches tc_pma_512b_slice. Checker still requires r0==0x11.
+        for _ in range(4):
+            await RisingEdge(d.rxclk)
+        await FallingEdge(d.rxclk)
         tx = ival(d.pcs_pma_txdata, 0)
         r0 = ival(d.r0, -1)
         if n128[0] < 5:
