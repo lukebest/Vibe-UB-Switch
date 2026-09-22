@@ -1,4 +1,4 @@
-# Pin for Decision I stage-1. Do not silently float.
+# Pin for Decision I. Do not silently float.
 #
 # Preferred install (when the wheel is published):
 #   python3 -m pip install pycircuit-hisi==0.1.0

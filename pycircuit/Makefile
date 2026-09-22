@@ -1,17 +1,21 @@
-# Decision I stage-1: emit vibe_afifo into rtl/cdc/.
-# Hand-finished SV is the product leaf. pycc Verilog is optional prototype.
+# Decision I: emit leaves into rtl/. Hand-finished SV is the product leaf.
+# pycc Verilog is optional prototype (needs LLVM 19).
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
 
-.PHONY: help setup mlir vibe_afifo handfinish lint-leaf
+.PHONY: help setup mlir vibe_afifo vibe_pma_bnd handfinish handfinish-pma \
+        lint-leaf lint-leaf-pma
 
 help:
-	@echo "setup       install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
-	@echo "mlir        frontend emit vibe_afifo.pyc (needs pycircuit import)"
-	@echo "vibe_afifo  land hand-finished rtl/cdc/vibe_afifo.sv (try pycc first)"
-	@echo "handfinish  write product SV only"
-	@echo "lint-leaf   Verilator --lint-only on vibe_afifo + vibe_sync2"
+	@echo "setup          install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
+	@echo "mlir           frontend emit vibe_afifo.pyc (needs pycircuit import)"
+	@echo "vibe_afifo     land hand-finished rtl/cdc/vibe_afifo.sv (try pycc first)"
+	@echo "vibe_pma_bnd   land hand-finished rtl/pma/vibe_pma_bnd.sv (try pycc first)"
+	@echo "handfinish     write product vibe_afifo SV only"
+	@echo "handfinish-pma write product vibe_pma_bnd SV only"
+	@echo "lint-leaf      Verilator --lint-only on vibe_afifo + vibe_sync2"
+	@echo "lint-leaf-pma  Verilator --lint-only on vibe_pma_bnd"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -22,13 +26,24 @@ mlir:
 	  -o $(ROOT)/.pycircuit_out/vibe_afifo/vibe_afifo.pyc
 
 vibe_afifo:
-	sh $(ROOT)/scripts/pycircuit/emit.sh
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_afifo
+
+vibe_pma_bnd:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pma_bnd
 
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
+
+handfinish-pma:
+	python3 $(ROOT)/pycircuit/pma/handfinish_vibe_pma_bnd.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
 	  -I$(ROOT)/rtl/common \
 	  $(ROOT)/rtl/cdc/vibe_sync2.sv \
 	  $(ROOT)/rtl/cdc/vibe_afifo.sv
+
+lint-leaf-pma:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pma_bnd \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/rtl/pma/vibe_pma_bnd.sv
