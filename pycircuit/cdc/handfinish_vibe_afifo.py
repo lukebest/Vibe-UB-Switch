@@ -1,3 +1,15 @@
+"""Emit the product SystemVerilog for vibe_afifo (hand-finished).
+
+Keeps freeze ``302ac943`` ports, async-low reset, combo RAM (no mem reset),
+``vibe_sync2``, and ``vibe_ub_fn.vh`` gray helpers. pycc netlists are a
+prototype only; this file is what lands in ``rtl/cdc/vibe_afifo.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/cdc/vibe_afifo.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -7,6 +19,9 @@
 //
 // AS-0.1 §7: per-lane gray-pointer AFIFO, depth 16, ptr 5 bits.
 // Write-domain almost_full at occupancy >= 10. Independent of prior-revision ready formulas.
+"""
+
+BODY = """\
 module vibe_afifo #(
   parameter int W     = 160,
   parameter int DEPTH = 16
@@ -69,3 +84,26 @@ module vibe_afifo #(
 
   assign rdata = mem[rbin[AW-1:0]];
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "cdc" / "vibe_afifo.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -7,6 +7,8 @@ tb/vibe/results/*.vvp
 tb/vibe/results/*.log
 tb/vibe/results/*.inc
 tb/vibe/scripts/__pycache__/
+pycircuit/**/__pycache__/
+.pycircuit_out/
 coverage.dat
 xsim.dir/
 xvlog.pb

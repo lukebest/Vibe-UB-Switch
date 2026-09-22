@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-22 (Decision I stage-1 — pyCircuit scaffold + vibe_afifo)
+
+### Changed
+
+- RTL freeze `302ac943` is **unfrozen** for a lukebest/pyCircuit (pyc4.0 /
+  pycircuit-hisi / pycc) redesign. **SPEC functional semantics and CR-B
+  interface names are unchanged** (`{src}_{dst}_{meaning}`, `dll` not `dl`).
+- First leaf `vibe_afifo` is described in `pycircuit/cdc/vibe_afifo.py` and
+  landed hand-finished at `rtl/cdc/vibe_afifo.sv` (same ports / gray-pointer
+  behavior as freeze). Not a chip rewrite. F1 `ovf_l` untouched.
+- Toolchain pin: lukebest/pyCircuit `43cc5918e3d09ecc0c814cabef6c1384cb9980ae`
+  (pycircuit-hisi 0.1.0). Regenerator: `make -C pycircuit vibe_afifo`.
+
 ## 2026-09-22 (Decision I UNFROZEN / redesign, Asia/Shanghai)
 
 ### Changed

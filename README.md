@@ -111,6 +111,18 @@ No UBFM, no CAQM, no NPI filter datapath, no Transport/Transaction/Function endp
 
 **Architecture-chosen (parameters, not product Max Index):** AFIFO 16; `dll_rxbuf` 1024 flit/VL; `saf_ing` 128×640b; VOQ 32 flit/VL/egress; mgmt bypass 16×640b; `FECN_WM=24`; `AMCTL_CONFIRM_N=UNLOCK_N=3`; `ROUTE_TABLE_DEPTH` default 256.
 
+## pyCircuit (Decision I)
+
+RTL freeze `302ac943` is unfrozen for a Python DSL redesign. Stage-1 sources
+live under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` only). SPEC
+semantics and CR-B names are unchanged. Pin and regenerate path:
+[`pycircuit/README.md`](pycircuit/README.md).
+
+```bash
+sh scripts/pycircuit/setup_toolchain.sh
+make -C pycircuit vibe_afifo    # lands rtl/cdc/vibe_afifo.sv
+```
+
 ## Compile (syntax check)
 
 ```bash
