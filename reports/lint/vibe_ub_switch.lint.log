@@ -268,22 +268,22 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
    94 |     nblk  = plen[13:10] + 1;
       |                         ^
-                      /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:95:23: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 5 bits.
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
    95 |     lastn = plen[9:5] + 1;
       |                       ^
-                      /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHTRUNC: /workspace/rtl/common/vibe_ub_fn.vh:116:20: Operator ASSIGN expects 16 bits on the Assign RHS, but Assign RHS's MUL generates 32 bits.
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
   116 |     vibe_pkt_bytes = n * 16'd20;
       |                    ^
-                     /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                     /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHTRUNC: /workspace/rtl/common/vibe_ub_fn.vh:125:27: Operator ASSIGN expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 16 bits.
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar0'
   125 |     vibe_nw512_decl_beats = (b + 16'd63) >> 6;
       |                           ^
-                     /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                     /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-WIDTHEXPAND: /workspace/rtl/common/vibe_ub_fn.vh:94:25: Operator ADD expects 32 bits on the LHS, but LHS's SEL generates 4 bits.
                                                                : ... note: In instance 'vibe_ub_switch.u_mgmt.u_cna'
    94 |     nblk  = plen[13:10] + 1;
@@ -990,322 +990,322 @@ waiver: reports/lint/vibe_ub_switch.vlt (UNSUPPORTED input defaults, BLKLOOPINIT
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     5 | localparam int VIBE_FLIT_W      = 160;    
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:6:16: Parameter is not used: 'VIBE_NW_W'
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     6 | localparam int VIBE_NW_W        = 512;    
       |                ^~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:7:16: Parameter is not used: 'VIBE_BEAT_W'
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     7 | localparam int VIBE_BEAT_W      = 640;    
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:8:16: Parameter is not used: 'VIBE_FLITS_BEAT'
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     8 | localparam int VIBE_FLITS_BEAT  = 4;
       |                ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:9:16: Parameter is not used: 'VIBE_NW_BYTES'
                                                                   : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     9 | localparam int VIBE_NW_BYTES    = 64;
       |                ^~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:10:16: Parameter is not used: 'VIBE_FLIT_BYTES'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    10 | localparam int VIBE_FLIT_BYTES  = 20;
       |                ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:11:16: Parameter is not used: 'VIBE_LANE_FAB_W'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    11 | localparam int VIBE_LANE_FAB_W  = 160;
       |                ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:12:16: Parameter is not used: 'VIBE_LANE_PMA_W'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    12 | localparam int VIBE_LANE_PMA_W  = 128;
       |                ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:13:16: Parameter is not used: 'VIBE_PMA_W'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    13 | localparam int VIBE_PMA_W       = 512;
       |                ^~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:14:16: Parameter is not used: 'VIBE_N_LANE'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    14 | localparam int VIBE_N_LANE      = 4;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:15:16: Parameter is not used: 'VIBE_N_PORT'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    15 | localparam int VIBE_N_PORT      = 4;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:16:16: Parameter is not used: 'VIBE_N_VL'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    16 | localparam int VIBE_N_VL        = 16;
       |                ^~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:19:16: Parameter is not used: 'VIBE_AFIFO_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    19 | localparam int VIBE_AFIFO_DEPTH         = 16;
       |                ^~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:21:16: Parameter is not used: 'VIBE_DLL_RXBUF_FLIT'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    21 | localparam int VIBE_DLL_RXBUF_FLIT      = 1024;
       |                ^~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:22:16: Parameter is not used: 'VIBE_SAF_PKT_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    22 | localparam int VIBE_SAF_PKT_DEPTH       = 128;
       |                ^~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:23:16: Parameter is not used: 'VIBE_VOQ_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    23 | localparam int VIBE_VOQ_DEPTH           = 32;
       |                ^~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:24:16: Parameter is not used: 'VIBE_MGMT_BYP_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    24 | localparam int VIBE_MGMT_BYP_DEPTH      = 16;
       |                ^~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:25:16: Parameter is not used: 'VIBE_FECN_WM'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    25 | localparam int VIBE_FECN_WM             = 24;
       |                ^~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:26:16: Parameter is not used: 'VIBE_AMCTL_CONFIRM_N'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    26 | localparam int VIBE_AMCTL_CONFIRM_N     = 3;
       |                ^~~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:27:16: Parameter is not used: 'VIBE_AMCTL_UNLOCK_N'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    27 | localparam int VIBE_AMCTL_UNLOCK_N      = 3;
       |                ^~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:28:16: Parameter is not used: 'VIBE_ROUTE_TABLE_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    28 | localparam int VIBE_ROUTE_TABLE_DEPTH   = 256;
       |                ^~~~~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:31:16: Parameter is not used: 'VIBE_RETRY_BUF_DEPTH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    31 | localparam int VIBE_RETRY_BUF_DEPTH     = 256;
       |                ^~~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:32:16: Parameter is not used: 'VIBE_CREDIT_THRESH'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    32 | localparam int VIBE_CREDIT_THRESH       = 1024;
       |                ^~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:33:16: Parameter is not used: 'VIBE_NUM_RETRY'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    33 | localparam int VIBE_NUM_RETRY           = 15;
       |                ^~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:34:16: Parameter is not used: 'VIBE_NUM_PHY_REINIT'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    34 | localparam int VIBE_NUM_PHY_REINIT      = 4;
       |                ^~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:35:16: Parameter is not used: 'VIBE_US_CYC'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    35 | localparam int VIBE_US_CYC              = 1250;       
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:36:16: Parameter is not used: 'VIBE_RETRY_WAIT_CYC'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    36 | localparam int VIBE_RETRY_WAIT_CYC      = 12500;      
       |                ^~~~~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:39:16: Parameter is not used: 'VIBE_T_10US'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    39 | localparam int VIBE_T_10US              = 12500;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:40:16: Parameter is not used: 'VIBE_T_2MS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    40 | localparam int VIBE_T_2MS               = 2_500_000;
       |                ^~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:41:16: Parameter is not used: 'VIBE_T_22MS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    41 | localparam int VIBE_T_22MS              = 27_500_000;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:42:16: Parameter is not used: 'VIBE_T_24MS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    42 | localparam int VIBE_T_24MS              = 30_000_000;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:43:16: Parameter is not used: 'VIBE_T_48MS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    43 | localparam int VIBE_T_48MS              = 60_000_000;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:44:16: Parameter is not used: 'VIBE_T_64MS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    44 | localparam int VIBE_T_64MS              = 80_000_000;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:47:16: Parameter is not used: 'VIBE_PKT_LEN_MIN'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    47 | localparam int VIBE_PKT_LEN_MIN         = 16;
       |                ^~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:48:16: Parameter is not used: 'VIBE_PKT_LEN_MAX'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    48 | localparam int VIBE_PKT_LEN_MAX         = 4300;
       |                ^~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:51:24: Parameter is not used: 'VIBE_FEC_BYPASS'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    51 | localparam logic [2:0] VIBE_FEC_BYPASS  = 3'b000;
       |                        ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:52:24: Parameter is not used: 'VIBE_FEC_T2'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    52 | localparam logic [2:0] VIBE_FEC_T2      = 3'b001;
       |                        ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:53:24: Parameter is not used: 'VIBE_FEC_T4'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    53 | localparam logic [2:0] VIBE_FEC_T4      = 3'b010;
       |                        ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:56:25: Parameter is not used: 'VIBE_GUID_TYPE'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    56 | localparam logic [7:0]  VIBE_GUID_TYPE  = 8'h03;
       |                         ^~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:57:25: Parameter is not used: 'VIBE_CLASS_CODE'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    57 | localparam logic [15:0] VIBE_CLASS_CODE = 16'h0300;
       |                         ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:60:25: Parameter is not used: 'VIBE_PORT_BASIC'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    60 | localparam logic [31:0] VIBE_PORT_BASIC = 32'h0004_0402;
       |                         ^~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:61:25: Parameter is not used: 'VIBE_PORT_CAP'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    61 | localparam logic [31:0] VIBE_PORT_CAP   = 32'h0000_0104;
       |                         ^~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:64:16: Parameter is not used: 'VIBE_CFG_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    64 | localparam int VIBE_CFG_LSB             = 8;
       |                ^~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:65:16: Parameter is not used: 'VIBE_RT_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    65 | localparam int VIBE_RT_LSB              = 22;
       |                ^~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:66:16: Parameter is not used: 'VIBE_SCNA_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    66 | localparam int VIBE_SCNA_LSB            = 32;
       |                ^~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:67:16: Parameter is not used: 'VIBE_DCNA_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    67 | localparam int VIBE_DCNA_LSB            = 48;
       |                ^~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:68:16: Parameter is not used: 'VIBE_CCI_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    68 | localparam int VIBE_CCI_LSB             = 64;
       |                ^~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:69:16: Parameter is not used: 'VIBE_LBF_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    69 | localparam int VIBE_LBF_LSB             = 80;
       |                ^~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:70:16: Parameter is not used: 'VIBE_PLEN_HI_LSB'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    70 | localparam int VIBE_PLEN_HI_LSB         = 18;  
       |                ^~~~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:73:24: Parameter is not used: 'VIBE_GF_PRIM'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    73 | localparam logic [8:0] VIBE_GF_PRIM     = 9'h11D;
       |                        ^~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:76:25: Parameter is not used: 'VIBE_SCR_POLY'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    76 | localparam logic [22:0] VIBE_SCR_POLY   = 23'h040001;  
       |                         ^~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:80:25: Parameter is not used: 'VIBE_BCRC_POLY'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    80 | localparam logic [29:0] VIBE_BCRC_POLY  = 30'h15A9_4AD5;
       |                         ^~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDPARAM: /workspace/rtl/common/vibe_ub_params.vh:83:25: Parameter is not used: 'VIBE_ICRC_POLY'
                                                                    : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    83 | localparam logic [31:0] VIBE_ICRC_POLY  = 32'h04C1_1DB7;
       |                         ^~~~~~~~~~~~~~
-                      /workspace/rtl/cdc/vibe_afifo.sv:21:1: ... note: In file included from 'vibe_afifo.sv'
+                      /workspace/rtl/cdc/vibe_afifo.sv:28:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:5:23: Bits of signal are not used: 'flit'[159:12,7:0]
                                                                : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
     5 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:12:23: Bits of signal are not used: 'flit'[159:24,21:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    12 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:19:23: Bits of signal are not used: 'flit'[159:16,12:1]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    19 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:27:23: Bits of signal are not used: 'flit'[159:48,31:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    27 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:34:23: Bits of signal are not used: 'flit'[159:64,47:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    34 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:41:23: Bits of signal are not used: 'flit'[159:80,63:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    41 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:48:23: Bits of signal are not used: 'flit'[159:88,79:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    48 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:55:23: Bits of signal are not used: 'flit'[159:96,92:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    55 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:62:23: Bits of signal are not used: 'flit'[159:32,23:22,15:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    62 |   input logic [159:0] flit;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:91:22: Bits of signal are not used: 'plen'[4:0]
                                                                 : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
    91 |   input logic [13:0] plen;
       |                      ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/common/vibe_ub_fn.vh:105:23: Bits of signal are not used: 'beat'[351:0]
                                                                  : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_ar3'
   105 |   input logic [511:0] beat;
       |                       ^~~~
-                       /workspace/rtl/cdc/vibe_afifo.sv:22:1: ... note: In file included from 'vibe_afifo.sv'
+                       /workspace/rtl/cdc/vibe_afifo.sv:29:1: ... note: In file included from 'vibe_afifo.sv'
 %Warning-UNUSEDSIGNAL: /workspace/rtl/cdc/vibe_gear_128_160.sv:13:17: Bits of signal are not used: 'res_b'[127:96]
                                                                     : ... note: In instance 'vibe_ub_switch.g_port[3].u_port.u_rg3'
    13 |   logic [127:0] res_b;
