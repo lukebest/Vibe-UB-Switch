@@ -1,3 +1,16 @@
+"""Emit the product SystemVerilog for vibe_pma_bnd (hand-finished).
+
+Keeps tip ports, async-low ``txrst_n`` / ``rxrst_n``, PRBS23 pin-idle,
+``PMA_IDLE_MARK`` decorate/undecorate (issue #115), and rxclk-only idle
+check (no txclk→rxclk sample). pycc netlists are a prototype only; this
+file is what lands in ``rtl/pma/vibe_pma_bnd.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pma/vibe_pma_bnd.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +18,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pma_bnd
 //
+"""
+
+BODY = """\
 // AS-0.1 §3: product PMA boundary. No extra handshake. No PMA ready.
 // Slice: [127:0]=lane0, [255:128]=lane1, [383:256]=lane2, [511:384]=lane3.
 // No DLL/PCS beat: every txclk emits PRBS23 XOR PMA_IDLE_MARK so the
@@ -145,3 +161,26 @@ module vibe_pma_bnd (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pma" / "vibe_pma_bnd.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

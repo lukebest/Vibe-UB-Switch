@@ -1,9 +1,10 @@
-# pyCircuit sources (Decision I stage-1)
+# pyCircuit sources (Decision I)
 
 RTL freeze `302ac943` is **unfrozen** for a pyCircuit redesign. This tree is the
 Python DSL source. **SPEC functional semantics and CR-B port names are
 unchanged.** `{src}_{dst}_{meaning}` (`dll` not `dl`). Do not rewrite the chip
-here — stage-1 is the scaffold plus one leaf: `vibe_afifo`.
+here — leaves land one module at a time. Stage-1: scaffold + `vibe_afifo`.
+Stage-2: `vibe_pma_bnd`.
 
 ## Toolchain pin
 
@@ -42,8 +43,9 @@ Mirrors `rtl/` (plus `cdc`, where the first leaf already lives):
 ```
 pycircuit/
   common/     params + gray helpers (rtl/common)
-  cdc/        vibe_afifo  ← stage-1 leaf (rtl/cdc/vibe_afifo.sv)
-  pma/ pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
+  cdc/        vibe_afifo     ← stage-1 leaf (rtl/cdc/vibe_afifo.sv)
+  pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
+  pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
 `dll` stays `dll`, not `dl`. Later leaves land one module at a time.
@@ -76,3 +78,18 @@ no `wocc` / `almost_full`, and would change the product interface.
 
 See [`docs/rtl/vibe_afifo.md`](../docs/rtl/vibe_afifo.md) and
 [`cdc/vibe_afifo.py`](cdc/vibe_afifo.py).
+
+## Stage-2 leaf `vibe_pma_bnd`
+
+Same emit pattern. Product SV keeps async-low `txrst_n` / `rxrst_n`,
+PRBS23 pin-idle, and `PMA_IDLE_MARK` decorate/undecorate (issue #115).
+Do not sample `txclk` into the RX idle check.
+
+```bash
+make -C pycircuit vibe_pma_bnd
+# or
+sh scripts/pycircuit/emit.sh vibe_pma_bnd
+```
+
+See [`docs/rtl/vibe_pma_bnd.md`](../docs/rtl/vibe_pma_bnd.md) and
+[`pma/vibe_pma_bnd.py`](pma/vibe_pma_bnd.py).
