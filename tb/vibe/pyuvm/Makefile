@@ -4,12 +4,14 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim help clean
+.PHONY: venv gate suite units port top neg sim afifo help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
 	@echo "make -C tb/vibe/pyuvm suite   [TC=tc_rt10_must_drop]"
 	@echo "make -C tb/vibe/pyuvm units   [TC=tc_vl_rr]"
+	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_afifo"
+	@echo "make -C tb/vibe/pyuvm afifo   # Decision-I leaf vibe_afifo (module-level)"
 	@echo "make -C tb/vibe/pyuvm port    [TC=tc_port_smoke]"
 	@echo "make -C tb/vibe/pyuvm top"
 	@echo "make -C tb/vibe/pyuvm sim     # suite + units + top + neg"
@@ -20,6 +22,10 @@ venv:
 
 gate suite units port top neg sim: venv
 	$(PY) $(PYUVM)/run_gate.py $@ $(if $(TC),--tc $(TC),) --sim $(SIM)
+
+# Module-level Decision-I leaf. Not the full-chip consecutive-green gate.
+afifo: venv
+	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_afifo --sim $(SIM)
 
 clean:
 	rm -rf $(PYUVM)/sim_build $(PYUVM)/results

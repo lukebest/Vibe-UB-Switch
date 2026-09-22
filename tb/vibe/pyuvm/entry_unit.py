@@ -7,6 +7,7 @@ from uvm.dpi.uvm_hdl import uvm_hdl
 from vibe_uvm.tests import unit_leaf  # noqa: F401
 from vibe_uvm.tests import unit_more  # noqa: F401
 from vibe_uvm.tests import unit_pcs  # noqa: F401
+from vibe_uvm.tests import unit_afifo  # noqa: F401
 
 
 @cocotb.test()

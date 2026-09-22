@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo
 all: sim
 
 help:
@@ -17,6 +17,8 @@ help:
 	@echo "make suite          - fabric+mgmt G1/TP suite (uvm-python)"
 	@echo "make suite TC=name  - one suite test"
 	@echo "make units          - leaf-unit + static/neg + port (uvm-python)"
+	@echo "make units TC=tc_vibe_afifo - Decision-I vibe_afifo (module-level)"
+	@echo "make afifo          - same as units TC=tc_vibe_afifo (not full-chip gate)"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -29,6 +31,10 @@ $(RES):
 
 suite units port top neg sim: $(RES)
 	$(MAKE) -C $(PYUVM) $@ SIM=$(SIM) TC="$(TC)"
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+afifo: $(RES)
+	$(MAKE) -C $(PYUVM) afifo SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
