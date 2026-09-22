@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-22 (Decision I UNFROZEN / redesign, Asia/Shanghai)
+
+### Changed
+
+- **Breaks** / voids the written idle-mark port freeze aligned to RTL `302ac943` (`302ac943c3737c288f3af6c4857bb3a9b1683a26`) as the **current** pin. Historical lineage stays (merge-trace `df7c286e` / earlier pins remain history).
+- Decision **I** (Luke, 2026-09-22 Asia/Shanghai): UNFROZEN for `lukebest/pyCircuit` redesign. No interface semantic CR in this step.
+- Old new-series 1/3 (PR122) vs DUT `302ac943` (stock Icarus) **does not continue**. 2/3 **does not start**.
+- Design will redesign with `lukebest/pyCircuit` (pyc4.0: Python DSL → MLIR → Verilog) against SPEC-0.2 / FS-0.2.7 locked facts, emit into `rtl/`.
+- After rewrite lands, verification primary gate is `tb/vibe` uvm-python (`make -C tb/vibe sim`, PR119). Stock Icarus becomes secondary/compare — **not** the consecutive-green primary gate unless Luke decides otherwise.
+- Naming / functional widths / protocol / handshake in SPEC body are **unchanged** unless a later CR. F1 `ovf_l` unchanged. Path B / FPGA deferred unchanged.
+- No new freeze SHA yet — pin is **blank / UNFROZEN** until redesign RTL is accepted and re-pinned later.
+
 ## 2026-09-21 (#115 idle-mark freeze, Asia/Shanghai)
 
 ### Changed
