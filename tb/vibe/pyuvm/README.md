@@ -96,8 +96,11 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | `make neg` / `scan_absent.sh` | `static_tests.run_absent_scan` |
 | `make sim-xsim` | deprecated secondary (needs xvlog) |
 
-Identifiers (`tc_rt10_must_drop`, `tc_credit_1024_flit_bp`, …) are unchanged so
-`TP_TC_MATRIX.md` still scores.
+Identifiers (`tc_rt10_must_drop`, `tc_credit_1024_flit_bp`, …) are unchanged.
+**Python correspondence** (HAS / GAP) lives in
+[`tb/vibe/results/TP_PYUVM_MATRIX.md`](../results/TP_PYUVM_MATRIX.md).
+`TP_TC_MATRIX.md` is the SV/UVM-biased scorer map — stock `tc_*.sv` alone
+does not mean a Python TC exists. That matrix is **not** 1/3, 4/3, freeze, or signoff.
 
 ## Gate status (this tree)
 
