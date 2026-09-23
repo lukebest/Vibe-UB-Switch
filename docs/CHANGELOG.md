@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-7 — vibe_pcs_scramble)
+
+### Changed
+
+- Next leaf `vibe_pcs_scramble` is described in `pycircuit/pcs/vibe_pcs_scramble.py`
+  and landed hand-finished at `rtl/pcs/vibe_pcs_scramble.sv`. **Same ports /
+  scramble behavior** as tip `5087843` / freeze `302ac943` (`clk`,
+  `rst_n`, `lane_id`, `seed_load`, `en`, `in_vld`, 160b in/out;
+  async-low `or negedge rst_n`; `en=0` pass-through AMCTL/EEIB;
+  seed `{19'd1, lane_id, 2'b01}`). Not a chip rewrite. No SPEC CR.
+  F1 `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`,
+  stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, and stage-6 `vibe_gear_160_128` left intact.
+  `vibe_pcs_tx` / rx / FEC / RS not in this leaf.
+- Regenerator: `make -C pycircuit vibe_pcs_scramble`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-6 — vibe_gear_160_128)
 
 ### Changed

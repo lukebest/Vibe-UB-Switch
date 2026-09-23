@@ -7,6 +7,7 @@ here — leaves land one module at a time. Stage-1: scaffold + `vibe_afifo`.
 Stage-2: `vibe_pma_bnd`. Stage-3: `vibe_sync2`. Stage-4: `vibe_rst_sync`.
 Stage-5: `vibe_gear_128_160`.
 Stage-6: `vibe_gear_160_128`.
+Stage-7: `vibe_pcs_scramble`.
 
 ## Toolchain pin
 
@@ -51,7 +52,8 @@ pycircuit/
               vibe_gear_128_160 ← stage-5 leaf (rtl/cdc/vibe_gear_128_160.sv)
               vibe_gear_160_128 ← stage-6 leaf (rtl/cdc/vibe_gear_160_128.sv)
   pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
-  pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
+  pcs/        vibe_pcs_scramble ← stage-7 leaf (rtl/pcs/vibe_pcs_scramble.sv)
+  dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
 `dll` stays `dll`, not `dl`. Later leaves land one module at a time.
@@ -164,3 +166,21 @@ sh scripts/pycircuit/emit.sh vibe_gear_160_128
 
 See [`docs/rtl/vibe_gear_160_128.md`](../docs/rtl/vibe_gear_160_128.md) and
 [`cdc/vibe_gear_160_128.py`](cdc/vibe_gear_160_128.py).
+
+## Stage-7 leaf `vibe_pcs_scramble`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), combo 160b `xmask` from the current LFSR,
+pass-through when `en=0` (AMCTL/EEIB; LFSR does not advance),
+and seed `{19'd1, lane_id, 2'b01}`. This is the first PCS cell
+(`vibe_pcs_tx` `u_s0`..`u_s3`, `vibe_pcs_rx` `u_d0`..`u_d3`).
+Leave `vibe_pcs_tx` / rx / FEC / RS for later.
+
+```bash
+make -C pycircuit vibe_pcs_scramble
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_scramble
+```
+
+See [`docs/rtl/vibe_pcs_scramble.md`](../docs/rtl/vibe_pcs_scramble.md) and
+[`pcs/vibe_pcs_scramble.py`](pcs/vibe_pcs_scramble.py).

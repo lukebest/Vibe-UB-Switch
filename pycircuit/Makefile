@@ -5,11 +5,13 @@ ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
 
 .PHONY: help setup mlir vibe_afifo vibe_pma_bnd vibe_sync2 vibe_rst_sync \
-        vibe_gear_128_160 vibe_gear_160_128 \
+        vibe_gear_128_160 vibe_gear_160_128 vibe_pcs_scramble \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
+        handfinish-pcs-scramble \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
-        lint-leaf-gear-128-160 lint-leaf-gear-160-128
+        lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
+        lint-leaf-pcs-scramble
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -20,18 +22,21 @@ help:
 	@echo "vibe_rst_sync      land hand-finished rtl/cdc/vibe_rst_sync.sv (try pycc first)"
 	@echo "vibe_gear_128_160  land hand-finished rtl/cdc/vibe_gear_128_160.sv (try pycc first)"
 	@echo "vibe_gear_160_128  land hand-finished rtl/cdc/vibe_gear_160_128.sv (try pycc first)"
+	@echo "vibe_pcs_scramble  land hand-finished rtl/pcs/vibe_pcs_scramble.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
 	@echo "handfinish-rst-sync write product vibe_rst_sync SV only"
 	@echo "handfinish-gear-128-160 write product vibe_gear_128_160 SV only"
 	@echo "handfinish-gear-160-128 write product vibe_gear_160_128 SV only"
+	@echo "handfinish-pcs-scramble write product vibe_pcs_scramble SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
 	@echo "lint-leaf-rst-sync Verilator --lint-only on vibe_rst_sync"
 	@echo "lint-leaf-gear-128-160 Verilator --lint-only on vibe_gear_128_160"
 	@echo "lint-leaf-gear-160-128 Verilator --lint-only on vibe_gear_160_128"
+	@echo "lint-leaf-pcs-scramble Verilator --lint-only on vibe_pcs_scramble"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -59,6 +64,9 @@ vibe_gear_128_160:
 vibe_gear_160_128:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_gear_160_128
 
+vibe_pcs_scramble:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_scramble
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -76,6 +84,9 @@ handfinish-gear-128-160:
 
 handfinish-gear-160-128:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_gear_160_128.py
+
+handfinish-pcs-scramble:
+	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_scramble.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -103,3 +114,8 @@ lint-leaf-gear-128-160:
 lint-leaf-gear-160-128:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_gear_160_128 \
 	  $(ROOT)/rtl/cdc/vibe_gear_160_128.sv
+
+lint-leaf-pcs-scramble:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pcs_scramble \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/rtl/pcs/vibe_pcs_scramble.sv
