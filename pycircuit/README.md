@@ -4,7 +4,7 @@ RTL freeze `302ac943` is **unfrozen** for a pyCircuit redesign. This tree is the
 Python DSL source. **SPEC functional semantics and CR-B port names are
 unchanged.** `{src}_{dst}_{meaning}` (`dll` not `dl`). Do not rewrite the chip
 here — leaves land one module at a time. Stage-1: scaffold + `vibe_afifo`.
-Stage-2: `vibe_pma_bnd`.
+Stage-2: `vibe_pma_bnd`. Stage-3: `vibe_sync2`.
 
 ## Toolchain pin
 
@@ -44,6 +44,7 @@ Mirrors `rtl/` (plus `cdc`, where the first leaf already lives):
 pycircuit/
   common/     params + gray helpers (rtl/common)
   cdc/        vibe_afifo     ← stage-1 leaf (rtl/cdc/vibe_afifo.sv)
+              vibe_sync2     ← stage-3 leaf (rtl/cdc/vibe_sync2.sv)
   pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
   pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
@@ -93,3 +94,18 @@ sh scripts/pycircuit/emit.sh vibe_pma_bnd
 
 See [`docs/rtl/vibe_pma_bnd.md`](../docs/rtl/vibe_pma_bnd.md) and
 [`pma/vibe_pma_bnd.py`](pma/vibe_pma_bnd.py).
+
+## Stage-3 leaf `vibe_sync2`
+
+Same emit pattern. Product SV keeps async-low `rst_n` (`or negedge rst_n`)
+and the 2-FF body (`q1` then `q`). This is the same-layer CDC cell
+`vibe_afifo` already instantiates. Leave `vibe_rst_sync` / gear for later.
+
+```bash
+make -C pycircuit vibe_sync2
+# or
+sh scripts/pycircuit/emit.sh vibe_sync2
+```
+
+See [`docs/rtl/vibe_sync2.md`](../docs/rtl/vibe_sync2.md) and
+[`cdc/vibe_sync2.py`](cdc/vibe_sync2.py).
