@@ -1,6 +1,31 @@
+"""Emit the product SystemVerilog for vibe_port_sel (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, available =
+bitmap AND status_up (forced 0 if drop_g1), Default /
+port-0 fallback, drop+count when still empty (no flood),
+RT=00 per-flow sticky RR (fidx=vl, sticky[0:15]), and
+RT=01 per-packet RR via ``rr`` (AS-0.1 §2/§8). pycc
+netlists are a prototype only; this file is what lands in
+``rtl/fabric/vibe_port_sel.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_port_sel.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 89c388cb / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_port_sel
+"""
+
+BODY = """\
 // AS-0.1 §2/§8: available = bitmap AND DLL_Status_Up.
 // Empty after filter → Default; Default all-0 → port 0; if port0 Down, drop+count, no flood.
 // RT=00 per-flow sticky RR; RT=01 per-packet RR. Flow key {CFG, src, dest, VL}.
@@ -78,6 +103,26 @@ module vibe_port_sel (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_port_sel
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "fabric" / "vibe_port_sel.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
