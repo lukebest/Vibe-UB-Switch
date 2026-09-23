@@ -4,7 +4,7 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec help clean
+.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
@@ -44,6 +44,8 @@ help:
 	@echo "make -C tb/vibe/pyuvm pack    # Decision-I leaf vibe_pcs_tx_pack (module-level)"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_pcs_tx_fec"
 	@echo "make -C tb/vibe/pyuvm tx_fec  # Decision-I leaf vibe_pcs_tx_fec (module-level)"
+	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_pcs_rx_fec"
+	@echo "make -C tb/vibe/pyuvm rx_fec  # Decision-I leaf vibe_pcs_rx_fec (module-level)"
 	@echo "make -C tb/vibe/pyuvm port    [TC=tc_port_smoke]"
 	@echo "make -C tb/vibe/pyuvm top"
 	@echo "make -C tb/vibe/pyuvm sim     # suite + units + top + neg"
@@ -107,6 +109,9 @@ pack: venv
 
 tx_fec: venv
 	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_pcs_tx_fec --sim $(SIM)
+
+rx_fec: venv
+	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_pcs_rx_fec --sim $(SIM)
 
 clean:
 	rm -rf $(PYUVM)/sim_build $(PYUVM)/results
