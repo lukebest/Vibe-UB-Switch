@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-8 — vibe_ebch16)
+
+### Changed
+
+- Next leaf `vibe_ebch16` is described in `pycircuit/pcs/vibe_ebch16.py`
+  and landed hand-finished at `rtl/pcs/vibe_ebch16.sv`. **Same ports /
+  combo LUT behavior** as tip `9f86cba` / freeze `302ac943` (`cw_sel[4:0]`
+  → `cw[15:0]`; `always @* case (cw_sel)`; Table 3-5 sel 0..30;
+  default `16'hFFFF`). Not a chip rewrite. No SPEC CR. F1 `ovf_l`
+  untouched. Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`,
+  stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`, and stage-7
+  `vibe_pcs_scramble` left intact. `vibe_pcs_tx` / rx / FEC / RS /
+  amctl not in this leaf.
+- Regenerator: `make -C pycircuit vibe_ebch16`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-7 — vibe_pcs_scramble)
 
 ### Changed
