@@ -151,6 +151,8 @@ NAME_MAP = {
         "tc_vibe_pcs_scramble (vibe_pcs_scramble_cocotb_top, module-level)",
     "make ebch16 / tc_vibe_ebch16":
         "tc_vibe_ebch16 (vibe_ebch16_cocotb_top, module-level)",
+    "make cw2beat / tc_vibe_pcs_tx_cw2beat":
+        "tc_vibe_pcs_tx_cw2beat (vibe_pcs_tx_cw2beat_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
