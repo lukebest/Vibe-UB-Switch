@@ -8,6 +8,7 @@ from vibe_uvm.tests import unit_leaf  # noqa: F401
 from vibe_uvm.tests import unit_more  # noqa: F401
 from vibe_uvm.tests import unit_pcs  # noqa: F401
 from vibe_uvm.tests import unit_afifo  # noqa: F401
+from vibe_uvm.tests import unit_sync2  # noqa: F401
 
 
 @cocotb.test()

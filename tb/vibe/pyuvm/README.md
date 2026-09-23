@@ -31,6 +31,8 @@ make -C tb/vibe units            # leaf units + static/neg + port
 make -C tb/vibe units TC=tc_vl_rr
 make -C tb/vibe/pyuvm units TC=tc_vibe_afifo   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm afifo                    # same as units TC=tc_vibe_afifo
+make -C tb/vibe/pyuvm units TC=tc_vibe_sync2   # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm sync2                    # same as units TC=tc_vibe_sync2
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -42,11 +44,16 @@ Simulator: `SIM=verilator` (baseline) or `SIM=icarus`.
 make -C tb/vibe/pyuvm sim SIM=icarus
 make -C tb/vibe/pyuvm units TC=tc_vl_rr SIM=icarus
 make -C tb/vibe/pyuvm afifo SIM=verilator   # or SIM=icarus
+make -C tb/vibe/pyuvm sync2 SIM=verilator   # or SIM=icarus
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
 fill/`almost_full` at occ≥10, drain). It is **not** the full-chip consecutive-green
 gate. Stock Icarus `tb/vibe/tests/tc_afifo_afull10.sv` remains optional control.
+
+`tc_vibe_sync2` / `make sync2` is **module-level only** (reset `q==0`, stable `d`
+reaches `q` after 2 posedges not 1, streaming 2-cycle delay, async `rst_n`
+clears the pipe). It is **not** 1/3, 4/3, freeze, or signoff.
 
 ## Topology
 
@@ -67,7 +74,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
@@ -94,6 +101,7 @@ those two stay Icarus.
 | `suite` (`tc_suite_all`, 28) | PASS | PASS |
 | leaf units + static/neg + PCS | PASS (incl. `tc_phy_u26_chain`, `tc_timers_indep`) | `tc_vl_rr` PASS; fabric suite PASS |
 | `tc_vibe_afifo` (module-level; ≠ full-chip gate) | PASS | PASS |
+| `tc_vibe_sync2` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -117,6 +125,7 @@ without that ECO, report them as DUT fails.
 tb/vibe/pyuvm/
   vibe_uvm/          items, vifs, agents, env, scoreboard, tests
                      tests/unit_afifo.py  Decision-I vibe_afifo (module-level)
+                     tests/unit_sync2.py  Decision-I vibe_sync2 (module-level)
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
