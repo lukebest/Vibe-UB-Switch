@@ -36,6 +36,7 @@ Stage-32: `vibe_saf_ing`.
 Stage-33: `vibe_xbar`.
 Stage-34: `vibe_dll_tx`.
 Stage-35: `vibe_dll`.
+Stage-36: `vibe_icrc`.
 
 ## Toolchain pin
 
@@ -109,7 +110,8 @@ pycircuit/
               vibe_voq_egr   ← stage-31 leaf (rtl/fabric/vibe_voq_egr.sv)
               vibe_saf_ing   ← stage-32 leaf (rtl/fabric/vibe_saf_ing.sv)
               vibe_xbar      ← stage-33 leaf (rtl/fabric/vibe_xbar.sv)
-  nw/ mgmt/ port/ top/   stubs
+  nw/         vibe_icrc      ← stage-36 leaf (rtl/nw/vibe_icrc.sv)
+  mgmt/ port/ top/   stubs
 ```
 
 `dll` stays `dll`, not `dl`. Later leaves land one module at a time.
@@ -837,3 +839,25 @@ sh scripts/pycircuit/emit.sh vibe_dll
 
 See [`docs/rtl/vibe_dll.md`](../docs/rtl/vibe_dll.md) and
 [`dll/vibe_dll.py`](dll/vibe_dll.py).
+
+## Stage-36 leaf `vibe_icrc`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"` /
+`vibe_ub_fn.vh`, CRC32 poly `0x04C11DB7` init
+`0xFFFFFFFF`, per-byte bit reverse then reverse+invert,
+and `step8` (AS-0.1 §13). First NW leaf after
+PCS/CDC/DLL/fabric leaves (stage-1..35). Self-contained
+(no child instances). Unit helper (TB `u_icrc`); intended
+for `cna_ep` (sender/receiver). Transit has no ICRC unit.
+Leave PCS tx / rx tops, `vibe_port` / `vibe_ub_switch`
+tops, other NW stubs, and `vibe_fabric` top for later.
+
+```bash
+make -C pycircuit vibe_icrc
+# or
+sh scripts/pycircuit/emit.sh vibe_icrc
+```
+
+See [`docs/rtl/vibe_icrc.md`](../docs/rtl/vibe_icrc.md) and
+[`nw/vibe_icrc.py`](nw/vibe_icrc.py).
