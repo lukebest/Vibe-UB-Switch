@@ -28,6 +28,7 @@ Stage-24: `vibe_dll_retry_ack_sm`.
 Stage-25: `vibe_dll_retry_buf`.
 Stage-26: `vibe_dll_retry_req_sm`.
 Stage-27: `vibe_fecn_mark`.
+Stage-28: `vibe_vl_rr`.
 
 ## Toolchain pin
 
@@ -93,6 +94,7 @@ pycircuit/
               vibe_dll_retry_buf ← stage-25 leaf (rtl/dll/vibe_dll_retry_buf.sv)
               vibe_dll_retry_req_sm ← stage-26 leaf (rtl/dll/vibe_dll_retry_req_sm.sv)
   fabric/     vibe_fecn_mark ← stage-27 leaf (rtl/fabric/vibe_fecn_mark.sv)
+              vibe_vl_rr     ← stage-28 leaf (rtl/fabric/vibe_vl_rr.sv)
   nw/ mgmt/ port/ top/   stubs
 ```
 
@@ -637,3 +639,23 @@ sh scripts/pycircuit/emit.sh vibe_fecn_mark
 
 See [`docs/rtl/vibe_fecn_mark.md`](../docs/rtl/vibe_fecn_mark.md) and
 [`fabric/vibe_fecn_mark.py`](fabric/vibe_fecn_mark.py).
+
+## Stage-28 leaf `vibe_vl_rr`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), RR among non-empty VOQs of an egress
+(first nonempty from `rr`, wrap 16; on `grant && valid`
+advance `rr` to `vl_sel+1`; reset clears `rr`). FCFS within
+VL; no SL (AS-0.1 §8). Second fabric leaf after
+`vibe_fecn_mark`. Self-contained (no child instances).
+`vibe_fabric` instantiates it (`u_rr`). Leave PCS tx / rx
+tops, `vibe_dll_tx`, and `vibe_dll` top for later.
+
+```bash
+make -C pycircuit vibe_vl_rr
+# or
+sh scripts/pycircuit/emit.sh vibe_vl_rr
+```
+
+See [`docs/rtl/vibe_vl_rr.md`](../docs/rtl/vibe_vl_rr.md) and
+[`fabric/vibe_vl_rr.py`](fabric/vibe_vl_rr.py).

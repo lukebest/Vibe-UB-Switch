@@ -1,5 +1,46 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-28 — vibe_vl_rr)
+
+### Changed
+
+- Next leaf `vibe_vl_rr` is described in
+  `pycircuit/fabric/vibe_vl_rr.py` and landed
+  hand-finished at `rtl/fabric/vibe_vl_rr.sv`.
+  **Same ports / VL RR behavior** as tip `450ed1c2`
+  / freeze `302ac943` (`clk`, `rst_n`, `nonempty[15:0]`,
+  `grant` / `vl_sel[3:0]`, `valid`; async-low
+  `or negedge rst_n`; RR among non-empty VOQs of an
+  egress; first nonempty from `rr`, wrap 16; on
+  `grant && valid` advance `rr` to `vl_sel+1`; reset
+  clears `rr`; FCFS within VL; no SL; AS-0.1 §8).
+  Self-contained (no child instances). Second fabric
+  leaf after `vibe_fecn_mark`. Instantiated by
+  `vibe_fabric` (`u_rr`). Ports / RR match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3
+  `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, and stage-27
+  `vibe_fecn_mark` left intact. PCS tx / rx tops
+  and remaining DLL wraps (`vibe_dll_tx`, dll top) not in
+  this leaf.
+- Regenerator: `make -C pycircuit vibe_vl_rr`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-27 — vibe_fecn_mark)
 
 ### Changed
