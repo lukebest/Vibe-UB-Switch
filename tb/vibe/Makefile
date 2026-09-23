@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll
 all: sim
 
 help:
@@ -27,6 +27,8 @@ help:
 	@echo "make gear_128_160   - same as units TC=tc_vibe_gear_128_160 (not full-chip gate)"
 	@echo "make units TC=tc_vibe_gear_160_128 - Decision-I vibe_gear_160_128 (module-level)"
 	@echo "make gear_160_128   - same as units TC=tc_vibe_gear_160_128 (not full-chip gate)"
+	@echo "make units TC=tc_dll - TP-DLL-004 full vibe_dll >32-flit split"
+	@echo "make dll            - same as units TC=tc_dll (≠1/3 ≠4/3 ≠signoff)"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -59,6 +61,10 @@ gear_128_160: $(RES)
 
 gear_160_128: $(RES)
 	$(MAKE) -C $(PYUVM) gear_160_128 SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+dll: $(RES)
+	$(MAKE) -C $(PYUVM) dll SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)

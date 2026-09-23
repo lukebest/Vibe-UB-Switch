@@ -141,6 +141,7 @@ NAME_MAP = {
     "make units / run_units.sh": "make units (static + UNIT_SIM + port)",
     "make afifo / tc_vibe_afifo": "tc_vibe_afifo (vibe_afifo_cocotb_top, module-level)",
     "make sync2 / tc_vibe_sync2": "tc_vibe_sync2 (vibe_sync2_cocotb_top, module-level)",
+    "Icarus tc_dll (full stack)": "tc_dll (vibe_dll_cocotb_top; TP-DLL-004 split)",
     "make rst_sync / tc_vibe_rst_sync": "tc_vibe_rst_sync (vibe_rst_sync_cocotb_top, module-level)",
     "make gear_128_160 / tc_vibe_gear_128_160":
         "tc_vibe_gear_128_160 (vibe_gear_128_160_cocotb_top, module-level)",

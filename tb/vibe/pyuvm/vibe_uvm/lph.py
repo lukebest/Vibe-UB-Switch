@@ -1,6 +1,7 @@
 """AS-0.1 / FS-0.2.7 Overlay B LPH helpers. Mirrors rtl/common/vibe_ub_fn.vh
 and tb/vibe/common/vibe_tb_defs.svh. Do not invent packing.
 """
+from __future__ import annotations
 
 CMD_CNA = 0
 CMD_ROUTE = 1
@@ -28,6 +29,31 @@ def plen_nflit(n: int) -> int:
     if lastn > 32:
         lastn = 32
     return ((lastn - 1) & 0x1F) << 5
+
+
+def plen_flits(n: int) -> int:
+    """Official PLENGTH for N flits: nblk=ceil(N/32), lastn=1..32.
+
+    `plen_nflit` clamps at 32 (single DLLDB). TP-DLL-004 needs nblk>1.
+    """
+    if n < 1:
+        n = 1
+    if n > 512:
+        n = 512
+    nblk = (n + 31) // 32
+    lastn = n - (nblk - 1) * 32
+    return ((nblk - 1) & 0xF) << 10 | ((lastn - 1) & 0x1F) << 5
+
+
+def dllp_chunks(n: int) -> list[int]:
+    """Official DLLDP → DLLDB split: ≤16 chunks of ≤32 flits."""
+    if n < 1:
+        n = 1
+    if n > 512:
+        n = 512
+    nblk = (n + 31) // 32
+    lastn = n - (nblk - 1) * 32
+    return [32] * (nblk - 1) + [lastn]
 
 
 def plen_4300() -> int:

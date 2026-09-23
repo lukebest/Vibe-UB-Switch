@@ -11,7 +11,7 @@ This document is **not** 1/3, **not** 4/3, **not** freeze, **not** signoff.
 - Existing SV/UVM-biased matrix (re-checked, not copied): [`TP_TC_MATRIX.md`](TP_TC_MATRIX.md)
 - Python gate: `tb/vibe/pyuvm/` (`catalog*.py`, `entry_*.py`, `vibe_uvm/tests/*.py`)
 - Regenerator: `tb/vibe/scripts/gen_tp_pyuvm_matrix.py`
-- Checkout tip audited: `3f78a8e0ea8344e87ac24be040d7924345307016` (`origin/main`)
+- Checkout tip audited: `5087843d0f4c4375a75f01c841d1b80b5229550a` (`origin/main`)
 
 ## Method
 
@@ -26,16 +26,14 @@ This document is **not** 1/3, **not** 4/3, **not** freeze, **not** signoff.
 | | count |
 |---|------:|
 | Official testpoints (TP-0.3) | **159** |
-| HAS Python TC | **158** |
-| GAP (no corresponding Python TC) | **1** |
+| HAS Python TC | **159** |
+| GAP (no corresponding Python TC) | **0** |
 
-N=159 / M=158 / G=1. Do not read this as a gate fraction, freeze, or signoff.
+N=159 / M=159 / G=0. Do not read this as a gate fraction, freeze, or signoff.
 
 ## GAP list
 
-| ID | rule | gap |
-|----|------|-----|
-| TP-DLL-004 | DLLDP >32 flit 拆 ≤16×≤32 | no Python `tc_dll`; leaf `tc_dll_sm_states`/credit/retry/rx/tx do not score DLLDP >32-flit split ≤16×≤32 (Icarus/SV-UVM only) |
+None.
 
 ## HAS by Python scope (not a gate)
 
@@ -45,7 +43,7 @@ N=159 / M=158 / G=1. Do not read this as a gate fraction, freeze, or signoff.
 | port-sim | 4 |
 | static | 29 |
 | static-neg | 6 |
-| unit-sim | 92 |
+| unit-sim | 93 |
 
 Scope is where the Python TC lives. A unit-sim or static-neg TC can still be the project's designated scorer for a chip-level rule (same convention as `TP_TC_MATRIX.md`). Leaf-only Decision-I TCs are excluded from HAS.
 
@@ -96,7 +94,7 @@ Scope is where the Python TC lives. A unit-sim or static-neg TC can still be the
 | TP-DLL-001 | Disabled / Param_Init / Credit_Init / Normal | **HAS** | `tc_dll_sm_states` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_more.py` | unit-sim |  |
 | TP-DLL-002 | LinkUp==0 → 永远 Disabled | **HAS** | `tc_dll_sm_states` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_more.py` | unit-sim |  |
 | TP-DLL-003 | entity rst 不得单独强制 Disabled | **HAS** | `tc_dll_sm_states` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_more.py` | unit-sim |  |
-| TP-DLL-004 | DLLDP >32 flit 拆 ≤16×≤32 | **GAP** | — | — | gap | no Python `tc_dll`; leaf `tc_dll_sm_states`/credit/retry/rx/tx do not score DLLDP >32-flit split ≤16×≤32 (Icarus/SV-UVM only) |
+| TP-DLL-004 | DLLDP >32 flit 拆 ≤16×≤32 | **HAS** | `tc_dll` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_dll.py` | unit-sim | full vibe_dll; scores >32-flit split ≤16×≤32 (not leaf SM/credit/retry/rx/tx) |
 | TP-DLL-005 | BCRC CRC30 + ERROR_FLAG 字段 | **HAS** | `tc_bcrc_crc30` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_leaf.py` | unit-sim |  |
 | TP-DLL-006 | CFG0 DLLCB 不耗 data credit | **HAS** | `tc_cfg0_no_credit` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_leaf.py` | unit-sim |  |
 | TP-DLL-007 | 同 VL FCFS | **HAS** | `tc_vl_rr` | `tb/vibe/pyuvm/vibe_uvm/tests/unit_leaf.py` | unit-sim |  |
@@ -261,6 +259,7 @@ Present in `catalog*.py` / tests but not the designated scorer for any official 
 | `tc_rs_dec_syndrome` |
 | `tc_rst_port_device` |
 | `tc_saf_ing` |
+| `tc_vibe_gear_128_160` |
 | `tc_voq_rd` |
 
 ## Appendix — still Icarus/SV-only (not Python-sim)
@@ -269,7 +268,7 @@ From `tb/vibe/pyuvm/README.md` (re-checked against `vibe_uvm/tests/`):
 
 | name | Python? | note |
 |------|---------|------|
-| `tc_dll` | **no** | full-stack wrapper; **TP-DLL-004 GAP** |
+| `tc_dll` | **yes** | full-stack wrapper; **TP-DLL-004** >32-flit split ≤16×≤32 |
 | `tc_pcs_rx` (full stack) | **no** | no official TP maps only to this name; leaf PCS RX units exist |
 | `tc_pcs_tx` (full stack) | **no** | no official TP maps only to this name; leaf PCS TX units exist |
 

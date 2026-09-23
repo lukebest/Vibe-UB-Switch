@@ -12,6 +12,7 @@ from vibe_uvm.tests import unit_sync2  # noqa: F401
 from vibe_uvm.tests import unit_rst_sync  # noqa: F401
 from vibe_uvm.tests import unit_gear_128_160  # noqa: F401
 from vibe_uvm.tests import unit_gear_160_128  # noqa: F401
+from vibe_uvm.tests import unit_dll  # noqa: F401
 
 
 @cocotb.test()
