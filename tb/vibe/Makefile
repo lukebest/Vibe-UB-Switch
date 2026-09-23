@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl
 all: sim
 
 help:
@@ -35,6 +35,8 @@ help:
 	@echo "make ebch16         - same as units TC=tc_vibe_ebch16 (not full-chip gate)"
 	@echo "make units TC=tc_vibe_pcs_tx_cw2beat - Decision-I vibe_pcs_tx_cw2beat (module-level)"
 	@echo "make cw2beat        - same as units TC=tc_vibe_pcs_tx_cw2beat (not full-chip gate)"
+	@echo "make units TC=tc_vibe_pcs_tx_amctl - Decision-I vibe_pcs_tx_amctl (module-level)"
+	@echo "make amctl          - same as units TC=tc_vibe_pcs_tx_amctl (not full-chip gate)"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -83,6 +85,10 @@ ebch16: $(RES)
 
 cw2beat: $(RES)
 	$(MAKE) -C $(PYUVM) cw2beat SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+amctl: $(RES)
+	$(MAKE) -C $(PYUVM) amctl SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
