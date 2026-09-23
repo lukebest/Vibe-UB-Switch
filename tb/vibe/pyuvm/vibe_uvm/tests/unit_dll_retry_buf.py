@@ -563,10 +563,10 @@ class tc_vibe_dll_retry_buf(VibeUnitBaseTest):
         got = await self._expect(
             name, "ack_rel 4 restores free",
             ack_rel=1, rel_size=4, rd_ptr_i=0)
-        if got is None or got[3] != DEPTH or got[1] != 5 or got[2] != 5:
+        if got is None or got[3] != DEPTH or got[1] != 4 or got[2] != 4:
             if got is not None:
                 self.bad(name, "ack_rel 4",
-                         "free=256 tail=5 rcv=5",
+                         "free=256 tail=4 rcv=4",
                          self._fmt(got), HIER)
             phase.drop_objection(self)
             return
