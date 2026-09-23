@@ -195,6 +195,8 @@ NAME_MAP = {
         "tc_vibe_route_lu (vibe_route_lu_cocotb_top, module-level)",
     "make port_sel / psel / tc_vibe_port_sel":
         "tc_vibe_port_sel (vibe_port_sel_cocotb_top, module-level)",
+    "make voq_egr / voq / tc_vibe_voq_egr":
+        "tc_vibe_voq_egr (vibe_voq_egr_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",

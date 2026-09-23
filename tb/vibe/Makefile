@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr
 all: sim
 
 help:
@@ -89,6 +89,10 @@ help:
 	@echo "make port_sel       - same as units TC=tc_vibe_port_sel (not full-chip gate)"
 	@echo "make psel           - same as port_sel / tc_vibe_port_sel"
 	@echo "make tc_vibe_port_sel - same as port_sel / psel"
+	@echo "make units TC=tc_vibe_voq_egr - Decision-I vibe_voq_egr (module-level)"
+	@echo "make voq_egr        - same as units TC=tc_vibe_voq_egr (not full-chip gate)"
+	@echo "make voq            - same as voq_egr / tc_vibe_voq_egr"
+	@echo "make tc_vibe_voq_egr - same as voq_egr / voq"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -269,6 +273,18 @@ psel: $(RES)
 
 tc_vibe_port_sel: $(RES)
 	$(MAKE) -C $(PYUVM) tc_vibe_port_sel SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+voq_egr: $(RES)
+	$(MAKE) -C $(PYUVM) voq_egr SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+voq: $(RES)
+	$(MAKE) -C $(PYUVM) voq SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+tc_vibe_voq_egr: $(RES)
+	$(MAKE) -C $(PYUVM) tc_vibe_voq_egr SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)

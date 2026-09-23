@@ -4,7 +4,7 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel help clean
+.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
@@ -82,6 +82,10 @@ help:
 	@echo "make -C tb/vibe/pyuvm port_sel # Decision-I leaf vibe_port_sel (module-level)"
 	@echo "make -C tb/vibe/pyuvm psel    # same as port_sel / tc_vibe_port_sel"
 	@echo "make -C tb/vibe/pyuvm tc_vibe_port_sel # same as port_sel / psel"
+	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_voq_egr"
+	@echo "make -C tb/vibe/pyuvm voq_egr # Decision-I leaf vibe_voq_egr (module-level)"
+	@echo "make -C tb/vibe/pyuvm voq     # same as voq_egr / tc_vibe_voq_egr"
+	@echo "make -C tb/vibe/pyuvm tc_vibe_voq_egr # same as voq_egr / voq"
 	@echo "make -C tb/vibe/pyuvm port    [TC=tc_port_smoke]"
 	@echo "make -C tb/vibe/pyuvm top"
 	@echo "make -C tb/vibe/pyuvm sim     # suite + units + top + neg"
@@ -208,6 +212,13 @@ port_sel: venv
 psel: port_sel
 
 tc_vibe_port_sel: port_sel
+
+voq_egr: venv
+	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_voq_egr --sim $(SIM)
+
+voq: voq_egr
+
+tc_vibe_voq_egr: voq_egr
 
 clean:
 	rm -rf $(PYUVM)/sim_build $(PYUVM)/results
