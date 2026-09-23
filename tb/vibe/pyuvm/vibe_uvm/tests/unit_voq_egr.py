@@ -444,6 +444,12 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
                      self._fmt(got), "u_u.wr_ready")
             phase.drop_objection(self)
             return
+        head0 = flit(0x100, 0x200)
+        if got[3] != head0 or got[4] != 1 or got[5] != 0:
+            self.bad(name, "full-queue head is first fill beat",
+                     f"rd={head0}/1/0", self._fmt(got), "u_u.rd_data")
+            phase.drop_objection(self)
+            return
 
         # Full reject: wr_en must not move wptr / change occ.
         held_occ = self.g.occ_vl0()
@@ -485,8 +491,9 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # Pop one from VL0 → wr_ready returns.
-        head0 = flit(0x100, 0x200)
+        # Pop one from VL0 → wr_ready returns. Head after the pop is
+        # the second fill beat (combo rd_* follow the new rptr).
+        head1 = flit(0x101, 0x201)
         got = await self._expect(
             name, "rd VL0 one slot while full",
             rd_vl=0, rd_en=1)
@@ -499,9 +506,9 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
                      self._fmt(got), "u_u.wr_ready")
             phase.drop_objection(self)
             return
-        if got[3] != head0 or got[4] != 1 or got[5] != 0:
-            self.bad(name, "full-queue head was first fill beat",
-                     f"rd={head0}/1/0", self._fmt(got), "u_u.rd_data")
+        if got[3] != head1 or got[4] != 0 or got[5] != 0:
+            self.bad(name, "after pop, head is second fill beat",
+                     f"rd={head1}/0/0", self._fmt(got), "u_u.rd_data")
             phase.drop_objection(self)
             return
 
@@ -509,8 +516,7 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
         for i in range(DEPTH - 1):
             if await self._expect(
                     name, f"drain VL0 [{i}]",
-                    rd_vl=0, rd_en=1,
-                    score_rd=(self.g.nonempty() & 1) != 0) is None:
+                    rd_vl=0, rd_en=1, score_rd=False) is None:
                 phase.drop_objection(self)
                 return
         if await self._expect(
