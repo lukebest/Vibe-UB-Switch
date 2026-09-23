@@ -1,5 +1,40 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-20 — vibe_bcrc)
+
+### Changed
+
+- Next leaf `vibe_bcrc` is described in `pycircuit/dll/vibe_bcrc.py`
+  and landed hand-finished at `rtl/dll/vibe_bcrc.sv`. **Same ports /
+  CRC30 behavior** as tip `1e57f2a5` / freeze `302ac943`
+  (`clk`, `rst_n`, `start`, `in_vld`, 160b `in_flit`, `last`,
+  `error_flag` / 32b `crc_word`, `done`; async-low
+  `or negedge rst_n`; `include "vibe_ub_params.vh"` for
+  `VIBE_BCRC_POLY`; `crc30_step`; 160-bit eat loop; CRC30
+  init all-1s; no invert; on `last` emit
+  `{1'b0, error_flag, crc[29:0]}` — bit31 reserved, bit30
+  `ERROR_FLAG`; AS-0.1 §12). Self-contained (no child
+  instances). First DLL leaf after PCS leaf cells
+  (stage-1..19). Unit helper (TB `u_bcrc`); `vibe_dll_tx`
+  inlines the same CRC30. Ports / CRC30 match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3
+  `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, and stage-19
+  `vibe_pcs_tx_g1` left intact. PCS tx / rx tops and the
+  rest of DLL not in this leaf.
+- Regenerator: `make -C pycircuit vibe_bcrc`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-19 — vibe_pcs_tx_g1)
 
 ### Changed
