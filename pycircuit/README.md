@@ -9,6 +9,7 @@ Stage-5: `vibe_gear_128_160`.
 Stage-6: `vibe_gear_160_128`.
 Stage-7: `vibe_pcs_scramble`.
 Stage-8: `vibe_ebch16`.
+Stage-9: `vibe_pcs_tx_cw2beat`.
 
 ## Toolchain pin
 
@@ -55,6 +56,7 @@ pycircuit/
   pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
   pcs/        vibe_pcs_scramble ← stage-7 leaf (rtl/pcs/vibe_pcs_scramble.sv)
               vibe_ebch16    ← stage-8 leaf (rtl/pcs/vibe_ebch16.sv)
+              vibe_pcs_tx_cw2beat ← stage-9 leaf (rtl/pcs/vibe_pcs_tx_cw2beat.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -203,3 +205,21 @@ sh scripts/pycircuit/emit.sh vibe_ebch16
 
 See [`docs/rtl/vibe_ebch16.md`](../docs/rtl/vibe_ebch16.md) and
 [`pcs/vibe_ebch16.py`](pcs/vibe_ebch16.py).
+
+## Stage-9 leaf `vibe_pcs_tx_cw2beat`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), combo `cw_ready = !have_hi && !have_lo`,
+combo `beat_vld` / `beat_data` (hi then lo). This is the
+same-layer PCS streaming helper `vibe_pcs_tx` already instantiates
+(`u_cw`). Leave `vibe_pcs_tx` / amctl / pack / FEC / RS / rx for
+later.
+
+```bash
+make -C pycircuit vibe_pcs_tx_cw2beat
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_tx_cw2beat
+```
+
+See [`docs/rtl/vibe_pcs_tx_cw2beat.md`](../docs/rtl/vibe_pcs_tx_cw2beat.md) and
+[`pcs/vibe_pcs_tx_cw2beat.py`](pcs/vibe_pcs_tx_cw2beat.py).

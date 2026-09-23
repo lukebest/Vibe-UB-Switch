@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-9 — vibe_pcs_tx_cw2beat)
+
+### Changed
+
+- Next leaf `vibe_pcs_tx_cw2beat` is described in `pycircuit/pcs/vibe_pcs_tx_cw2beat.py`
+  and landed hand-finished at `rtl/pcs/vibe_pcs_tx_cw2beat.sv`. **Same ports /
+  ready/valid beat-split behavior** as tip `c8804c0` / freeze `302ac943`
+  (`clk`, `rst_n`, 1024b `cw_*` in / 512b `beat_*` out; async-low
+  `or negedge rst_n`; `cw_ready = !have_hi && !have_lo`; hi then lo).
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1
+  `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3 `vibe_sync2`,
+  stage-4 `vibe_rst_sync`, stage-5 `vibe_gear_128_160`, stage-6
+  `vibe_gear_160_128`, stage-7 `vibe_pcs_scramble`, and stage-8
+  `vibe_ebch16` left intact. `vibe_pcs_tx` / amctl / pack / FEC /
+  RS / rx not in this leaf.
+- Regenerator: `make -C pycircuit vibe_pcs_tx_cw2beat`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-8 — vibe_ebch16)
 
 ### Changed
