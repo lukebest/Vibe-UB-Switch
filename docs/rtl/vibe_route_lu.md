@@ -22,7 +22,7 @@ after `vibe_fecn_mark` / `vibe_vl_rr`.
 
 ## Ports (product)
 
-Same as tip `4b463581` / freeze `302ac943`. Reset stays
+Same as tip `2841888e` / freeze `302ac943`. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

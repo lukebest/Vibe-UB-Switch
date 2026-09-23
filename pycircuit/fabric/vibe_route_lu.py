@@ -1,7 +1,7 @@
 """vibe_route_lu — fabric CFG0_ROUTE_TABLE lookup (AS-0.1 §2/§8).
 
 Product module: ``rtl/fabric/vibe_route_lu.sv``. Ports match tip
-``4b463581`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``2841888e`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``device_rst`` / ``wr_en`` /
 ``wr_idx[15:0]`` / ``wr_data[31:0]`` / ``dest[15:0]`` / ``rt[1:0]`` /
 ``lu_vld`` / ``bitmap[3:0]`` / ``drop_g1``). Parameter ``DEPTH``

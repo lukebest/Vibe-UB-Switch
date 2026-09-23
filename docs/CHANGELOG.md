@@ -8,7 +8,7 @@
   `pycircuit/fabric/vibe_route_lu.py` and landed
   hand-finished at `rtl/fabric/vibe_route_lu.sv`.
   **Same ports / CFG0_ROUTE_TABLE lookup** as tip
-  `4b463581` / freeze `302ac943` (`clk`, `rst_n`,
+  `2841888e` / freeze `302ac943` (`clk`, `rst_n`,
   `device_rst`, `wr_en`, `wr_idx[15:0]`, `wr_data[31:0]`,
   `dest[15:0]`, `rt[1:0]`, `lu_vld` / `bitmap[3:0]`,
   `drop_g1`; parameter `DEPTH=256`; async-low

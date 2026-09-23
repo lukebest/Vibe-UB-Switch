@@ -14,7 +14,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_route_lu.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 4b463581 / freeze 302ac943. Path B hold.
+// Product ports match tip 2841888e / freeze 302ac943. Path B hold.
 """
 
 FOOTER = """\

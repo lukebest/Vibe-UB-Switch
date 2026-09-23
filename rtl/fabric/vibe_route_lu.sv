@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_route_lu.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 4b463581 / freeze 302ac943. Path B hold.
+// Product ports match tip 2841888e / freeze 302ac943. Path B hold.
 // AS-0.1 §2/§8 + FS-0.2.3 G1: CFG0_ROUTE_TABLE dest → 4-bit egress bitmap.
 // RT=10/11: DROP (pulse drop_g1). No Dijkstra, no treat-as-RT=00, no RT rewrite.
 // Fabric saturates rt_shortest_unimpl and irq_agg sticks irq_logic.
