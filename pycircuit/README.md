@@ -18,6 +18,7 @@ Stage-14: `vibe_pcs_rx_amctl_lock`.
 Stage-15: `vibe_pcs_rx_unpack`.
 Stage-16: `vibe_pcs_tx_pack`.
 Stage-17: `vibe_pcs_tx_fec`.
+Stage-18: `vibe_pcs_rx_fec`.
 
 ## Toolchain pin
 
@@ -73,6 +74,7 @@ pycircuit/
               vibe_pcs_rx_unpack ← stage-15 leaf (rtl/pcs/vibe_pcs_rx_unpack.sv)
               vibe_pcs_tx_pack ← stage-16 leaf (rtl/pcs/vibe_pcs_tx_pack.sv)
               vibe_pcs_tx_fec  ← stage-17 leaf (rtl/pcs/vibe_pcs_tx_fec.sv)
+              vibe_pcs_rx_fec  ← stage-18 leaf (rtl/pcs/vibe_pcs_rx_fec.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -401,3 +403,25 @@ sh scripts/pycircuit/emit.sh vibe_pcs_tx_fec
 
 See [`docs/rtl/vibe_pcs_tx_fec.md`](../docs/rtl/vibe_pcs_tx_fec.md) and
 [`pcs/vibe_pcs_tx_fec.py`](pcs/vibe_pcs_tx_fec.py).
+
+## Stage-18 leaf `vibe_pcs_rx_fec`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"` /
+`vibe_ub_fn.vh`, combo `beat_ready = !win_vld`, stock
+`am_gap = 1'b0` default on waived line 14, inline
+`gf_mul2` / `rs_syndromes` (no `vibe_rs128_120_dec`
+instance), and the collect / check / emit always-block
+(2×512 → syndrome or bypass → 960b / `fec_fail`). This is
+the same-layer PCS cell `vibe_pcs_rx` already instantiates
+(`u_fec`). Pairs with stage-17 `vibe_pcs_tx_fec`. Leave
+g1 / tx / rx tops for later.
+
+```bash
+make -C pycircuit vibe_pcs_rx_fec
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_rx_fec
+```
+
+See [`docs/rtl/vibe_pcs_rx_fec.md`](../docs/rtl/vibe_pcs_rx_fec.md) and
+[`pcs/vibe_pcs_rx_fec.py`](pcs/vibe_pcs_rx_fec.py).
