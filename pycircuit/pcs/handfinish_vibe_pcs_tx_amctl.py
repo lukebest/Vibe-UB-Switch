@@ -1,3 +1,17 @@
+"""Emit the product SystemVerilog for vibe_pcs_tx_amctl (hand-finished).
+
+Keeps tip ports, unused ``clk`` / ``rst_n`` / ``sdf_period`` pins,
+seven ``vibe_ebch16`` instances, combo LID ``case (lane_id)``, and
+the 40-symbol AMCTL assemble (BODY / END / LID / CTRL_TYPE /
+CTRL_DETAIL). pycc netlists are a prototype only; this file is
+what lands in ``rtl/pcs/vibe_pcs_tx_amctl.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx_amctl.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +19,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_tx_amctl
 //
+"""
+
+BODY = """\
 // AS-0.1 §5: AMCTL 40 symbol/lane, eBCH-16. After FEC, before G2.
 // Data period 640 symbols after SDF; other LMSM states 512 symbols.
 module vibe_pcs_tx_amctl (
@@ -47,3 +64,26 @@ module vibe_pcs_tx_amctl (
 
   assign ack = req && link_up;
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_tx_amctl.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
