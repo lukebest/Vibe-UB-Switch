@@ -112,7 +112,7 @@ those two stay Icarus.
 | leaf units + static/neg + PCS | PASS (incl. `tc_phy_u26_chain`, `tc_timers_indep`) | `tc_vl_rr` PASS; fabric suite PASS |
 | `tc_vibe_afifo` (module-level; ≠ full-chip gate) | PASS | PASS |
 | `tc_vibe_sync2` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
-| `tc_vibe_rst_sync` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | this PR | this PR |
+| `tc_vibe_rst_sync` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
