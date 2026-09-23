@@ -1,6 +1,29 @@
+"""Emit the product SystemVerilog for vibe_xbar (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, unpacked 4-port arrays,
+candidate grant independent of ``out_ready``, ingress RR on
+conflict, one full packet per grant, and down-port no-DLLDP
+(AS-0.1 §8). pycc netlists are a prototype only; this file
+is what lands in ``rtl/fabric/vibe_xbar.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_xbar.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 782f2181 / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_xbar
+"""
+
+BODY = """\
 // AS-0.1 §8: output queued, ingress RR on conflict, one full packet per grant.
 // Down ports get no data DLLDP. Mgmt bypass does not enter xbar.
 module vibe_xbar (
@@ -121,6 +144,26 @@ module vibe_xbar (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_xbar
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "fabric" / "vibe_xbar.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

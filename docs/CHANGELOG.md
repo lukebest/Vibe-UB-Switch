@@ -1,5 +1,59 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-33 — vibe_xbar)
+
+### Changed
+
+- Next leaf `vibe_xbar` is described in
+  `pycircuit/fabric/vibe_xbar.py` and landed
+  hand-finished at `rtl/fabric/vibe_xbar.sv`.
+  **Same ports / 4-port xbar behavior** as tip
+  `782f2181` / freeze `302ac943` (`clk`, `rst_n`,
+  `status_up[3:0]`, `in_data[511:0][0:3]`,
+  `in_vld[3:0]`, `in_sop[3:0]`, `in_eop[3:0]`,
+  `in_dst[1:0][0:3]`, `in_ready[3:0]`,
+  `out_data[511:0][0:3]`, `out_vld[3:0]`,
+  `out_sop[3:0]`, `out_eop[3:0]`, `out_ready[3:0]`;
+  async-low `or negedge rst_n`; unpacked arrays;
+  candidate grant independent of `out_ready`;
+  accept (`out_vld` / `in_ready`) needs `out_ready`;
+  down ports get no data DLLDP; ingress RR on
+  conflict from `rr[e]`; one full packet per grant
+  (`lock` until EOP); `!rst_n` clears `lock` /
+  `locked` / `rr`; EOP advances `rr <= lock+1`;
+  full combo defaults on `req` / `win` (LATCH ECO);
+  AS-0.1 §8). Self-contained (no child instances).
+  Seventh fabric leaf after `vibe_fecn_mark` /
+  `vibe_vl_rr` / `vibe_route_lu` / `vibe_port_sel` /
+  `vibe_voq_egr` / `vibe_saf_ing`. Instantiated by
+  `vibe_fabric` (`u_xbar`). Ports / xbar match stock
+  (header-only vs stock). Official `.vlt` not
+  expanded. Not a chip rewrite. No SPEC CR. F1
+  `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`,
+  stage-6 `vibe_gear_160_128`, stage-7
+  `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, stage-27 `vibe_fecn_mark`,
+  stage-28 `vibe_vl_rr`, stage-29 `vibe_route_lu`,
+  stage-30 `vibe_port_sel`, stage-31 `vibe_voq_egr`,
+  and stage-32 `vibe_saf_ing` left intact. PCS tx /
+  rx tops, remaining DLL wraps (`vibe_dll_tx`, dll
+  top), and `vibe_fabric` top not in this leaf.
+- Regenerator: `make -C pycircuit vibe_xbar`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-32 — vibe_saf_ing)
 
 ### Changed

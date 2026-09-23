@@ -33,6 +33,7 @@ Stage-29: `vibe_route_lu`.
 Stage-30: `vibe_port_sel`.
 Stage-31: `vibe_voq_egr`.
 Stage-32: `vibe_saf_ing`.
+Stage-33: `vibe_xbar`.
 
 ## Toolchain pin
 
@@ -103,6 +104,7 @@ pycircuit/
               vibe_port_sel  ← stage-30 leaf (rtl/fabric/vibe_port_sel.sv)
               vibe_voq_egr   ← stage-31 leaf (rtl/fabric/vibe_voq_egr.sv)
               vibe_saf_ing   ← stage-32 leaf (rtl/fabric/vibe_saf_ing.sv)
+              vibe_xbar      ← stage-33 leaf (rtl/fabric/vibe_xbar.sv)
   nw/ mgmt/ port/ top/   stubs
 ```
 
@@ -761,3 +763,26 @@ sh scripts/pycircuit/emit.sh vibe_saf_ing
 
 See [`docs/rtl/vibe_saf_ing.md`](../docs/rtl/vibe_saf_ing.md) and
 [`fabric/vibe_saf_ing.py`](fabric/vibe_saf_ing.py).
+
+## Stage-33 leaf `vibe_xbar`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), unpacked 4-port arrays, candidate
+grant independent of `out_ready` (UNOPTFLAT `xb_r`),
+ingress RR on conflict, one full packet per grant, and
+down-port no-DLLDP (AS-0.1 §8). Seventh fabric leaf after
+`vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu` /
+`vibe_port_sel` / `vibe_voq_egr` / `vibe_saf_ing`.
+Self-contained (no child instances). `vibe_fabric`
+instantiates it (`u_xbar`). Leave PCS tx / rx tops,
+`vibe_dll_tx`, `vibe_dll` top, and `vibe_fabric` top
+for later.
+
+```bash
+make -C pycircuit vibe_xbar
+# or
+sh scripts/pycircuit/emit.sh vibe_xbar
+```
+
+See [`docs/rtl/vibe_xbar.md`](../docs/rtl/vibe_xbar.md) and
+[`fabric/vibe_xbar.py`](fabric/vibe_xbar.py).
