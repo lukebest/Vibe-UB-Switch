@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_port_sel.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 3e647231 / freeze 302ac943. Path B hold.
+// Product ports match tip 89c388cb / freeze 302ac943. Path B hold.
 // AS-0.1 §2/§8: available = bitmap AND DLL_Status_Up.
 // Empty after filter → Default; Default all-0 → port 0; if port0 Down, drop+count, no flood.
 // RT=00 per-flow sticky RR; RT=01 per-packet RR. Flow key {CFG, src, dest, VL}.

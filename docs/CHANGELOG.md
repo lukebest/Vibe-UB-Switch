@@ -8,7 +8,7 @@
   `pycircuit/fabric/vibe_port_sel.py` and landed
   hand-finished at `rtl/fabric/vibe_port_sel.sv`.
   **Same ports / port-select behavior** as tip
-  `3e647231` / freeze `302ac943` (`clk`, `rst_n`,
+  `89c388cb` / freeze `302ac943` (`clk`, `rst_n`,
   `bitmap[3:0]`, `status_up[3:0]`, `default_bm[3:0]`,
   `rt[1:0]`, `drop_g1`, `sel_vld`, `cfg[3:0]`,
   `src[15:0]`, `dest[15:0]`, `vl[3:0]` / `egr[1:0]`,

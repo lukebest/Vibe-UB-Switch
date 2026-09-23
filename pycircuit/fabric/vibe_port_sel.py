@@ -1,7 +1,7 @@
 """vibe_port_sel — fabric port select (AS-0.1 §2/§8).
 
 Product module: ``rtl/fabric/vibe_port_sel.sv``. Ports match tip
-``3e647231`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``89c388cb`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``bitmap[3:0]`` /
 ``status_up[3:0]`` / ``default_bm[3:0]`` / ``rt[1:0]`` /
 ``drop_g1`` / ``sel_vld`` / ``cfg[3:0]`` / ``src[15:0]`` /
