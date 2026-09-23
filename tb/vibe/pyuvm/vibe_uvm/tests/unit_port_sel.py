@@ -257,9 +257,15 @@ class tc_vibe_port_sel(VibeUnitBaseTest):
                      "use_bm=0", f"use_bm={use_bm(0, 0b1110, 0, 0)}",
                      "golden")
             return False
-        if use_bm(0b1111, 0b1111, 0, 1) != 0:
-            self.bad(name, "golden drop_g1 forces avail empty",
-                     "use_bm=0", f"use_bm={use_bm(0b1111, 0b1111, 0, 1)}",
+        # drop_g1 forces avail=0; Default all-0 then yields port0 if up.
+        if use_bm(0b1111, 0b1111, 0, 1) != PORT0_BM:
+            self.bad(name, "golden drop_g1 zeros avail then Default port0",
+                     "use_bm=1", f"use_bm={use_bm(0b1111, 0b1111, 0, 1)}",
+                     "golden")
+            return False
+        if use_bm(0b1111, 0b1110, 0, 1) != 0:
+            self.bad(name, "golden drop_g1 + port0 down → use_bm empty",
+                     "use_bm=0", f"use_bm={use_bm(0b1111, 0b1110, 0, 1)}",
                      "golden")
             return False
         gchk = Golden()
