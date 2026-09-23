@@ -1,3 +1,16 @@
+"""Emit the product SystemVerilog for vibe_ebch16 (hand-finished).
+
+Keeps tip ports and the combo ``case (cw_sel)`` Table 3-5 LUT
+(``cw_sel[4:0]`` → ``cw[15:0]``; default ``16'hFFFF``). pycc
+netlists are a prototype only; this file is what lands in
+``rtl/pcs/vibe_ebch16.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_ebch16.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +18,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_ebch16
 //
+"""
+
+BODY = """\
 // AS-0.1 §5 AMCTL / UB 2.0 §3.2.4.1: eBCH-16 codeword LUT (Table 3-5).
 module vibe_ebch16 (
   input  logic [4:0]  cw_sel,
@@ -47,3 +63,26 @@ module vibe_ebch16 (
     endcase
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_ebch16.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
