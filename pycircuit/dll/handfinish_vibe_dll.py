@@ -1,6 +1,30 @@
+"""Emit the product SystemVerilog for vibe_dll (hand-finished).
+
+Keeps tip ports, ``RETRY_WAIT_CYC`` default 12500, the seven
+already-migrated children (``u_sm`` / ``u_crd`` / ``u_rbuf`` /
+``u_req`` / ``u_ack`` / ``u_tx`` / ``u_rx``), interconnect
+nets, and wrap-local ``proto_err`` / ``fc_ovf`` assigns
+(AS-0.1 §12). pycc netlists are a prototype only; this file
+is what lands in ``rtl/dll/vibe_dll.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 5b071097 / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_dll
+"""
+
+BODY = """\
 // AS-0.1 §12: DLL wrapper — sm, tx, rx, credit, retry_buf, retry_req_sm, retry_ack_sm.
 module vibe_dll #(
   parameter int RETRY_WAIT_CYC = 12500
@@ -110,6 +134,26 @@ module vibe_dll #(
   assign proto_err = crd_proto | buf_proto;
   assign fc_ovf    = crd_ovf;
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_dll
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "dll" / "vibe_dll.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
