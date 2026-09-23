@@ -23,6 +23,7 @@ Stage-19: `vibe_pcs_tx_g1`.
 Stage-20: `vibe_bcrc`.
 Stage-21: `vibe_dll_credit`.
 Stage-22: `vibe_dll_sm`.
+Stage-23: `vibe_dll_rx`.
 
 ## Toolchain pin
 
@@ -83,6 +84,7 @@ pycircuit/
   dll/        vibe_bcrc      ← stage-20 leaf (rtl/dll/vibe_bcrc.sv)
               vibe_dll_credit ← stage-21 leaf (rtl/dll/vibe_dll_credit.sv)
               vibe_dll_sm    ← stage-22 leaf (rtl/dll/vibe_dll_sm.sv)
+              vibe_dll_rx    ← stage-23 leaf (rtl/dll/vibe_dll_rx.sv)
   nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -520,3 +522,27 @@ sh scripts/pycircuit/emit.sh vibe_dll_sm
 
 See [`docs/rtl/vibe_dll_sm.md`](../docs/rtl/vibe_dll_sm.md) and
 [`dll/vibe_dll_sm.py`](dll/vibe_dll_sm.py).
+
+## Stage-23 leaf `vibe_dll_rx`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_fn.vh"` for
+`vibe_lph_cfg` / `vibe_lph_vl` / `vibe_pkt_bytes`,
+parameter `RXBUF` default 1024, 640b PCS → 4 flits /
+unBCRC / 512b NW remainder, LPH first 160b, EOP leftover
+drop, CFG0 terminate, FEC/BCRC fail → Go-Back-N, and
+`start_ack` tied 0 (AS-0.1.2 / FS-0.2.7 overlay B).
+Fourth DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
+`vibe_dll_sm`. Self-contained (no child instances).
+`vibe_dll` instantiates it (`u_rx`). Leave PCS tx / rx
+tops, `vibe_dll_retry_*`, `vibe_dll_tx`, and `vibe_dll`
+top for later.
+
+```bash
+make -C pycircuit vibe_dll_rx
+# or
+sh scripts/pycircuit/emit.sh vibe_dll_rx
+```
+
+See [`docs/rtl/vibe_dll_rx.md`](../docs/rtl/vibe_dll_rx.md) and
+[`dll/vibe_dll_rx.py`](dll/vibe_dll_rx.py).
