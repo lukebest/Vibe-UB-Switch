@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc
 all: sim
 
 help:
@@ -56,6 +56,8 @@ help:
 	@echo "make units TC=tc_vibe_pcs_tx_g1 - Decision-I vibe_pcs_tx_g1 (module-level)"
 	@echo "make g1             - same as units TC=tc_vibe_pcs_tx_g1 (not full-chip gate)"
 	@echo "make tx_g1          - same as g1 / tc_vibe_pcs_tx_g1"
+	@echo "make units TC=tc_vibe_bcrc - Decision-I vibe_bcrc (module-level)"
+	@echo "make bcrc           - same as units TC=tc_vibe_bcrc (not full-chip gate)"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -148,6 +150,10 @@ g1: $(RES)
 
 tx_g1: $(RES)
 	$(MAKE) -C $(PYUVM) tx_g1 SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+bcrc: $(RES)
+	$(MAKE) -C $(PYUVM) bcrc SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
