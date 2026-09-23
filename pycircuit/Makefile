@@ -9,7 +9,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_ebch16 vibe_pcs_tx_cw2beat vibe_pcs_tx_amctl \
         vibe_rs128_120_enc vibe_rs128_120_dec vibe_pcs_rx_deskew \
         vibe_pcs_rx_amctl_lock vibe_pcs_rx_unpack vibe_pcs_tx_pack \
-        vibe_pcs_tx_fec vibe_pcs_rx_fec \
+        vibe_pcs_tx_fec vibe_pcs_rx_fec vibe_pcs_tx_g1 \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
@@ -18,6 +18,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-pcs-rx-deskew handfinish-pcs-rx-amctl-lock \
         handfinish-pcs-rx-unpack handfinish-pcs-tx-pack \
         handfinish-pcs-tx-fec handfinish-pcs-rx-fec \
+        handfinish-pcs-tx-g1 \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
@@ -25,7 +26,8 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-rs128-120-enc lint-leaf-rs128-120-dec \
         lint-leaf-pcs-rx-deskew lint-leaf-pcs-rx-amctl-lock \
         lint-leaf-pcs-rx-unpack lint-leaf-pcs-tx-pack \
-        lint-leaf-pcs-tx-fec lint-leaf-pcs-rx-fec
+        lint-leaf-pcs-tx-fec lint-leaf-pcs-rx-fec \
+        lint-leaf-pcs-tx-g1
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -48,6 +50,7 @@ help:
 	@echo "vibe_pcs_tx_pack   land hand-finished rtl/pcs/vibe_pcs_tx_pack.sv (try pycc first)"
 	@echo "vibe_pcs_tx_fec    land hand-finished rtl/pcs/vibe_pcs_tx_fec.sv (try pycc first)"
 	@echo "vibe_pcs_rx_fec    land hand-finished rtl/pcs/vibe_pcs_rx_fec.sv (try pycc first)"
+	@echo "vibe_pcs_tx_g1     land hand-finished rtl/pcs/vibe_pcs_tx_g1.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -66,6 +69,7 @@ help:
 	@echo "handfinish-pcs-tx-pack write product vibe_pcs_tx_pack SV only"
 	@echo "handfinish-pcs-tx-fec write product vibe_pcs_tx_fec SV only"
 	@echo "handfinish-pcs-rx-fec write product vibe_pcs_rx_fec SV only"
+	@echo "handfinish-pcs-tx-g1 write product vibe_pcs_tx_g1 SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -84,6 +88,7 @@ help:
 	@echo "lint-leaf-pcs-tx-pack Verilator --lint-only on vibe_pcs_tx_pack"
 	@echo "lint-leaf-pcs-tx-fec Verilator --lint-only on vibe_pcs_tx_fec"
 	@echo "lint-leaf-pcs-rx-fec Verilator --lint-only on vibe_pcs_rx_fec"
+	@echo "lint-leaf-pcs-tx-g1 Verilator --lint-only on vibe_pcs_tx_g1"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -147,6 +152,9 @@ vibe_pcs_tx_fec:
 vibe_pcs_rx_fec:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_rx_fec
 
+vibe_pcs_tx_g1:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_tx_g1
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -200,6 +208,9 @@ handfinish-pcs-tx-fec:
 
 handfinish-pcs-rx-fec:
 	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_rx_fec.py
+
+handfinish-pcs-tx-g1:
+	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_tx_g1.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -289,3 +300,7 @@ lint-leaf-pcs-rx-fec:
 	  -I$(ROOT)/rtl/common \
 	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
 	  $(ROOT)/rtl/pcs/vibe_pcs_rx_fec.sv
+
+lint-leaf-pcs-tx-g1:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pcs_tx_g1 \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_g1.sv

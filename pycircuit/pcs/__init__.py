@@ -1,4 +1,4 @@
-"""PCS (``rtl/pcs``). Stage-7: ``vibe_pcs_scramble``. Stage-8: ``vibe_ebch16``. Stage-9: ``vibe_pcs_tx_cw2beat``. Stage-10: ``vibe_pcs_tx_amctl``. Stage-11: ``vibe_rs128_120_enc``. Stage-12: ``vibe_rs128_120_dec``. Stage-13: ``vibe_pcs_rx_deskew``. Stage-14: ``vibe_pcs_rx_amctl_lock``. Stage-15: ``vibe_pcs_rx_unpack``. Stage-16: ``vibe_pcs_tx_pack``. Stage-17: ``vibe_pcs_tx_fec``. Stage-18: ``vibe_pcs_rx_fec``. Leave g1/tx/rx tops for later."""
+"""PCS (``rtl/pcs``). Stage-7: ``vibe_pcs_scramble``. Stage-8: ``vibe_ebch16``. Stage-9: ``vibe_pcs_tx_cw2beat``. Stage-10: ``vibe_pcs_tx_amctl``. Stage-11: ``vibe_rs128_120_enc``. Stage-12: ``vibe_rs128_120_dec``. Stage-13: ``vibe_pcs_rx_deskew``. Stage-14: ``vibe_pcs_rx_amctl_lock``. Stage-15: ``vibe_pcs_rx_unpack``. Stage-16: ``vibe_pcs_tx_pack``. Stage-17: ``vibe_pcs_tx_fec``. Stage-18: ``vibe_pcs_rx_fec``. Stage-19: ``vibe_pcs_tx_g1``. Leave tx/rx tops for later."""
 
 from .vibe_pcs_scramble import build
 from .vibe_pcs_scramble import build as vibe_pcs_scramble
@@ -13,6 +13,7 @@ from .vibe_pcs_rx_unpack import build as vibe_pcs_rx_unpack
 from .vibe_pcs_tx_pack import build as vibe_pcs_tx_pack
 from .vibe_pcs_tx_fec import build as vibe_pcs_tx_fec
 from .vibe_pcs_rx_fec import build as vibe_pcs_rx_fec
+from .vibe_pcs_tx_g1 import build as vibe_pcs_tx_g1
 
 __all__ = [
     "build",
@@ -28,4 +29,5 @@ __all__ = [
     "vibe_pcs_tx_pack",
     "vibe_pcs_tx_fec",
     "vibe_pcs_rx_fec",
+    "vibe_pcs_tx_g1",
 ]
