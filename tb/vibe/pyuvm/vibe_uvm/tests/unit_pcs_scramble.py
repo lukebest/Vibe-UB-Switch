@@ -163,7 +163,9 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # Async rst_n mid-cycle clears registered outs.
+        # Async rst_n mid-cycle clears registered outs. Drop in_vld/en first
+        # so release does not immediately consume more beats.
+        await self._idle()
         sset(d.rst_n, 0)
         await Timer(100, "PS")
         ov, od = self._sample()
