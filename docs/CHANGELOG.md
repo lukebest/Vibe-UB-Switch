@@ -1,5 +1,61 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-35 — vibe_dll)
+
+### Changed
+
+- Next module `vibe_dll` is described in
+  `pycircuit/dll/vibe_dll.py` (hierarchy wrap: ports +
+  child instances + connects) and landed hand-finished
+  at `rtl/dll/vibe_dll.sv`.
+  **Same ports / structural wrap** as tip `5b071097` /
+  freeze `302ac943` (`clk`, `rst_n`, `port_rst`,
+  `device_rst`, `link_up`, `fec_fail`,
+  `nw_dll_data[511:0]`, `nw_dll_vld`, `nw_dll_ready`,
+  `dll_nw_data[511:0]`, `dll_nw_vld`, `dll_nw_ready`,
+  `dll_pcs_data[639:0]`, `dll_pcs_vld`, `dll_pcs_ready`,
+  `pcs_dll_data[639:0]`, `pcs_dll_vld`, `pcs_dll_ready`,
+  `status_up`, `disabled`, `retrain_req`, `retry_error`,
+  `proto_err`, `fc_ovf`, `rx_ovf`, `cfg0_hit`,
+  `cfg0_data[639:0]`; parameter `RETRY_WAIT_CYC`
+  default 12500; children `vibe_dll_sm u_sm`,
+  `vibe_dll_credit u_crd`, `vibe_dll_retry_buf u_rbuf`,
+  `vibe_dll_retry_req_sm #(.RETRY_WAIT_CYC(...)) u_req`,
+  `vibe_dll_retry_ack_sm u_ack`, `vibe_dll_tx u_tx`,
+  `vibe_dll_rx u_rx`; wrap-local
+  `proto_err = crd_proto | buf_proto`, `fc_ovf = crd_ovf`;
+  AS-0.1 §12). First DLL structural top after the eight
+  DLL leaves (`vibe_bcrc` / `vibe_dll_credit` /
+  `vibe_dll_sm` / `vibe_dll_rx` /
+  `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
+  `vibe_dll_retry_req_sm` / `vibe_dll_tx`). Instantiated
+  by `vibe_port` (later). Ports / instances match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3
+  `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, stage-27 `vibe_fecn_mark`,
+  stage-28 `vibe_vl_rr`, stage-29 `vibe_route_lu`,
+  stage-30 `vibe_port_sel`, stage-31 `vibe_voq_egr`,
+  stage-32 `vibe_saf_ing`, stage-33 `vibe_xbar`, and
+  stage-34 `vibe_dll_tx` left intact. PCS tx / rx tops
+  and `vibe_fabric` top not in this wrap.
+- Regenerator: `make -C pycircuit vibe_dll`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this wrap as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-34 — vibe_dll_tx)
 
 ### Changed

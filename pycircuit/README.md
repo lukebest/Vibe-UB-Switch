@@ -35,6 +35,7 @@ Stage-31: `vibe_voq_egr`.
 Stage-32: `vibe_saf_ing`.
 Stage-33: `vibe_xbar`.
 Stage-34: `vibe_dll_tx`.
+Stage-35: `vibe_dll`.
 
 ## Toolchain pin
 
@@ -100,6 +101,7 @@ pycircuit/
               vibe_dll_retry_buf ← stage-25 leaf (rtl/dll/vibe_dll_retry_buf.sv)
               vibe_dll_retry_req_sm ← stage-26 leaf (rtl/dll/vibe_dll_retry_req_sm.sv)
               vibe_dll_tx    ← stage-34 leaf (rtl/dll/vibe_dll_tx.sv)
+              vibe_dll       ← stage-35 wrap (rtl/dll/vibe_dll.sv)
   fabric/     vibe_fecn_mark ← stage-27 leaf (rtl/fabric/vibe_fecn_mark.sv)
               vibe_vl_rr     ← stage-28 leaf (rtl/fabric/vibe_vl_rr.sv)
               vibe_route_lu  ← stage-29 leaf (rtl/fabric/vibe_route_lu.sv)
@@ -813,3 +815,25 @@ sh scripts/pycircuit/emit.sh vibe_dll_tx
 
 See [`docs/rtl/vibe_dll_tx.md`](../docs/rtl/vibe_dll_tx.md) and
 [`dll/vibe_dll_tx.py`](dll/vibe_dll_tx.py).
+
+## Stage-35 wrap `vibe_dll`
+
+Same emit pattern, modeled as a **hierarchy wrap** (not a
+leaf FSM). Product SV keeps `RETRY_WAIT_CYC` default 12500
+and instantiates already-migrated children: `vibe_dll_sm
+u_sm`, `vibe_dll_credit u_crd`, `vibe_dll_retry_buf
+u_rbuf`, `vibe_dll_retry_req_sm #(.RETRY_WAIT_CYC(...))
+u_req`, `vibe_dll_retry_ack_sm u_ack`, `vibe_dll_tx
+u_tx`, `vibe_dll_rx u_rx`. Wrap-local combo:
+`proto_err = crd_proto | buf_proto`, `fc_ovf = crd_ovf`.
+First DLL structural top after the eight DLL leaves.
+Leave PCS tx / rx tops and `vibe_fabric` top for later.
+
+```bash
+make -C pycircuit vibe_dll
+# or
+sh scripts/pycircuit/emit.sh vibe_dll
+```
+
+See [`docs/rtl/vibe_dll.md`](../docs/rtl/vibe_dll.md) and
+[`dll/vibe_dll.py`](dll/vibe_dll.py).
