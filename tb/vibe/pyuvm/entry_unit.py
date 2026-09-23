@@ -38,6 +38,7 @@ from vibe_uvm.tests import unit_vl_rr  # noqa: F401
 from vibe_uvm.tests import unit_route_lu  # noqa: F401
 from vibe_uvm.tests import unit_port_sel  # noqa: F401
 from vibe_uvm.tests import unit_voq_egr  # noqa: F401
+from vibe_uvm.tests import unit_saf_ing  # noqa: F401
 
 
 @cocotb.test()
