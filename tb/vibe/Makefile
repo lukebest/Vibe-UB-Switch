@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync
 all: sim
 
 help:
@@ -21,6 +21,8 @@ help:
 	@echo "make afifo          - same as units TC=tc_vibe_afifo (not full-chip gate)"
 	@echo "make units TC=tc_vibe_sync2 - Decision-I vibe_sync2 (module-level)"
 	@echo "make sync2          - same as units TC=tc_vibe_sync2 (not full-chip gate)"
+	@echo "make units TC=tc_vibe_rst_sync - Decision-I vibe_rst_sync (module-level)"
+	@echo "make rst_sync       - same as units TC=tc_vibe_rst_sync (not full-chip gate)"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -41,6 +43,10 @@ afifo: $(RES)
 
 sync2: $(RES)
 	$(MAKE) -C $(PYUVM) sync2 SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+rst_sync: $(RES)
+	$(MAKE) -C $(PYUVM) rst_sync SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
