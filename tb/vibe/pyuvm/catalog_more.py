@@ -32,6 +32,7 @@ MGMT = [
     _w("mgmt", "vibe_rst_ctl.sv"),
 ]
 DLL_RX = [_w("dll", "vibe_dll_rx.sv")]
+DLL_ACK = [_w("dll", "vibe_dll_retry_ack_sm.sv")]
 RETRY_REQ = [_w("dll", "vibe_dll_retry_req_sm.sv")]
 DLL_WRAP = [
     _w("dll", "vibe_dll.sv"),
@@ -66,8 +67,7 @@ UNIT_MORE = [
     ("tc_retry_buf_256", "vibe_dll_retry_buf", [_w("dll", "vibe_dll_retry_buf.sv")], "entry_unit"),
     ("tc_retry_req_gbn", "vibe_retry_req_cocotb_top",
      [_wrap("vibe_retry_req_cocotb_top")] + RETRY_REQ, "entry_unit"),
-    ("tc_retry_ack_replay", "vibe_dll_retry_ack_sm",
-     [_w("dll", "vibe_dll_retry_ack_sm.sv")], "entry_unit"),
+    ("tc_retry_ack_replay", "vibe_dll_retry_ack_sm", DLL_ACK, "entry_unit"),
     ("tc_retry_wait_retrain", "vibe_retry_req_cocotb_top",
      [_wrap("vibe_retry_req_cocotb_top")] + RETRY_REQ, "entry_unit"),
     ("tc_icrc_txrx_vs_transit", "vibe_icrc", [_w("nw", "vibe_icrc.sv")], "entry_unit"),
@@ -153,6 +153,9 @@ UNIT_MORE = [
      "entry_unit"),
     ("tc_vibe_dll_rx", "vibe_dll_rx_cocotb_top",
      [_wrap("vibe_dll_rx_cocotb_top")] + DLL_RX,
+     "entry_unit"),
+    ("tc_vibe_dll_retry_ack_sm", "vibe_dll_retry_ack_sm_cocotb_top",
+     [_wrap("vibe_dll_retry_ack_sm_cocotb_top")] + DLL_ACK,
      "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
