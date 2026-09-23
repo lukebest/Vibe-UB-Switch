@@ -32,6 +32,7 @@ Stage-28: `vibe_vl_rr`.
 Stage-29: `vibe_route_lu`.
 Stage-30: `vibe_port_sel`.
 Stage-31: `vibe_voq_egr`.
+Stage-32: `vibe_saf_ing`.
 
 ## Toolchain pin
 
@@ -101,6 +102,7 @@ pycircuit/
               vibe_route_lu  ← stage-29 leaf (rtl/fabric/vibe_route_lu.sv)
               vibe_port_sel  ← stage-30 leaf (rtl/fabric/vibe_port_sel.sv)
               vibe_voq_egr   ← stage-31 leaf (rtl/fabric/vibe_voq_egr.sv)
+              vibe_saf_ing   ← stage-32 leaf (rtl/fabric/vibe_saf_ing.sv)
   nw/ mgmt/ port/ top/   stubs
 ```
 
@@ -736,3 +738,26 @@ sh scripts/pycircuit/emit.sh vibe_voq_egr
 
 See [`docs/rtl/vibe_voq_egr.md`](../docs/rtl/vibe_voq_egr.md) and
 [`fabric/vibe_voq_egr.py`](fabric/vibe_voq_egr.py).
+
+## Stage-32 leaf `vibe_saf_ing`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), DEPTH mem, combo `in_ready` /
+`pkt_*`, header temps `plen` / `dflits` (combo, not
+BLKSEQ), store-and-forward until declared beats, and
+16–4300 B Packet Length Error drop (AS-0.1 §8). Sixth
+fabric leaf after `vibe_fecn_mark` / `vibe_vl_rr` /
+`vibe_route_lu` / `vibe_port_sel` / `vibe_voq_egr`.
+Self-contained (no child instances). `vibe_fabric`
+instantiates it (`g_saf.u_saf`). Leave PCS tx / rx
+tops, `vibe_dll_tx`, `vibe_dll` top, and `vibe_fabric`
+top for later. Do not migrate `vibe_xbar` here.
+
+```bash
+make -C pycircuit vibe_saf_ing
+# or
+sh scripts/pycircuit/emit.sh vibe_saf_ing
+```
+
+See [`docs/rtl/vibe_saf_ing.md`](../docs/rtl/vibe_saf_ing.md) and
+[`fabric/vibe_saf_ing.py`](fabric/vibe_saf_ing.py).
