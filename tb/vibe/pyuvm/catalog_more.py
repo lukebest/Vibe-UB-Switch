@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from catalog_pcs import _no_input_default
+
 ROOT = Path(__file__).resolve().parents[3]
 PY = Path(__file__).resolve().parent
 def _wrap(name):
@@ -113,6 +115,10 @@ UNIT_MORE = [
     ("tc_vibe_pcs_rx_amctl_lock", "vibe_pcs_rx_amctl_lock_cocotb_top",
      [_wrap("vibe_pcs_rx_amctl_lock_cocotb_top"),
       _w("pcs", "vibe_pcs_rx_amctl_lock.sv"), _w("pcs", "vibe_ebch16.sv")],
+     "entry_unit"),
+    ("tc_vibe_pcs_rx_unpack", "vibe_pcs_rx_unpack_cocotb_top",
+     [_wrap("vibe_pcs_rx_unpack_cocotb_top"),
+      _no_input_default("pcs", "vibe_pcs_rx_unpack.sv")],
      "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
