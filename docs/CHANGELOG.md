@@ -13,7 +13,9 @@
   `am_gap = 1'b0` default; combo `beat_vld = have`; combo
   `beat_data = acc[511:0]`; dual-buffer 4×640 → 5×512
   inverse G2; AMCTL skip; `am_gap` resets `n` only). Ports /
-  unpack match stock (header-only vs stock). Not a chip
+  unpack match stock (header-only vs stock; four-line banner
+  so waived `am_gap` stays on line 17; official `.vlt` not
+  expanded). Not a chip
   rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1
   `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3 `vibe_sync2`,
   stage-4 `vibe_rst_sync`, stage-5 `vibe_gear_128_160`,

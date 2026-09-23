@@ -238,4 +238,5 @@ lint-leaf-pcs-rx-amctl-lock:
 
 lint-leaf-pcs-rx-unpack:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pcs_rx_unpack \
+	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
 	  $(ROOT)/rtl/pcs/vibe_pcs_rx_unpack.sv

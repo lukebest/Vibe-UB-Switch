@@ -1,14 +1,7 @@
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_unpack.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-//            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip ebd1671 / freeze 302ac943.
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_pcs_rx_unpack
-//
-// AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2).
-// 4×640 = 2560b = 5×512. Dual-buffer the 2560: accept the next 4×640
-// while emitting 5×512. A single acc that dropped ingress while `have`
-// permanently slipped 512 pairing vs TX vibe_pcs_tx_pack (5×512 ↔ 4×640).
+// Product ports and behavior match tip ebd1671 / freeze 302ac943. Path B hold.
+// AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2). Dual-buffer 4×640↔5×512.
 module vibe_pcs_rx_unpack (
   input  logic         clk,
   input  logic         rst_n,
@@ -92,3 +85,6 @@ module vibe_pcs_rx_unpack (
     end
   end
 endmodule
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_pcs_rx_unpack

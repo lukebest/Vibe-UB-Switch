@@ -72,4 +72,6 @@ Details and toolchain pin: [`pycircuit/README.md`](../../pycircuit/README.md).
 Landed SV is hand-finished so async-low `rst_n`, the
 `am_gap = 1'b0` default, combo `beat_vld` / `beat_data`,
 and the dual-buffer body stay. Ports / unpack match stock
-(header-only vs stock).
+(header-only vs stock). The file banner is four lines (same
+length as stock) so waived `am_gap` stays on line 17;
+official `.vlt` is not expanded.
