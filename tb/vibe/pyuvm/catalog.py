@@ -161,6 +161,8 @@ NAME_MAP = {
         "tc_vibe_rs128_120_dec (vibe_rs128_120_dec_cocotb_top, module-level)",
     "make deskew / tc_vibe_pcs_rx_deskew":
         "tc_vibe_pcs_rx_deskew (vibe_pcs_rx_deskew_cocotb_top, module-level)",
+    "make amctl_lock / tc_vibe_pcs_rx_amctl_lock":
+        "tc_vibe_pcs_rx_amctl_lock (vibe_pcs_rx_amctl_lock_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
