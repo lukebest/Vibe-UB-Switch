@@ -64,6 +64,8 @@ UNIT_MORE = [
     ("tc_vibe_afifo", "vibe_afifo_cocotb_top",
      [_wrap("vibe_afifo_cocotb_top"),
       _w("cdc", "vibe_afifo.sv"), _w("cdc", "vibe_sync2.sv")], "entry_unit"),
+    ("tc_vibe_sync2", "vibe_sync2_cocotb_top",
+     [_wrap("vibe_sync2_cocotb_top"), _w("cdc", "vibe_sync2.sv")], "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
