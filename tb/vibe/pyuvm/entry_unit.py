@@ -16,6 +16,8 @@ from vibe_uvm.tests import unit_dll  # noqa: F401
 from vibe_uvm.tests import unit_pcs_scramble  # noqa: F401
 from vibe_uvm.tests import unit_ebch16  # noqa: F401
 from vibe_uvm.tests import unit_pcs_tx_cw2beat  # noqa: F401
+from vibe_uvm.tests import unit_pcs_tx_amctl  # noqa: F401
+from vibe_uvm.tests import unit_rs128_120_enc  # noqa: F401
 
 
 @cocotb.test()
