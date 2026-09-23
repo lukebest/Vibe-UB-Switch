@@ -10,6 +10,7 @@ Stage-6: `vibe_gear_160_128`.
 Stage-7: `vibe_pcs_scramble`.
 Stage-8: `vibe_ebch16`.
 Stage-9: `vibe_pcs_tx_cw2beat`.
+Stage-10: `vibe_pcs_tx_amctl`.
 
 ## Toolchain pin
 
@@ -57,6 +58,7 @@ pycircuit/
   pcs/        vibe_pcs_scramble ← stage-7 leaf (rtl/pcs/vibe_pcs_scramble.sv)
               vibe_ebch16    ← stage-8 leaf (rtl/pcs/vibe_ebch16.sv)
               vibe_pcs_tx_cw2beat ← stage-9 leaf (rtl/pcs/vibe_pcs_tx_cw2beat.sv)
+              vibe_pcs_tx_amctl ← stage-10 leaf (rtl/pcs/vibe_pcs_tx_amctl.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -222,3 +224,22 @@ sh scripts/pycircuit/emit.sh vibe_pcs_tx_cw2beat
 
 See [`docs/rtl/vibe_pcs_tx_cw2beat.md`](../docs/rtl/vibe_pcs_tx_cw2beat.md) and
 [`pcs/vibe_pcs_tx_cw2beat.py`](pcs/vibe_pcs_tx_cw2beat.py).
+
+## Stage-10 leaf `vibe_pcs_tx_amctl`
+
+Same emit pattern. Product SV keeps the stock `vibe_ebch16` instances,
+combo LID `case (lane_id)`, and 40-symbol assemble (BODY / END / LID /
+CTRL_TYPE Link Width / CTRL_DETAIL x4 SDF). `clk` / `rst_n` /
+`sdf_period` stay on the pin list (pack wires them); the combo body
+does not sample them. This is the same-layer PCS cell
+`vibe_pcs_tx_pack` already instantiates (`u_am0`..`u_am3`).
+Leave `vibe_pcs_tx` / pack / FEC / RS / rx for later.
+
+```bash
+make -C pycircuit vibe_pcs_tx_amctl
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_tx_amctl
+```
+
+See [`docs/rtl/vibe_pcs_tx_amctl.md`](../docs/rtl/vibe_pcs_tx_amctl.md) and
+[`pcs/vibe_pcs_tx_amctl.py`](pcs/vibe_pcs_tx_amctl.py).

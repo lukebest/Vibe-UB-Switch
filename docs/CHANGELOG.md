@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-10 — vibe_pcs_tx_amctl)
+
+### Changed
+
+- Next leaf `vibe_pcs_tx_amctl` is described in `pycircuit/pcs/vibe_pcs_tx_amctl.py`
+  and landed hand-finished at `rtl/pcs/vibe_pcs_tx_amctl.sv`. **Same ports /
+  combo AMCTL assemble** as tip `92adf9b` / freeze `302ac943`
+  (`clk`, `rst_n`, `link_up`, `sdf_period`, `lane_id`, `req` / `ack`,
+  320b `amctl_40B`; seven `vibe_ebch16` instances; combo LID
+  `case (lane_id)`; BODY/END/LID/CTRL_TYPE/CTRL_DETAIL). Not a chip
+  rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1 `vibe_afifo`,
+  stage-2 `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`, stage-6
+  `vibe_gear_160_128`, stage-7 `vibe_pcs_scramble`, stage-8
+  `vibe_ebch16`, and stage-9 `vibe_pcs_tx_cw2beat` left intact.
+  `vibe_pcs_tx` / pack / FEC / RS / rx not in this leaf.
+- Regenerator: `make -C pycircuit vibe_pcs_tx_amctl`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-9 — vibe_pcs_tx_cw2beat)
 
 ### Changed
