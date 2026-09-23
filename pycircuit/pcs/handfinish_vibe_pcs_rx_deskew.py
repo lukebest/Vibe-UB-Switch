@@ -1,3 +1,17 @@
+"""Emit the product SystemVerilog for vibe_pcs_rx_deskew (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, combo ``aligned`` / ``out_vld`` /
+pass-through ``out0``..``out3``, first-AMCTL lock pointers, and hunt
+FIFOs whose contents are not reset. Factory physical=logical (U24):
+no lane swap and no delay once aligned. pycc netlists are a prototype
+only; this file is what lands in ``rtl/pcs/vibe_pcs_rx_deskew.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_deskew.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +19,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_rx_deskew
 //
+"""
+
+BODY = """\
 // AS-0.1 §6: deskew on AMCTL. Factory physical=logical; no lane swap (U24).
 module vibe_pcs_rx_deskew (
   input  logic         clk,
@@ -68,3 +85,26 @@ module vibe_pcs_rx_deskew (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_rx_deskew.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
