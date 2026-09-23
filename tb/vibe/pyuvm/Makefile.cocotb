@@ -13,7 +13,8 @@ export UVM_TESTNAME
 
 ifeq ($(SIM),verilator)
 # --timing: fabric wrapper `initial` preload (NEEDTIMINGOPT). --public-flat-rw: Force internals.
-EXTRA_ARGS += --timescale 1ns/1ps -Wno-fatal --public-flat-rw -Wno-BLKLOOPINIT --timing
+# -Wno-BLKLOOPINIT / --unroll-count 256: vibe_route_lu tbl[*] reset loop (DEPTH=256).
+EXTRA_ARGS += --timescale 1ns/1ps -Wno-fatal --public-flat-rw -Wno-BLKLOOPINIT --unroll-count 256 --timing
 endif
 ifeq ($(SIM),icarus)
 COMPILE_ARGS += -g2012
