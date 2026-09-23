@@ -602,9 +602,21 @@ class tc_vibe_dll_rx(VibeUnitBaseTest):
         if got is None:
             phase.drop_objection(self)
             return
-        if got[10] == 0 or got[11] != 1 or got[0] != 0:
+        if got[10] == 0 or got[11] != 1:
             self.bad(name, "5-flit leftover sticks pkt_act (stock :118 else)",
-                     "by_n!=0 pkt_act=1 rdy=0", self._fmt(got), "u_u.pkt_act")
+                     "by_n!=0 pkt_act=1", self._fmt(got), "u_u.pkt_act")
+            phase.drop_objection(self)
+            return
+        # pcs_data=0 decodes CFG0, so ready stays 1; CFG3 without vld is not ready.
+        got = await self._expect(
+            name, "5-flit leftover: CFG3 (vld=0) not ready",
+            pcs_data=b5, pcs_vld=0)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[0] != 0 or got[11] != 1:
+            self.bad(name, "leftover blocks non-CFG0 ready",
+                     "rdy=0 pkt_act=1", self._fmt(got), "u_u.pcs_dll_ready")
             phase.drop_objection(self)
             return
         got = await self._expect(name, "port_rst clears leftover / pkt_act",
