@@ -21,6 +21,7 @@ Stage-17: `vibe_pcs_tx_fec`.
 Stage-18: `vibe_pcs_rx_fec`.
 Stage-19: `vibe_pcs_tx_g1`.
 Stage-20: `vibe_bcrc`.
+Stage-21: `vibe_dll_credit`.
 
 ## Toolchain pin
 
@@ -79,6 +80,7 @@ pycircuit/
               vibe_pcs_rx_fec  ← stage-18 leaf (rtl/pcs/vibe_pcs_rx_fec.sv)
               vibe_pcs_tx_g1   ← stage-19 leaf (rtl/pcs/vibe_pcs_tx_g1.sv)
   dll/        vibe_bcrc      ← stage-20 leaf (rtl/dll/vibe_bcrc.sv)
+              vibe_dll_credit ← stage-21 leaf (rtl/dll/vibe_dll_credit.sv)
   nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -472,3 +474,25 @@ sh scripts/pycircuit/emit.sh vibe_bcrc
 
 See [`docs/rtl/vibe_bcrc.md`](../docs/rtl/vibe_bcrc.md) and
 [`dll/vibe_bcrc.py`](dll/vibe_bcrc.py).
+
+## Stage-21 leaf `vibe_dll_credit`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"` for
+`VIBE_CREDIT_THRESH` / `VIBE_US_CYC`, `ceil_div`, consume
+`ceil(DLLDP_flits/n)` (CFG0 skip), credit return in cells,
+thresh 1024 → `bp_nw` + force Crd_Ack, 1µs timeout →
+`proto_err`, and 17-bit cells-sum `fc_ovf` (AS-0.1 §12 /
+FS-0.2.6). No credit underflow code. Second DLL leaf after
+`vibe_bcrc`. Self-contained (no child instances).
+`vibe_dll` instantiates it (`u_crd`). Leave PCS tx / rx
+tops and the rest of DLL for later.
+
+```bash
+make -C pycircuit vibe_dll_credit
+# or
+sh scripts/pycircuit/emit.sh vibe_dll_credit
+```
+
+See [`docs/rtl/vibe_dll_credit.md`](../docs/rtl/vibe_dll_credit.md) and
+[`dll/vibe_dll_credit.py`](dll/vibe_dll_credit.py).
