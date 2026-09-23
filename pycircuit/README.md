@@ -27,6 +27,7 @@ Stage-23: `vibe_dll_rx`.
 Stage-24: `vibe_dll_retry_ack_sm`.
 Stage-25: `vibe_dll_retry_buf`.
 Stage-26: `vibe_dll_retry_req_sm`.
+Stage-27: `vibe_fecn_mark`.
 
 ## Toolchain pin
 
@@ -91,7 +92,8 @@ pycircuit/
               vibe_dll_retry_ack_sm ← stage-24 leaf (rtl/dll/vibe_dll_retry_ack_sm.sv)
               vibe_dll_retry_buf ← stage-25 leaf (rtl/dll/vibe_dll_retry_buf.sv)
               vibe_dll_retry_req_sm ← stage-26 leaf (rtl/dll/vibe_dll_retry_req_sm.sv)
-  nw/ fabric/ mgmt/ port/ top/   stubs
+  fabric/     vibe_fecn_mark ← stage-27 leaf (rtl/fabric/vibe_fecn_mark.sv)
+  nw/ mgmt/ port/ top/   stubs
 ```
 
 `dll` stays `dll`, not `dl`. Later leaves land one module at a time.
@@ -615,3 +617,23 @@ sh scripts/pycircuit/emit.sh vibe_dll_retry_req_sm
 
 See [`docs/rtl/vibe_dll_retry_req_sm.md`](../docs/rtl/vibe_dll_retry_req_sm.md) and
 [`dll/vibe_dll_retry_req_sm.py`](dll/vibe_dll_retry_req_sm.py).
+
+## Stage-27 leaf `vibe_fecn_mark`
+
+Same emit pattern. Product SV keeps the combo FECN / LoC
+rewrite (CCI.Mode `3'b100` or `3'b010` and local congestion
+`voq_occ >= FECN_WM` worse than packet FECN; else
+pass-through). Not CAQM (AS-0.1 §8). First fabric leaf after
+DLL helpers (stage-20..26). Self-contained (no child
+instances). `vibe_fabric` instantiates it (`u_fecn`). Leave
+PCS tx / rx tops, `vibe_dll_tx`, and `vibe_dll` top for
+later.
+
+```bash
+make -C pycircuit vibe_fecn_mark
+# or
+sh scripts/pycircuit/emit.sh vibe_fecn_mark
+```
+
+See [`docs/rtl/vibe_fecn_mark.md`](../docs/rtl/vibe_fecn_mark.md) and
+[`fabric/vibe_fecn_mark.py`](fabric/vibe_fecn_mark.py).
