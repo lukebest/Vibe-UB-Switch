@@ -1,5 +1,51 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-29 — vibe_route_lu)
+
+### Changed
+
+- Next leaf `vibe_route_lu` is described in
+  `pycircuit/fabric/vibe_route_lu.py` and landed
+  hand-finished at `rtl/fabric/vibe_route_lu.sv`.
+  **Same ports / CFG0_ROUTE_TABLE lookup** as tip
+  `4b463581` / freeze `302ac943` (`clk`, `rst_n`,
+  `device_rst`, `wr_en`, `wr_idx[15:0]`, `wr_data[31:0]`,
+  `dest[15:0]`, `rt[1:0]`, `lu_vld` / `bitmap[3:0]`,
+  `drop_g1`; parameter `DEPTH=256`; async-low
+  `or negedge rst_n`; `!rst_n || device_rst` clears
+  table + outputs; on `wr_en` `tbl[wr_idx[7:0]] <=
+  wr_data`; on `lu_vld` RT=10/11 pulse `drop_g1` and
+  `bitmap=0`, else `bitmap <= tbl[dest[7:0]][3:0]`;
+  no Dijkstra, no treat-as-RT=00, no RT rewrite;
+  AS-0.1 §2/§8 + FS-0.2.3 G1). Self-contained (no
+  child instances). Third fabric leaf after
+  `vibe_fecn_mark` / `vibe_vl_rr`. Instantiated by
+  `vibe_fabric` (`u_rt`, `g_rt.u_rti`). Ports / lookup
+  match stock (header-only vs stock). Official `.vlt`
+  not expanded. Not a chip rewrite. No SPEC CR. F1
+  `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`,
+  stage-6 `vibe_gear_160_128`, stage-7
+  `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, stage-27 `vibe_fecn_mark`,
+  and stage-28 `vibe_vl_rr` left intact. PCS tx / rx
+  tops, remaining DLL wraps (`vibe_dll_tx`, dll top),
+  and `vibe_fabric` top not in this leaf.
+- Regenerator: `make -C pycircuit vibe_route_lu`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-28 — vibe_vl_rr)
 
 ### Changed
