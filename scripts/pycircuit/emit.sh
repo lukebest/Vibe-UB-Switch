@@ -1,7 +1,7 @@
 #!/bin/sh
 # Emit a Decision I leaf: MLIR via pycircuit.cli when possible; always land
 # hand-finished SystemVerilog that matches tip ports/behavior.
-# Usage: emit.sh [vibe_afifo|vibe_pma_bnd]
+# Usage: emit.sh [vibe_afifo|vibe_pma_bnd|vibe_sync2]
 # Default remains vibe_afifo (stage-1).
 set -eu
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
@@ -20,8 +20,13 @@ case "$LEAF" in
     HANDFINISH="$ROOT/pycircuit/pma/handfinish_vibe_pma_bnd.py"
     RTL="$ROOT/rtl/pma/vibe_pma_bnd.sv"
     ;;
+  vibe_sync2)
+    SRC="$ROOT/pycircuit/cdc/vibe_sync2.py"
+    HANDFINISH="$ROOT/pycircuit/cdc/handfinish_vibe_sync2.py"
+    RTL="$ROOT/rtl/cdc/vibe_sync2.sv"
+    ;;
   *)
-    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd)" >&2
+    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd|vibe_sync2)" >&2
     exit 2
     ;;
 esac

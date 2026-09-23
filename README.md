@@ -114,14 +114,15 @@ No UBFM, no CAQM, no NPI filter datapath, no Transport/Transaction/Function endp
 ## pyCircuit (Decision I)
 
 RTL freeze `302ac943` is unfrozen for a Python DSL redesign. Sources live
-under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` + `vibe_pma_bnd`).
-SPEC semantics and CR-B names are unchanged. Pin and regenerate path:
-[`pycircuit/README.md`](pycircuit/README.md).
+under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` + `vibe_pma_bnd`
++ `vibe_sync2`). SPEC semantics and CR-B names are unchanged. Pin and
+regenerate path: [`pycircuit/README.md`](pycircuit/README.md).
 
 ```bash
 sh scripts/pycircuit/setup_toolchain.sh
 make -C pycircuit vibe_afifo      # lands rtl/cdc/vibe_afifo.sv
 make -C pycircuit vibe_pma_bnd    # lands rtl/pma/vibe_pma_bnd.sv
+make -C pycircuit vibe_sync2      # lands rtl/cdc/vibe_sync2.sv
 ```
 
 ## Compile (syntax check)
