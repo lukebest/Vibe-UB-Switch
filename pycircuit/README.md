@@ -11,6 +11,7 @@ Stage-7: `vibe_pcs_scramble`.
 Stage-8: `vibe_ebch16`.
 Stage-9: `vibe_pcs_tx_cw2beat`.
 Stage-10: `vibe_pcs_tx_amctl`.
+Stage-11: `vibe_rs128_120_enc`.
 
 ## Toolchain pin
 
@@ -59,6 +60,7 @@ pycircuit/
               vibe_ebch16    ← stage-8 leaf (rtl/pcs/vibe_ebch16.sv)
               vibe_pcs_tx_cw2beat ← stage-9 leaf (rtl/pcs/vibe_pcs_tx_cw2beat.sv)
               vibe_pcs_tx_amctl ← stage-10 leaf (rtl/pcs/vibe_pcs_tx_amctl.sv)
+              vibe_rs128_120_enc ← stage-11 leaf (rtl/pcs/vibe_rs128_120_enc.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -243,3 +245,22 @@ sh scripts/pycircuit/emit.sh vibe_pcs_tx_amctl
 
 See [`docs/rtl/vibe_pcs_tx_amctl.md`](../docs/rtl/vibe_pcs_tx_amctl.md) and
 [`pcs/vibe_pcs_tx_amctl.py`](pcs/vibe_pcs_tx_amctl.py).
+
+## Stage-11 leaf `vibe_rs128_120_enc`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_fn.vh"`, `vibe_gf256_mul`
+LFSR step, combo `in_ready = busy && (cnt < 120)`, and
+`parity = {r7..r0}`. This is the same-layer PCS FEC building
+block `vibe_pcs_tx_fec` already instantiates (`u_enc_a` /
+`u_enc_b`). Leave `vibe_pcs_tx_fec` / pack / g1 / tx wrap / rx /
+decoder for later.
+
+```bash
+make -C pycircuit vibe_rs128_120_enc
+# or
+sh scripts/pycircuit/emit.sh vibe_rs128_120_enc
+```
+
+See [`docs/rtl/vibe_rs128_120_enc.md`](../docs/rtl/vibe_rs128_120_enc.md) and
+[`pcs/vibe_rs128_120_enc.py`](pcs/vibe_rs128_120_enc.py).

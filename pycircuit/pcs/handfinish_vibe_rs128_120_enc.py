@@ -1,3 +1,16 @@
+"""Emit the product SystemVerilog for vibe_rs128_120_enc (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_fn.vh"``,
+``vibe_gf256_mul`` LFSR step, combo ``in_ready`` / ``parity``, and
+the 120-symbol systematic encode. pycc netlists are a prototype
+only; this file is what lands in ``rtl/pcs/vibe_rs128_120_enc.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_rs128_120_enc.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +18,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rs128_120_enc
 //
+"""
+
+BODY = """\
 // AS-0.1 §5 T3 / UB 2.0 §3.2.2: systematic RS(128,120) encoder, GF(256).
 // Generator coefficients Table 3-2. T=2 encoding produces the same 8 parity symbols.
 module vibe_rs128_120_enc (
@@ -69,3 +85,26 @@ module vibe_rs128_120_enc (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_rs128_120_enc.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
