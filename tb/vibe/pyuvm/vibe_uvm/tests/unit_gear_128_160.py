@@ -9,7 +9,7 @@ count semantics, plus residue packing and in_ready = !hold_vld || out_ready.
 """
 
 from uvm import uvm_component_utils
-from cocotb.triggers import RisingEdge, FallingEdge
+from cocotb.triggers import RisingEdge, FallingEdge, Timer
 from vibe_uvm.hdl import ival, sset
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
@@ -101,6 +101,8 @@ class tc_vibe_gear_128_160(VibeUnitBaseTest):
         sset(d.out_ready, out_ready)
         sset(d.in_data, _word128(in_data))
         sset(d.in_vld, 1 if in_vld else 0)
+        # Combo in_ready = !hold_vld || out_ready needs a delta after sset.
+        await Timer(100, "PS")
         ir = ival(d.in_ready, 0)
         ov = ival(d.out_vld, 0)
         od = ival(d.out_data, 0)
