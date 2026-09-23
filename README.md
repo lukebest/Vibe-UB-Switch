@@ -115,7 +115,8 @@ No UBFM, no CAQM, no NPI filter datapath, no Transport/Transaction/Function endp
 
 RTL freeze `302ac943` is unfrozen for a Python DSL redesign. Sources live
 under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` + `vibe_pma_bnd`
-+ `vibe_sync2` + `vibe_rst_sync` + `vibe_gear_128_160`). SPEC semantics
++ `vibe_sync2` + `vibe_rst_sync` + `vibe_gear_128_160`
++ `vibe_gear_160_128`). SPEC semantics
 and CR-B names are unchanged. Pin and regenerate path:
 [`pycircuit/README.md`](pycircuit/README.md).
 
@@ -126,6 +127,7 @@ make -C pycircuit vibe_pma_bnd       # lands rtl/pma/vibe_pma_bnd.sv
 make -C pycircuit vibe_sync2         # lands rtl/cdc/vibe_sync2.sv
 make -C pycircuit vibe_rst_sync      # lands rtl/cdc/vibe_rst_sync.sv
 make -C pycircuit vibe_gear_128_160  # lands rtl/cdc/vibe_gear_128_160.sv
+make -C pycircuit vibe_gear_160_128  # lands rtl/cdc/vibe_gear_160_128.sv
 ```
 
 ## Compile (syntax check)

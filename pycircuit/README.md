@@ -6,6 +6,7 @@ unchanged.** `{src}_{dst}_{meaning}` (`dll` not `dl`). Do not rewrite the chip
 here — leaves land one module at a time. Stage-1: scaffold + `vibe_afifo`.
 Stage-2: `vibe_pma_bnd`. Stage-3: `vibe_sync2`. Stage-4: `vibe_rst_sync`.
 Stage-5: `vibe_gear_128_160`.
+Stage-6: `vibe_gear_160_128`.
 
 ## Toolchain pin
 
@@ -48,6 +49,7 @@ pycircuit/
               vibe_sync2     ← stage-3 leaf (rtl/cdc/vibe_sync2.sv)
               vibe_rst_sync  ← stage-4 leaf (rtl/cdc/vibe_rst_sync.sv)
               vibe_gear_128_160 ← stage-5 leaf (rtl/cdc/vibe_gear_128_160.sv)
+              vibe_gear_160_128 ← stage-6 leaf (rtl/cdc/vibe_gear_160_128.sv)
   pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
   pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
@@ -145,3 +147,20 @@ sh scripts/pycircuit/emit.sh vibe_gear_128_160
 
 See [`docs/rtl/vibe_gear_128_160.md`](../docs/rtl/vibe_gear_128_160.md) and
 [`cdc/vibe_gear_128_160.py`](cdc/vibe_gear_128_160.py).
+
+## Stage-6 leaf `vibe_gear_160_128`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), combo `in_ready = can_load && (rbits != 4)`,
+and the 4-beat residue `case (rbits)` (4×160 = 5×128). This is
+the same-layer TX gear `vibe_port` already instantiates
+(`u_g0`..`u_g3`). Same-layer pair of stage-5 `vibe_gear_128_160`.
+
+```bash
+make -C pycircuit vibe_gear_160_128
+# or
+sh scripts/pycircuit/emit.sh vibe_gear_160_128
+```
+
+See [`docs/rtl/vibe_gear_160_128.md`](../docs/rtl/vibe_gear_160_128.md) and
+[`cdc/vibe_gear_160_128.py`](cdc/vibe_gear_160_128.py).
