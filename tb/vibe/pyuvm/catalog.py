@@ -165,6 +165,8 @@ NAME_MAP = {
         "tc_vibe_pcs_rx_amctl_lock (vibe_pcs_rx_amctl_lock_cocotb_top, module-level)",
     "make unpack / tc_vibe_pcs_rx_unpack":
         "tc_vibe_pcs_rx_unpack (vibe_pcs_rx_unpack_cocotb_top, module-level)",
+    "make pack / tc_vibe_pcs_tx_pack":
+        "tc_vibe_pcs_tx_pack (vibe_pcs_tx_pack_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
