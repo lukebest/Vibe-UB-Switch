@@ -61,6 +61,8 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_unpack  # Decision-I leaf (module-
 make -C tb/vibe/pyuvm unpack                   # same as units TC=tc_vibe_pcs_rx_unpack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_pack  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm pack                     # same as units TC=tc_vibe_pcs_tx_pack
+make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_fec  # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm tx_fec                   # same as units TC=tc_vibe_pcs_tx_fec
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -86,6 +88,7 @@ make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm pack SIM=verilator          # or SIM=icarus
+make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -154,7 +157,9 @@ encode / 8-symbol parity vs golden GF(256) LFSR, `start` restart,
 `in_vld` stall without a step, second message after `done`). It is
 **not** 1/3, 4/3, freeze, or signoff. There is no stock Icarus leaf
 `tc_rs128_120_enc`; FEC wrap TCs (`tc_pcs_fec_*`) remain the official
-scorers for the instantiator. This is **not** TP-PHY-016 / `amctl`.
+scorers for the instantiator. The Decision-I wrap leaf is
+`tc_vibe_pcs_tx_fec` / `make tx_fec`. This is **not** TP-PHY-016 /
+`amctl`.
 
 `tc_vibe_rs128_120_dec` / `make rs128_120_dec` is **module-level only**
 (reset / idle `in_ready=0` `done=0` `fec_fail=0` `data_out=0`,
@@ -211,6 +216,18 @@ It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 remains the official `lane_vld` scorer. This is **not** the
 RX unpack leaf / `unpack`.
 
+`tc_vibe_pcs_tx_fec` / `make tx_fec` is **module-level
+only** (reset / idle `win_ready=1` `cw_vld=0` no spurious CW,
+two-window bypass `{w0,64'd0}` then `{w1,64'd0}`, T=4 / T=2
+encode wrap vs golden RS(128,120) parity, `cw_ready` hold
+without drop/dup, `win_vld` stall after the first window,
+`win_ready=!have1` until both CWs drain, second pair after
+drain). It is **not** 1/3, 4/3, freeze, or signoff. Stock
+Icarus `tb/vibe/tests/tc_pcs_fec_*.sv` / `tc_pcs_fec_*`
+remain the official wrap scorers. This is **not** the
+encoder leaf / `rs128_120_enc`. Sits on stage-11 enc +
+stage-16 pack.
+
 ## Topology
 
 ```
@@ -230,7 +247,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
@@ -239,7 +256,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_ebch16_lut` | still `tc_ebch16_lut`; Decision-I module TC is `tc_vibe_ebch16` |
 | Icarus `tc_pcs_cw2beat` | still `tc_pcs_cw2beat`; Decision-I module TC is `tc_vibe_pcs_tx_cw2beat` |
 | Icarus `tc_pcs_amctl` | still `tc_pcs_amctl`; Decision-I module TC is `tc_vibe_pcs_tx_amctl` |
-| Icarus `tc_pcs_fec_*` (wrap) | still the FEC wrap scorers; Decision-I module TC is `tc_vibe_rs128_120_enc` |
+| Icarus `tc_pcs_fec_*` (wrap) | still the FEC wrap scorers; Decision-I module TC is `tc_vibe_pcs_tx_fec` |
 | Icarus `tc_rs_dec_syndrome` | still `tc_rs_dec_syndrome`; Decision-I module TC is `tc_vibe_rs128_120_dec` |
 | Icarus `tc_pcs_rx_deskew` | still `tc_pcs_rx_deskew`; Decision-I module TC is `tc_vibe_pcs_rx_deskew` |
 | Icarus `tc_pcs_rx_amctl` | still `tc_pcs_rx_amctl`; Decision-I module TC is `tc_vibe_pcs_rx_amctl_lock` |
@@ -288,6 +305,7 @@ those two stay Icarus.
 | `tc_vibe_pcs_rx_amctl_lock` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_rx_unpack` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_tx_pack` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_pcs_tx_fec` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -327,6 +345,7 @@ tb/vibe/pyuvm/
                      tests/unit_pcs_rx_amctl_lock.py  Decision-I vibe_pcs_rx_amctl_lock (module-level)
                      tests/unit_pcs_rx_unpack.py  Decision-I vibe_pcs_rx_unpack (module-level)
                      tests/unit_pcs_tx_pack.py  Decision-I vibe_pcs_tx_pack (module-level)
+                     tests/unit_pcs_tx_fec.py  Decision-I vibe_pcs_tx_fec (module-level)
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
