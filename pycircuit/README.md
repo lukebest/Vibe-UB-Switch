@@ -15,6 +15,7 @@ Stage-11: `vibe_rs128_120_enc`.
 Stage-12: `vibe_rs128_120_dec`.
 Stage-13: `vibe_pcs_rx_deskew`.
 Stage-14: `vibe_pcs_rx_amctl_lock`.
+Stage-15: `vibe_pcs_rx_unpack`.
 
 ## Toolchain pin
 
@@ -67,6 +68,7 @@ pycircuit/
               vibe_rs128_120_dec ← stage-12 leaf (rtl/pcs/vibe_rs128_120_dec.sv)
               vibe_pcs_rx_deskew ← stage-13 leaf (rtl/pcs/vibe_pcs_rx_deskew.sv)
               vibe_pcs_rx_amctl_lock ← stage-14 leaf (rtl/pcs/vibe_pcs_rx_amctl_lock.sv)
+              vibe_pcs_rx_unpack ← stage-15 leaf (rtl/pcs/vibe_pcs_rx_unpack.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -334,3 +336,22 @@ sh scripts/pycircuit/emit.sh vibe_pcs_rx_amctl_lock
 
 See [`docs/rtl/vibe_pcs_rx_amctl_lock.md`](../docs/rtl/vibe_pcs_rx_amctl_lock.md) and
 [`pcs/vibe_pcs_rx_amctl_lock.py`](pcs/vibe_pcs_rx_amctl_lock.py).
+
+## Stage-15 leaf `vibe_pcs_rx_unpack`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), stock `am_gap = 1'b0` default, combo
+`beat_vld` / `beat_data`, and the dual-buffer 4×640 → 5×512
+always-block (inverse G2). This is the same-layer PCS cell
+`vibe_pcs_rx` already instantiates (`u_un`). Continues the
+RX path after stage-13 deskew and stage-14 amctl_lock.
+Leave FEC wrap / pack / g1 / tx / rx tops for later.
+
+```bash
+make -C pycircuit vibe_pcs_rx_unpack
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_rx_unpack
+```
+
+See [`docs/rtl/vibe_pcs_rx_unpack.md`](../docs/rtl/vibe_pcs_rx_unpack.md) and
+[`pcs/vibe_pcs_rx_unpack.py`](pcs/vibe_pcs_rx_unpack.py).

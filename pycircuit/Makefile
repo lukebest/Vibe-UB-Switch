@@ -8,19 +8,21 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_gear_128_160 vibe_gear_160_128 vibe_pcs_scramble \
         vibe_ebch16 vibe_pcs_tx_cw2beat vibe_pcs_tx_amctl \
         vibe_rs128_120_enc vibe_rs128_120_dec vibe_pcs_rx_deskew \
-        vibe_pcs_rx_amctl_lock \
+        vibe_pcs_rx_amctl_lock vibe_pcs_rx_unpack \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
         handfinish-pcs-tx-cw2beat handfinish-pcs-tx-amctl \
         handfinish-rs128-120-enc handfinish-rs128-120-dec \
         handfinish-pcs-rx-deskew handfinish-pcs-rx-amctl-lock \
+        handfinish-pcs-rx-unpack \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
         lint-leaf-pcs-tx-cw2beat lint-leaf-pcs-tx-amctl \
         lint-leaf-rs128-120-enc lint-leaf-rs128-120-dec \
-        lint-leaf-pcs-rx-deskew lint-leaf-pcs-rx-amctl-lock
+        lint-leaf-pcs-rx-deskew lint-leaf-pcs-rx-amctl-lock \
+        lint-leaf-pcs-rx-unpack
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -39,6 +41,7 @@ help:
 	@echo "vibe_rs128_120_dec land hand-finished rtl/pcs/vibe_rs128_120_dec.sv (try pycc first)"
 	@echo "vibe_pcs_rx_deskew land hand-finished rtl/pcs/vibe_pcs_rx_deskew.sv (try pycc first)"
 	@echo "vibe_pcs_rx_amctl_lock land hand-finished rtl/pcs/vibe_pcs_rx_amctl_lock.sv (try pycc first)"
+	@echo "vibe_pcs_rx_unpack land hand-finished rtl/pcs/vibe_pcs_rx_unpack.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -53,6 +56,7 @@ help:
 	@echo "handfinish-rs128-120-dec write product vibe_rs128_120_dec SV only"
 	@echo "handfinish-pcs-rx-deskew write product vibe_pcs_rx_deskew SV only"
 	@echo "handfinish-pcs-rx-amctl-lock write product vibe_pcs_rx_amctl_lock SV only"
+	@echo "handfinish-pcs-rx-unpack write product vibe_pcs_rx_unpack SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -67,6 +71,7 @@ help:
 	@echo "lint-leaf-rs128-120-dec Verilator --lint-only on vibe_rs128_120_dec"
 	@echo "lint-leaf-pcs-rx-deskew Verilator --lint-only on vibe_pcs_rx_deskew"
 	@echo "lint-leaf-pcs-rx-amctl-lock Verilator --lint-only on vibe_pcs_rx_amctl_lock"
+	@echo "lint-leaf-pcs-rx-unpack Verilator --lint-only on vibe_pcs_rx_unpack"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -118,6 +123,9 @@ vibe_pcs_rx_deskew:
 vibe_pcs_rx_amctl_lock:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_rx_amctl_lock
 
+vibe_pcs_rx_unpack:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_rx_unpack
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -159,6 +167,9 @@ handfinish-pcs-rx-deskew:
 
 handfinish-pcs-rx-amctl-lock:
 	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_rx_amctl_lock.py
+
+handfinish-pcs-rx-unpack:
+	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_rx_unpack.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -224,3 +235,7 @@ lint-leaf-pcs-rx-amctl-lock:
 	  -I$(ROOT)/rtl/common \
 	  $(ROOT)/rtl/pcs/vibe_ebch16.sv \
 	  $(ROOT)/rtl/pcs/vibe_pcs_rx_amctl_lock.sv
+
+lint-leaf-pcs-rx-unpack:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pcs_rx_unpack \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx_unpack.sv

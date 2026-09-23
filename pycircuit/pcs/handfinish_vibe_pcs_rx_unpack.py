@@ -1,3 +1,16 @@
+"""Emit the product SystemVerilog for vibe_pcs_rx_unpack (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, stock ``am_gap = 1'b0`` default,
+combo ``beat_vld`` / ``beat_data``, and the dual-buffer 4×640 → 5×512
+always-block (inverse G2). pycc netlists are a prototype only; this
+file is what lands in ``rtl/pcs/vibe_pcs_rx_unpack.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_unpack.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +18,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_rx_unpack
 //
+"""
+
+BODY = """\
 // AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2).
 // 4×640 = 2560b = 5×512. Dual-buffer the 2560: accept the next 4×640
 // while emitting 5×512. A single acc that dropped ingress while `have`
@@ -92,3 +108,26 @@ module vibe_pcs_rx_unpack (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_rx_unpack.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
