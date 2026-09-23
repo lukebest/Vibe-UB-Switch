@@ -20,6 +20,7 @@ Stage-16: `vibe_pcs_tx_pack`.
 Stage-17: `vibe_pcs_tx_fec`.
 Stage-18: `vibe_pcs_rx_fec`.
 Stage-19: `vibe_pcs_tx_g1`.
+Stage-20: `vibe_bcrc`.
 
 ## Toolchain pin
 
@@ -77,7 +78,8 @@ pycircuit/
               vibe_pcs_tx_fec  ← stage-17 leaf (rtl/pcs/vibe_pcs_tx_fec.sv)
               vibe_pcs_rx_fec  ← stage-18 leaf (rtl/pcs/vibe_pcs_rx_fec.sv)
               vibe_pcs_tx_g1   ← stage-19 leaf (rtl/pcs/vibe_pcs_tx_g1.sv)
-  dll/ nw/ fabric/ mgmt/ port/ top/   stubs
+  dll/        vibe_bcrc      ← stage-20 leaf (rtl/dll/vibe_bcrc.sv)
+  nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
 `dll` stays `dll`, not `dl`. Later leaves land one module at a time.
@@ -448,3 +450,25 @@ sh scripts/pycircuit/emit.sh vibe_pcs_tx_g1
 
 See [`docs/rtl/vibe_pcs_tx_g1.md`](../docs/rtl/vibe_pcs_tx_g1.md) and
 [`pcs/vibe_pcs_tx_g1.py`](pcs/vibe_pcs_tx_g1.py).
+
+## Stage-20 leaf `vibe_bcrc`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"` for
+`VIBE_BCRC_POLY`, `crc30_step`, the 160-bit eat loop,
+CRC30 init all-1s / no invert, and
+`{1'b0, error_flag, crc[29:0]}` on `last` (bit31 reserved,
+bit30 `ERROR_FLAG`; AS-0.1 §12). First DLL leaf after PCS
+leaf cells (stage-1..19). Self-contained (no child
+instances). Unit helper (TB `u_bcrc`); `vibe_dll_tx`
+inlines the same CRC30. Leave PCS tx / rx tops and the
+rest of DLL for later.
+
+```bash
+make -C pycircuit vibe_bcrc
+# or
+sh scripts/pycircuit/emit.sh vibe_bcrc
+```
+
+See [`docs/rtl/vibe_bcrc.md`](../docs/rtl/vibe_bcrc.md) and
+[`dll/vibe_bcrc.py`](dll/vibe_bcrc.py).
