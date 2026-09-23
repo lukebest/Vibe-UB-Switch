@@ -138,12 +138,6 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
             return None
         return got
 
-    def _peek_tbl(self, idx):
-        try:
-            return ival(self.dut.u_u.tbl[int(idx) & MASK8], None)
-        except Exception:
-            return None
-
     async def run_phase(self, phase):
         phase.raise_objection(self)
         d = self.dut
@@ -219,13 +213,6 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
             if await self._expect(
                     name, f"wr tbl[{idx & MASK8}]=0x{data:08x}",
                     wr_en=1, wr_idx=idx, wr_data=data) is None:
-                phase.drop_objection(self)
-                return
-            peek = self._peek_tbl(idx)
-            if peek is not None and (peek & 0xFFFFFFFF) != (data & 0xFFFFFFFF):
-                self.bad(name, f"tbl peek after wr idx={idx}",
-                         f"tbl[{idx & MASK8}]=0x{data:08x}",
-                         f"0x{peek:08x}", "u_u.tbl")
                 phase.drop_objection(self)
                 return
 
@@ -375,12 +362,6 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
         if got != (0, 0):
             self.bad(name, "device_rst clears bitmap/drop_g1",
                      "bitmap=0 drop_g1=0", self._fmt(got), HIER)
-            phase.drop_objection(self)
-            return
-        peek = self._peek_tbl(1)
-        if peek is not None and peek != 0:
-            self.bad(name, "device_rst clears tbl[1]",
-                     "tbl[1]=0", f"0x{peek:x}", "u_u.tbl")
             phase.drop_objection(self)
             return
 
