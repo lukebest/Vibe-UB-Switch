@@ -23,6 +23,7 @@ from vibe_uvm.tests import unit_pcs_rx_deskew  # noqa: F401
 from vibe_uvm.tests import unit_pcs_rx_amctl_lock  # noqa: F401
 from vibe_uvm.tests import unit_pcs_rx_unpack  # noqa: F401
 from vibe_uvm.tests import unit_pcs_tx_pack  # noqa: F401
+from vibe_uvm.tests import unit_pcs_tx_fec  # noqa: F401
 
 
 @cocotb.test()
