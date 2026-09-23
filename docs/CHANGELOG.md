@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-21 — vibe_dll_credit)
+
+### Changed
+
+- Next leaf `vibe_dll_credit` is described in `pycircuit/dll/vibe_dll_credit.py`
+  and landed hand-finished at `rtl/dll/vibe_dll_credit.sv`. **Same ports /
+  credit behavior** as tip `ad36bf66` / freeze `302ac943`
+  (`clk`, `rst_n`, `port_rst`, `link_up`, `grain_n[7:0]`,
+  `consume_vld`, `consume_flits[9:0]`, `is_cfg0`,
+  `credit_ret`, `credit_ret_n[15:0]` / `pending[15:0]`,
+  `credit_low`, `force_crd_ack`, `bp_nw`, `proto_err`,
+  `fc_ovf`; async-low `or negedge rst_n`;
+  `include "vibe_ub_params.vh"` for `VIBE_CREDIT_THRESH`
+  / `VIBE_US_CYC`; `ceil_div`; consume
+  `ceil(DLLDP_flits/n)` (n default 8); CFG0 skip; credit
+  return in cells (not flits); thresh 1024 → `bp_nw` +
+  force Crd_Ack; 1µs timeout → `proto_err`; 17-bit cells
+  sum overflow → `fc_ovf`; no credit underflow code;
+  AS-0.1 §12 / FS-0.2.6). Self-contained (no child
+  instances). Second DLL leaf after `vibe_bcrc`.
+  Instantiated by `vibe_dll` (`u_crd`). Ports / credit
+  match stock (header-only vs stock). Official `.vlt`
+  not expanded. Not a chip rewrite. No SPEC CR. F1
+  `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`, stage-6
+  `vibe_gear_160_128`, stage-7 `vibe_pcs_scramble`,
+  stage-8 `vibe_ebch16`, stage-9 `vibe_pcs_tx_cw2beat`,
+  stage-10 `vibe_pcs_tx_amctl`, stage-11
+  `vibe_rs128_120_enc`, stage-12 `vibe_rs128_120_dec`,
+  stage-13 `vibe_pcs_rx_deskew`, stage-14
+  `vibe_pcs_rx_amctl_lock`, stage-15 `vibe_pcs_rx_unpack`,
+  stage-16 `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  and stage-20 `vibe_bcrc` left intact. PCS tx / rx tops
+  and the rest of DLL not in this leaf.
+- Regenerator: `make -C pycircuit vibe_dll_credit`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-20 — vibe_bcrc)
 
 ### Changed
