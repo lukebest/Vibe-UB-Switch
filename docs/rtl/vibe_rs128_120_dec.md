@@ -64,4 +64,7 @@ make -C pycircuit vibe_rs128_120_dec
 Details and toolchain pin: [`pycircuit/README.md`](../../pycircuit/README.md).
 Landed SV is hand-finished so async-low `rst_n`, the
 `vibe_ub_fn.vh` include, combo next-syndromes, `msg[0:119]` pack,
-and combo `in_ready` stay.
+and combo `in_ready` stay. Ports / syndrome path / `data_out` pack
+match stock. Reset of `msg[0:119]` is unrolled NBA
+`msg[i] <= 8'd0` (same zeros as the stock reset `for`; Icarus-legal
+and Verilator 5.020 `BLKLOOPINIT` / `BLKSEQ` clean).

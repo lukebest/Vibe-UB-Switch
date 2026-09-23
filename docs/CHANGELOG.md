@@ -10,8 +10,11 @@
   (`clk`, `rst_n`, `start`, `in_vld`, `in_sym` / `in_ready`, `done`,
   `fec_fail`, 960b `data_out`; async-low `or negedge rst_n`;
   `include "vibe_ub_fn.vh"`; combo next-syndromes; `msg[0:119]` pack;
-  combo `in_ready = busy && (cnt < 128)`). Not a chip rewrite. No SPEC
-  CR. F1 `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  combo `in_ready = busy && (cnt < 128)`). Ports / syndrome path /
+  `data_out` pack match stock. Reset of `msg[0:119]` is unrolled NBA
+  `msg[i] <= 8'd0` (same zeros as the stock reset `for`; leaf lint
+  Error=0 without `BLKLOOPINIT` / `BLKSEQ`; Icarus-legal). Not a
+  chip rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
   `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`,
   stage-5 `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`, stage-7
   `vibe_pcs_scramble`, stage-8 `vibe_ebch16`, stage-9

@@ -3,8 +3,11 @@
 Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_fn.vh"``,
 combo next-syndromes (last symbol included before ``fec_fail``),
 ``msg[0:119]`` pack into 960b ``data_out``, and the 128-symbol
-syndrome-check decode. pycc netlists are a prototype only; this
-file is what lands in ``rtl/pcs/vibe_rs128_120_dec.sv``.
+syndrome-check decode. Reset of ``msg`` is unrolled NBA
+(same zeros as the stock reset ``for``; Icarus-legal and
+Verilator 5.020 ``BLKLOOPINIT`` / ``BLKSEQ`` clean). pycc
+netlists are a prototype only; this file is what lands in
+``rtl/pcs/vibe_rs128_120_dec.sv``.
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ HEADER = """\
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
 // Product ports and behavior match tip 984e3b9 / freeze 302ac943.
+// msg reset is unrolled NBA (same zeros as stock for-loop; lint-safe).
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rs128_120_dec
 //
@@ -70,7 +74,7 @@ module vibe_rs128_120_dec (
       done     <= 1'b0;
       fec_fail <= 1'b0;
       data_out <= 960'd0;
-      for (i = 0; i < 120; i = i + 1) msg[i] <= 8'd0;
+__MSG_RESET__
     end else begin
       done     <= 1'b0;
       fec_fail <= 1'b0;
@@ -108,8 +112,17 @@ endmodule
 """
 
 
+def _msg_reset_nbas() -> str:
+    """Unrolled ``msg[i] <= 8'd0`` (stock reset for-loop, lint-safe)."""
+    lines = []
+    for row in range(0, 120, 8):
+        parts = [f"msg[{i}] <= 8'd0;" for i in range(row, row + 8)]
+        lines.append("      " + " ".join(parts))
+    return "\n".join(lines)
+
+
 def render() -> str:
-    return HEADER + BODY
+    return HEADER + BODY.replace("__MSG_RESET__", _msg_reset_nbas())
 
 
 def write_rtl(dest: Path) -> Path:
