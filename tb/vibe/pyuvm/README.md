@@ -305,7 +305,7 @@ those two stay Icarus.
 | `tc_vibe_pcs_rx_amctl_lock` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_rx_unpack` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_tx_pack` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
-| `tc_vibe_pcs_tx_fec` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | — | — |
+| `tc_vibe_pcs_tx_fec` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
