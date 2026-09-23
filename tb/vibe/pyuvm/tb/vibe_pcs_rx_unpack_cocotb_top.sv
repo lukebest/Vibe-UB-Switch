@@ -1,4 +1,7 @@
-// Thin top: Verilator rejects default values on TOPLEVEL inputs (am_gap).
+// Thin cocotb wrapper. DUT RTL never edited.
+// Product PCS RX unpack: strip AMCTL, 4×160 → 512b beats (AS-0.1 §6 inverse G2).
+// Pairs with upcoming TX pack (5×512 ↔ 4×640). Clock from entry_unit (2 ns).
+// TOPLEVEL am_gap has no default (tool rejects defaults on top inputs).
 `timescale 1ns/1ps
 
 module vibe_pcs_rx_unpack_cocotb_top (

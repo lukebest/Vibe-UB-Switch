@@ -57,6 +57,8 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_deskew  # Decision-I leaf (module-
 make -C tb/vibe/pyuvm deskew                   # same as units TC=tc_vibe_pcs_rx_deskew
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_amctl_lock  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm amctl_lock               # same as units TC=tc_vibe_pcs_rx_amctl_lock
+make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_unpack  # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm unpack                   # same as units TC=tc_vibe_pcs_rx_unpack
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -80,6 +82,7 @@ make -C tb/vibe/pyuvm rs128_120_enc SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
+make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -180,6 +183,18 @@ Stock Icarus `tb/vibe/tests/tc_pcs_rx_amctl.sv` / `tc_pcs_rx_amctl`
 remains the official 4-pair / LID / unlock / `lid_bad` scorer.
 This is **not** the deskew leaf / `deskew`.
 
+`tc_vibe_pcs_rx_unpack` / `make unpack` is **module-level
+only** (reset / idle `beat_vld=0` no spurious beat, AMCTL
+`am0..am3` skip, 4×640 → exactly 5×512 unpack vs golden
+LSB-first pack, `beat_ready` hold without drop/dup, `am_gap`
+n-reset that keeps an in-flight emit, dual-buffer `nxt_full`
+/ acc swap, `lane_vld` stall without a take, second group
+after drain). It is **not** 1/3, 4/3, freeze, or signoff.
+Stock Icarus `tb/vibe/tests/tc_pcs_rx_unpack.sv` /
+`tc_pcs_rx_unpack` remains the official `beat_vld` / `am_gap`
+/ `nxt_full` scorer. This is **not** the AMCTL-lock leaf /
+`amctl_lock`. Pairs with upcoming TX pack.
+
 ## Topology
 
 ```
@@ -199,7 +214,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
@@ -212,6 +227,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_rs_dec_syndrome` | still `tc_rs_dec_syndrome`; Decision-I module TC is `tc_vibe_rs128_120_dec` |
 | Icarus `tc_pcs_rx_deskew` | still `tc_pcs_rx_deskew`; Decision-I module TC is `tc_vibe_pcs_rx_deskew` |
 | Icarus `tc_pcs_rx_amctl` | still `tc_pcs_rx_amctl`; Decision-I module TC is `tc_vibe_pcs_rx_amctl_lock` |
+| Icarus `tc_pcs_rx_unpack` | still `tc_pcs_rx_unpack`; Decision-I module TC is `tc_vibe_pcs_rx_unpack` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
 | Icarus `tc_dll` (full stack) | `tc_dll` (`vibe_dll_cocotb_top`; **TP-DLL-004** >32-flit split ≤16×≤32) |
@@ -253,6 +269,7 @@ those two stay Icarus.
 | `tc_vibe_rs128_120_dec` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_rx_deskew` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_rx_amctl_lock` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_pcs_rx_unpack` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -290,6 +307,7 @@ tb/vibe/pyuvm/
                      tests/unit_rs128_120_dec.py  Decision-I vibe_rs128_120_dec (module-level)
                      tests/unit_pcs_rx_deskew.py  Decision-I vibe_pcs_rx_deskew (module-level)
                      tests/unit_pcs_rx_amctl_lock.py  Decision-I vibe_pcs_rx_amctl_lock (module-level)
+                     tests/unit_pcs_rx_unpack.py  Decision-I vibe_pcs_rx_unpack (module-level)
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
