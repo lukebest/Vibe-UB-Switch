@@ -17,6 +17,7 @@ Stage-13: `vibe_pcs_rx_deskew`.
 Stage-14: `vibe_pcs_rx_amctl_lock`.
 Stage-15: `vibe_pcs_rx_unpack`.
 Stage-16: `vibe_pcs_tx_pack`.
+Stage-17: `vibe_pcs_tx_fec`.
 
 ## Toolchain pin
 
@@ -71,6 +72,7 @@ pycircuit/
               vibe_pcs_rx_amctl_lock ← stage-14 leaf (rtl/pcs/vibe_pcs_rx_amctl_lock.sv)
               vibe_pcs_rx_unpack ← stage-15 leaf (rtl/pcs/vibe_pcs_rx_unpack.sv)
               vibe_pcs_tx_pack ← stage-16 leaf (rtl/pcs/vibe_pcs_tx_pack.sv)
+              vibe_pcs_tx_fec  ← stage-17 leaf (rtl/pcs/vibe_pcs_tx_fec.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -378,3 +380,24 @@ sh scripts/pycircuit/emit.sh vibe_pcs_tx_pack
 
 See [`docs/rtl/vibe_pcs_tx_pack.md`](../docs/rtl/vibe_pcs_tx_pack.md) and
 [`pcs/vibe_pcs_tx_pack.py`](pcs/vibe_pcs_tx_pack.py).
+
+## Stage-17 leaf `vibe_pcs_tx_fec`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"`, two
+`vibe_rs128_120_enc` instances, combo `win_ready` / symbol
+slices / `enc_*_vld`, and the collect / encode / bypass /
+emit always-block (two interleaved RS(128,120); T=4 / T=2 /
+bypass). This is the same-layer PCS cell `vibe_pcs_tx`
+already instantiates (`u_fec`). Instantiates stage-11
+`vibe_rs128_120_enc` (`u_enc_a` / `u_enc_b`). Leave RX FEC
+wrap / g1 / tx / rx tops for later.
+
+```bash
+make -C pycircuit vibe_pcs_tx_fec
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_tx_fec
+```
+
+See [`docs/rtl/vibe_pcs_tx_fec.md`](../docs/rtl/vibe_pcs_tx_fec.md) and
+[`pcs/vibe_pcs_tx_fec.py`](pcs/vibe_pcs_tx_fec.py).
