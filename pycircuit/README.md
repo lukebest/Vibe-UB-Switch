@@ -25,6 +25,7 @@ Stage-21: `vibe_dll_credit`.
 Stage-22: `vibe_dll_sm`.
 Stage-23: `vibe_dll_rx`.
 Stage-24: `vibe_dll_retry_ack_sm`.
+Stage-25: `vibe_dll_retry_buf`.
 
 ## Toolchain pin
 
@@ -87,6 +88,7 @@ pycircuit/
               vibe_dll_sm    ← stage-22 leaf (rtl/dll/vibe_dll_sm.sv)
               vibe_dll_rx    ← stage-23 leaf (rtl/dll/vibe_dll_rx.sv)
               vibe_dll_retry_ack_sm ← stage-24 leaf (rtl/dll/vibe_dll_retry_ack_sm.sv)
+              vibe_dll_retry_buf ← stage-25 leaf (rtl/dll/vibe_dll_retry_buf.sv)
   nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -569,3 +571,24 @@ sh scripts/pycircuit/emit.sh vibe_dll_retry_ack_sm
 
 See [`docs/rtl/vibe_dll_retry_ack_sm.md`](../docs/rtl/vibe_dll_retry_ack_sm.md) and
 [`dll/vibe_dll_retry_ack_sm.py`](dll/vibe_dll_retry_ack_sm.py).
+
+## Stage-25 leaf `vibe_dll_retry_buf`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), depth-256 RETRY buffer (Null and
+Retry blocks do not enter; `NumFreeBuf+ReleaseSize>256`
+→ DL Protocol Error) (AS-0.1 §12). Sixth DLL leaf after
+`vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
+`vibe_dll_rx` / `vibe_dll_retry_ack_sm`. Self-contained
+(no child instances). `vibe_dll` instantiates it
+(`u_rbuf`). Leave PCS tx / rx tops, `vibe_dll_tx`,
+`vibe_dll_retry_req_sm`, and `vibe_dll` top for later.
+
+```bash
+make -C pycircuit vibe_dll_retry_buf
+# or
+sh scripts/pycircuit/emit.sh vibe_dll_retry_buf
+```
+
+See [`docs/rtl/vibe_dll_retry_buf.md`](../docs/rtl/vibe_dll_retry_buf.md) and
+[`dll/vibe_dll_retry_buf.py`](dll/vibe_dll_retry_buf.py).
