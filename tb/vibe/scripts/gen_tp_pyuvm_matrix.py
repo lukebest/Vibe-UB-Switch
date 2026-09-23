@@ -68,6 +68,7 @@ TEST_FILES = [
     ("leaf-only", "tb/vibe/pyuvm/vibe_uvm/tests/unit_afifo.py"),
     ("leaf-only", "tb/vibe/pyuvm/vibe_uvm/tests/unit_sync2.py"),
     ("leaf-only", "tb/vibe/pyuvm/vibe_uvm/tests/unit_rst_sync.py"),
+    ("unit-sim", "tb/vibe/pyuvm/vibe_uvm/tests/unit_dll.py"),
 ]
 
 CLASS_RE = re.compile(r"^class (tc_[A-Za-z0-9_]+)\b", re.M)
@@ -137,6 +138,10 @@ def classify(tid: str, planned: str, sv_tc: str, py: dict[str, tuple[str, str]],
     if sv_tc in py and sv_tc not in LEAF_ONLY and py[sv_tc][1] != "leaf-only":
         rec = ok(sv_tc)
         if rec:
+            if tid == "TP-DLL-004":
+                extra = ("full vibe_dll; scores >32-flit split ≤16×≤32 "
+                         "(not leaf SM/credit/retry/rx/tx)")
+                return (rec[0], rec[1], rec[2], rec[3], extra)
             return rec
     if sv_tc in ALIASES:
         name, path, scope, note = ALIASES[sv_tc]
@@ -146,16 +151,6 @@ def classify(tid: str, planned: str, sv_tc: str, py: dict[str, tuple[str, str]],
         if rec:
             return rec
 
-    # Known missing full-stack ports.
-    if sv_tc == "tc_dll":
-        return (
-            "GAP",
-            "—",
-            "—",
-            "gap",
-            "no Python `tc_dll`; leaf `tc_dll_sm_states`/credit/retry/rx/tx "
-            "do not score DLLDP >32-flit split ≤16×≤32 (Icarus/SV-UVM only)",
-        )
     return (
         "GAP",
         "—",
@@ -325,7 +320,7 @@ def main() -> int:
         "",
         "| name | Python? | note |",
         "|------|---------|------|",
-        "| `tc_dll` | **no** | full-stack wrapper; **TP-DLL-004 GAP** |",
+        "| `tc_dll` | **yes** | full-stack wrapper; **TP-DLL-004** >32-flit split ≤16×≤32 |",
         "| `tc_pcs_rx` (full stack) | **no** | no official TP maps only to this name; leaf PCS RX units exist |",
         "| `tc_pcs_tx` (full stack) | **no** | no official TP maps only to this name; leaf PCS TX units exist |",
         "",

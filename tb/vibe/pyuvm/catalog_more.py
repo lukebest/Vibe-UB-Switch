@@ -31,6 +31,17 @@ MGMT = [
 ]
 DLL_RX = [_w("dll", "vibe_dll_rx.sv")]
 RETRY_REQ = [_w("dll", "vibe_dll_retry_req_sm.sv")]
+DLL_WRAP = [
+    _w("dll", "vibe_dll.sv"),
+    _w("dll", "vibe_dll_sm.sv"),
+    _w("dll", "vibe_dll_credit.sv"),
+    _w("dll", "vibe_dll_retry_buf.sv"),
+    _w("dll", "vibe_dll_retry_req_sm.sv"),
+    _w("dll", "vibe_dll_retry_ack_sm.sv"),
+    _w("dll", "vibe_dll_tx.sv"),
+    _w("dll", "vibe_dll_rx.sv"),
+    _w("dll", "vibe_bcrc.sv"),
+]
 
 UNIT_MORE = [
     ("tc_irq_agg", "vibe_irq_agg", [_w("mgmt", "vibe_irq_agg.sv")], "entry_unit"),
@@ -90,6 +101,9 @@ UNIT_MORE = [
     ("tc_dll_tx_cfg0", "vibe_dll_tx_cfg0_cocotb_top",
      [_wrap("vibe_dll_tx_cfg0_cocotb_top"), _w("dll", "vibe_dll_tx.sv"),
       _w("dll", "vibe_bcrc.sv"), _w("dll", "vibe_dll_credit.sv")], "entry_unit"),
+    # TP-DLL-004: full vibe_dll wrapper. Leaf SM/credit/retry/rx/tx are not enough.
+    ("tc_dll", "vibe_dll_cocotb_top",
+     [_wrap("vibe_dll_cocotb_top")] + DLL_WRAP, "entry_unit"),
     ("tc_mgmt", "vibe_mgmt", MGMT, "entry_unit"),
     ("tc_timers_indep", "vibe_timers_indep_cocotb_top",
      [_wrap("vibe_timers_indep_cocotb_top"),

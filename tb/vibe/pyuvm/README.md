@@ -39,6 +39,8 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_gear_128_160  # Decision-I leaf (module-l
 make -C tb/vibe/pyuvm gear_128_160             # same as units TC=tc_vibe_gear_128_160
 make -C tb/vibe/pyuvm units TC=tc_vibe_gear_160_128  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm gear_160_128             # same as units TC=tc_vibe_gear_160_128
+make -C tb/vibe/pyuvm units TC=tc_dll          # TP-DLL-004 full vibe_dll split
+make -C tb/vibe/pyuvm dll                      # same as units TC=tc_dll (≠1/3 ≠4/3)
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -75,7 +77,8 @@ idle / no spurious `out_vld`, 5×128 → exactly 4×160 with residue packing,
 hold-full backpressure without drop/dup, phase wrap on a second group).
 It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_gear_128_160.sv` / `tc_gear_128_160` remains optional
-count-only control. This is **not** TP-DLL-004 / full-chip `tc_dll`.
+count-only control. This is **not** TP-DLL-004 / full-chip `tc_dll`
+(`make -C tb/vibe/pyuvm dll` / `units TC=tc_dll` scores that ID).
 
 `tc_vibe_gear_160_128` / `make gear_160_128` is **module-level only** (reset
 idle / no spurious `out_vld`, 4×160 → exactly 5×128 with residue packing,
@@ -103,14 +106,14 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
 | Icarus `tc_gear_160_128` | still `tc_gear_160_128`; Decision-I module TC is `tc_vibe_gear_160_128` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
-| Icarus `tc_dll` (full stack) | still Icarus-only; leaf DLL SM/credit/retry/rx/tx units are ported |
+| Icarus `tc_dll` (full stack) | `tc_dll` (`vibe_dll_cocotb_top`; **TP-DLL-004** >32-flit split ≤16×≤32) |
 | Icarus `tc_timers_indep` | `tc_timers_indep` (`vibe_timers_indep_cocotb_top`) |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` | fabric suite (`tc_suite_all`) |
 | Icarus `tc_id_nports_entity0` / `tc_tp_holes` / `tc_neg_*` | `static_tests.py` (no simulator) |
@@ -140,6 +143,7 @@ those two stay Icarus.
 | `tc_vibe_rst_sync` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_gear_128_160` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_gear_160_128` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_dll` (full `vibe_dll`; **TP-DLL-004**; ≠ 1/3 ≠ 4/3 ≠ signoff) | see this PR | see this PR |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -148,7 +152,8 @@ those two stay Icarus.
 failing on `main` with PR116. Checkers were **not** relaxed.
 
 Not Python-sim in this PR (still `make sim-icarus`): full-stack `tc_pcs_rx`,
-`tc_pcs_tx`, `tc_dll`. Leaf PCS/DLL units cover the same TPs.
+`tc_pcs_tx`. Full-stack `tc_dll` is now uvm-python and scores **TP-DLL-004**.
+Leaf PCS units remain the scorers for those TPs.
 
 ## #115
 
@@ -167,6 +172,7 @@ tb/vibe/pyuvm/
                      tests/unit_rst_sync.py  Decision-I vibe_rst_sync (module-level)
                      tests/unit_gear_128_160.py  Decision-I vibe_gear_128_160 (module-level)
                      tests/unit_gear_160_128.py  Decision-I vibe_gear_160_128 (module-level)
+                     tests/unit_dll.py    full vibe_dll; TP-DLL-004 split
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
