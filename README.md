@@ -119,7 +119,7 @@ under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` + `vibe_pma_bnd`
 + `vibe_gear_160_128` + `vibe_pcs_scramble` + `vibe_ebch16`
 + `vibe_pcs_tx_cw2beat` + `vibe_pcs_tx_amctl` + `vibe_rs128_120_enc`
 + `vibe_rs128_120_dec` + `vibe_pcs_rx_deskew`
-+ `vibe_pcs_rx_amctl_lock`). SPEC semantics
++ `vibe_pcs_rx_amctl_lock` + `vibe_pcs_rx_unpack`). SPEC semantics
 and CR-B names are unchanged. Pin and regenerate path:
 [`pycircuit/README.md`](pycircuit/README.md).
 
@@ -139,6 +139,7 @@ make -C pycircuit vibe_rs128_120_enc # lands rtl/pcs/vibe_rs128_120_enc.sv
 make -C pycircuit vibe_rs128_120_dec # lands rtl/pcs/vibe_rs128_120_dec.sv
 make -C pycircuit vibe_pcs_rx_deskew # lands rtl/pcs/vibe_pcs_rx_deskew.sv
 make -C pycircuit vibe_pcs_rx_amctl_lock # lands rtl/pcs/vibe_pcs_rx_amctl_lock.sv
+make -C pycircuit vibe_pcs_rx_unpack # lands rtl/pcs/vibe_pcs_rx_unpack.sv
 ```
 
 ## Compile (syntax check)
