@@ -27,6 +27,7 @@ from vibe_uvm.tests import unit_pcs_tx_fec  # noqa: F401
 from vibe_uvm.tests import unit_pcs_rx_fec  # noqa: F401
 from vibe_uvm.tests import unit_pcs_tx_g1  # noqa: F401
 from vibe_uvm.tests import unit_bcrc  # noqa: F401
+from vibe_uvm.tests import unit_dll_credit  # noqa: F401
 
 
 @cocotb.test()
