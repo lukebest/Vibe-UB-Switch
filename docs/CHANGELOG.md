@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-25 — vibe_dll_retry_buf)
+
+### Changed
+
+- Next leaf `vibe_dll_retry_buf` is described in
+  `pycircuit/dll/vibe_dll_retry_buf.py` and landed
+  hand-finished at `rtl/dll/vibe_dll_retry_buf.sv`.
+  **Same ports / RETRY buffer behavior** as tip `fc7c0151`
+  / freeze `302ac943` (`clk`, `rst_n`, `port_rst`,
+  `link_up`, `wr_en`, `is_null`, `is_retry`,
+  `wr_flit[159:0]`, `send_size[7:0]`, `ack_rel`,
+  `rel_size[7:0]`, `rd_ptr_i[7:0]` / `rd_flit[159:0]`,
+  `wr_ptr[7:0]`, `tail_ptr[7:0]`, `rcv_ptr[7:0]`,
+  `num_free[8:0]`, `proto_err`, `can_send`; async-low
+  `or negedge rst_n`; depth 256 FS-must; Null and Retry
+  blocks do not enter; `NumFreeBuf+ReleaseSize>256` →
+  DL Protocol Error; `port_rst || !link_up` clears
+  pointers/free, `proto_err` sticky; AS-0.1 §12).
+  Self-contained (no child instances). Sixth DLL leaf
+  after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
+  `vibe_dll_rx` / `vibe_dll_retry_ack_sm`. Instantiated
+  by `vibe_dll` (`u_rbuf`). Ports / buffer match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`,
+  stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`, and
+  stage-24 `vibe_dll_retry_ack_sm` left intact. PCS tx /
+  rx tops and remaining DLL wraps (`vibe_dll_tx`,
+  `vibe_dll_retry_req_sm`, dll top) not in this leaf.
+- Regenerator: `make -C pycircuit vibe_dll_retry_buf`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-24 — vibe_dll_retry_ack_sm)
 
 ### Changed
