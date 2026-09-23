@@ -4,7 +4,7 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll help clean
+.PHONY: venv gate suite units port top neg sim afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
@@ -22,6 +22,8 @@ help:
 	@echo "make -C tb/vibe/pyuvm gear_160_128 # Decision-I leaf vibe_gear_160_128 (module-level)"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_dll"
 	@echo "make -C tb/vibe/pyuvm dll     # TP-DLL-004 full vibe_dll split (not a leaf)"
+	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_pcs_scramble"
+	@echo "make -C tb/vibe/pyuvm pcs_scramble # Decision-I leaf vibe_pcs_scramble (module-level)"
 	@echo "make -C tb/vibe/pyuvm port    [TC=tc_port_smoke]"
 	@echo "make -C tb/vibe/pyuvm top"
 	@echo "make -C tb/vibe/pyuvm sim     # suite + units + top + neg"
@@ -52,6 +54,9 @@ gear_160_128: venv
 # Full-wrapper TP-DLL-004. Not a Decision-I leaf. ≠1/3 ≠4/3 ≠signoff.
 dll: venv
 	$(PY) $(PYUVM)/run_gate.py units --tc tc_dll --sim $(SIM)
+
+pcs_scramble: venv
+	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_pcs_scramble --sim $(SIM)
 
 clean:
 	rm -rf $(PYUVM)/sim_build $(PYUVM)/results
