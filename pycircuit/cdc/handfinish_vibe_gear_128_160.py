@@ -1,3 +1,16 @@
+"""Emit the product SystemVerilog for vibe_gear_128_160 (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, combo ``in_ready``, and the
+5-beat dual-residue body (``res_a`` / ``res_b`` / ``phase`` 0..4).
+pycc netlists are a prototype only; this file is what lands in
+``rtl/cdc/vibe_gear_128_160.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/cdc/vibe_gear_128_160.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +18,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_gear_128_160
 //
+"""
+
+BODY = """\
 // AS-0.1 §6/§7: RX 128→160 dual-residue gearbox. 5×128 = 4×160.
 module vibe_gear_128_160 (
   input  logic         clk,
@@ -72,3 +88,26 @@ module vibe_gear_128_160 (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "cdc" / "vibe_gear_128_160.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

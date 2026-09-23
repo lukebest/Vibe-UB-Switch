@@ -5,6 +5,7 @@ Python DSL source. **SPEC functional semantics and CR-B port names are
 unchanged.** `{src}_{dst}_{meaning}` (`dll` not `dl`). Do not rewrite the chip
 here — leaves land one module at a time. Stage-1: scaffold + `vibe_afifo`.
 Stage-2: `vibe_pma_bnd`. Stage-3: `vibe_sync2`. Stage-4: `vibe_rst_sync`.
+Stage-5: `vibe_gear_128_160`.
 
 ## Toolchain pin
 
@@ -46,6 +47,7 @@ pycircuit/
   cdc/        vibe_afifo     ← stage-1 leaf (rtl/cdc/vibe_afifo.sv)
               vibe_sync2     ← stage-3 leaf (rtl/cdc/vibe_sync2.sv)
               vibe_rst_sync  ← stage-4 leaf (rtl/cdc/vibe_rst_sync.sv)
+              vibe_gear_128_160 ← stage-5 leaf (rtl/cdc/vibe_gear_128_160.sv)
   pma/        vibe_pma_bnd   ← stage-2 leaf (rtl/pma/vibe_pma_bnd.sv)
   pcs/ dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
@@ -126,3 +128,20 @@ sh scripts/pycircuit/emit.sh vibe_rst_sync
 
 See [`docs/rtl/vibe_rst_sync.md`](../docs/rtl/vibe_rst_sync.md) and
 [`cdc/vibe_rst_sync.py`](cdc/vibe_rst_sync.py).
+
+## Stage-5 leaf `vibe_gear_128_160`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), combo `in_ready = !hold_vld || out_ready`,
+and the 5-beat dual-residue `case (phase)` (5×128 = 4×160). This is
+the same-layer RX gear `vibe_port` already instantiates
+(`u_rg0`..`u_rg3`). Leave `vibe_gear_160_128` (TX 160→128) for later.
+
+```bash
+make -C pycircuit vibe_gear_128_160
+# or
+sh scripts/pycircuit/emit.sh vibe_gear_128_160
+```
+
+See [`docs/rtl/vibe_gear_128_160.md`](../docs/rtl/vibe_gear_128_160.md) and
+[`cdc/vibe_gear_128_160.py`](cdc/vibe_gear_128_160.py).

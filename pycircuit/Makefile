@@ -5,8 +5,12 @@ ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
 
 .PHONY: help setup mlir vibe_afifo vibe_pma_bnd vibe_sync2 vibe_rst_sync \
+        vibe_gear_128_160 \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
-        lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync
+        handfinish-gear-128-160 \
+        lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
+        lint-leaf-gear-128-160
+# vibe_gear_160_128 is not a Decision I leaf yet (later stage).
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -15,14 +19,17 @@ help:
 	@echo "vibe_pma_bnd       land hand-finished rtl/pma/vibe_pma_bnd.sv (try pycc first)"
 	@echo "vibe_sync2         land hand-finished rtl/cdc/vibe_sync2.sv (try pycc first)"
 	@echo "vibe_rst_sync      land hand-finished rtl/cdc/vibe_rst_sync.sv (try pycc first)"
+	@echo "vibe_gear_128_160  land hand-finished rtl/cdc/vibe_gear_128_160.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
 	@echo "handfinish-rst-sync write product vibe_rst_sync SV only"
+	@echo "handfinish-gear-128-160 write product vibe_gear_128_160 SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
 	@echo "lint-leaf-rst-sync Verilator --lint-only on vibe_rst_sync"
+	@echo "lint-leaf-gear-128-160 Verilator --lint-only on vibe_gear_128_160"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -44,6 +51,9 @@ vibe_sync2:
 vibe_rst_sync:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_rst_sync
 
+vibe_gear_128_160:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_gear_128_160
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -55,6 +65,9 @@ handfinish-sync2:
 
 handfinish-rst-sync:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_rst_sync.py
+
+handfinish-gear-128-160:
+	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_gear_128_160.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -74,3 +87,7 @@ lint-leaf-sync2:
 lint-leaf-rst-sync:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_rst_sync \
 	  $(ROOT)/rtl/cdc/vibe_rst_sync.sv
+
+lint-leaf-gear-128-160:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_gear_128_160 \
+	  $(ROOT)/rtl/cdc/vibe_gear_128_160.sv
