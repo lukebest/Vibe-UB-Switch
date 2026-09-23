@@ -1,5 +1,65 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-34 — vibe_dll_tx)
+
+### Changed
+
+- Next leaf `vibe_dll_tx` is described in
+  `pycircuit/dll/vibe_dll_tx.py` and landed
+  hand-finished at `rtl/dll/vibe_dll_tx.sv`.
+  **Same ports / 512b→20B TX pack behavior** as tip
+  `dfa505a6` / freeze `302ac943` (`clk`, `rst_n`,
+  `link_up`, `status_up`, `credit_low`, `bp_pending`,
+  `drop_data`, `can_send`, `replay`,
+  `replay_flit[159:0]`, `send_idle`, `send_req`,
+  `send_ack`, `nw_dll_data[511:0]`, `nw_dll_vld`,
+  `nw_dll_ready`, `dll_pcs_data[639:0]`,
+  `dll_pcs_vld`, `dll_pcs_ready`, `wr_en`,
+  `wr_flit[159:0]`, `is_null`, `is_retry`,
+  `consume_flits[9:0]`, `consume_vld`,
+  `consume_cfg0`; async-low `or negedge rst_n`;
+  `vibe_ub_params.vh` / `vibe_ub_fn.vh`; 64B beat /
+  20B flit / rem 4B; emit 640b when `fq_n >= 4`;
+  Null-pad short EOP to a 4-flit group; CRC30 over
+  `fq[0..3]` (same poly as `vibe_bcrc`); credit
+  consume counts data flits only; CFG0 does not
+  consume; backpressure if credit low / retry full /
+  REQ|WAIT dropping data / pending >= 1024 cell;
+  `!link_up` clears rem / pkt / `fq_n` /
+  `dll_pcs_vld`; AS-0.1.2 / FS-0.2.7 overlay B).
+  Self-contained (no child instances). Eighth DLL
+  leaf after `vibe_bcrc` / `vibe_dll_credit` /
+  `vibe_dll_sm` / `vibe_dll_rx` /
+  `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
+  `vibe_dll_retry_req_sm`. Instantiated by
+  `vibe_dll` (`u_tx`). Ports / TX match stock
+  (header-only vs stock). Official `.vlt` not
+  expanded. Not a chip rewrite. No SPEC CR. F1
+  `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`,
+  stage-6 `vibe_gear_160_128`, stage-7
+  `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, stage-27 `vibe_fecn_mark`,
+  stage-28 `vibe_vl_rr`, stage-29 `vibe_route_lu`,
+  stage-30 `vibe_port_sel`, stage-31 `vibe_voq_egr`,
+  stage-32 `vibe_saf_ing`, and stage-33 `vibe_xbar`
+  left intact. PCS tx / rx tops, `vibe_dll` top, and
+  `vibe_fabric` top not in this leaf.
+- Regenerator: `make -C pycircuit vibe_dll_tx`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-33 — vibe_xbar)
 
 ### Changed

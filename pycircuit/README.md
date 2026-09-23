@@ -34,6 +34,7 @@ Stage-30: `vibe_port_sel`.
 Stage-31: `vibe_voq_egr`.
 Stage-32: `vibe_saf_ing`.
 Stage-33: `vibe_xbar`.
+Stage-34: `vibe_dll_tx`.
 
 ## Toolchain pin
 
@@ -98,6 +99,7 @@ pycircuit/
               vibe_dll_retry_ack_sm ← stage-24 leaf (rtl/dll/vibe_dll_retry_ack_sm.sv)
               vibe_dll_retry_buf ← stage-25 leaf (rtl/dll/vibe_dll_retry_buf.sv)
               vibe_dll_retry_req_sm ← stage-26 leaf (rtl/dll/vibe_dll_retry_req_sm.sv)
+              vibe_dll_tx    ← stage-34 leaf (rtl/dll/vibe_dll_tx.sv)
   fabric/     vibe_fecn_mark ← stage-27 leaf (rtl/fabric/vibe_fecn_mark.sv)
               vibe_vl_rr     ← stage-28 leaf (rtl/fabric/vibe_vl_rr.sv)
               vibe_route_lu  ← stage-29 leaf (rtl/fabric/vibe_route_lu.sv)
@@ -786,3 +788,28 @@ sh scripts/pycircuit/emit.sh vibe_xbar
 
 See [`docs/rtl/vibe_xbar.md`](../docs/rtl/vibe_xbar.md) and
 [`fabric/vibe_xbar.py`](fabric/vibe_xbar.py).
+
+## Stage-34 leaf `vibe_dll_tx`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"` /
+`vibe_ub_fn.vh`, 512b NW → 20B flits with cross-beat
+remainder, 640b emit when a 4-flit group is ready
+(BCRC in last 32b), Null-pad short EOP, and credit
+consume on data flits only (CFG0 skip). Eighth DLL
+leaf after `vibe_bcrc` / `vibe_dll_credit` /
+`vibe_dll_sm` / `vibe_dll_rx` /
+`vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
+`vibe_dll_retry_req_sm`. Self-contained (no child
+instances). `vibe_dll` instantiates it (`u_tx`).
+Leave PCS tx / rx tops, `vibe_dll` top, and
+`vibe_fabric` top for later.
+
+```bash
+make -C pycircuit vibe_dll_tx
+# or
+sh scripts/pycircuit/emit.sh vibe_dll_tx
+```
+
+See [`docs/rtl/vibe_dll_tx.md`](../docs/rtl/vibe_dll_tx.md) and
+[`dll/vibe_dll_tx.py`](dll/vibe_dll_tx.py).

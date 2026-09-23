@@ -12,6 +12,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_pcs_tx_fec vibe_pcs_rx_fec vibe_pcs_tx_g1 \
         vibe_bcrc vibe_dll_credit vibe_dll_sm vibe_dll_rx \
         vibe_dll_retry_ack_sm vibe_dll_retry_buf vibe_dll_retry_req_sm \
+        vibe_dll_tx \
         vibe_fecn_mark vibe_vl_rr vibe_route_lu vibe_port_sel \
         vibe_voq_egr vibe_saf_ing vibe_xbar \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
@@ -25,7 +26,8 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-pcs-tx-g1 handfinish-bcrc handfinish-dll-credit \
         handfinish-dll-sm handfinish-dll-rx \
         handfinish-dll-retry-ack-sm handfinish-dll-retry-buf \
-        handfinish-dll-retry-req-sm handfinish-fecn-mark \
+        handfinish-dll-retry-req-sm handfinish-dll-tx \
+        handfinish-fecn-mark \
         handfinish-vl-rr handfinish-route-lu handfinish-port-sel \
         handfinish-voq-egr handfinish-saf-ing handfinish-xbar \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
@@ -39,7 +41,8 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-pcs-tx-g1 lint-leaf-bcrc lint-leaf-dll-credit \
         lint-leaf-dll-sm lint-leaf-dll-rx \
         lint-leaf-dll-retry-ack-sm lint-leaf-dll-retry-buf \
-        lint-leaf-dll-retry-req-sm lint-leaf-fecn-mark \
+        lint-leaf-dll-retry-req-sm lint-leaf-dll-tx \
+        lint-leaf-fecn-mark \
         lint-leaf-vl-rr lint-leaf-route-lu lint-leaf-port-sel \
         lint-leaf-voq-egr lint-leaf-saf-ing lint-leaf-xbar
 
@@ -72,6 +75,7 @@ help:
 	@echo "vibe_dll_retry_ack_sm land hand-finished rtl/dll/vibe_dll_retry_ack_sm.sv (try pycc first)"
 	@echo "vibe_dll_retry_buf  land hand-finished rtl/dll/vibe_dll_retry_buf.sv (try pycc first)"
 	@echo "vibe_dll_retry_req_sm land hand-finished rtl/dll/vibe_dll_retry_req_sm.sv (try pycc first)"
+	@echo "vibe_dll_tx        land hand-finished rtl/dll/vibe_dll_tx.sv (try pycc first)"
 	@echo "vibe_fecn_mark     land hand-finished rtl/fabric/vibe_fecn_mark.sv (try pycc first)"
 	@echo "vibe_vl_rr         land hand-finished rtl/fabric/vibe_vl_rr.sv (try pycc first)"
 	@echo "vibe_route_lu      land hand-finished rtl/fabric/vibe_route_lu.sv (try pycc first)"
@@ -105,6 +109,7 @@ help:
 	@echo "handfinish-dll-retry-ack-sm write product vibe_dll_retry_ack_sm SV only"
 	@echo "handfinish-dll-retry-buf write product vibe_dll_retry_buf SV only"
 	@echo "handfinish-dll-retry-req-sm write product vibe_dll_retry_req_sm SV only"
+	@echo "handfinish-dll-tx  write product vibe_dll_tx SV only"
 	@echo "handfinish-fecn-mark write product vibe_fecn_mark SV only"
 	@echo "handfinish-vl-rr   write product vibe_vl_rr SV only"
 	@echo "handfinish-route-lu write product vibe_route_lu SV only"
@@ -138,6 +143,7 @@ help:
 	@echo "lint-leaf-dll-retry-ack-sm Verilator --lint-only on vibe_dll_retry_ack_sm"
 	@echo "lint-leaf-dll-retry-buf Verilator --lint-only on vibe_dll_retry_buf"
 	@echo "lint-leaf-dll-retry-req-sm Verilator --lint-only on vibe_dll_retry_req_sm"
+	@echo "lint-leaf-dll-tx   Verilator --lint-only on vibe_dll_tx"
 	@echo "lint-leaf-fecn-mark Verilator --lint-only on vibe_fecn_mark"
 	@echo "lint-leaf-vl-rr    Verilator --lint-only on vibe_vl_rr"
 	@echo "lint-leaf-route-lu Verilator --lint-only on vibe_route_lu"
@@ -231,6 +237,9 @@ vibe_dll_retry_buf:
 
 vibe_dll_retry_req_sm:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_dll_retry_req_sm
+
+vibe_dll_tx:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_dll_tx
 
 vibe_fecn_mark:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_fecn_mark
@@ -330,6 +339,9 @@ handfinish-dll-retry-buf:
 
 handfinish-dll-retry-req-sm:
 	python3 $(ROOT)/pycircuit/dll/handfinish_vibe_dll_retry_req_sm.py
+
+handfinish-dll-tx:
+	python3 $(ROOT)/pycircuit/dll/handfinish_vibe_dll_tx.py
 
 handfinish-fecn-mark:
 	python3 $(ROOT)/pycircuit/fabric/handfinish_vibe_fecn_mark.py
@@ -477,6 +489,11 @@ lint-leaf-dll-retry-req-sm:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_dll_retry_req_sm \
 	  -I$(ROOT)/rtl/common \
 	  $(ROOT)/rtl/dll/vibe_dll_retry_req_sm.sv
+
+lint-leaf-dll-tx:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_dll_tx \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/rtl/dll/vibe_dll_tx.sv
 
 lint-leaf-fecn-mark:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_fecn_mark \
