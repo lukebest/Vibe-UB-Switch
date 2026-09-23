@@ -1,5 +1,9 @@
 # TP-0.3 ↔ testcase matrix (official IDs only)
 
+**Python (pyuvm) column is authoritative:** see [`TP_PYUVM_MATRIX.md`](TP_PYUVM_MATRIX.md).
+This table remains the SV/UVM-biased scorer map. Stock `tc_*.sv` / SV UVM
+alone does **not** mean a Python TC exists.
+
 Source: [`TP-0.3.md`](TP-0.3.md) — 159 official IDs.
 Planned names in column 2 of that table may not exist as files;
 this matrix points at the TC that **scores that rule**.
