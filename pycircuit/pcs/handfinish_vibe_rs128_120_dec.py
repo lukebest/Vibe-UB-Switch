@@ -1,3 +1,20 @@
+"""Emit the product SystemVerilog for vibe_rs128_120_dec (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_fn.vh"``,
+combo next-syndromes (last symbol included before ``fec_fail``),
+``msg[0:119]`` pack into 960b ``data_out``, and the 128-symbol
+syndrome-check decode. Reset of ``msg`` is unrolled NBA
+(same zeros as the stock reset ``for``; Icarus-legal and
+Verilator 5.020 ``BLKLOOPINIT`` / ``BLKSEQ`` clean). pycc
+netlists are a prototype only; this file is what lands in
+``rtl/pcs/vibe_rs128_120_dec.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_rs128_120_dec.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -6,6 +23,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rs128_120_dec
 //
+"""
+
+BODY = """\
 // AS-0.1 §6: RS(128,120) syndrome check. Nonzero syndrome → fec_fail (Go-Back-N).
 module vibe_rs128_120_dec (
   input  logic         clk,
@@ -54,21 +74,7 @@ module vibe_rs128_120_dec (
       done     <= 1'b0;
       fec_fail <= 1'b0;
       data_out <= 960'd0;
-      msg[0] <= 8'd0; msg[1] <= 8'd0; msg[2] <= 8'd0; msg[3] <= 8'd0; msg[4] <= 8'd0; msg[5] <= 8'd0; msg[6] <= 8'd0; msg[7] <= 8'd0;
-      msg[8] <= 8'd0; msg[9] <= 8'd0; msg[10] <= 8'd0; msg[11] <= 8'd0; msg[12] <= 8'd0; msg[13] <= 8'd0; msg[14] <= 8'd0; msg[15] <= 8'd0;
-      msg[16] <= 8'd0; msg[17] <= 8'd0; msg[18] <= 8'd0; msg[19] <= 8'd0; msg[20] <= 8'd0; msg[21] <= 8'd0; msg[22] <= 8'd0; msg[23] <= 8'd0;
-      msg[24] <= 8'd0; msg[25] <= 8'd0; msg[26] <= 8'd0; msg[27] <= 8'd0; msg[28] <= 8'd0; msg[29] <= 8'd0; msg[30] <= 8'd0; msg[31] <= 8'd0;
-      msg[32] <= 8'd0; msg[33] <= 8'd0; msg[34] <= 8'd0; msg[35] <= 8'd0; msg[36] <= 8'd0; msg[37] <= 8'd0; msg[38] <= 8'd0; msg[39] <= 8'd0;
-      msg[40] <= 8'd0; msg[41] <= 8'd0; msg[42] <= 8'd0; msg[43] <= 8'd0; msg[44] <= 8'd0; msg[45] <= 8'd0; msg[46] <= 8'd0; msg[47] <= 8'd0;
-      msg[48] <= 8'd0; msg[49] <= 8'd0; msg[50] <= 8'd0; msg[51] <= 8'd0; msg[52] <= 8'd0; msg[53] <= 8'd0; msg[54] <= 8'd0; msg[55] <= 8'd0;
-      msg[56] <= 8'd0; msg[57] <= 8'd0; msg[58] <= 8'd0; msg[59] <= 8'd0; msg[60] <= 8'd0; msg[61] <= 8'd0; msg[62] <= 8'd0; msg[63] <= 8'd0;
-      msg[64] <= 8'd0; msg[65] <= 8'd0; msg[66] <= 8'd0; msg[67] <= 8'd0; msg[68] <= 8'd0; msg[69] <= 8'd0; msg[70] <= 8'd0; msg[71] <= 8'd0;
-      msg[72] <= 8'd0; msg[73] <= 8'd0; msg[74] <= 8'd0; msg[75] <= 8'd0; msg[76] <= 8'd0; msg[77] <= 8'd0; msg[78] <= 8'd0; msg[79] <= 8'd0;
-      msg[80] <= 8'd0; msg[81] <= 8'd0; msg[82] <= 8'd0; msg[83] <= 8'd0; msg[84] <= 8'd0; msg[85] <= 8'd0; msg[86] <= 8'd0; msg[87] <= 8'd0;
-      msg[88] <= 8'd0; msg[89] <= 8'd0; msg[90] <= 8'd0; msg[91] <= 8'd0; msg[92] <= 8'd0; msg[93] <= 8'd0; msg[94] <= 8'd0; msg[95] <= 8'd0;
-      msg[96] <= 8'd0; msg[97] <= 8'd0; msg[98] <= 8'd0; msg[99] <= 8'd0; msg[100] <= 8'd0; msg[101] <= 8'd0; msg[102] <= 8'd0; msg[103] <= 8'd0;
-      msg[104] <= 8'd0; msg[105] <= 8'd0; msg[106] <= 8'd0; msg[107] <= 8'd0; msg[108] <= 8'd0; msg[109] <= 8'd0; msg[110] <= 8'd0; msg[111] <= 8'd0;
-      msg[112] <= 8'd0; msg[113] <= 8'd0; msg[114] <= 8'd0; msg[115] <= 8'd0; msg[116] <= 8'd0; msg[117] <= 8'd0; msg[118] <= 8'd0; msg[119] <= 8'd0;
+__MSG_RESET__
     end else begin
       done     <= 1'b0;
       fec_fail <= 1'b0;
@@ -103,3 +109,35 @@ module vibe_rs128_120_dec (
     end
   end
 endmodule
+"""
+
+
+def _msg_reset_nbas() -> str:
+    """Unrolled ``msg[i] <= 8'd0`` (stock reset for-loop, lint-safe)."""
+    lines = []
+    for row in range(0, 120, 8):
+        parts = [f"msg[{i}] <= 8'd0;" for i in range(row, row + 8)]
+        lines.append("      " + " ".join(parts))
+    return "\n".join(lines)
+
+
+def render() -> str:
+    return HEADER + BODY.replace("__MSG_RESET__", _msg_reset_nbas())
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_rs128_120_dec.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
