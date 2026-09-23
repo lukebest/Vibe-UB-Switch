@@ -449,4 +449,5 @@ lint-leaf-vl-rr:
 
 lint-leaf-route-lu:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_route_lu \
+	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
 	  $(ROOT)/rtl/fabric/vibe_route_lu.sv
