@@ -451,10 +451,37 @@ class tc_vibe_pcs_rx_unpack(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # Dual-buffer: keep feeding while emitting so n==3 hits nxt_full / swap.
-        stream = G1 + G2 + G3 + G4[:1]  # 9×640: two full + one extra
+        # Dual-buffer: 8×640 while emitting parks G2 in nxt (nxt_full).
+        # Ingress is dropped while nxt_full (no ready pin); idle one cycle
+        # so the swap frees nxt, then fill G3.
         outs_d = []
-        if not await self._feed_groups(name, "dual-buffer stream", stream,
+        if not await self._feed_groups(name, "dual-buffer G1||G2", G1 + G2,
+                                       outs_d, beat_ready=1):
+            phase.drop_objection(self)
+            return
+        if not self.g.nxt_full:
+            self.bad(name, "dual-buffer 8×640 while emitting",
+                     "nxt_full=1 (G2 parked)",
+                     f"nxt_full={self.g.nxt_full} n={self.g.n} e={self.g.e}",
+                     "u_u.nxt_full")
+            phase.drop_objection(self)
+            return
+        taken, _, _ = await self._apply(
+            name, "dual-buffer idle (nxt→acc swap, nxt_full=0)",
+            0, ZEROS, beat_ready=1)
+        if taken is not None:
+            outs_d.append(taken)
+        if self.fail_n:
+            phase.drop_objection(self)
+            return
+        if self.g.nxt_full:
+            self.bad(name, "dual-buffer swap idle",
+                     "nxt_full=0",
+                     f"nxt_full={self.g.nxt_full}",
+                     "u_u.nxt_full")
+            phase.drop_objection(self)
+            return
+        if not await self._feed_groups(name, "dual-buffer G3 after swap", G3,
                                        outs_d, beat_ready=1):
             phase.drop_objection(self)
             return
@@ -465,9 +492,14 @@ class tc_vibe_pcs_rx_unpack(VibeUnitBaseTest):
                  + pack_4x640_to_5x512(G2)
                  + pack_4x640_to_5x512(G3))
         if outs_d != exp_d:
-            self.bad(name, "dual-buffer 3 groups while emitting",
-                     f"exactly 15×512 n=15",
-                     f"n={len(outs_d)}",
+            mism = next((i for i, (a, b) in enumerate(zip(outs_d, exp_d))
+                         if a != b), None)
+            self.bad(name, "dual-buffer G1||G2 park/swap then G3",
+                     f"exactly 15×512 n=15"
+                     + (f" first={_hex512(exp_d[0])}" if exp_d else ""),
+                     f"n={len(outs_d)}"
+                     + (f" mismatch[{mism}] got={_hex512(outs_d[mism])}"
+                        if mism is not None and mism < len(outs_d) else ""),
                      "u_u.nxt_full")
             phase.drop_objection(self)
             return
