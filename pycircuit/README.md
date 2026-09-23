@@ -22,6 +22,7 @@ Stage-18: `vibe_pcs_rx_fec`.
 Stage-19: `vibe_pcs_tx_g1`.
 Stage-20: `vibe_bcrc`.
 Stage-21: `vibe_dll_credit`.
+Stage-22: `vibe_dll_sm`.
 
 ## Toolchain pin
 
@@ -81,6 +82,7 @@ pycircuit/
               vibe_pcs_tx_g1   ← stage-19 leaf (rtl/pcs/vibe_pcs_tx_g1.sv)
   dll/        vibe_bcrc      ← stage-20 leaf (rtl/dll/vibe_bcrc.sv)
               vibe_dll_credit ← stage-21 leaf (rtl/dll/vibe_dll_credit.sv)
+              vibe_dll_sm    ← stage-22 leaf (rtl/dll/vibe_dll_sm.sv)
   nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -496,3 +498,25 @@ sh scripts/pycircuit/emit.sh vibe_dll_credit
 
 See [`docs/rtl/vibe_dll_credit.md`](../docs/rtl/vibe_dll_credit.md) and
 [`dll/vibe_dll_credit.py`](dll/vibe_dll_credit.py).
+
+## Stage-22 leaf `vibe_dll_sm`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), Disabled when `LinkUp==0`, no
+entity-reset pin (must not force Disabled via `rst`
+alone beyond async `rst_n` / `port_rst`), states
+Disabled → Param → Credit → Normal, `dll_error` →
+Disabled, and `status_up` when Normal (AS-0.1 §12).
+Third DLL leaf after `vibe_bcrc` / `vibe_dll_credit`.
+Self-contained (no child instances). `vibe_dll`
+instantiates it (`u_sm`). Leave PCS tx / rx tops and
+remaining DLL wraps (retry_*, tx/rx, dll top) for later.
+
+```bash
+make -C pycircuit vibe_dll_sm
+# or
+sh scripts/pycircuit/emit.sh vibe_dll_sm
+```
+
+See [`docs/rtl/vibe_dll_sm.md`](../docs/rtl/vibe_dll_sm.md) and
+[`dll/vibe_dll_sm.py`](dll/vibe_dll_sm.py).

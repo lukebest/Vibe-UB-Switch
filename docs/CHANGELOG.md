@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-22 — vibe_dll_sm)
+
+### Changed
+
+- Next leaf `vibe_dll_sm` is described in `pycircuit/dll/vibe_dll_sm.py`
+  and landed hand-finished at `rtl/dll/vibe_dll_sm.sv`. **Same ports /
+  SM behavior** as tip `39d3aa1d` / freeze `302ac943`
+  (`clk`, `rst_n`, `port_rst`, `link_up`, `param_ok`,
+  `credit_ok`, `dll_error` / `state[1:0]`, `status_up`,
+  `disabled`; async-low `or negedge rst_n`; Disabled when
+  `LinkUp==0`; entity reset must not force Disabled via
+  `rst` alone beyond async `rst_n` / `port_rst`; states
+  Disabled → Param → Credit → Normal; `dll_error` →
+  Disabled; `status_up` when Normal; AS-0.1 §12).
+  Self-contained (no child instances). Third DLL leaf
+  after `vibe_bcrc` / `vibe_dll_credit`. Instantiated by
+  `vibe_dll` (`u_sm`). Ports / SM match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3
+  `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, and stage-21 `vibe_dll_credit`
+  left intact. PCS tx / rx tops and remaining DLL wraps
+  (retry_*, tx/rx, dll top) not in this leaf.
+- Regenerator: `make -C pycircuit vibe_dll_sm`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-21 — vibe_dll_credit)
 
 ### Changed
