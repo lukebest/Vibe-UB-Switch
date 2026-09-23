@@ -33,6 +33,7 @@ MGMT = [
 ]
 DLL_RX = [_w("dll", "vibe_dll_rx.sv")]
 DLL_ACK = [_w("dll", "vibe_dll_retry_ack_sm.sv")]
+DLL_BUF = [_w("dll", "vibe_dll_retry_buf.sv")]
 RETRY_REQ = [_w("dll", "vibe_dll_retry_req_sm.sv")]
 DLL_WRAP = [
     _w("dll", "vibe_dll.sv"),
@@ -156,6 +157,9 @@ UNIT_MORE = [
      "entry_unit"),
     ("tc_vibe_dll_retry_ack_sm", "vibe_dll_retry_ack_sm_cocotb_top",
      [_wrap("vibe_dll_retry_ack_sm_cocotb_top")] + DLL_ACK,
+     "entry_unit"),
+    ("tc_vibe_dll_retry_buf", "vibe_dll_retry_buf_cocotb_top",
+     [_wrap("vibe_dll_retry_buf_cocotb_top")] + DLL_BUF,
      "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
