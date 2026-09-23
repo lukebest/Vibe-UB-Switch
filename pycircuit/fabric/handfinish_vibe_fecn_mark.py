@@ -1,0 +1,69 @@
+"""Emit the product SystemVerilog for vibe_fecn_mark (hand-finished).
+
+Keeps tip ports and the combo FECN / LoC rewrite (AS-0.1 §8:
+Mode ``3'b100`` / ``3'b010`` and local cong worse than packet
+FECN). pycc netlists are a prototype only; this file is what
+lands in ``rtl/fabric/vibe_fecn_mark.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
+// GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_fecn_mark.py
+// pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
+// Product ports match tip c33bb143 / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_fecn_mark
+"""
+
+BODY = """\
+// AS-0.1 §8: if CCI.Mode is 3'b100 or 3'b010 and local congestion (VOQ occ >= FECN_WM)
+// worse than packet mark, rewrite FECN and LoC. Else don't. Not CAQM.
+module vibe_fecn_mark #(
+  parameter int FECN_WM = 24
+) (
+  input  logic [15:0] cci_in,
+  input  logic [5:0]  voq_occ,
+  output logic [15:0] cci_out,
+  output logic        marked
+);
+  wire [2:0] mode = cci_in[15:13];
+  wire [1:0] fecn = cci_in[1:0];
+  wire       cong = (voq_occ >= FECN_WM[5:0]);
+  wire       markable_mode = (mode == 3'b100) || (mode == 3'b010);
+  // 2'b00 unmarkable; 2'b10 none; 2'b01 light; 2'b11 severe
+  wire [1:0] local_lvl = cong ? 2'b11 : 2'b10;
+  wire       worse = cong && (fecn != 2'b00) && (local_lvl > fecn);
+
+  assign marked  = markable_mode && worse;
+  assign cci_out = marked ? {mode, 3'b000, /*LoC*/ 1'b0, cci_in[8:2], local_lvl} : cci_in;
+endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "fabric" / "vibe_fecn_mark.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

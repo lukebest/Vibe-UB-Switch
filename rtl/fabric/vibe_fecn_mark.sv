@@ -1,3 +1,6 @@
+// GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_fecn_mark.py
+// pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
+// Product ports match tip c33bb143 / freeze 302ac943. Path B hold.
 // AS-0.1 §8: if CCI.Mode is 3'b100 or 3'b010 and local congestion (VOQ occ >= FECN_WM)
 // worse than packet mark, rewrite FECN and LoC. Else don't. Not CAQM.
 module vibe_fecn_mark #(
@@ -19,3 +22,6 @@ module vibe_fecn_mark #(
   assign marked  = markable_mode && worse;
   assign cci_out = marked ? {mode, 3'b000, /*LoC*/ 1'b0, cci_in[8:2], local_lvl} : cci_in;
 endmodule
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_fecn_mark
