@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-6 — vibe_gear_160_128)
+
+### Changed
+
+- Next leaf `vibe_gear_160_128` is described in `pycircuit/cdc/vibe_gear_160_128.py`
+  and landed hand-finished at `rtl/cdc/vibe_gear_160_128.sv`. **Same ports /
+  residue behavior** as tip `cb4549f` / freeze `302ac943` (`clk`,
+  `rst_n`, ready/valid 160 in / 128 out; 4×160 = 5×128; async-low
+  `or negedge rst_n`; `in_ready = can_load && (rbits != 4)`). Not a
+  chip rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1 `vibe_afifo`,
+  stage-2 `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`,
+  and stage-5 `vibe_gear_128_160` left intact.
+- Regenerator: `make -C pycircuit vibe_gear_160_128`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-5 — vibe_gear_128_160)
 
 ### Changed
