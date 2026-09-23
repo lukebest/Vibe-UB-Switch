@@ -137,7 +137,7 @@ def pack_4x640_to_5x512(lane_groups):
 
 def beat_pat(tag: int) -> int:
     """128 hex digits = 512b. Tag/index in every byte so a slice swap fails."""
-    parts = [f"{(tag & 0xF):X}{(i & 0xF):X}" for i in range(64)]
+    parts = [f"{(tag & 0xFF):02X}{(i & 0xFF):02X}" for i in range(32)]
     return int("".join(parts), 16) & MASK512
 
 
@@ -324,6 +324,27 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
             return None, None, lanes
         await FallingEdge(d.clk)
         return taken, emit, lanes
+
+    async def _accept_beats(self, name, label, beats, sdf=0):
+        """Take each beat (wait for beat_ready). Does not drain a following emit."""
+        for i, beat in enumerate(beats):
+            taken = None
+            for spin in range(16):
+                offer = ival(self.dut.beat_ready, 0) == 1
+                taken, kind, _ = await self._apply(
+                    name, f"{label} accept[{i}] spin[{spin}]",
+                    1 if offer else 0, beat if offer else 0, sdf=sdf)
+                if taken is not None:
+                    break
+                if kind is None and self.fail_n:
+                    return False
+            if taken is None:
+                self.bad(name, f"{label} accept[{i}]",
+                         "beat accepted",
+                         "beat_ready stayed 0",
+                         "u_u.beat_ready")
+                return False
+        return True
 
     async def _feed_beats(self, name, label, beats, outs, ams=None,
                           sdf=0, afull=0, lane_ready=1):
@@ -529,20 +550,13 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 3. Backpressure: hold first 640; no drop/dup.
+        # 3. Backpressure: take 5 beats (lane_ready must stay 1 — it is in
+        # beat_ready), then hold the first 640; no drop/dup.
+        if not await self._accept_beats(name, "bp fill G1", G1):
+            phase.drop_objection(self)
+            return
         outs_bp = []
-        if not await self._feed_beats(name, "bp fill G1", G1, outs_bp,
-                                      lane_ready=0):
-            phase.drop_objection(self)
-            return
-        if outs_bp:
-            self.bad(name, "bp fill with lane_ready=0",
-                     "no emit (pack_vld held, beat_ready drops on 5th)",
-                     f"emitted {len(outs_bp)}",
-                     "u_u.lane_ready")
-            phase.drop_objection(self)
-            return
-        # After 5 takes, pack_vld=1 but lane_ready=0: lane_vld=1, no handshake.
+        # After 5 takes, pack_vld=1: lane_vld=1, beat_ready=0. Hold emit.
         if ival(d.lane_vld, -1) != 1 or ival(d.beat_ready, -1) != 0:
             self.bad(name, "bp after 5×512 (pack_vld, held)",
                      "lane_vld=1 beat_ready=0",
@@ -578,11 +592,11 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
             return
 
         # afifo_afull during emit: same hold, then drain G2.
-        outs_af = []
-        if not await self._feed_beats(name, "afull fill G2", G2, outs_af):
+        if not await self._accept_beats(name, "afull fill G2", G2):
             phase.drop_objection(self)
             return
-        if not outs_af and ival(d.lane_vld, -1) != 1:
+        outs_af = []
+        if ival(d.lane_vld, -1) != 1:
             self.bad(name, "afull have after 5×512",
                      "lane_vld=1",
                      f"lane_vld={ival(d.lane_vld, -1)}",
@@ -674,10 +688,11 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
             return
 
         # Combo hold: same pins, no drift (5 ns, clock free-runs).
-        if not await self._feed_beats(name, "hold fill G1", G1, [],
-                                      lane_ready=0):
+        if not await self._accept_beats(name, "hold fill G1", G1):
             phase.drop_objection(self)
             return
+        sset(d.lane_ready, 0)
+        await Timer(100, "PS")
         held_lv = ival(d.lane_vld, -1)
         held_br = ival(d.beat_ready, -1)
         held_l0 = ival(d.lane0, -1)
