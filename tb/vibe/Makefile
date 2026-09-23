@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm
 all: sim
 
 help:
@@ -72,6 +72,9 @@ help:
 	@echo "make units TC=tc_vibe_dll_retry_buf - Decision-I vibe_dll_retry_buf (module-level)"
 	@echo "make retry_buf      - same as units TC=tc_vibe_dll_retry_buf (not full-chip gate)"
 	@echo "make buf            - same as retry_buf / tc_vibe_dll_retry_buf"
+	@echo "make units TC=tc_vibe_dll_retry_req_sm - Decision-I vibe_dll_retry_req_sm (module-level)"
+	@echo "make retry_req_sm   - same as units TC=tc_vibe_dll_retry_req_sm (not full-chip gate)"
+	@echo "make req_sm         - same as retry_req_sm / tc_vibe_dll_retry_req_sm"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -204,6 +207,14 @@ retry_buf: $(RES)
 
 buf: $(RES)
 	$(MAKE) -C $(PYUVM) buf SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+retry_req_sm: $(RES)
+	$(MAKE) -C $(PYUVM) retry_req_sm SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+req_sm: $(RES)
+	$(MAKE) -C $(PYUVM) req_sm SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
