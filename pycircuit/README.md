@@ -14,6 +14,7 @@ Stage-10: `vibe_pcs_tx_amctl`.
 Stage-11: `vibe_rs128_120_enc`.
 Stage-12: `vibe_rs128_120_dec`.
 Stage-13: `vibe_pcs_rx_deskew`.
+Stage-14: `vibe_pcs_rx_amctl_lock`.
 
 ## Toolchain pin
 
@@ -65,6 +66,7 @@ pycircuit/
               vibe_rs128_120_enc ← stage-11 leaf (rtl/pcs/vibe_rs128_120_enc.sv)
               vibe_rs128_120_dec ← stage-12 leaf (rtl/pcs/vibe_rs128_120_dec.sv)
               vibe_pcs_rx_deskew ← stage-13 leaf (rtl/pcs/vibe_pcs_rx_deskew.sv)
+              vibe_pcs_rx_amctl_lock ← stage-14 leaf (rtl/pcs/vibe_pcs_rx_amctl_lock.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -310,3 +312,25 @@ sh scripts/pycircuit/emit.sh vibe_pcs_rx_deskew
 
 See [`docs/rtl/vibe_pcs_rx_deskew.md`](../docs/rtl/vibe_pcs_rx_deskew.md) and
 [`pcs/vibe_pcs_rx_deskew.py`](pcs/vibe_pcs_rx_deskew.py).
+
+## Stage-14 leaf `vibe_pcs_rx_amctl_lock`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), `include "vibe_ub_params.vh"`, seven
+`vibe_ebch16` instances, combo `is_amctl`, and the hunt /
+confirm / unlock always-block (`CONFIRM_N` = `UNLOCK_N` = 3).
+Factory physical=logical (U24): LID not {0,1,2,3} sets
+`lid_bad`; no lane swap. This is the same-layer PCS cell
+`vibe_pcs_rx` already instantiates (`u_l0`..`u_l3`). Continues
+the RX path after stage-13 deskew; pairs with stage-10
+`vibe_pcs_tx_amctl`. Leave FEC wrap / pack / g1 / tx / rx
+tops / unpack for later.
+
+```bash
+make -C pycircuit vibe_pcs_rx_amctl_lock
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_rx_amctl_lock
+```
+
+See [`docs/rtl/vibe_pcs_rx_amctl_lock.md`](../docs/rtl/vibe_pcs_rx_amctl_lock.md) and
+[`pcs/vibe_pcs_rx_amctl_lock.py`](pcs/vibe_pcs_rx_amctl_lock.py).

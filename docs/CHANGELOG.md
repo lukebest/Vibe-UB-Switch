@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-14 — vibe_pcs_rx_amctl_lock)
+
+### Changed
+
+- Next leaf `vibe_pcs_rx_amctl_lock` is described in `pycircuit/pcs/vibe_pcs_rx_amctl_lock.py`
+  and landed hand-finished at `rtl/pcs/vibe_pcs_rx_amctl_lock.sv`. **Same ports /
+  AMCTL lock behavior** as tip `263aec6` / freeze `302ac943`
+  (`clk`, `rst_n`, `in_vld`, 160b `in_data` / `locked`, `lid`,
+  `lid_bad`, combo `is_amctl`, `sdf`, `edf`; async-low
+  `or negedge rst_n`; `include "vibe_ub_params.vh"`;
+  `VIBE_AMCTL_CONFIRM_N` = `UNLOCK_N` = 3; seven `vibe_ebch16`
+  instances; hunt with 1-beat slip; TX-layout lock sticky
+  through data; LID not {0,1,2,3} → `lid_bad`, U24 no lane
+  swap). Ports / hunt / lock match stock (header-only vs
+  stock). Not a chip rewrite. No SPEC CR. F1 `ovf_l`
+  untouched. Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`,
+  stage-3 `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`, stage-7
+  `vibe_pcs_scramble`, stage-8 `vibe_ebch16`, stage-9
+  `vibe_pcs_tx_cw2beat`, stage-10 `vibe_pcs_tx_amctl`,
+  stage-11 `vibe_rs128_120_enc`, stage-12 `vibe_rs128_120_dec`,
+  and stage-13 `vibe_pcs_rx_deskew` left intact. FEC wrap /
+  pack / g1 / tx / rx tops / unpack not in this leaf.
+- Regenerator: `make -C pycircuit vibe_pcs_rx_amctl_lock`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-13 — vibe_pcs_rx_deskew)
 
 ### Changed

@@ -1,3 +1,18 @@
+"""Emit the product SystemVerilog for vibe_pcs_rx_amctl_lock (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_params.vh"``,
+seven ``vibe_ebch16`` instances, combo ``is_amctl``, and the hunt /
+confirm / unlock always-block (CONFIRM_N = UNLOCK_N = 3). Factory
+physical=logical (U24): LID not {0,1,2,3} sets ``lid_bad``; no lane
+swap. pycc netlists are a prototype only; this file is what lands
+in ``rtl/pcs/vibe_pcs_rx_amctl_lock.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_amctl_lock.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
@@ -5,6 +20,9 @@
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_rx_amctl_lock
 //
+"""
+
+BODY = """\
 // AS-0.1 §6 / §14: AMCTL lock per lane. CONFIRM_N = UNLOCK_N = 3.
 // Lock on RAW 160b (AMCTL is not scrambled). Hunt with 1-beat slip.
 // TX amctl_40B: BODY {3{cw21,cw28}} at [319:224] so [319:304]=cw21;
@@ -126,3 +144,26 @@ module vibe_pcs_rx_amctl_lock (
     end
   end
 endmodule
+"""
+
+
+def render() -> str:
+    return HEADER + BODY
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_rx_amctl_lock.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
