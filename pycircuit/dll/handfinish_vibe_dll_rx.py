@@ -1,6 +1,31 @@
+"""Emit the product SystemVerilog for vibe_dll_rx (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_fn.vh"``
+for ``vibe_lph_cfg`` / ``vibe_lph_vl`` / ``vibe_pkt_bytes``,
+parameter ``RXBUF`` default 1024, 640b PCS → 4 flits / unBCRC /
+512b NW remainder, LPH first 160b, EOP drop leftover, CFG0
+terminate, FEC/BCRC fail → Go-Back-N, and ``start_ack`` tied 0.
+pycc netlists are a prototype only; this file is what lands in
+``rtl/dll/vibe_dll_rx.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_rx.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 7543c944 / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_dll_rx
+"""
+
+BODY = """\
 // AS-0.1.2 / FS-0.2.7 overlay B: 640b PCS → 4 flits, unBCRC (wire flits
 // including CRC in last 32b of the group), pack to 512b NW beats with
 // remainder. LPH is the first 160b flit of the assembled packet.
@@ -138,6 +163,26 @@ module vibe_dll_rx #(
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_dll_rx
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "dll" / "vibe_dll_rx.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

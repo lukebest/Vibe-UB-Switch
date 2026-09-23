@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-23 — vibe_dll_rx)
+
+### Changed
+
+- Next leaf `vibe_dll_rx` is described in `pycircuit/dll/vibe_dll_rx.py`
+  and landed hand-finished at `rtl/dll/vibe_dll_rx.sv`. **Same ports /
+  RX behavior** as tip `7543c944` / freeze `302ac943`
+  (`clk`, `rst_n`, `port_rst`, `link_up`, `fec_fail`,
+  640b `pcs_dll_data`, `pcs_dll_vld`, `pcs_dll_ready` /
+  512b `dll_nw_data`, `dll_nw_vld`, `dll_nw_ready`,
+  `cfg0_hit`, 640b `cfg0_data`, `bcrc_fail`, `start_retry`,
+  `rx_ovf`, `start_ack`; parameter `RXBUF` default 1024;
+  async-low `or negedge rst_n`;
+  `include "vibe_ub_fn.vh"` for `vibe_lph_cfg` /
+  `vibe_lph_vl` / `vibe_pkt_bytes`; 640b PCS → 4 flits,
+  unBCRC, pack to 512b NW with remainder; LPH first 160b
+  flit; after EOP drop intra-group leftover; CFG0
+  terminate; FEC/BCRC fail → Go-Back-N; dll_rxbuf = 1024
+  flit/VL; `start_ack` tied 0 as stock; AS-0.1.2 /
+  FS-0.2.7 overlay B). Self-contained (no child
+  instances). Fourth DLL leaf after `vibe_bcrc` /
+  `vibe_dll_credit` / `vibe_dll_sm`. Instantiated by
+  `vibe_dll` (`u_rx`). Ports / RX match stock
+  (header-only vs stock). Official `.vlt` not expanded.
+  Not a chip rewrite. No SPEC CR. F1 `ovf_l` untouched.
+  Stage-1 `vibe_afifo`, stage-2 `vibe_pma_bnd`, stage-3
+  `vibe_sync2`, stage-4 `vibe_rst_sync`, stage-5
+  `vibe_gear_128_160`, stage-6 `vibe_gear_160_128`,
+  stage-7 `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`, and
+  stage-22 `vibe_dll_sm` left intact. PCS tx / rx tops
+  and remaining DLL wraps (retry_*, `vibe_dll_tx`, dll
+  top) not in this leaf.
+- Regenerator: `make -C pycircuit vibe_dll_rx`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-22 — vibe_dll_sm)
 
 ### Changed
