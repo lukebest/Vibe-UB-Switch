@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx
 all: sim
 
 help:
@@ -63,6 +63,9 @@ help:
 	@echo "make units TC=tc_vibe_dll_sm - Decision-I vibe_dll_sm (module-level)"
 	@echo "make dll_sm         - same as units TC=tc_vibe_dll_sm (not full-chip gate)"
 	@echo "make sm             - same as dll_sm / tc_vibe_dll_sm"
+	@echo "make units TC=tc_vibe_dll_rx - Decision-I vibe_dll_rx (module-level)"
+	@echo "make dll_rx         - same as units TC=tc_vibe_dll_rx (not full-chip gate)"
+	@echo "make rx             - same as dll_rx / tc_vibe_dll_rx"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -171,6 +174,14 @@ dll_sm: $(RES)
 
 sm: $(RES)
 	$(MAKE) -C $(PYUVM) sm SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+dll_rx: $(RES)
+	$(MAKE) -C $(PYUVM) dll_rx SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+rx: $(RES)
+	$(MAKE) -C $(PYUVM) rx SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
