@@ -1,7 +1,7 @@
 #!/bin/sh
 # Emit a Decision I leaf: MLIR via pycircuit.cli when possible; always land
 # hand-finished SystemVerilog that matches tip ports/behavior.
-# Usage: emit.sh [vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx]
+# Usage: emit.sh [vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm]
 # Default remains vibe_afifo (stage-1).
 set -eu
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
@@ -125,8 +125,13 @@ case "$LEAF" in
     HANDFINISH="$ROOT/pycircuit/dll/handfinish_vibe_dll_rx.py"
     RTL="$ROOT/rtl/dll/vibe_dll_rx.sv"
     ;;
+  vibe_dll_retry_ack_sm)
+    SRC="$ROOT/pycircuit/dll/vibe_dll_retry_ack_sm.py"
+    HANDFINISH="$ROOT/pycircuit/dll/handfinish_vibe_dll_retry_ack_sm.py"
+    RTL="$ROOT/rtl/dll/vibe_dll_retry_ack_sm.sv"
+    ;;
   *)
-    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx)" >&2
+    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm)" >&2
     exit 2
     ;;
 esac
