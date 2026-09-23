@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu
 all: sim
 
 help:
@@ -81,6 +81,10 @@ help:
 	@echo "make units TC=tc_vibe_vl_rr - Decision-I vibe_vl_rr (module-level)"
 	@echo "make vl_rr          - same as units TC=tc_vibe_vl_rr (not full-chip gate)"
 	@echo "make vl             - same as vl_rr / tc_vibe_vl_rr"
+	@echo "make units TC=tc_vibe_route_lu - Decision-I vibe_route_lu (module-level)"
+	@echo "make route_lu       - same as units TC=tc_vibe_route_lu (not full-chip gate)"
+	@echo "make route          - same as route_lu / tc_vibe_route_lu"
+	@echo "make tc_vibe_route_lu - same as route_lu / route"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -237,6 +241,18 @@ vl_rr: $(RES)
 
 vl: $(RES)
 	$(MAKE) -C $(PYUVM) vl SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+route_lu: $(RES)
+	$(MAKE) -C $(PYUVM) route_lu SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+route: $(RES)
+	$(MAKE) -C $(PYUVM) route SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+tc_vibe_route_lu: $(RES)
+	$(MAKE) -C $(PYUVM) tc_vibe_route_lu SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
