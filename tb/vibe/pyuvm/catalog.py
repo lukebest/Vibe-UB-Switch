@@ -185,6 +185,8 @@ NAME_MAP = {
         "tc_vibe_dll_retry_ack_sm (vibe_dll_retry_ack_sm_cocotb_top, module-level)",
     "make retry_buf / buf / tc_vibe_dll_retry_buf":
         "tc_vibe_dll_retry_buf (vibe_dll_retry_buf_cocotb_top, module-level)",
+    "make retry_req_sm / req_sm / tc_vibe_dll_retry_req_sm":
+        "tc_vibe_dll_retry_req_sm (vibe_dll_retry_req_sm_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",

@@ -32,6 +32,7 @@ from vibe_uvm.tests import unit_dll_sm  # noqa: F401
 from vibe_uvm.tests import unit_dll_rx  # noqa: F401
 from vibe_uvm.tests import unit_dll_retry_ack_sm  # noqa: F401
 from vibe_uvm.tests import unit_dll_retry_buf  # noqa: F401
+from vibe_uvm.tests import unit_dll_retry_req_sm  # noqa: F401
 
 
 @cocotb.test()
