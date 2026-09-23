@@ -19,6 +19,7 @@ Stage-15: `vibe_pcs_rx_unpack`.
 Stage-16: `vibe_pcs_tx_pack`.
 Stage-17: `vibe_pcs_tx_fec`.
 Stage-18: `vibe_pcs_rx_fec`.
+Stage-19: `vibe_pcs_tx_g1`.
 
 ## Toolchain pin
 
@@ -75,6 +76,7 @@ pycircuit/
               vibe_pcs_tx_pack ← stage-16 leaf (rtl/pcs/vibe_pcs_tx_pack.sv)
               vibe_pcs_tx_fec  ← stage-17 leaf (rtl/pcs/vibe_pcs_tx_fec.sv)
               vibe_pcs_rx_fec  ← stage-18 leaf (rtl/pcs/vibe_pcs_rx_fec.sv)
+              vibe_pcs_tx_g1   ← stage-19 leaf (rtl/pcs/vibe_pcs_tx_g1.sv)
   dll/ nw/ fabric/ mgmt/ port/ top/   stubs
 ```
 
@@ -425,3 +427,24 @@ sh scripts/pycircuit/emit.sh vibe_pcs_rx_fec
 
 See [`docs/rtl/vibe_pcs_rx_fec.md`](../docs/rtl/vibe_pcs_rx_fec.md) and
 [`pcs/vibe_pcs_rx_fec.py`](pcs/vibe_pcs_rx_fec.py).
+
+## Stage-19 leaf `vibe_pcs_tx_g1`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), combo `in_ready` / `win_data` /
+`win_vld`, `NULL_FLIT = 160'd0`, rem / rem_vld / nflit /
+acc / have, and the collect / rem leftover / idle-Null
+always-block (6 flits / 960b FEC window; AS-0.1 §5 T2).
+This is the same-layer PCS cell `vibe_pcs_tx` already
+instantiates (`u_g1`). After stage-17 `vibe_pcs_tx_fec` /
+stage-18 `vibe_pcs_rx_fec`. Self-contained (no child
+instances). Leave tx / rx tops for later.
+
+```bash
+make -C pycircuit vibe_pcs_tx_g1
+# or
+sh scripts/pycircuit/emit.sh vibe_pcs_tx_g1
+```
+
+See [`docs/rtl/vibe_pcs_tx_g1.md`](../docs/rtl/vibe_pcs_tx_g1.md) and
+[`pcs/vibe_pcs_tx_g1.py`](pcs/vibe_pcs_tx_g1.py).

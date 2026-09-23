@@ -1,6 +1,30 @@
+"""Emit the product SystemVerilog for vibe_pcs_tx_g1 (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, combo ``in_ready`` /
+``win_data`` / ``win_vld``, ``NULL_FLIT = 160'd0``, rem / rem_vld /
+nflit / acc / have, and the collect / rem leftover / idle-Null
+always-block (6 flits / 960b FEC window). pycc netlists are a
+prototype only; this file is what lands in
+``rtl/pcs/vibe_pcs_tx_g1.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx_g1.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 24f7239a / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_pcs_tx_g1
+"""
+
+BODY = """\
 module vibe_pcs_tx_g1 (
   input  logic         clk,
   input  logic         rst_n,
@@ -77,6 +101,26 @@ module vibe_pcs_tx_g1 (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_pcs_tx_g1
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_tx_g1.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
