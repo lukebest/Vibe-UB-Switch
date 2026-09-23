@@ -146,8 +146,14 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
                     phase.drop_objection(self)
                     return
 
-        # Hold last sel; combo output must not drift.
-        held = ival(self.dut.cw, -1)
+        # Hold a named Table 3-5 sel; combo output must not drift.
+        held = await self._apply(30)
+        if held != EBCH16[30]:
+            self.bad(name, "cw_sel=30 before hold",
+                     f"cw={_hex16(EBCH16[30])}",
+                     f"cw={_hex16(held)}", HIER)
+            phase.drop_objection(self)
+            return
         await Timer(5, "NS")
         later = ival(self.dut.cw, -1)
         if later != held or later != EBCH16[30]:
