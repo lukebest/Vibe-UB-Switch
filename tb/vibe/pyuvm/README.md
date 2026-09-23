@@ -155,6 +155,7 @@ those two stay Icarus.
 | `tc_vibe_gear_128_160` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_gear_160_128` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_dll` (full `vibe_dll`; **TP-DLL-004**; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_pcs_scramble` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
