@@ -43,6 +43,8 @@ make -C tb/vibe/pyuvm units TC=tc_dll          # TP-DLL-004 full vibe_dll split
 make -C tb/vibe/pyuvm dll                      # same as units TC=tc_dll (≠1/3 ≠4/3)
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_scramble  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm pcs_scramble             # same as units TC=tc_vibe_pcs_scramble
+make -C tb/vibe/pyuvm units TC=tc_vibe_ebch16  # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm ebch16                   # same as units TC=tc_vibe_ebch16
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -59,6 +61,7 @@ make -C tb/vibe/pyuvm rst_sync SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm gear_128_160 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm gear_160_128 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm pcs_scramble SIM=verilator  # or SIM=icarus
+make -C tb/vibe/pyuvm ebch16 SIM=verilator        # or SIM=icarus
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -97,6 +100,13 @@ pass-through without LFSR advance, XOR round-trip). It is **not** 1/3,
 `tc_pcs_scramble` remains optional control. Official TP-PHY-017 stays
 scored by `tc_pcs_scramble`. This is **not** TP-DLL-004 / `gear_160_128`.
 
+`tc_vibe_ebch16` / `make ebch16` is **module-level only** (combo idle /
+no sequential hold, Table 3-5 encode LUT + default sel 31, unique invert
+decode, min Hamming distance 8). The DUT has no `rst_n`. It is **not**
+1/3, 4/3, freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_ebch16_lut.sv`
+/ `tc_ebch16_lut` remains optional control. This is **not** TP-PHY-017 /
+`pcs_scramble`.
+
 ## Topology
 
 ```
@@ -116,12 +126,13 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
 | Icarus `tc_gear_160_128` | still `tc_gear_160_128`; Decision-I module TC is `tc_vibe_gear_160_128` |
 | Icarus `tc_pcs_scramble` | still `tc_pcs_scramble`; Decision-I module TC is `tc_vibe_pcs_scramble` |
+| Icarus `tc_ebch16_lut` | still `tc_ebch16_lut`; Decision-I module TC is `tc_vibe_ebch16` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
 | Icarus `tc_dll` (full stack) | `tc_dll` (`vibe_dll_cocotb_top`; **TP-DLL-004** >32-flit split ≤16×≤32) |
@@ -156,6 +167,7 @@ those two stay Icarus.
 | `tc_vibe_gear_160_128` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_dll` (full `vibe_dll`; **TP-DLL-004**; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_pcs_scramble` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_ebch16` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | (this PR) | (this PR) |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -186,6 +198,7 @@ tb/vibe/pyuvm/
                      tests/unit_gear_160_128.py  Decision-I vibe_gear_160_128 (module-level)
                      tests/unit_dll.py    full vibe_dll; TP-DLL-004 split
                      tests/unit_pcs_scramble.py  Decision-I vibe_pcs_scramble (module-level)
+                     tests/unit_ebch16.py  Decision-I vibe_ebch16 (module-level)
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
