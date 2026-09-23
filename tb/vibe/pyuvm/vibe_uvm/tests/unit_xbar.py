@@ -15,8 +15,12 @@ combo cand_* independent of out_ready, accept
 from rr[e], one full packet per grant. Instantiated by
 vibe_fabric u_xbar. Stock Icarus tc_xbar_unit remains the
 official TP scorer. Header-only vs stock; no invented
-protocol. ovf_l (F1) is not in this module. Mgmt bypass is
-fabric-level and does not enter this DUT.
+protocol. Icarus 12 VPI leaves 512-bit unpacked out_data
+X (stock tc_xbar_unit / TC_RESULTS) — X is not treated as
+0; packed in_ready / out_* and lock / locked / rr still
+score. Verilator resolves out_data and scores it. ovf_l
+(F1) is not in this module. Mgmt bypass is fabric-level
+and does not enter this DUT.
 """
 
 from uvm import uvm_component_utils
@@ -266,8 +270,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             return None
         return lock, locked, rr
 
-    def _score(self, name, stim, got, score_data=True):
-        exp = self._exp_combo()
+    def _score_combo(self, name, stim, got, exp, score_data=True):
         if (got["in_ready"] != exp["in_ready"]
                 or got["out_vld"] != exp["out_vld"]
                 or got["out_sop"] != (self._pack_bits(exp["out_sop"]))
@@ -280,37 +283,57 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                      self._fmt(got), HIER)
             return False
         if score_data:
+            unresolved = 0
             for e in range(NPORT):
                 gd = got["out_data"][e]
                 ed = exp["out_data"][e] & MASK512
                 if gd is None or gd < 0:
-                    self.bad(name, stim + f" (out_data[{e}] X)",
-                             f"out_data[{e}]={ed}",
-                             self._fmt(got), f"u_u.out_data[{e}]")
-                    return False
+                    unresolved += 1
+                    continue
                 if (gd & MASK512) != ed:
                     self.bad(name, stim + f" (out_data[{e}])",
                              f"out_data[{e}]={ed}",
                              self._fmt(got), f"u_u.out_data[{e}]")
                     return False
-        st = self._peek_state()
-        if st is not None:
-            lock, locked, rr = st
-            for k in range(NPORT):
-                checks = (
-                    ("lock", lock[k], self.g.lock[k], MASK2),
-                    ("locked", locked[k], self.g.locked[k], 1),
-                    ("rr", rr[k], self.g.rr[k], MASK2),
-                )
-                for key, got_v, exp_v, mask in checks:
-                    if got_v is None:
-                        continue
-                    if (got_v & mask) != (exp_v & mask):
-                        self.bad(name, stim + f" (u_u.{key}[{k}])",
-                                 f"{key}[{k}]={exp_v}",
-                                 f"u_u.{key}[{k}]={got_v}", f"u_u.{key}")
-                        return False
+            # Icarus 12 VPI: 512-bit unpacked vibe_xbar.out_data is X
+            # (stock tc_xbar_unit / TC_RESULTS). Do not treat X as 0.
+            # When every lane is unresolved, packed in_ready / out_*
+            # and lock / locked / rr remain the Icarus scorers.
+            # Verilator resolves all four and still scores data.
+            if unresolved and unresolved != NPORT:
+                self.bad(name, stim + " (mixed out_data X)",
+                         "all out_data resolvable or all X",
+                         self._fmt(got), "u_u.out_data")
+                return False
         return True
+
+    def _score_state(self, name, stim):
+        st = self._peek_state()
+        if st is None:
+            return True
+        lock, locked, rr = st
+        for k in range(NPORT):
+            checks = (
+                ("lock", lock[k], self.g.lock[k], MASK2),
+                ("locked", locked[k], self.g.locked[k], 1),
+                ("rr", rr[k], self.g.rr[k], MASK2),
+            )
+            for key, got_v, exp_v, mask in checks:
+                if got_v is None:
+                    continue
+                if (got_v & mask) != (exp_v & mask):
+                    self.bad(name, stim + f" (u_u.{key}[{k}])",
+                             f"{key}[{k}]={exp_v}",
+                             f"u_u.{key}[{k}]={got_v}", f"u_u.{key}")
+                    return False
+        return True
+
+    def _score(self, name, stim, got, score_data=True):
+        """Score combo vs current (already-updated) golden — idle / async rst."""
+        if not self._score_combo(name, stim, got, self._exp_combo(),
+                                 score_data=score_data):
+            return False
+        return self._score_state(name, stim)
 
     @staticmethod
     def _pack_bits(bits):
@@ -320,25 +343,45 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                 v |= 1 << i
         return v
 
+    @staticmethod
+    def _data_match(got_word, exp_word):
+        """Compare 512-bit data. Unresolved (Icarus X) is not 0."""
+        if got_word is None or int(got_word) < 0:
+            return True
+        return (int(got_word) & MASK512) == (int(exp_word) & MASK512)
+
     async def _cycle(self, status_up=None, in_data=None, in_vld=0, in_sop=0,
                      in_eop=0, in_dst=None, out_ready=None):
         await self._drive(status_up, in_data, in_vld, in_sop, in_eop,
                           in_dst, out_ready)
+        # Combo grant uses pre-NBA lock/locked/rr (the fire this posedge).
+        pre = self._sample()
         st = self._stim
+        pre_exp = self.g.combo(
+            st["status_up"], st["in_data"], st["in_vld"], st["in_sop"],
+            st["in_eop"], st["in_dst"], st["out_ready"])
         self.g.step(st["status_up"], st["in_data"], st["in_vld"],
                     st["in_sop"], st["in_eop"], st["in_dst"],
                     st["out_ready"])
         await self._to_fall()
-        return self._sample()
+        post = self._sample()
+        return pre, post, pre_exp
 
     async def _expect(self, name, stim, status_up=None, in_data=None,
                       in_vld=0, in_sop=0, in_eop=0, in_dst=None,
                       out_ready=None, score_data=True):
-        got = await self._cycle(status_up, in_data, in_vld, in_sop, in_eop,
-                                in_dst, out_ready)
-        if not self._score(name, stim, got, score_data=score_data):
+        pre, post, pre_exp = await self._cycle(
+            status_up, in_data, in_vld, in_sop, in_eop, in_dst, out_ready)
+        if not self._score_combo(name, stim + " (pre-NBA grant)",
+                                 pre, pre_exp, score_data=score_data):
             return None
-        return got
+        if not self._score_combo(name, stim + " (post-NBA combo)",
+                                 post, self._exp_combo(),
+                                 score_data=score_data):
+            return None
+        if not self._score_state(name, stim):
+            return None
+        return pre
 
     def _golden_selfcheck(self, name):
         gchk = Golden()
@@ -350,23 +393,22 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                      "golden")
             return False
         d0 = beat(0xA)
-        gchk.step(status_up=MASK4, in_data=[d0, 0, 0, 0],
-                  in_vld=1, in_sop=1, in_eop=1, in_dst=[1, 0, 0, 0],
-                  out_ready=MASK4)
-        post = gchk.combo(status_up=MASK4, in_data=[d0, 0, 0, 0],
-                          in_vld=1, in_sop=1, in_eop=1, in_dst=[1, 0, 0, 0],
-                          out_ready=MASK4)
-        if not bit(post["out_vld"], 1) or not bit(post["in_ready"], 0):
-            self.bad(name, "golden 1-beat in0 dest=1",
+        stim = dict(status_up=MASK4, in_data=[d0, 0, 0, 0],
+                    in_vld=1, in_sop=1, in_eop=1, in_dst=[1, 0, 0, 0],
+                    out_ready=MASK4)
+        fire = gchk.combo(**stim)
+        if not bit(fire["out_vld"], 1) or not bit(fire["in_ready"], 0):
+            self.bad(name, "golden 1-beat in0 dest=1 fire",
                      "out_vld[1]=1 in_ready[0]=1",
-                     f"ov=0x{post['out_vld']:x} ir=0x{post['in_ready']:x}",
+                     f"ov=0x{fire['out_vld']:x} ir=0x{fire['in_ready']:x}",
                      "golden")
             return False
-        if (post["out_data"][1] & MASK512) != d0:
+        if (fire["out_data"][1] & MASK512) != d0:
             self.bad(name, "golden 1-beat data",
                      f"out_data[1]={d0}",
-                     f"out_data[1]={post['out_data'][1]}", "golden")
+                     f"out_data[1]={fire['out_data'][1]}", "golden")
             return False
+        gchk.step(**stim)
         if any(gchk.locked) or gchk.lock[1] != 0 or gchk.rr[1] != 1:
             self.bad(name, "golden 1-beat NBA",
                      "locked=0 lock[1]=0 rr[1]=1 (old lock+1)",
@@ -395,25 +437,32 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         gchk.reset()
         a = beat(0x1)
         b = beat(0x2)
-        gchk.step(status_up=MASK4, in_data=[a, b, 0, 0],
-                  in_vld=0b0011, in_sop=0b0011, in_eop=0b0011,
-                  in_dst=[3, 3, 0, 0], out_ready=MASK4)
-        post = gchk.combo(status_up=MASK4, in_data=[a, b, 0, 0],
-                          in_vld=0b0011, in_sop=0b0011, in_eop=0b0011,
-                          in_dst=[3, 3, 0, 0], out_ready=MASK4)
-        if not bit(post["in_ready"], 0) or bit(post["in_ready"], 1):
+        cstim = dict(status_up=MASK4, in_data=[a, b, 0, 0],
+                     in_vld=0b0011, in_sop=0b0011, in_eop=0b0011,
+                     in_dst=[3, 3, 0, 0], out_ready=MASK4)
+        fire = gchk.combo(**cstim)
+        if not bit(fire["in_ready"], 0) or bit(fire["in_ready"], 1):
             self.bad(name, "golden RR dest=3 rr=0 picks port 0",
                      "in_ready[0]=1 in_ready[1]=0",
-                     f"ir=0x{post['in_ready']:x}", "golden")
+                     f"ir=0x{fire['in_ready']:x}", "golden")
             return False
-        if (post["out_data"][3] & MASK512) != a:
+        if (fire["out_data"][3] & MASK512) != a:
             self.bad(name, "golden RR winner data",
                      f"out_data[3]={a}",
-                     f"out_data[3]={post['out_data'][3]}", "golden")
+                     f"out_data[3]={fire['out_data'][3]}", "golden")
             return False
-        if gchk.rr[3] != 1:
+        gchk.step(**cstim)
+        if gchk.rr[3] != 1 or gchk.lock[3] != 0 or gchk.locked[3]:
             self.bad(name, "golden RR advance",
-                     "rr[3]=1", f"rr={gchk.rr}", "golden")
+                     "rr[3]=1 lock[3]=0 locked[3]=0",
+                     f"rr={gchk.rr} lock={gchk.lock}", "golden")
+            return False
+        # Same inputs after NBA: rr=1 so combo now grants port 1.
+        post = gchk.combo(**cstim)
+        if not bit(post["in_ready"], 1) or bit(post["in_ready"], 0):
+            self.bad(name, "golden post-NBA RR rotates",
+                     "in_ready[1]=1 in_ready[0]=0",
+                     f"ir=0x{post['in_ready']:x}", "golden")
             return False
         gchk.reset()
         down = gchk.combo(status_up=0xE, in_data=[0, 0, beat(0xD), 0],
@@ -467,7 +516,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                      self._fmt(got), HIER)
             phase.drop_objection(self)
             return
-        if (got["out_data"][1] & MASK512) != d0:
+        if not self._data_match(got["out_data"][1], d0):
             self.bad(name, "1-beat data",
                      f"out_data[1]={d0}",
                      self._fmt(got), "u_u.out_data")
@@ -502,7 +551,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             return
         if (not bit(got["out_vld"], 2) or not bit(got["out_sop"], 2)
                 or bit(got["out_eop"], 2)
-                or (got["out_data"][2] & MASK512) != d_sop):
+                or not self._data_match(got["out_data"][2], d_sop)):
             self.bad(name, "2-beat SOP dest=2",
                      f"out_vld[2]/sop/eop=1/1/0 data={d_sop}",
                      self._fmt(got), HIER)
@@ -528,7 +577,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             return
         if (not bit(got["out_vld"], 2) or bit(got["out_sop"], 2)
                 or not bit(got["out_eop"], 2)
-                or (got["out_data"][2] & MASK512) != d_eop
+                or not self._data_match(got["out_data"][2], d_eop)
                 or bit(got["in_ready"], 1)):
             self.bad(name, "locked grant holds vs in1",
                      f"out[2]={d_eop} eop in_ready[1]=0",
@@ -574,7 +623,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                      self._fmt(got), HIER)
             phase.drop_objection(self)
             return
-        if (got["out_data"][1] & MASK512) != mid:
+        if not self._data_match(got["out_data"][1], mid):
             self.bad(name, "candidate out_data independent of out_ready",
                      f"out_data[1]={mid}",
                      self._fmt(got), "u_u.out_data")
@@ -596,7 +645,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if (not bit(got["out_vld"], 1) or not bit(got["out_eop"], 1)
-                or (got["out_data"][1] & MASK512) != d_fin):
+                or not self._data_match(got["out_data"][1], d_fin)):
             self.bad(name, "EOP after out_ready returns",
                      f"out_vld[1]=1 eop data={d_fin}",
                      self._fmt(got), HIER)
@@ -619,7 +668,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if (not bit(got["in_ready"], 0) or bit(got["in_ready"], 1)
-                or (got["out_data"][3] & MASK512) != a
+                or not self._data_match(got["out_data"][3], a)
                 or not bit(got["out_vld"], 3)):
             self.bad(name, "conflict dest=3 first RR",
                      f"winner in0 data={a} in_ready[1]=0",
@@ -649,7 +698,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if (bit(got["in_ready"], 0) or not bit(got["in_ready"], 1)
-                or (got["out_data"][3] & MASK512) != b2):
+                or not self._data_match(got["out_data"][3], b2)):
             self.bad(name, "conflict dest=3 second RR",
                      f"winner in1 data={b2} in_ready[0]=0",
                      self._fmt(got), HIER)
@@ -671,7 +720,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if got is None:
             phase.drop_objection(self)
             return
-        if bit(got["out_vld"], 0) or (got["out_data"][0] & MASK512) != 0:
+        if bit(got["out_vld"], 0) or not self._data_match(got["out_data"][0], 0):
             self.bad(name, "dest=0 status_up[0]=0",
                      "out_vld[0]=0 out_data[0]=0 (down, no DLLDP)",
                      self._fmt(got), HIER)
@@ -696,8 +745,8 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             return
         if (not bit(got["out_vld"], 1) or not bit(got["out_vld"], 3)
                 or not bit(got["in_ready"], 0) or not bit(got["in_ready"], 2)
-                or (got["out_data"][1] & MASK512) != p0
-                or (got["out_data"][3] & MASK512) != p2):
+                or not self._data_match(got["out_data"][1], p0)
+                or not self._data_match(got["out_data"][3], p2)):
             self.bad(name, "parallel distinct dests",
                      f"out[1]={p0} out[3]={p2}",
                      self._fmt(got), HIER)
@@ -747,7 +796,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if (not bit(got["out_vld"], 1) or not bit(got["in_ready"], 0)
-                or (got["out_data"][1] & MASK512) != one2):
+                or not self._data_match(got["out_data"][1], one2)):
             self.bad(name, "1-beat after async rst",
                      f"out_vld[1]=1 in_ready[0]=1 data={one2}",
                      self._fmt(got), HIER)

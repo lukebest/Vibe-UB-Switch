@@ -9,6 +9,9 @@
 // Flattened in_data_* / in_dst_* / out_data_* — cocotb cannot
 // drive unpacked array ports. Instance u_u matches Decision-I
 // leaf wrappers (tc_xbar_unit still uses flattened ports only).
+// Icarus 12 VPI leaves 512-bit unpacked out_data X (stock
+// tc_xbar_unit note); packed in_ready / out_vld / sop / eop
+// and lock / locked / rr remain the Icarus-readable scorers.
 `timescale 1ns/1ps
 
 module vibe_xbar_cocotb_top (
