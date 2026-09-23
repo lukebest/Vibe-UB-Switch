@@ -31,6 +31,7 @@ Stage-27: `vibe_fecn_mark`.
 Stage-28: `vibe_vl_rr`.
 Stage-29: `vibe_route_lu`.
 Stage-30: `vibe_port_sel`.
+Stage-31: `vibe_voq_egr`.
 
 ## Toolchain pin
 
@@ -99,6 +100,7 @@ pycircuit/
               vibe_vl_rr     ← stage-28 leaf (rtl/fabric/vibe_vl_rr.sv)
               vibe_route_lu  ← stage-29 leaf (rtl/fabric/vibe_route_lu.sv)
               vibe_port_sel  ← stage-30 leaf (rtl/fabric/vibe_port_sel.sv)
+              vibe_voq_egr   ← stage-31 leaf (rtl/fabric/vibe_voq_egr.sv)
   nw/ mgmt/ port/ top/   stubs
 ```
 
@@ -711,3 +713,26 @@ sh scripts/pycircuit/emit.sh vibe_port_sel
 
 See [`docs/rtl/vibe_port_sel.md`](../docs/rtl/vibe_port_sel.md) and
 [`fabric/vibe_port_sel.py`](fabric/vibe_port_sel.py).
+
+## Stage-31 leaf `vibe_voq_egr`
+
+Same emit pattern. Product SV keeps async-low `rst_n`
+(`or negedge rst_n`), 16 VL × DEPTH mem + sop/eop/age,
+combo `wr_ready` / `rd_*` / `nonempty` / `occ_vl0`,
+enqueue `age = VIBE_US_CYC`, and 1 µs deadlock timeout
+from enqueue (AS-0.1 §8/§14). Fifth fabric leaf after
+`vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu` /
+`vibe_port_sel`. Self-contained (no child instances).
+`vibe_fabric` instantiates it (`g_egr.u_voq`).
+Leave PCS tx / rx tops, `vibe_dll_tx`, `vibe_dll` top,
+and `vibe_fabric` top for later. Do not migrate
+`vibe_saf_ing` / `vibe_xbar` here.
+
+```bash
+make -C pycircuit vibe_voq_egr
+# or
+sh scripts/pycircuit/emit.sh vibe_voq_egr
+```
+
+See [`docs/rtl/vibe_voq_egr.md`](../docs/rtl/vibe_voq_egr.md) and
+[`fabric/vibe_voq_egr.py`](fabric/vibe_voq_egr.py).

@@ -1,6 +1,30 @@
+"""Emit the product SystemVerilog for vibe_voq_egr (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, 16 VL × DEPTH mem +
+sop/eop/age, combo ``wr_ready`` / ``rd_*`` / ``nonempty`` /
+``occ_vl0``, enqueue ``age=VIBE_US_CYC``, and 1 µs deadlock
+timeout from enqueue (AS-0.1 §8/§14). pycc netlists are a
+prototype only; this file is what lands in
+``rtl/fabric/vibe_voq_egr.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_voq_egr.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 8ec96a2a / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_voq_egr
+"""
+
+BODY = """\
 // AS-0.1 §8/§14: VOQ 32 flit/VL/egress. Deadlock timeout 1us from enqueue.
 module vibe_voq_egr #(
   parameter int DEPTH = 32
@@ -78,6 +102,26 @@ module vibe_voq_egr #(
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_voq_egr
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "fabric" / "vibe_voq_egr.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
