@@ -4,22 +4,25 @@
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
 
-.PHONY: help setup mlir vibe_afifo vibe_pma_bnd vibe_sync2 \
-        handfinish handfinish-pma handfinish-sync2 \
-        lint-leaf lint-leaf-pma lint-leaf-sync2
+.PHONY: help setup mlir vibe_afifo vibe_pma_bnd vibe_sync2 vibe_rst_sync \
+        handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
+        lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync
 
 help:
-	@echo "setup             install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
-	@echo "mlir              frontend emit vibe_afifo.pyc (needs pycircuit import)"
-	@echo "vibe_afifo        land hand-finished rtl/cdc/vibe_afifo.sv (try pycc first)"
-	@echo "vibe_pma_bnd      land hand-finished rtl/pma/vibe_pma_bnd.sv (try pycc first)"
-	@echo "vibe_sync2        land hand-finished rtl/cdc/vibe_sync2.sv (try pycc first)"
-	@echo "handfinish        write product vibe_afifo SV only"
-	@echo "handfinish-pma    write product vibe_pma_bnd SV only"
-	@echo "handfinish-sync2  write product vibe_sync2 SV only"
-	@echo "lint-leaf         Verilator --lint-only on vibe_afifo + vibe_sync2"
-	@echo "lint-leaf-pma     Verilator --lint-only on vibe_pma_bnd"
-	@echo "lint-leaf-sync2   Verilator --lint-only on vibe_sync2"
+	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
+	@echo "mlir               frontend emit vibe_afifo.pyc (needs pycircuit import)"
+	@echo "vibe_afifo         land hand-finished rtl/cdc/vibe_afifo.sv (try pycc first)"
+	@echo "vibe_pma_bnd       land hand-finished rtl/pma/vibe_pma_bnd.sv (try pycc first)"
+	@echo "vibe_sync2         land hand-finished rtl/cdc/vibe_sync2.sv (try pycc first)"
+	@echo "vibe_rst_sync      land hand-finished rtl/cdc/vibe_rst_sync.sv (try pycc first)"
+	@echo "handfinish         write product vibe_afifo SV only"
+	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
+	@echo "handfinish-sync2   write product vibe_sync2 SV only"
+	@echo "handfinish-rst-sync write product vibe_rst_sync SV only"
+	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
+	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
+	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
+	@echo "lint-leaf-rst-sync Verilator --lint-only on vibe_rst_sync"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -38,6 +41,9 @@ vibe_pma_bnd:
 vibe_sync2:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_sync2
 
+vibe_rst_sync:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_rst_sync
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -46,6 +52,9 @@ handfinish-pma:
 
 handfinish-sync2:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_sync2.py
+
+handfinish-rst-sync:
+	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_rst_sync.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -61,3 +70,7 @@ lint-leaf-pma:
 lint-leaf-sync2:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_sync2 \
 	  $(ROOT)/rtl/cdc/vibe_sync2.sv
+
+lint-leaf-rst-sync:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_rst_sync \
+	  $(ROOT)/rtl/cdc/vibe_rst_sync.sv

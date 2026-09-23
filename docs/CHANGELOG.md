@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-23 (Decision I stage-4 — vibe_rst_sync)
+
+### Changed
+
+- Next leaf `vibe_rst_sync` is described in `pycircuit/cdc/vibe_rst_sync.py`
+  and landed hand-finished at `rtl/cdc/vibe_rst_sync.sv`. **Same ports /
+  2-FF behavior** as tip `49421f9` / freeze `302ac943` (`clk`, `rst_n_in`,
+  `rst_n_out`; async assert on `rst_n_in`, sync release into `clk`). Not a
+  chip rewrite. No SPEC CR. F1 `ovf_l` untouched. Stage-1 `vibe_afifo`,
+  stage-2 `vibe_pma_bnd`, and stage-3 `vibe_sync2` left intact. Gear not
+  in this leaf.
+- Regenerator: `make -C pycircuit vibe_rst_sync`. Regime remains **UNFROZEN**
+  (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-3 — vibe_sync2)
 
 ### Changed
