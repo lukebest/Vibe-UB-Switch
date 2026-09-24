@@ -126,7 +126,8 @@ under [`pycircuit/`](pycircuit/) (scaffold + `vibe_afifo` + `vibe_pma_bnd`
 + `vibe_dll_retry_buf` + `vibe_dll_retry_req_sm`
 + `vibe_dll_tx` + `vibe_dll` + `vibe_fecn_mark` + `vibe_vl_rr`
 + `vibe_route_lu` + `vibe_port_sel` + `vibe_voq_egr`
-+ `vibe_saf_ing` + `vibe_xbar` + `vibe_icrc`). SPEC semantics
++ `vibe_saf_ing` + `vibe_xbar` + `vibe_icrc`
++ `vibe_nw_adapt`). SPEC semantics
 and CR-B names are unchanged. Pin and regenerate path:
 [`pycircuit/README.md`](pycircuit/README.md).
 
@@ -168,6 +169,7 @@ make -C pycircuit vibe_voq_egr       # lands rtl/fabric/vibe_voq_egr.sv
 make -C pycircuit vibe_saf_ing       # lands rtl/fabric/vibe_saf_ing.sv
 make -C pycircuit vibe_xbar          # lands rtl/fabric/vibe_xbar.sv
 make -C pycircuit vibe_icrc          # lands rtl/nw/vibe_icrc.sv
+make -C pycircuit vibe_nw_adapt      # lands rtl/nw/vibe_nw_adapt.sv
 ```
 
 ## Compile (syntax check)
