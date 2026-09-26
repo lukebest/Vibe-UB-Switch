@@ -1,5 +1,55 @@
 # Changelog
 
+## 2026-09-24 (Decision I stage-37 — vibe_nw_adapt)
+
+### Changed
+
+- Next leaf `vibe_nw_adapt` is described in
+  `pycircuit/nw/vibe_nw_adapt.py` and landed
+  hand-finished at `rtl/nw/vibe_nw_adapt.sv`.
+  **Same ports / combo mux** as tip `2b4a8408` /
+  freeze `302ac943` (`clk`, `rst_n` unused in the body,
+  `link_ready`, 512b `fab_nw_data` / `fab_nw_vld` /
+  `fab_nw_ready`, mgmt inject `mgmt_nw_data` /
+  `mgmt_nw_vld` / `mgmt_nw_ready`, NW→DLL
+  `nw_dll_data` / `nw_dll_vld` / `nw_dll_ready`,
+  DLL→NW `dll_nw_data` / `dll_nw_vld` /
+  `dll_nw_ready`, NW→FAB `nw_fab_data` /
+  `nw_fab_vld` / `nw_fab_ready`; LinkReady in ready
+  (U21 / FS-0.2.7); mgmt reply injects on ingress TX
+  before `nw_adapt_tx`, priority over VOQ; AS-0.1
+  §3/§5 T0 / §8). Self-contained (no child instances).
+  Second NW leaf after stage-36 `vibe_icrc`.
+  Instantiated by `vibe_port` (`u_nw`). Ports / mux
+  match stock (header-only vs stock). Official `.vlt`
+  not expanded. Not a chip rewrite. No SPEC CR. F1
+  `ovf_l` untouched. Stage-1 `vibe_afifo`, stage-2
+  `vibe_pma_bnd`, stage-3 `vibe_sync2`, stage-4
+  `vibe_rst_sync`, stage-5 `vibe_gear_128_160`,
+  stage-6 `vibe_gear_160_128`, stage-7
+  `vibe_pcs_scramble`, stage-8 `vibe_ebch16`,
+  stage-9 `vibe_pcs_tx_cw2beat`, stage-10
+  `vibe_pcs_tx_amctl`, stage-11 `vibe_rs128_120_enc`,
+  stage-12 `vibe_rs128_120_dec`, stage-13
+  `vibe_pcs_rx_deskew`, stage-14 `vibe_pcs_rx_amctl_lock`,
+  stage-15 `vibe_pcs_rx_unpack`, stage-16
+  `vibe_pcs_tx_pack`, stage-17 `vibe_pcs_tx_fec`,
+  stage-18 `vibe_pcs_rx_fec`, stage-19 `vibe_pcs_tx_g1`,
+  stage-20 `vibe_bcrc`, stage-21 `vibe_dll_credit`,
+  stage-22 `vibe_dll_sm`, stage-23 `vibe_dll_rx`,
+  stage-24 `vibe_dll_retry_ack_sm`, stage-25
+  `vibe_dll_retry_buf`, stage-26
+  `vibe_dll_retry_req_sm`, stage-27 `vibe_fecn_mark`,
+  stage-28 `vibe_vl_rr`, stage-29 `vibe_route_lu`,
+  stage-30 `vibe_port_sel`, stage-31 `vibe_voq_egr`,
+  stage-32 `vibe_saf_ing`, stage-33 `vibe_xbar`,
+  stage-34 `vibe_dll_tx`, stage-35 `vibe_dll`, and
+  stage-36 `vibe_icrc` left intact. PCS tx / rx
+  tops, `vibe_port` / `vibe_ub_switch` tops, other
+  NW helpers, and `vibe_fabric` top not in this leaf.
+- Regenerator: `make -C pycircuit vibe_nw_adapt`. Regime remains
+  **UNFROZEN** (Path B hold). Do not treat this leaf as a new freeze pin.
+
 ## 2026-09-23 (Decision I stage-36 — vibe_icrc)
 
 ### Changed
