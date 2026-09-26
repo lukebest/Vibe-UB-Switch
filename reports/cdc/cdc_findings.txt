@@ -1,11 +1,12 @@
-CDC structural audit 2026-09-24 (SGT)
-DUT/tip: 62cd3c88b04ffc90429a38a9cd83bc89642ac1f2
+CDC structural audit 2026-09-27 (SGT)
+DUT/tip: 2b5c5388cb0bcab6c3c05b88ea07ae87be47eb54
+RTL product tip: 2b4a8408abba14e3fcd0208fadd2c54cc97c3c23 (PR200 stage-36 vibe_icrc)
 Written freeze: UNFROZEN (Decision I). Last historical pin 302ac943 VOID as current; not re-pinned
-rtl/include vs 302ac943: NON-EMPTY 35 files +249/-10 (Decision I headers; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port empty (F1 untouched); rtl/cdc headers only
-rtl/ vs 09-23 DUT f001833b: NON-EMPTY 33 files (afifo+pma_bnd headers already present); include/ empty; port empty
+rtl/include vs 2b4a8408: EMPTY (PR214 reports-only after RTL tip); include/ empty; rtl/port empty (F1 untouched); rtl/cdc empty
+rtl/include vs 302ac943: NON-EMPTY 36 files +255/-10 (Decision I headers + vibe_icrc; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port empty; rtl/cdc headers only
 Tool: structural (no SpyGlass/Ascent)
-Nightly after Decision I stage-35 + PR201/PR203 TB-only tip; vs 2026-09-23 CDC NEW=0
-Expected pin 9a79722 moved to 62cd3c8 (PR203 TB-only)
+Nightly after PR214 health on tip 2b5c5388 (RTL bits = 2b4a8408); baseline 2026-09-26 from PR215 (not on main); CDC NEW=0
+Expected pin 2b5c5388 matched origin/main HEAD (tip did not move)
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
@@ -13,9 +14,9 @@ TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new c
 RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
 PRBS23: txclk-local LFSR / idle fill XOR PMA_IDLE_MARK — no new unsync multi-bit from clk_fab
 IDLE_MARK: localparam; TX XOR @txclk; RX un-XOR @rxclk on pma_pcs_rxdata only
-DECISION_I_LEAVES: headers on CDC/DLL/fabric/PCS/PMA leaves — not a new crossing
-LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; Decision I did not reopen
+DECISION_I_LEAVES: through stage-36 vibe_icrc present (expected); no RTL delta vs 2b4a8408 — not a new crossing
+LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR214 did not reopen
 BASELINE_WARN: rtl/port/vibe_port.sv:244 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :249 — UNCHANGED (F1)
 NEW: 0
 ERROR: 0
-GONE: 0 (loopback already GONE vs 2026-09-23)
+GONE: 0 (loopback already GONE vs 2026-09-26)
