@@ -1,6 +1,7 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Stock Icarus tc_dll instantiates vibe_dll #(.RETRY_WAIT_CYC(4)).
-// TP-DLL-004 scores a >32-flit DLLDP split on this full wrapper.
+// TP-DLL-004 (`tc_dll` / make dll) scores a >32-flit DLLDP split.
+// Decision-I wrap leaf `tc_vibe_dll` / make dll_wrap uses this top too.
 `timescale 1ns/1ps
 
 module vibe_dll_cocotb_top (
