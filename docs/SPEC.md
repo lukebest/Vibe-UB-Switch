@@ -3,9 +3,9 @@
 | 项 | 内容 |
 |----|------|
 | 文档编号 | SPEC-0.2 |
-| 状态 | **CR-applied（命名）** — RTL 端口冻结 **UNFROZEN**（Decision I） |
+| 状态 | **CR-applied（命名 + PMA idle PRBS31）** — RTL 端口冻结 **UNFROZEN**（Decision I）。本修订**不是**冻结重钉 |
 | 前版冻结 | SPEC-0.1 **已冻结**（2026-09-03，人批准），对齐 RTL `32a7f5e0`。端口冻结 `1ed4d350` 已被 Lint ECO 取代为 `982ddd0a`；`982ddd0a` 已被 PMA ECO 取代为 `a658d141`；`a658d141` 已被 #115 idle-mark ECO 取代为 `302ac943`。`302ac943` 现为**历史 / 已取代**（Decision I：作为当前 pin 已失效） |
-| 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — Luke 批准 Option B（2026-09-08 Asia/Shanghai） |
+| 本 CR | [CR-PMA-IDLE-PRBS31-2026-09-30](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md) — 人批准 PMA idle = PRBS31（2026-09-30 Asia/Shanghai）。命名仍见 [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) |
 | 作者 | Xia |
 | 协议 | Unified Bus (UB) Base 2.0 |
 | 对齐功能规格 | FS-0.2.7（已实现锁定事实；真源不在本仓库） |
@@ -13,10 +13,10 @@
 | 对齐固件头 | [`include/vibe_ub_switch_regs.h`](../include/vibe_ub_switch_regs.h)（PR21 / `main`） |
 | 对齐寄存器手册 | [Vibe-UB-Switch-register-map.md](Vibe-UB-Switch-register-map.md) |
 | 对齐 RTL（端口冻结） | **无当前 pin（UNFROZEN / redesign）**；最近历史 pin `302ac943`（`302ac943c3737c288f3af6c4857bb3a9b1683a26`）作为当前 pin 已失效；merge `df7c286e`（仅追溯） |
-| 对齐 RTL（功能） | 宽度 / 协议 / 握手语义仍同 `32a7f5e0`；**不是**功能改写 |
+| 对齐 RTL（功能） | 宽度 / 协议 / 握手语义仍同 `32a7f5e0`，另加本 CR 的 PMA idle = PRBS31；**本 PR 无 RTL** |
 | 接口名 | `{src}_{dst}_{meaning}`，datalink token 为 **`dll`**（不是 `dl`）。命名不变（CR-B 已落地） |
 
-本文件是冻结门：芯片开发 PM 据此验收。SPEC-0.1 于 2026-09-03 人批准、对齐 RTL `32a7f5e0`。**CR-B 打破该冻结，仅限接口命名**；功能宽度、时序、fire 规则与协议不变。RTL 端口更名已落地：本文件产品接口表与 `rtl/` 均为 CR-B 名。**Lint ECO（PR62）打破端口冻结 `1ed4d350`**；**PMA ECO（PR109）打破端口冻结 `982ddd0a`**；**#115 idle-mark ECO（PR116）打破端口冻结 `a658d141`**；`302ac943`（merge `df7c286e`，仅追溯）现为历史 pin。**Decision I（Luke，2026-09-22 Asia/Shanghai）将端口冻结标为 UNFROZEN / redesign**；无当前 pin。命名 / 功能接口不变。F1（`ovf_l`）不变。改写须遵循 SPEC-0.2 / FS-0.2.7 已锁定事实；接口语义变更仍须 CR。
+本文件是冻结门：芯片开发 PM 据此验收。SPEC-0.1 于 2026-09-03 人批准、对齐 RTL `32a7f5e0`。**CR-B 打破该冻结，仅限接口命名**；功能宽度、时序、fire 规则与协议不变。RTL 端口更名已落地：本文件产品接口表与 `rtl/` 均为 CR-B 名。**Lint ECO（PR62）打破端口冻结 `1ed4d350`**；**PMA ECO（PR109）打破端口冻结 `982ddd0a`**；**#115 idle-mark ECO（PR116）打破端口冻结 `a658d141`**；`302ac943`（merge `df7c286e`，仅追溯）现为历史 pin。**Decision I（Luke，2026-09-22 Asia/Shanghai）将端口冻结标为 UNFROZEN / redesign**；无当前 pin。**CR-PMA-IDLE-PRBS31-2026-09-30 是接口语义 CR**（idle / 无有效流量 = 每拍 PRBS31），**不是**冻结重钉；F1（`ovf_l`）不变。改写须遵循 SPEC-0.2 / FS-0.2.7 已锁定事实；接口语义变更仍须 CR。本 PR **不改 RTL / TB**。
 
 本修订不改写 FS-0.2.7 已实现功能。`302ac943` 曾是端口冻结 SHA（角色同旧 `a658d141` / 更早 `982ddd0a` / `1ed4d350` / `32a7f5e0`），现作为当前 pin 已失效（Decision I）。`32a7f5e0` 只标明功能宽度 / 协议 / 握手语义未改，不构成规格功能变更。
 
@@ -30,7 +30,7 @@
 - 验收对象：4 端口独立 UB Switch（Entity 0，Port 0..3），协议 2.0，无 UBFM。
 - 固件接口是顶层静态写握手，**不是 MMIO**，没有地址译码，没有 APB / AXI / I2C / JTAG。
 - 接口名遵循 §1.1。时钟 / 复位豁免。
-- 再变更 `cfg_wr_*`、`irq_logic`、每端口 PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、以及 NW↔DLL `nw_dll_*` / `dll_nw_*` 的**语义**（宽度、fire、协议），须提变更请求。CR-B 已批准命名本身。
+- 再变更 `cfg_wr_*`、`irq_logic`、每端口 PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、以及 NW↔DLL `nw_dll_*` / `dll_nw_*` 的**语义**（宽度、fire、协议），须提变更请求。CR-B 已批准命名本身。PMA 数据总线 idle 填充见 [CR-PMA-IDLE-PRBS31-2026-09-30](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md)（已批准）。
 
 ### 1.1 接口命名约定
 
@@ -64,8 +64,8 @@ Ready/valid 数据接口后缀保持 `_vld`（源）/ `_ready`（宿）；fire �
 | mgmt → NW 注入 | 512 | `mgmt_nw_data` / `mgmt_nw_vld` / `mgmt_nw_ready` |
 | FAB → mgmt CFG6 | 512 + hit | `fab_mgmt_cfg6_data` / `fab_mgmt_cfg6_hit` |
 | mgmt → FAB consume | 4 | `mgmt_fab_cfg6_consume` |
-| chip → PMA | 512 | `pcs_pma_txdata`（顶层 `_0`..`_3`）；无 `_ready` |
-| PMA → chip | 512 | `pma_pcs_rxdata`（顶层 `_0`..`_3`）；无 `_ready` |
+| chip → PMA | 512 | `pcs_pma_txdata`（顶层 `_0`..`_3`）；无 `_ready`；无有效流量时每拍 PRBS31 |
+| PMA → chip | 512 | `pma_pcs_rxdata`（顶层 `_0`..`_3`）；无 `_ready`；无有效流量时每拍 PRBS31 |
 
 内部 lane（非封装球）：`pcs_afifo_lane0`..`lane3` / `pcs_afifo_lane_vld`；`afifo_pma_lane0`..`lane3` / `afifo_pma_lane_vld`；`pma_afifo_lane0`..`lane3` / `pma_afifo_lane_vld`；`afifo_pcs_lane0`..`lane3` / `afifo_pcs_lane_vld`。
 
@@ -91,7 +91,7 @@ Ready/valid 数据接口后缀保持 `_vld`（源）/ `_ready`（宿）；fire �
 | 死锁超时 | 1 µs，VOQ 超时丢弃 + 计数 + `irq_logic`；与信用 1 µs 独立 |
 | 交换网 | 存储转发（SAF），不做 cut-through |
 | `clk_fab` | 1.25 GHz |
-| PMA | `pcs_pma_txdata[511:0]` / `pma_pcs_rxdata[511:0]` @ 922 MHz，无额外握手 |
+| PMA | `pcs_pma_txdata[511:0]` / `pma_pcs_rxdata[511:0]` @ 922 MHz，无额外握手；无有效流量时每拍 PRBS31（须每拍变化） |
 | LinkReady | 参与 NW `vld`/`ready`（U21） |
 | UBFM | 不实例化 |
 | CNA | 仅静态写；DCNA 匹配由 `cna_written` 门控 |
@@ -177,8 +177,8 @@ vibe_ub_switch
 | `rst_n` | in | 1 | 逻辑复位（本冻结只要求该逻辑脚） |
 | `txclk_0`..`txclk_3` | in | 1 | 每端口独立 TX 时钟，922 MHz |
 | `rxclk_0`..`rxclk_3` | in | 1 | 每端口独立 RX 时钟，922 MHz |
-| `pcs_pma_txdata_0`..`pcs_pma_txdata_3` | out | 512 | PMA TX；`[127:0]`=lane0 … `[511:384]`=lane3 |
-| `pma_pcs_rxdata_0`..`pma_pcs_rxdata_3` | in | 512 | PMA RX；切片同 TX |
+| `pcs_pma_txdata_0`..`pcs_pma_txdata_3` | out | 512 | PMA TX；`[127:0]`=lane0 … `[511:384]`=lane3；每 `txclk` 必须变化；无有效流量时填 PRBS31 |
+| `pma_pcs_rxdata_0`..`pma_pcs_rxdata_3` | in | 512 | PMA RX；切片同 TX；每 `rxclk` 必须变化；无有效流量时填 PRBS31 |
 | `cfg_wr_vld` | in | 1 | 静态写选通 |
 | `cfg_wr_ready` | out | 1 | 静态写就绪；`vibe_cfg_space` 中恒为 1 |
 | `cfg_wr_cmd` | in | 4 | 命令编码 = 固件“地址” |
@@ -231,16 +231,24 @@ sequenceDiagram
 
 ### 4.4 PMA `pcs_pma_txdata` / `pma_pcs_rxdata`（无额外握手）
 
-每端口 `txclk` / `rxclk` 独立，922 MHz，不假定同源。产品 PMA 只有 `pcs_pma_txdata[511:0]`、`txclk`、`pma_pcs_rxdata[511:0]`、`rxclk`。没有 PMA `ready`、没有额外握手名。`pcs_pma_txdata` 在 `txclk` 上每拍都是数据；`pma_pcs_rxdata` 在 `rxclk` 上每拍都是数据。RX AFIFO 溢出：丢拍、计数、置 `irq_logic`。
+每端口 `txclk` / `rxclk` 独立，922 MHz，不假定同源。产品 PMA 只有 `pcs_pma_txdata[511:0]`、`txclk`、`pma_pcs_rxdata[511:0]`、`rxclk`。没有 PMA `ready`、没有额外握手名。`pcs_pma_txdata` 在 `txclk` 上每拍都是数据；`pma_pcs_rxdata` 在 `rxclk` 上每拍都是数据。两端语义一致。
+
+**Idle / 无有效流量：** 该拍填 **PRBS31**。`pcs_pma_txdata_*` / `pma_pcs_rxdata_*`（每端口 `_0`..`_3`）**每时钟周期必须变化**；无有效流量时不得钉死常数、全 0 或上一拍业务数据。有有效流量时保持既有每拍打包语义（`[127:0]`=lane0 … `[511:384]`=lane3）。Idle 不是新握手，也不是 LMSM 电气空闲（EEI / EEIB）。影响模块：`pcs_tx`、`pcs_rx`、`pma_bnd` / AFIFO 边界及对应 TB。多项式 / 种子由 Design 在 SPEC 合入后的 RTL PR 写明。历史 #115 PRBS23 + `PMA_IDLE_MARK` 不再作为本 SPEC 的 idle 规则。见 [CR-PMA-IDLE-PRBS31-2026-09-30](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md)。
+
+RX AFIFO 溢出：丢拍、计数、置 `irq_logic`。
 
 ```mermaid
 sequenceDiagram
   participant FAB as PCS / AFIFO
   participant PMA as pma_bnd
   Note over PMA: txclk / rxclk 922 MHz，无 ready
-  FAB->>PMA: tx 路径 4x128 拼成 pcs_pma_txdata[511:0]
-  PMA-->>FAB: 每 txclk 更新 pcs_pma_txdata（无握手）
-  PMA->>FAB: 每 rxclk 采样 pma_pcs_rxdata[511:0]（无握手）
+  alt 有效流量
+    FAB->>PMA: tx 路径 4x128 拼成 pcs_pma_txdata[511:0]
+  else 无有效流量
+    FAB->>PMA: 每拍 PRBS31 填 pcs_pma_txdata
+  end
+  PMA-->>FAB: 每 txclk 更新 pcs_pma_txdata（无握手；必须变化）
+  PMA->>FAB: 每 rxclk 采样 pma_pcs_rxdata[511:0]（无握手；idle=PRBS31）
 ```
 
 ---
@@ -281,13 +289,13 @@ Flit = 20 字节。640 位窗只出现在 DLL↔PCS（4 flit / 拍）。NW 与 f
 | T5 | `pcs_tx_pack` G2：512 位拍 + AMCTL（FEC 外）→ 640 位 = 4×160 进 AFIFO；`almost_full` 反压 |
 | T6 | `afifo_tx` 写 160 位 @ `clk_fab` |
 | T7 | 读 128 位 @ `txclk`，32 位余数齿轮箱 |
-| T8 | `pma_bnd` 拼成 `pcs_pma_txdata`。无 PMA ready |
+| T8 | `pma_bnd` 拼成 `pcs_pma_txdata`。无 PMA ready。无有效流量时每拍 PRBS31 |
 
 AMCTL：每 lane 40 symbol，eBCH-16；SDF 之后数据期每 640 symbol，其余 LMSM 状态每 512 symbol。插在 FEC 之后、G2 之前。扰码覆盖 LTB，不覆盖 AMCTL/EEIB。Gray / 预编码不实现（模拟 PMA，§非目标）。
 
 ### 6.2 RX（TX 的逆）
 
-`pma_pcs_rxdata` 4×128 @ `rxclk` → `afifo_rx` → 160 位 @ `clk_fab` → 解包 / 去 AMCTL / deskew → 2×512 码字 → RS 译码（失败 → `fec_fail` 给 DLL 做 Go-Back-N；不实现 `hi_FEC_BER`）→ `pcs_dll_*` → `dll_rx` BCRC + CFG0 终结 → `nw_adapt` `dll_nw_*` / `nw_fab_data[511:0]` 进 fabric。
+`pma_pcs_rxdata` 4×128 @ `rxclk`（无有效流量时为 PRBS31 idle，不当作打包业务拍）→ `afifo_rx` → 160 位 @ `clk_fab` → 解包 / 去 AMCTL / deskew → 2×512 码字 → RS 译码（失败 → `fec_fail` 给 DLL 做 Go-Back-N；不实现 `hi_FEC_BER`）→ `pcs_dll_*` → `dll_rx` BCRC + CFG0 终结 → `nw_adapt` `dll_nw_*` / `nw_fab_data[511:0]` 进 fabric。
 
 U24：不做极性 / 车道对调训练。出厂假定物理 lane = 逻辑 lane。`AMCTL.LID` 不是 `{0,1,2,3}` 则失败到 `Link_Idle` 或 Retrain，不对调车道。
 
@@ -496,6 +504,8 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 
 仅 Mode-2 PAM4 106.25 Gbit/s ×4 对称。每端口全双工。TX 侧全部车道同频。FEC RS(128,120) T=4 / T=2 / bypass，双编码器交织。DLL 封装只做 BCRC。无光通路。无模拟 PMA（Gray / 预编码 / SerDes 球，§非目标）。
 
+产品 PMA 数据脚语义见 §4.4：`pcs_pma_txdata` / `pma_pcs_rxdata` 无额外握手；无有效流量时每拍填 PRBS31，总线每时钟周期必须变化。影响 `pcs_tx`、`pcs_rx`、`pma_bnd` / AFIFO 边界。不是电气空闲（EEI / EEIB）。
+
 ---
 
 ## 16. 性能、面积与功耗
@@ -546,10 +556,10 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 
 | 项 | 规则 |
 |----|------|
-| 当前状态 | **CR-applied（命名）** — SPEC-0.2。SPEC-0.1 冻结（2026-09-03 / RTL `32a7f5e0`）已被 CR-B 打破，**仅限命名**。Lint ECO 打破端口冻结 `1ed4d350`；PMA ECO 打破端口冻结 `982ddd0a`；#115 idle-mark ECO 打破端口冻结 `a658d141`；`302ac943` 现为历史 pin。**Decision I：端口冻结 UNFROZEN / redesign**；无当前 pin |
-| 本 CR | [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md)（Luke Option B，2026-09-08）。清单 [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) |
+| 当前状态 | **CR-applied（命名 + PMA idle PRBS31）** — SPEC-0.2。SPEC-0.1 冻结（2026-09-03 / RTL `32a7f5e0`）已被 CR-B 打破，**仅限命名**。Lint ECO 打破端口冻结 `1ed4d350`；PMA ECO 打破端口冻结 `982ddd0a`；#115 idle-mark ECO 打破端口冻结 `a658d141`；`302ac943` 现为历史 pin。**Decision I：端口冻结 UNFROZEN / redesign**；无当前 pin。**CR-PMA-IDLE-PRBS31 不是冻结重钉**（≠1/3 ≠4/3 ≠signoff；Path B / FPGA hold） |
+| 本 CR | [CR-PMA-IDLE-PRBS31-2026-09-30](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md)（PMA idle = PRBS31，2026-09-30）。命名仍见 [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md)（Luke Option B，2026-09-08）。清单 [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) |
 | 再变更接口 | `cfg_wr_*`、`irq_logic`、PMA `pcs_pma_txdata`/`pma_pcs_rxdata`/`txclk`/`rxclk`、NW `nw_dll_*`/`dll_nw_*`/`fab_nw_*`/`nw_fab_*` 的**语义**须变更请求 |
-| 功能改写 | 不得以“对齐 SHA `32a7f5e0` / `1ed4d350` / `982ddd0a` / `a658d141` / `302ac943`”或“CR-B 命名 / Lint ECO / PMA ECO / idle-mark ECO / Decision I UNFROZEN”为由改写 FS-0.2.7 已锁定行为。改写须遵循 SPEC-0.2 / FS-0.2.7 已锁定事实；接口语义变更仍须 CR |
+| 功能改写 | 不得以“对齐 SHA `32a7f5e0` / `1ed4d350` / `982ddd0a` / `a658d141` / `302ac943`”或“CR-B 命名 / Lint ECO / PMA ECO / idle-mark ECO / Decision I UNFROZEN / CR-PMA-IDLE-PRBS31”为由改写 FS-0.2.7 已锁定行为（本 CR 只写 PMA pin-idle = PRBS31）。改写须遵循 SPEC-0.2 / FS-0.2.7 已锁定事实；接口语义变更仍须 CR |
 | 空洞升级 | §非目标项若要进入冻结正文，须变更请求，并更新本文件版本号 |
 | RTL 更名 | 已落地（CR-B）。当前端口冻结 **UNFROZEN**（Decision I）。最近历史 pin `302ac943`（`302ac943c3737c288f3af6c4857bb3a9b1683a26`）作为当前 pin 已失效；merge `df7c286e`（仅追溯）。旧 `a658d141` / `982ddd0a` / `1ed4d350` 对端口已失效 |
 
@@ -564,6 +574,7 @@ FEC 失败：先 Go-Back-N，不是独立 irq must。
 - [Vibe-UB-Switch-testpoints.md](Vibe-UB-Switch-testpoints.md) — TP-0.3
 - `tb/vibe/results/COVERAGE_HOLES.md` — 九项 HOLE
 - [`reports/synth/`](../reports/synth/) — 实现 QoR（非本 SPEC 必须项）
+- [CR-PMA-IDLE-PRBS31-2026-09-30](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md) — PMA idle = PRBS31（接口语义；本 PR 无 RTL）
 - [CR-IFACE-RENAME-B-2026-09-08](cr/CR-IFACE-RENAME-B-2026-09-08.md) — 接口命名 Option B
 - [CR-IFACE-NAMING-DRAFT-2026-09-08](cr/CR-IFACE-NAMING-DRAFT-2026-09-08.md) — current→proposed 清单
-- RTL SHA `302ac943`（**历史**端口冻结；作为当前 pin 已失效，Decision I；PR116 merge `df7c286e`，仅追溯）。无当前端口冻结 pin（UNFROZEN / redesign）。功能宽度 / 协议 / 握手语义仍同 `32a7f5e0`。F1 不变。
+- RTL SHA `302ac943`（**历史**端口冻结；作为当前 pin 已失效，Decision I；PR116 merge `df7c286e`，仅追溯）。无当前端口冻结 pin（UNFROZEN / redesign）。功能宽度 / 协议 / 握手语义仍同 `32a7f5e0`，另加本 CR 的 PMA idle = PRBS31。F1 不变。本 CR **不是**冻结重钉。

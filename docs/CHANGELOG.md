@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-09-30 (CR-PMA-IDLE-PRBS31 — SPEC/docs only)
+
+### Changed
+
+- Human-approved interface-semantics CR
+  [`docs/cr/CR-PMA-IDLE-PRBS31-2026-09-30.md`](cr/CR-PMA-IDLE-PRBS31-2026-09-30.md)
+  (2026-09-30 Asia/Shanghai): product PMA
+  `pcs_pma_txdata` / `pma_pcs_rxdata` (per-port `_0`..`_3`)
+  **MUST change every clock cycle**. Idle / no valid
+  traffic → **PRBS31** every cycle on both TX egress and
+  RX ingress. Valid traffic keeps existing per-beat
+  packed-lane data. No extra handshake (SPEC §4.4).
+- `docs/SPEC.md` §4.4 (and PMA rows in §1.1 / §2 / §4.1 /
+  §6 T8 / §6.2 / §15 / §18) record the idle = PRBS31
+  rule. Impacted later modules: `pcs_tx`, `pcs_rx`,
+  `pma_bnd` / AFIFO boundary, related TB. **No RTL / TB
+  / include in this entry.** Design and Verification
+  follow after SPEC merge.
+- SPEC status stays **CR-applied** with this semantic
+  added; regime remains **UNFROZEN** (Decision I). **Not
+  a freeze re-pin.** ≠1/3 ≠4/3 ≠signoff. Path B **hold**.
+  FPGA **deferred**. F1 `ovf_l` untouched. Historical
+  #115 PRBS23 + `PMA_IDLE_MARK` is no longer the SPEC
+  idle rule.
+
 ## 2026-09-24 (Decision I stage-37 — vibe_nw_adapt)
 
 ### Changed
