@@ -10,6 +10,8 @@
 // fab_mgmt_cfg6_data_* / mgmt_nw_data_* — cocotb cannot drive
 // unpacked array ports. Instance u_u matches Decision-I leaf
 // wrappers (wrap-style tc_cna_ep still uses flattened ports).
+// Icarus 12 VPI leaves 512-bit packed mgmt_nw_data_* X; packed
+// consume / mgmt_nw_vld / icrc_fail remain the Icarus scorers.
 `timescale 1ns/1ps
 
 module vibe_cna_ep_cocotb_top (
