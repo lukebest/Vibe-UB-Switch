@@ -1,6 +1,28 @@
+"""Emit the product SystemVerilog for vibe_nw_adapt (hand-finished).
+
+Keeps tip ports, unused ``clk`` / ``rst_n`` pins, and the combo
+512b vld/ready mux (AS-0.1: LinkReady in ready; mgmt inject
+priority over VOQ). pycc netlists are a prototype only; this
+file is what lands in ``rtl/nw/vibe_nw_adapt.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/nw/vibe_nw_adapt.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 2b4a8408 / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_nw_adapt
+"""
+
+BODY = """\
 // AS-0.1 §3/§5 T0 / §8 / FS-0.2.7: 512b NW vld/ready. LinkReady in ready (U21).
 // Mgmt reply injects on ingress TX before nw_adapt_tx, priority over VOQ.
 module vibe_nw_adapt (
@@ -37,6 +59,26 @@ module vibe_nw_adapt (
   assign nw_fab_vld   = dll_nw_vld;
   assign nw_fab_data  = dll_nw_data;
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_nw_adapt
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "nw" / "vibe_nw_adapt.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
