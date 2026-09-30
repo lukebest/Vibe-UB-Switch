@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep
 all: sim
 
 help:
@@ -114,6 +114,9 @@ help:
 	@echo "make units TC=tc_vibe_irq_agg - Decision-I vibe_irq_agg (module-level)"
 	@echo "make irq_agg        - same as units TC=tc_vibe_irq_agg (not full-chip gate)"
 	@echo "make tc_vibe_irq_agg - same as irq_agg"
+	@echo "make units TC=tc_vibe_cna_ep - Decision-I vibe_cna_ep (module-level)"
+	@echo "make cna_ep         - same as units TC=tc_vibe_cna_ep (not full-chip gate)"
+	@echo "make tc_vibe_cna_ep - same as cna_ep"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -366,6 +369,14 @@ irq_agg: $(RES)
 
 tc_vibe_irq_agg: $(RES)
 	$(MAKE) -C $(PYUVM) tc_vibe_irq_agg SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+cna_ep: $(RES)
+	$(MAKE) -C $(PYUVM) cna_ep SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+tc_vibe_cna_ep: $(RES)
+	$(MAKE) -C $(PYUVM) tc_vibe_cna_ep SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)

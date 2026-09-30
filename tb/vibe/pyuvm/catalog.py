@@ -210,6 +210,8 @@ NAME_MAP = {
         "tc_vibe_icrc (vibe_icrc_cocotb_top, module-level)",
     "make irq_agg / tc_vibe_irq_agg":
         "tc_vibe_irq_agg (vibe_irq_agg_cocotb_top, module-level)",
+    "make cna_ep / tc_vibe_cna_ep":
+        "tc_vibe_cna_ep (vibe_cna_ep_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
