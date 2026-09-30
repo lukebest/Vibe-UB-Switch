@@ -16,6 +16,8 @@ accepted in full and partitions into ≤16 chunks of ≤32 flits — not
 truncated at 32.
 
 Not 1/3, 4/3, freeze, or signoff. Not a full-chip consecutive-green reopen.
+Decision-I wrap leaf is `tc_vibe_dll` / `make dll_wrap` (integration
+smoke; not this official split).
 """
 
 from uvm import uvm_component_utils
