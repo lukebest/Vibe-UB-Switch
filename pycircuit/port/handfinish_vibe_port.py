@@ -1,6 +1,31 @@
+"""Emit the product SystemVerilog for vibe_port (hand-finished).
+
+Keeps tip ports, the stock children (``u_txrst`` / ``u_rxrst`` /
+``u_lmsm`` / ``u_nw`` / ``u_dll`` / ``u_ptx`` / ``u_prx``,
+4× TX/RX afifo + gear, ``u_pma``), interconnect nets, gear
+hold, RX change-detect, and F1 ``ovf_l`` CDC sync (AS-0.1 §4).
+``vibe_lmsm`` / ``vibe_pcs_tx`` / ``vibe_pcs_rx`` stay stock
+SV. pycc netlists are a prototype only; this file is what
+lands in ``rtl/port/vibe_port.sv``. Do not rewrite ``ovf_l``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/port/vibe_port.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 1ee80cbd. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. F1 ovf_l stays stock (CDC F1; do not rewrite).
+// Regenerate: make -C pycircuit vibe_port
+"""
+
+BODY = """\
 // AS-0.1 §4: per-port — pma_bnd, afifo_tx/rx×4, pcs_tx, pcs_rx, lmsm, dll, nw_adapt.
 module vibe_port (
   input  logic         clk_fab,
@@ -283,6 +308,26 @@ module vibe_port (
   );
   assign rren3 = gr3 && !re3 && !rx_hold_wait;
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. F1 ovf_l stays stock (CDC F1; do not rewrite).
-// Regenerate: make -C pycircuit vibe_port
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "port" / "vibe_port.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
