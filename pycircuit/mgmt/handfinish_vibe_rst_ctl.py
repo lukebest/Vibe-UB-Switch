@@ -1,6 +1,28 @@
+"""Emit the product SystemVerilog for vibe_rst_ctl (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, and the stretch
+counters (AS-0.1.2 §10 / Table D-103: device / port reset
+holds). pycc netlists are a prototype only; this file is
+what lands in ``rtl/mgmt/vibe_rst_ctl.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/mgmt/vibe_rst_ctl.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 0587aaee / freeze 302ac943. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_rst_ctl
+"""
+
+BODY = """\
 // AS-0.1.2 §10 / Table D-103: device reset clears RW config (CNA unwritten),
 // MUST NOT force DLL_Disabled. LMSM → Link_Idle.
 // Port Reset is RW1C in vibe_cfg_space (stored bit = 1 while this hold is
@@ -49,6 +71,26 @@ module vibe_rst_ctl (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_rst_ctl
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "mgmt" / "vibe_rst_ctl.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
