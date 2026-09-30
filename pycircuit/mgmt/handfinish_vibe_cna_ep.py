@@ -1,6 +1,30 @@
+"""Emit the product SystemVerilog for vibe_cna_ep (hand-finished).
+
+Keeps tip ports, combo ``always @*`` body, and the CFG6
+terminate / echo (AS-0.1.2 §9/§13: DCNA==mgmt CNA AND CNA
+written, OR NLP=1, OR opcode 0x10). pycc netlists are a
+prototype only; this file is what lands in
+``rtl/mgmt/vibe_cna_ep.sv``. Official opcode 0x10 /
+Appendix D packing is 未知 — do not invent. Echo only.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/mgmt/vibe_cna_ep.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip cf64951b. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_cna_ep
+"""
+
+BODY = """\
 // AS-0.1.2 §9/§13: CFG6 terminate if DCNA==mgmt CNA AND CNA written, OR NLP=1, OR opcode 0x10.
 // ICRC only as sender/receiver. Transit has no ICRC unit.
 // Power-on CNA UNKNOWN: do not match until static write.
@@ -60,6 +84,26 @@ module vibe_cna_ep (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_cna_ep
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "mgmt" / "vibe_cna_ep.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
