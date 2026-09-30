@@ -15,7 +15,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_dll_tx vibe_dll \
         vibe_fecn_mark vibe_vl_rr vibe_route_lu vibe_port_sel \
         vibe_voq_egr vibe_saf_ing vibe_xbar \
-        vibe_icrc vibe_nw_adapt \
+        vibe_icrc vibe_nw_adapt vibe_rst_ctl \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
@@ -32,7 +32,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-fecn-mark \
         handfinish-vl-rr handfinish-route-lu handfinish-port-sel \
         handfinish-voq-egr handfinish-saf-ing handfinish-xbar \
-        handfinish-icrc handfinish-nw-adapt \
+        handfinish-icrc handfinish-nw-adapt handfinish-rst-ctl \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
@@ -49,7 +49,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-fecn-mark \
         lint-leaf-vl-rr lint-leaf-route-lu lint-leaf-port-sel \
         lint-leaf-voq-egr lint-leaf-saf-ing lint-leaf-xbar \
-        lint-leaf-icrc lint-leaf-nw-adapt
+        lint-leaf-icrc lint-leaf-nw-adapt lint-leaf-rst-ctl
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -91,6 +91,7 @@ help:
 	@echo "vibe_xbar          land hand-finished rtl/fabric/vibe_xbar.sv (try pycc first)"
 	@echo "vibe_icrc          land hand-finished rtl/nw/vibe_icrc.sv (try pycc first)"
 	@echo "vibe_nw_adapt      land hand-finished rtl/nw/vibe_nw_adapt.sv (try pycc first)"
+	@echo "vibe_rst_ctl       land hand-finished rtl/mgmt/vibe_rst_ctl.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -128,6 +129,7 @@ help:
 	@echo "handfinish-xbar    write product vibe_xbar SV only"
 	@echo "handfinish-icrc    write product vibe_icrc SV only"
 	@echo "handfinish-nw-adapt write product vibe_nw_adapt SV only"
+	@echo "handfinish-rst-ctl write product vibe_rst_ctl SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -165,6 +167,7 @@ help:
 	@echo "lint-leaf-xbar     Verilator --lint-only on vibe_xbar"
 	@echo "lint-leaf-icrc     Verilator --lint-only on vibe_icrc"
 	@echo "lint-leaf-nw-adapt Verilator --lint-only on vibe_nw_adapt"
+	@echo "lint-leaf-rst-ctl  Verilator --lint-only on vibe_rst_ctl"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -285,6 +288,9 @@ vibe_icrc:
 vibe_nw_adapt:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_nw_adapt
 
+vibe_rst_ctl:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_rst_ctl
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -395,6 +401,9 @@ handfinish-icrc:
 
 handfinish-nw-adapt:
 	python3 $(ROOT)/pycircuit/nw/handfinish_vibe_nw_adapt.py
+
+handfinish-rst-ctl:
+	python3 $(ROOT)/pycircuit/mgmt/handfinish_vibe_rst_ctl.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -578,3 +587,7 @@ lint-leaf-icrc:
 lint-leaf-nw-adapt:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_nw_adapt \
 	  $(ROOT)/rtl/nw/vibe_nw_adapt.sv
+
+lint-leaf-rst-ctl:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_rst_ctl \
+	  $(ROOT)/rtl/mgmt/vibe_rst_ctl.sv
