@@ -1,22 +1,24 @@
-CDC structural audit 2026-09-30 (SGT)
-DUT/tip: abf0555901300c7d0f5c733c8a3a2bf4ba0b7f01
-RTL product tip: 2b4a8408abba14e3fcd0208fadd2c54cc97c3c23 (PR200 stage-36 vibe_icrc)
+CDC structural audit 2026-10-01 (SGT)
+DUT/tip: 4c3aac730586b52fcdf411eecfa45bdfb5759f30
+RTL product tip: 260dc6db63b19bab52eca7398d7e487a2a6d83c0 (PR240 stage-43 vibe_port wrap)
 Written freeze: UNFROZEN (Decision I). Last historical pin 302ac943 VOID as current; not re-pinned
-rtl/include vs 2b4a8408: EMPTY (PR218 reports-only after RTL tip); include/ empty; rtl/port empty (F1 untouched); rtl/cdc empty
-rtl/include vs 302ac943: NON-EMPTY 36 files +255/-10 (Decision I headers + vibe_icrc; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port empty; rtl/cdc headers only
+rtl/include vs 260dc6d: EMPTY (PR241 TB-only after RTL tip); include/ empty; rtl/port empty; rtl/cdc empty
+rtl/include vs 2e623708: NON-EMPTY vibe_port.sv headers only +6 (evening STATUS product tip stale)
+rtl/include vs abf05559 (2026-09-30 DUT): NON-EMPTY 8 files +100/-63 (stages 37-43 headers + PR231 PMA PRBS31); include/ empty; rtl/port headers only (F1 untouched); rtl/cdc empty
+rtl/include vs 302ac943: NON-EMPTY 43 files +354/-72 (Decision I headers + vibe_port wrap + PMA PRBS31; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port headers only; rtl/cdc headers only
 Tool: structural (no SpyGlass/Ascent)
-Nightly after PR218 health on tip abf05559 (RTL bits = 2b4a8408); baseline 2026-09-29 from PR222 (not on main); CDC NEW=0
-Expected pin abf05559 matched origin/main HEAD (tip did not move)
+Nightly after PR241 on tip 4c3aac73 (RTL bits = 260dc6d); baseline 2026-09-30 on main (PR225); CDC NEW=0
+Expected pin 4c3aac73 matched origin/main HEAD (tip did not move)
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
 TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new crossing
 RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
-PRBS23: txclk-local LFSR / idle fill XOR PMA_IDLE_MARK — no new unsync multi-bit from clk_fab
-IDLE_MARK: localparam; TX XOR @txclk; RX un-XOR @rxclk on pma_pcs_rxdata only
-DECISION_I_LEAVES: through stage-36 vibe_icrc present (expected); no RTL delta vs 2b4a8408 — not a new crossing
-LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR218 did not reopen
-BASELINE_WARN: rtl/port/vibe_port.sv:244 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :249 — UNCHANGED (F1)
+PRBS31: txclk-local LFSR / raw-PRBS31 idle fill (no PMA_IDLE_MARK) — no new unsync multi-bit from clk_fab
+IDLE_PRBS31: combo on pma_pcs_rxdata @rxclk (w[i]==w[i-31]^w[i-28]); no txclk sample
+DECISION_I_LEAVES: through stage-43 vibe_port wrap present (expected); PMA PRBS31 vs abf05559 is same-domain — not a new crossing
+LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR231 / PR240 / PR241 did not reopen
+BASELINE_WARN: rtl/port/vibe_port.sv:246 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :252 — UNCHANGED body (F1; +3 header vs 09-30 :244/:249)
 NEW: 0
 ERROR: 0
-GONE: 0 (loopback already GONE vs 2026-09-29)
+GONE: 0 (loopback already GONE vs 2026-09-30)
