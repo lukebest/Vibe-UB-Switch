@@ -399,10 +399,11 @@ class tc_vibe_port(VibeUnitBaseTest):
                     return
             await FallingEdge(d.clk_fab)
 
-            # 7. RX CFG0 terminate at u_dll (inner pcs_dll; not Appendix D).
+            # 7. RX CFG0 terminate at u_dll (Force child inputs; not Appendix D).
+            # u_p.pcs_dll_* is driven by u_prx — Force the u_dll ports instead.
             c0 = mk_pcs(0, 0, 1)
-            forced = self._try_force("u_p.pcs_dll_data", c0)
-            forced = self._try_force("u_p.pcs_dll_vld", 1) and forced
+            forced = self._try_force("u_p.u_dll.pcs_dll_data", c0)
+            forced = self._try_force("u_p.u_dll.pcs_dll_vld", 1) and forced
             if forced:
                 await self._to_fall()
                 if ival(d.cfg0_hit, 0) != 1:
@@ -425,7 +426,7 @@ class tc_vibe_port(VibeUnitBaseTest):
                                  "u_p.u_dll.u_rx.cfg0_data")
                         phase.drop_objection(self)
                         return
-                self._try_force("u_p.pcs_dll_vld", 0)
+                self._try_force("u_p.u_dll.pcs_dll_vld", 0)
                 await self._to_fall()
                 if ival(d.cfg0_hit, 1) != 0:
                     self.bad(name, "CFG0 hit is a pulse",
@@ -433,8 +434,8 @@ class tc_vibe_port(VibeUnitBaseTest):
                     phase.drop_objection(self)
                     return
 
-            # 8. fec_fail wires u_prx → u_dll.start_retry → drop_data.
-            if self._try_force("u_p.fec_fail", 1):
+            # 8. fec_fail on u_dll input (u_p.fec_fail is driven by u_prx).
+            if self._try_force("u_p.u_dll.fec_fail", 1):
                 await Timer(100, "PS")
                 sr = self._inner("u_p.u_dll.start_retry", None)
                 if sr is None:
