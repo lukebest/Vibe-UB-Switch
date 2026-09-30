@@ -37,6 +37,7 @@ Stage-33: `vibe_xbar`.
 Stage-34: `vibe_dll_tx`.
 Stage-35: `vibe_dll`.
 Stage-36: `vibe_icrc`.
+Stage-37: `vibe_nw_adapt`.
 
 ## Toolchain pin
 
@@ -111,6 +112,7 @@ pycircuit/
               vibe_saf_ing   ← stage-32 leaf (rtl/fabric/vibe_saf_ing.sv)
               vibe_xbar      ← stage-33 leaf (rtl/fabric/vibe_xbar.sv)
   nw/         vibe_icrc      ← stage-36 leaf (rtl/nw/vibe_icrc.sv)
+              vibe_nw_adapt  ← stage-37 leaf (rtl/nw/vibe_nw_adapt.sv)
   mgmt/ port/ top/   stubs
 ```
 
@@ -861,3 +863,22 @@ sh scripts/pycircuit/emit.sh vibe_icrc
 
 See [`docs/rtl/vibe_icrc.md`](../docs/rtl/vibe_icrc.md) and
 [`nw/vibe_icrc.py`](nw/vibe_icrc.py).
+
+## Stage-37 leaf `vibe_nw_adapt`
+
+Same emit pattern. Product SV keeps unused `clk` / `rst_n`
+pins and the combo 512b vld/ready mux (AS-0.1: LinkReady
+in ready; mgmt inject priority over VOQ). Second NW leaf
+after stage-36 `vibe_icrc`. Self-contained (no child
+instances). Instantiated by `vibe_port` (`u_nw`). Leave
+PCS tx / rx tops, `vibe_port` / `vibe_ub_switch` tops,
+other NW helpers, and `vibe_fabric` top for later.
+
+```bash
+make -C pycircuit vibe_nw_adapt
+# or
+sh scripts/pycircuit/emit.sh vibe_nw_adapt
+```
+
+See [`docs/rtl/vibe_nw_adapt.md`](../docs/rtl/vibe_nw_adapt.md) and
+[`nw/vibe_nw_adapt.py`](nw/vibe_nw_adapt.py).
