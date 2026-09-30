@@ -1227,7 +1227,10 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
             sset(d.txrst_n, 1)
         if hasattr(d, "rxrst_n"):
             sset(d.rxrst_n, 1)
+        # RisingEdge is pre-NBA on Verilator / Icarus VPI. Score after the
+        # falling edge so pcs_pma_txdata is the beat that clock produced.
         await RisingEdge(d.txclk)
+        await FallingEdge(d.txclk)
         tx = ival(d.pcs_pma_txdata, 0)
         if tx != gold0 or not prbs31_pack_ok(tx):
             self.bad("tc_pma_512b_slice", "afifo_pma_lane_vld=0 after rst",
@@ -1237,6 +1240,7 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
             return
         idle0 = tx
         await RisingEdge(d.txclk)
+        await FallingEdge(d.txclk)
         tx = ival(d.pcs_pma_txdata, 0)
         if tx == 0 or tx == idle0 or tx != gold1 or not prbs31_pack_ok(tx):
             self.bad("tc_pma_512b_slice", "second idle txclk",
@@ -1246,6 +1250,7 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
             return
         idle1 = tx
         await RisingEdge(d.txclk)
+        await FallingEdge(d.txclk)
         tx = ival(d.pcs_pma_txdata, 0)
         if tx == idle1 or not prbs31_pack_ok(tx):
             self.bad("tc_pma_512b_slice", "third idle txclk",
@@ -1256,6 +1261,7 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
         sset(d.afifo_pma_lane_vld, 1)
         await RisingEdge(d.txclk)
         await RisingEdge(d.txclk)
+        await FallingEdge(d.txclk)
         tx = ival(d.pcs_pma_txdata, 0)
         if ((tx & ((1 << 128) - 1)) != 0x11
                 or ((tx >> 128) & ((1 << 128) - 1)) != 0x22
