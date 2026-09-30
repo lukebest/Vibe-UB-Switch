@@ -195,6 +195,10 @@ UNIT_MORE = [
     ("tc_vibe_icrc", "vibe_icrc_cocotb_top",
      [_wrap("vibe_icrc_cocotb_top"), _w("nw", "vibe_icrc.sv")],
      "entry_unit"),
+    # Decision-I stage-40 module leaf. Not wrap-style tc_irq_agg / vibe_mgmt.
+    ("tc_vibe_irq_agg", "vibe_irq_agg_cocotb_top",
+     [_wrap("vibe_irq_agg_cocotb_top"), _w("mgmt", "vibe_irq_agg.sv")],
+     "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
