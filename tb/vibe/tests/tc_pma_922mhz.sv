@@ -3,7 +3,7 @@
 module tc_pma_922mhz;
   // 922 MHz → T ≈ 1084.6 ps
   localparam integer T_PS = 1085;
-  logic txclk, rxclk, tvl, rvl;
+  logic txclk, rxclk, txrst_n, rxrst_n, tvl, rvl;
   logic [127:0] t0, t1, t2, t3, r0, r1, r2, r3;
   logic [511:0] pcs_pma_txdata, pma_pcs_rxdata;
   integer fail, edges;
@@ -12,7 +12,7 @@ module tc_pma_922mhz;
   initial rxclk = 0;
   always #(T_PS/2) rxclk = ~rxclk;
   vibe_pma_bnd u_p (
-    .txclk(txclk), .rxclk(rxclk),
+    .txclk(txclk), .rxclk(rxclk), .txrst_n(txrst_n), .rxrst_n(rxrst_n),
     .afifo_pma_lane0(t0), .afifo_pma_lane1(t1), .afifo_pma_lane2(t2), .afifo_pma_lane3(t3),
     .afifo_pma_lane_vld(tvl), .pcs_pma_txdata(pcs_pma_txdata),
     .pma_pcs_rxdata(pma_pcs_rxdata),
@@ -21,6 +21,7 @@ module tc_pma_922mhz;
   );
   initial begin
     fail = 0; edges = 0;
+    txrst_n = 1; rxrst_n = 1;
     t0 = 128'hA0; t1 = 128'hA1; t2 = 128'hA2; t3 = 128'hA3;
     tvl = 1; pma_pcs_rxdata = 512'd0;
     repeat (8) begin

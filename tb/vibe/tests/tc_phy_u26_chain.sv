@@ -25,6 +25,7 @@ module tc_phy_u26_chain;
   );
   vibe_pma_bnd u_p (
     .txclk(txclk), .rxclk(rxclk),
+    .txrst_n(1'b1), .rxrst_n(1'b1),
     .afifo_pma_lane0(t0), .afifo_pma_lane1(t1), .afifo_pma_lane2(t2), .afifo_pma_lane3(t3),
     .afifo_pma_lane_vld(tvl), .pcs_pma_txdata(pcs_pma_txdata),
     .pma_pcs_rxdata(pma_pcs_rxdata),
