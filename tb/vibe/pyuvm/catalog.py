@@ -141,7 +141,8 @@ NAME_MAP = {
     "make units / run_units.sh": "make units (static + UNIT_SIM + port)",
     "make afifo / tc_vibe_afifo": "tc_vibe_afifo (vibe_afifo_cocotb_top, module-level)",
     "make sync2 / tc_vibe_sync2": "tc_vibe_sync2 (vibe_sync2_cocotb_top, module-level)",
-    "Icarus tc_dll (full stack)": "tc_dll (vibe_dll_cocotb_top; TP-DLL-004 split)",
+    "Icarus tc_dll (full stack)":
+        "tc_dll (TP-DLL-004 split); Decision-I wrap TC is tc_vibe_dll",
     "make rst_sync / tc_vibe_rst_sync": "tc_vibe_rst_sync (vibe_rst_sync_cocotb_top, module-level)",
     "make gear_128_160 / tc_vibe_gear_128_160":
         "tc_vibe_gear_128_160 (vibe_gear_128_160_cocotb_top, module-level)",
@@ -203,6 +204,8 @@ NAME_MAP = {
         "tc_vibe_xbar (vibe_xbar_cocotb_top, module-level)",
     "make dll_tx / tx / tc_vibe_dll_tx":
         "tc_vibe_dll_tx (vibe_dll_tx_cocotb_top, module-level)",
+    "make dll_wrap / wrap / tc_vibe_dll":
+        "tc_vibe_dll (vibe_dll_cocotb_top, wrap-level; not TP-DLL-004)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",

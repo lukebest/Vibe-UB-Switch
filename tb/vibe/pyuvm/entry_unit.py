@@ -41,6 +41,7 @@ from vibe_uvm.tests import unit_voq_egr  # noqa: F401
 from vibe_uvm.tests import unit_saf_ing  # noqa: F401
 from vibe_uvm.tests import unit_xbar  # noqa: F401
 from vibe_uvm.tests import unit_dll_tx  # noqa: F401
+from vibe_uvm.tests import unit_dll_wrap  # noqa: F401
 
 
 @cocotb.test()
