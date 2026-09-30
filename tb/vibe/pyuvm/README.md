@@ -635,8 +635,8 @@ this module.
 `fec_mode=T4` / F1 `afifo_ovf` CDC idle, async `rst_n` / LMSM Idle
 → DLL Disabled, TB-only Force `am_locked` walk to LinkUp/LinkReady,
 `credit_low` blocks fabric NW, 1-flit CFG3 TX smoke through `u_nw`,
-CFG0 RX terminate at `u_dll`, `fec_fail` → `start_retry` →
-`drop_data`, `port_rst` / async `rst_n` force Disabled). It is
+wrap `cfg0_hit` / `fec_fail` follow `u_dll` / `u_prx` (no Force
+over PCS), `port_rst` / async `rst_n` force Disabled). It is
 **not** 1/3, 4/3, freeze, or signoff. Stock Icarus /
 pyuvm `tc_port_smoke` / `tc_nw_pkt_to_pma_tx` /
 `tc_nw_pkt_pma_loopback` / `make port` remain the official TP-PHY

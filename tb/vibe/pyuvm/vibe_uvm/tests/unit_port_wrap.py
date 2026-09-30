@@ -4,9 +4,10 @@ Covers submodule wiring (rst_sync ×2, LMSM, NW adapt, DLL, PCS tx/rx,
 4× TX AFIFO+gear, PMA, 4× RX AFIFO+gear); wrap-local fec_mode=T4 and
 F1 afifo_ovf CDC idle; async rst_n / LMSM Idle → DLL Disabled; TB-only
 Force am_locked walk to LinkUp/LinkReady; credit_low blocks fabric NW
-until cells are granted; 1-flit CFG3 TX smoke through u_nw; CFG0 RX
-terminate at u_dll (no fabric); fec_fail → start_retry → drop_data;
-port_rst / async rst_n force Disabled. Not a full-chip consecutive-green
+until cells are granted; 1-flit CFG3 TX smoke through u_nw; wrap
+cfg0_hit / fec_fail follow u_dll / u_prx (no Force over PCS, no
+invented Appendix D / CFG opcode); port_rst / async rst_n force
+Disabled. Not a full-chip consecutive-green
 gate (stock tc_port_smoke / tc_nw_pkt_* remain the PMA-loopback scorers).
 Not 1/3, 4/3, freeze, or signoff. Not vibe_mgmt / vibe_top.
 
@@ -29,20 +30,12 @@ from vibe_uvm.hdl import ival, sset, hier
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 ST_DIS = 0
-ST_PARM = 1
-ST_CRD = 2
-ST_NRM = 3
 ST_NAME = {0: "Disabled", 1: "Param", 2: "Credit", 3: "Normal"}
 LMSM_IDLE = 0
-LMSM_NULL = 8
 LMSM_ACTIVE = 9
-REQ_Q = 1
 FEC_T4 = 0b010
-MASK160 = (1 << 160) - 1
 MASK352 = (1 << 352) - 1
-MASK480 = (1 << 480) - 1
 MASK512 = (1 << 512) - 1
-MASK640 = (1 << 640) - 1
 CHILDREN = (
     "u_txrst", "u_rxrst",
     "u_lmsm", "u_nw", "u_dll", "u_ptx", "u_prx",
@@ -57,7 +50,6 @@ PAT352 = int(
     "A5A55A5A0123456789ABCDEFFEDCBA98765432101111222233334444555566667777888899",
     16,
 ) & MASK352
-PAT480 = int("A5" * 60, 16) & MASK480
 
 
 def mk_nw(cfg=3, vl=0, nflit=1, payload=None) -> int:
@@ -67,16 +59,6 @@ def mk_nw(cfg=3, vl=0, nflit=1, payload=None) -> int:
     return lph.mk_beat(
         lph.mk_flit(cfg, 0, vl, 1, 2, lph.plen_nflit(nflit)),
         int(payload) & MASK352,
-    )
-
-
-def mk_pcs(cfg=3, vl=0, nflit=1, payload=None) -> int:
-    """640b PCS beat: LPH in [639:480]. CFG0 terminate / CFG3 smoke."""
-    if payload is None:
-        payload = PAT480
-    return lph.mk_pcs_beat(
-        lph.mk_flit(cfg, 0, vl, 1, 2, lph.plen_nflit(nflit)),
-        int(payload) & MASK480,
     )
 
 
@@ -399,69 +381,42 @@ class tc_vibe_port(VibeUnitBaseTest):
                     return
             await FallingEdge(d.clk_fab)
 
-            # 7. RX CFG0 terminate at u_dll (Force child inputs; not Appendix D).
-            # u_p.pcs_dll_* is driven by u_prx — Force the u_dll ports instead.
-            c0 = mk_pcs(0, 0, 1)
-            forced = self._try_force("u_p.u_dll.pcs_dll_data", c0)
-            forced = self._try_force("u_p.u_dll.pcs_dll_vld", 1) and forced
-            if forced:
-                await self._to_fall()
-                if ival(d.cfg0_hit, 0) != 1:
-                    self.bad(name, "RX CFG0 terminate (u_dll.u_rx)",
-                             "cfg0_hit=1 nw_fab_vld=0", self._fmt(),
-                             "u_p.u_dll.u_rx.cfg0_hit")
-                    phase.drop_objection(self)
-                    return
-                if ival(d.nw_fab_vld, 1) != 0:
-                    self.bad(name, "CFG0 does not enter fabric (u_nw)",
-                             "nw_fab_vld=0", self._fmt(), "u_p.u_nw.nw_fab_vld")
-                    phase.drop_objection(self)
-                    return
-                got_c0 = ival(d.cfg0_data, None)
-                if (got_c0 is not None and got_c0 >= 0
-                        and (int(got_c0) & MASK640) != (c0 & MASK640)):
-                    if not _is_icarus():
-                        self.bad(name, "CFG0 capture",
-                                 hex(c0 & MASK640), hex(int(got_c0) & MASK640),
-                                 "u_p.u_dll.u_rx.cfg0_data")
-                        phase.drop_objection(self)
-                        return
-                self._try_force("u_p.u_dll.pcs_dll_vld", 0)
-                await self._to_fall()
-                if ival(d.cfg0_hit, 1) != 0:
-                    self.bad(name, "CFG0 hit is a pulse",
-                             "cfg0_hit=0", self._fmt(), "u_p.u_dll.u_rx.cfg0_hit")
-                    phase.drop_objection(self)
-                    return
+            # 7. CFG0 / fec_fail wrap pins follow u_dll / u_prx (u_prx drives
+            # the inner nets; do not Force over PCS. Not Appendix D / CFG 0x10).
+            dll_hit = self._inner("u_p.u_dll.cfg0_hit", None)
+            pin_hit = ival(d.cfg0_hit, None)
+            if (dll_hit is not None and pin_hit is not None
+                    and int(dll_hit) != int(pin_hit)):
+                self.bad(name, "wrap cfg0_hit from u_dll",
+                         f"cfg0_hit={dll_hit}", f"cfg0_hit={pin_hit}",
+                         "u_p.u_dll.cfg0_hit")
+                phase.drop_objection(self)
+                return
+            if pin_hit not in (None, 0) and int(pin_hit) != 0:
+                self.bad(name, "idle CFG0 (no PCS beat; no invented opcode)",
+                         "cfg0_hit=0", self._fmt(), "u_p.cfg0_hit")
+                phase.drop_objection(self)
+                return
+            dll_nw = self._inner("u_p.dll_nw_vld", None)
+            fab_v = ival(d.nw_fab_vld, None)
+            if (dll_nw is not None and fab_v is not None
+                    and int(dll_nw) != int(fab_v)):
+                self.bad(name, "u_nw nw_fab_vld = dll_nw_vld",
+                         f"nw_fab_vld={dll_nw}", f"nw_fab_vld={fab_v}",
+                         "u_p.u_nw")
+                phase.drop_objection(self)
+                return
+            wrap_ff = self._inner("u_p.fec_fail", None)
+            prx_ff = self._inner("u_p.u_prx.fec_fail", None)
+            if (wrap_ff is not None and prx_ff is not None
+                    and int(wrap_ff) != int(prx_ff)):
+                self.bad(name, "wrap fec_fail from u_prx",
+                         f"fec_fail={prx_ff}", f"fec_fail={wrap_ff}",
+                         "u_p.u_prx.fec_fail")
+                phase.drop_objection(self)
+                return
 
-            # 8. fec_fail on u_dll input (u_p.fec_fail is driven by u_prx).
-            if self._try_force("u_p.u_dll.fec_fail", 1):
-                await Timer(100, "PS")
-                sr = self._inner("u_p.u_dll.start_retry", None)
-                if sr is None:
-                    sr = self._inner("u_p.u_dll.u_rx.start_retry", None)
-                if sr not in (None, 1) and sr != 1:
-                    self.bad(name, "fec_fail → start_retry combo",
-                             "start_retry=1", self._fmt(),
-                             "u_p.u_dll.u_rx.start_retry")
-                    phase.drop_objection(self)
-                    return
-                await self._to_fall()
-                self._try_force("u_p.fec_fail", 0)
-                drop = self._inner("u_p.u_dll.drop_data", None)
-                if drop not in (None, 1) and drop != 1:
-                    self.bad(name, "start_retry → REQ|WAIT drop_data",
-                             "drop_data=1", self._fmt(), "u_p.u_dll.u_req")
-                    phase.drop_objection(self)
-                    return
-                if ival(d.fab_nw_ready, 1) != 0:
-                    self.bad(name, "drop_data blocks fabric NW (u_nw)",
-                             "fab_nw_ready=0", self._fmt(),
-                             "u_p.u_nw.fab_nw_ready")
-                    phase.drop_objection(self)
-                    return
-
-            # 9. port_rst force LMSM Idle + DLL Disabled.
+            # 8. port_rst force LMSM Idle + DLL Disabled.
             sset(d.port_rst, 1)
             await self._to_fall()
             if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
@@ -478,7 +433,7 @@ class tc_vibe_port(VibeUnitBaseTest):
             sset(d.port_rst, 0)
             await self._to_fall()
 
-        # 10. Async rst_n (no posedge) clears registered wrap outputs.
+        # 9. Async rst_n (no posedge) clears registered wrap outputs.
         sset(d.rst_n, 0)
         await Timer(100, "PS")
         if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
