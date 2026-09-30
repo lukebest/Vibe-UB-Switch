@@ -206,6 +206,8 @@ NAME_MAP = {
         "tc_vibe_dll_tx (vibe_dll_tx_cocotb_top, module-level)",
     "make dll_wrap / wrap / tc_vibe_dll":
         "tc_vibe_dll (vibe_dll_cocotb_top, wrap-level; not TP-DLL-004)",
+    "make icrc / tc_vibe_icrc":
+        "tc_vibe_icrc (vibe_icrc_cocotb_top, module-level)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",

@@ -191,6 +191,10 @@ UNIT_MORE = [
     # Decision-I stage-35 wrap leaf. Not TP-DLL-004 (that stays tc_dll).
     ("tc_vibe_dll", "vibe_dll_cocotb_top",
      [_wrap("vibe_dll_cocotb_top")] + DLL_WRAP, "entry_unit"),
+    # Decision-I stage-36 module leaf. Not wrap-style tc_icrc_txrx_vs_transit.
+    ("tc_vibe_icrc", "vibe_icrc_cocotb_top",
+     [_wrap("vibe_icrc_cocotb_top"), _w("nw", "vibe_icrc.sv")],
+     "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
