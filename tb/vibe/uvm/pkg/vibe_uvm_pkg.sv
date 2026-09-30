@@ -2,6 +2,7 @@ package vibe_uvm_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
   `include "vibe_tb_defs.svh"
+  `include "vibe_prbs31.svh"
   `include "vibe_tb_nw512.svh"
   `include "neg_official_scan.inc"
   `include "vibe_report.svh"

@@ -225,6 +225,7 @@ module vibe_unit_tb_top;
 
   vibe_pma_bnd u_pma (
     .txclk(pma.txclk), .rxclk(pma.rxclk),
+    .txrst_n(pma.txrst_n), .rxrst_n(pma.rxrst_n),
     .afifo_pma_lane0(pma.t0), .afifo_pma_lane1(pma.t1),
     .afifo_pma_lane2(pma.t2), .afifo_pma_lane3(pma.t3),
     .afifo_pma_lane_vld(pma.afifo_pma_lane_vld), .pcs_pma_txdata(pma.pcs_pma_txdata),
@@ -333,6 +334,7 @@ module vibe_unit_tb_top;
     nwa.fab_nw_vld = 0; nwa.mgmt_nw_vld = 0; nwa.nw_dll_ready = 1;
     nwa.dll_nw_vld = 0; nwa.nw_fab_ready = 1;
     pma.t0 = 0; pma.t1 = 0; pma.t2 = 0; pma.t3 = 0;
+    pma.txrst_n = 1; pma.rxrst_n = 1;
     pma.afifo_pma_lane_vld = 0; pma.pma_pcs_rxdata = 0;
     gtx.rst_n = 0; gtx.in_vld = 0; gtx.out_ready = 1; gtx.in_data = 0;
     grx.rst_n = 0; grx.in_vld = 0; grx.out_ready = 1; grx.in_data = 0;

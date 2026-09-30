@@ -5,9 +5,10 @@ pass-through (LFSR does not advance), and XOR round-trip.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_scramble.sv and stock tc_pcs_scramble
-en=0 pass-through / en=1 nonzero-mask semantics. Same poly + seed as
-PMA PRBS23: step {s[21:0], s[22]^s[17]}, seed {19'd1, lane_id, 2'b01}.
-TX-side only in this leaf (one XOR cell; RX descramble is the same
+en=0 pass-through / en=1 nonzero-mask semantics. PCS scramble stays
+PRBS23: step {s[21:0], s[22]^s[17]}, seed {19'd1, lane_id, 2'b01}.
+PMA pin-idle is a different poly (PRBS31, no PMA_IDLE_MARK) — not this
+leaf. TX-side only here (one XOR cell; RX descramble is the same
 module with the same seed).
 """
 

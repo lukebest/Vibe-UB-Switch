@@ -6,6 +6,12 @@ from cocotb.triggers import RisingEdge, FallingEdge, Timer
 from cocotb.handle import Force, Release
 from vibe_uvm import lph
 from vibe_uvm.hdl import ival, sset, bit
+from vibe_uvm.prbs31 import (
+    prbs31_advance_states,
+    prbs31_pack_ok,
+    prbs31_pack_states,
+    prbs31_seed_states,
+)
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 ROOT = Path(__file__).resolve().parents[5]
@@ -1203,6 +1209,9 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
     async def run_phase(self, phase):
         phase.raise_objection(self)
         d = self.dut
+        seeds = prbs31_seed_states()
+        gold0 = prbs31_pack_states(seeds)
+        gold1 = prbs31_pack_states(prbs31_advance_states(seeds))
         if hasattr(d, "txrst_n"):
             sset(d.txrst_n, 0)
         if hasattr(d, "rxrst_n"):
@@ -1218,19 +1227,30 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
             sset(d.txrst_n, 1)
         if hasattr(d, "rxrst_n"):
             sset(d.rxrst_n, 1)
-        for _ in range(2):
-            await RisingEdge(d.txclk)
-        if ival(d.pcs_pma_txdata, 0) == 0:
-            self.bad("tc_pma_512b_slice", "afifo_pma_lane_vld=0",
-                     "PRBS23 nonzero", "0")
-            phase.drop_objection(self)
-            return
-        idle0 = ival(d.pcs_pma_txdata, 0)
         await RisingEdge(d.txclk)
         tx = ival(d.pcs_pma_txdata, 0)
-        if tx == 0 or tx == idle0:
+        if tx != gold0 or not prbs31_pack_ok(tx):
+            self.bad("tc_pma_512b_slice", "afifo_pma_lane_vld=0 after rst",
+                     "PRBS31 seed pack (poly x^31+x^28+1, no mark)",
+                     hex(tx) if tx is not None else "x")
+            phase.drop_objection(self)
+            return
+        idle0 = tx
+        await RisingEdge(d.txclk)
+        tx = ival(d.pcs_pma_txdata, 0)
+        if tx == 0 or tx == idle0 or tx != gold1 or not prbs31_pack_ok(tx):
             self.bad("tc_pma_512b_slice", "second idle txclk",
-                     "new PRBS23 beat", hex(tx))
+                     "new PRBS31 beat (must change every clock)",
+                     hex(tx) if tx is not None else "x")
+            phase.drop_objection(self)
+            return
+        idle1 = tx
+        await RisingEdge(d.txclk)
+        tx = ival(d.pcs_pma_txdata, 0)
+        if tx == idle1 or not prbs31_pack_ok(tx):
+            self.bad("tc_pma_512b_slice", "third idle txclk",
+                     "another new PRBS31 beat",
+                     hex(tx) if tx is not None else "x")
             phase.drop_objection(self)
             return
         sset(d.afifo_pma_lane_vld, 1)
@@ -1242,7 +1262,7 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
                 or ((tx >> 256) & ((1 << 128) - 1)) != 0x33
                 or ((tx >> 384) & ((1 << 128) - 1)) != 0x44):
             self.bad("tc_pma_512b_slice", "tx lanes 11/22/33/44",
-                     "lane slices", hex(tx))
+                     "lane slices (business beat)", hex(tx))
             phase.drop_objection(self)
             return
         if hasattr(d, "rxrst_n"):
@@ -1251,10 +1271,24 @@ class tc_pma_512b_slice(VibeUnitBaseTest):
         for _ in range(4):
             await RisingEdge(d.rxclk)
         await FallingEdge(d.rxclk)
-        if ival(d.pma_afifo_lane0, 0) != 0xDD or ival(d.pma_afifo_lane3, 0) != 0xAA:
-            self.bad("tc_pma_512b_slice", "rx {AA,BB,CC,DD}",
-                     "lane0=DD lane3=AA",
-                     f"r0={ival(d.pma_afifo_lane0, 0):x} r3={ival(d.pma_afifo_lane3, 0):x}")
+        if (ival(d.pma_afifo_lane0, 0) != 0xDD
+                or ival(d.pma_afifo_lane3, 0) != 0xAA
+                or not ival(d.pma_afifo_lane_vld, 0)):
+            self.bad("tc_pma_512b_slice", "rx {AA,BB,CC,DD} (not PRBS31)",
+                     "lane0=DD lane3=AA vld=1",
+                     f"r0={ival(d.pma_afifo_lane0, 0):x} "
+                     f"r3={ival(d.pma_afifo_lane3, 0):x} "
+                     f"vld={ival(d.pma_afifo_lane_vld, 0)}")
+            phase.drop_objection(self)
+            return
+        sset(d.pma_pcs_rxdata, gold0)
+        for _ in range(4):
+            await RisingEdge(d.rxclk)
+        await FallingEdge(d.rxclk)
+        if ival(d.pma_afifo_lane_vld, 0):
+            self.bad("tc_pma_512b_slice", "pma_pcs_rxdata=PRBS31 seed pack",
+                     "pma_afifo_lane_vld=0 (pin-idle drop, no mark)",
+                     f"vld={ival(d.pma_afifo_lane_vld, 0)}")
         else:
             self.ok("tc_pma_512b_slice")
         sset(d.afifo_pma_lane_vld, 0)

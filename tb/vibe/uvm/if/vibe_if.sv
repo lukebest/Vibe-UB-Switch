@@ -344,7 +344,7 @@ interface vibe_nw_adapt_if (input logic clk);
 endinterface
 
 interface vibe_pma_bnd_if;
-  logic txclk, rxclk, afifo_pma_lane_vld, pma_afifo_lane_vld;
+  logic txclk, rxclk, txrst_n, rxrst_n, afifo_pma_lane_vld, pma_afifo_lane_vld;
   logic [127:0] t0, t1, t2, t3, r0, r1, r2, r3;
   logic [511:0] pcs_pma_txdata, pma_pcs_rxdata;
 endinterface

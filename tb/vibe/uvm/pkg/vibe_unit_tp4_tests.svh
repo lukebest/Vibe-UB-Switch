@@ -210,26 +210,47 @@ class tc_pma_512b_slice extends vibe_unit_base;
   `uvm_component_utils(tc_pma_512b_slice)
   function new(string name, uvm_component parent); super.new(name, parent); endfunction
   task run_phase(uvm_phase phase);
+    logic [511:0] idle0, idle1, gold0, gold1;
+    logic [30:0] s0, s1, s2, s3;
     phase.raise_objection(this);
     fail = 0;
+    s0 = vibe_tb_prbs31_seed(2'd0);
+    s1 = vibe_tb_prbs31_seed(2'd1);
+    s2 = vibe_tb_prbs31_seed(2'd2);
+    s3 = vibe_tb_prbs31_seed(2'd3);
+    gold0 = vibe_tb_prbs31_pack4(s0, s1, s2, s3);
+    gold1 = vibe_tb_prbs31_pack4(vibe_tb_prbs31_adv128(s0),
+                                vibe_tb_prbs31_adv128(s1),
+                                vibe_tb_prbs31_adv128(s2),
+                                vibe_tb_prbs31_adv128(s3));
+    pma.txrst_n = 0; pma.rxrst_n = 0;
     pma.t0 = 128'h11; pma.t1 = 128'h22; pma.t2 = 128'h33; pma.t3 = 128'h44;
     pma.afifo_pma_lane_vld = 0; pma.pma_pcs_rxdata = 512'd0;
     repeat (2) @(posedge pma.txclk);
-    if (pma.pcs_pma_txdata === 512'd0) begin
-      vibe_uvm_fail("tc_pma_512b_slice", "afifo_pma_lane_vld=0",
-                    "pcs_pma_txdata PRBS23 nonzero", "0", "u_pma");
+    pma.txrst_n = 1; pma.rxrst_n = 1;
+    @(posedge pma.txclk);
+    if (pma.pcs_pma_txdata !== gold0 || !vibe_tb_prbs31_pack_ok(pma.pcs_pma_txdata)) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "afifo_pma_lane_vld=0 after rst",
+                    "pcs_pma_txdata PRBS31 seed pack (poly x^31+x^28+1)",
+                    $sformatf("%h", pma.pcs_pma_txdata), "u_pma");
       fail = 1;
     end
-    begin
-      logic [511:0] idle0;
-      idle0 = pma.pcs_pma_txdata;
-      @(posedge pma.txclk);
-      if (pma.pcs_pma_txdata === 512'd0 || pma.pcs_pma_txdata === idle0) begin
-        vibe_uvm_fail("tc_pma_512b_slice", "second idle txclk",
-                      "new PRBS23 beat", $sformatf("%h", pma.pcs_pma_txdata),
-                      "u_pma");
-        fail = 1;
-      end
+    idle0 = pma.pcs_pma_txdata;
+    @(posedge pma.txclk);
+    if (pma.pcs_pma_txdata === 512'd0 || pma.pcs_pma_txdata === idle0 ||
+        pma.pcs_pma_txdata !== gold1 || !vibe_tb_prbs31_pack_ok(pma.pcs_pma_txdata)) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "second idle txclk",
+                    "new PRBS31 beat (must change every clock)",
+                    $sformatf("%h", pma.pcs_pma_txdata), "u_pma");
+      fail = 1;
+    end
+    idle1 = pma.pcs_pma_txdata;
+    @(posedge pma.txclk);
+    if (pma.pcs_pma_txdata === idle1 || !vibe_tb_prbs31_pack_ok(pma.pcs_pma_txdata)) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "third idle txclk",
+                    "another new PRBS31 beat",
+                    $sformatf("%h", pma.pcs_pma_txdata), "u_pma");
+      fail = 1;
     end
     pma.afifo_pma_lane_vld = 1;
     @(posedge pma.txclk);
@@ -239,17 +260,27 @@ class tc_pma_512b_slice extends vibe_unit_base;
         pma.pcs_pma_txdata[383:256] !== 128'h33 ||
         pma.pcs_pma_txdata[511:384] !== 128'h44) begin
       vibe_uvm_fail("tc_pma_512b_slice", "tx lanes 11/22/33/44 vld",
-                    "pcs_pma_txdata slices lane0..3",
+                    "pcs_pma_txdata slices lane0..3 (business beat)",
                     $sformatf("%h", pma.pcs_pma_txdata), "u_pma");
       fail = 1;
     end
     pma.pma_pcs_rxdata = {128'hAA, 128'hBB, 128'hCC, 128'hDD};
     @(posedge pma.rxclk);
     @(posedge pma.rxclk);
-    if (pma.r0 !== 128'hDD || pma.r3 !== 128'hAA) begin
-      vibe_uvm_fail("tc_pma_512b_slice", "pma_pcs_rxdata {AA,BB,CC,DD}",
-                    "lane0=DD lane3=AA",
-                    $sformatf("r0=%h r3=%h", pma.r0, pma.r3), "u_pma");
+    if (pma.r0 !== 128'hDD || pma.r3 !== 128'hAA || !pma.pma_afifo_lane_vld) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "pma_pcs_rxdata {AA,BB,CC,DD} (not PRBS31)",
+                    "lane0=DD lane3=AA vld=1",
+                    $sformatf("r0=%h r3=%h vld=%0b", pma.r0, pma.r3,
+                              pma.pma_afifo_lane_vld), "u_pma");
+      fail = 1;
+    end
+    pma.pma_pcs_rxdata = gold0;
+    @(posedge pma.rxclk);
+    @(posedge pma.rxclk);
+    if (pma.pma_afifo_lane_vld) begin
+      vibe_uvm_fail("tc_pma_512b_slice", "pma_pcs_rxdata=PRBS31 seed pack",
+                    "pma_afifo_lane_vld=0 (pin-idle drop, no mark)",
+                    "vld=1", "u_pma");
       fail = 1;
     end
     pma.afifo_pma_lane_vld = 0;
