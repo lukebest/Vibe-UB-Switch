@@ -1,6 +1,28 @@
+"""Emit the product SystemVerilog for vibe_irq_agg (hand-finished).
+
+Keeps tip ports, async-low ``rst_n``, and the sticky OR body
+(AS-0.1 §10/§15: irq_logic of observable errors, including G1
+RT=10/11). pycc netlists are a prototype only; this file is
+what lands in ``rtl/mgmt/vibe_irq_agg.sv``.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/mgmt/vibe_irq_agg.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 7dbac272. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Regenerate: make -C pycircuit vibe_irq_agg
+"""
+
+BODY = """\
 // FS-0.2.3 + AS-0.1 §10/§15: irq_logic sticky OR of observable errors (includes G1 RT=10/11).
 // Clear on static write or reset. Single bit; no extra product IRQ pins.
 module vibe_irq_agg (
@@ -33,6 +55,26 @@ module vibe_irq_agg (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
-// Regenerate: make -C pycircuit vibe_irq_agg
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "mgmt" / "vibe_irq_agg.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
