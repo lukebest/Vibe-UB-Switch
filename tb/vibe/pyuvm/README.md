@@ -596,7 +596,10 @@ assemble, no Appendix D offsets). It is **not** 1/3, 4/3,
 freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_cna_ep.sv` /
 `tc_cna_ep` remains the official TP scorer
 (`vibe_cna_ep_cocotb_top`, wrap-style). Second mgmt leaf after
-stage-40 `vibe_irq_agg`. `ovf_l` (F1) is not in this module.
+stage-40 `vibe_irq_agg`. Icarus 12 VPI leaves 512-bit packed
+`mgmt_nw_data_*` X — X is not treated as 0; packed `consume` /
+`mgmt_nw_vld` / `icrc_fail` still score. Verilator resolves
+echo data. `ovf_l` (F1) is not in this module.
 CFG6 R/W / Appendix D packing is 未知 — do not invent.
 
 ## Topology
