@@ -1,15 +1,20 @@
 // GENERATED/HAND-FINISHED from pycircuit/pma/vibe_pma_bnd.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip ef3f121 / freeze 302ac943 (PR116 idle-mark).
+// Product ports match tip afcc2162. Decision I UNFROZEN. Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
+// Idle: ITU-T O.150 PRBS31 (SPEC §4.4 / CR-PMA-IDLE-PRBS31). No PMA_IDLE_MARK.
 // Regenerate: make -C pycircuit vibe_pma_bnd
 //
-// AS-0.1 §3: product PMA boundary. No extra handshake. No PMA ready.
+// AS-0.1 §3 / SPEC §4.4: product PMA boundary. No extra handshake. No PMA ready.
 // Slice: [127:0]=lane0, [255:128]=lane1, [383:256]=lane2, [511:384]=lane3.
-// No DLL/PCS beat: every txclk emits PRBS23 XOR PMA_IDLE_MARK so the
-// SerDes pin is never held at 0 (UB 3.2.6) and pin-idle is not the same
-// stream as PCS scramble(0) (same poly+seed; issue #115).
+// No DLL/PCS beat: every txclk emits ITU-T O.150 PRBS31 so the pin changes
+// every clock (SPEC §4.4 / CR-PMA-IDLE-PRBS31).
+//   Poly: x^31 + x^28 + 1. LFSR step: {s[30:0], s[30] ^ s[27]} (31-bit state).
+//   Per-lane seed: {27'd1, lid[1:0], 2'b01} for lid=0..3. Non-zero only.
+//   Word: 128b, bit i = LFSR[0] after i steps (LSB first); advance 128/beat.
+// No PMA_IDLE_MARK XOR — PRBS31 != PCS scramble(0) PRBS23. Historical #115
+// PRBS23 + mark is no longer the SPEC idle rule.
 module vibe_pma_bnd (
   input  logic         txclk,
   input  logic         rxclk,
@@ -28,106 +33,96 @@ module vibe_pma_bnd (
   output logic [127:0] pma_afifo_lane3,
   output logic         pma_afifo_lane_vld
 );
-  function automatic [22:0] prbs23_step;
-    input [22:0] s;
+  // 31-bit result of {s[30:0], s[30] ^ s[27]} is {s[29:0], s[30] ^ s[27]}.
+  function automatic [30:0] prbs31_step;
+    input [30:0] s;
     begin
-      prbs23_step = {s[21:0], s[22] ^ s[17]};
+      prbs31_step = {s[29:0], s[30] ^ s[27]};
     end
   endfunction
 
-  function automatic [22:0] prbs23_seed;
+  function automatic [30:0] prbs31_seed;
     input [1:0] lid;
     begin
-      prbs23_seed = {19'd1, lid, 2'b01};
+      prbs31_seed = {27'd1, lid, 2'b01};
     end
   endfunction
 
-  function automatic [127:0] prbs23_word;
-    input [22:0] s;
-    logic [22:0] t;
+  function automatic [127:0] prbs31_word;
+    input [30:0] s;
+    logic [30:0] t;
     integer      i;
     begin
       t = s;
       for (i = 0; i < 128; i = i + 1) begin
-        prbs23_word[i] = t[0];
-        t = prbs23_step(t);
+        prbs31_word[i] = t[0];
+        t = prbs31_step(t);
       end
     end
   endfunction
 
-  function automatic [22:0] prbs23_adv128;
-    input [22:0] s;
-    logic [22:0] t;
+  function automatic [30:0] prbs31_adv128;
+    input [30:0] s;
+    logic [30:0] t;
     integer      i;
     begin
       t = s;
       for (i = 0; i < 128; i = i + 1)
-        t = prbs23_step(t);
-      prbs23_adv128 = t;
+        t = prbs31_step(t);
+      prbs31_adv128 = t;
     end
   endfunction
 
-  // Pin-idle must not be raw PRBS23. vibe_pcs_scramble uses the same
-  // poly and seed {19'd1, lid, 2'b01}. G1 Null Blocks scramble to that
-  // stream; after 160→128 those 128b windows satisfy the undecorated
-  // recurrence, so a658d141's idle_prbs drop ate packed beats (issue
-  // #115). XOR a mark that is not itself a PRBS word. RX undoes the
-  // mark before the recurrence test. Fan-in stays pma_pcs_rxdata /
-  // rxclk — do not sample txclk tx_pcs_d or compare pcs_pma_txdata
+  // Pin-idle is raw PRBS31. Fan-in stays pma_pcs_rxdata / rxclk —
+  // do not sample txclk tx_pcs_d or compare pcs_pma_txdata
   // (was unsanctioned txclk→rxclk).
-  localparam [127:0] PMA_IDLE_MARK = 128'h8000_0000_0000_0000_0000_0000_0000_0000;
-
-  logic [22:0] lfsr0 = {19'd1, 2'd0, 2'b01};
-  logic [22:0] lfsr1 = {19'd1, 2'd1, 2'b01};
-  logic [22:0] lfsr2 = {19'd1, 2'd2, 2'b01};
-  logic [22:0] lfsr3 = {19'd1, 2'd3, 2'b01};
-  wire  [127:0] prbs0 = prbs23_word(lfsr0);
-  wire  [127:0] prbs1 = prbs23_word(lfsr1);
-  wire  [127:0] prbs2 = prbs23_word(lfsr2);
-  wire  [127:0] prbs3 = prbs23_word(lfsr3);
-  wire  [127:0] idle0 = prbs0 ^ PMA_IDLE_MARK;
-  wire  [127:0] idle1 = prbs1 ^ PMA_IDLE_MARK;
-  wire  [127:0] idle2 = prbs2 ^ PMA_IDLE_MARK;
-  wire  [127:0] idle3 = prbs3 ^ PMA_IDLE_MARK;
+  logic [30:0] lfsr0 = {27'd1, 2'd0, 2'b01};
+  logic [30:0] lfsr1 = {27'd1, 2'd1, 2'b01};
+  logic [30:0] lfsr2 = {27'd1, 2'd2, 2'b01};
+  logic [30:0] lfsr3 = {27'd1, 2'd3, 2'b01};
+  wire  [127:0] idle0 = prbs31_word(lfsr0);
+  wire  [127:0] idle1 = prbs31_word(lfsr1);
+  wire  [127:0] idle2 = prbs31_word(lfsr2);
+  wire  [127:0] idle3 = prbs31_word(lfsr3);
 
   always @(posedge txclk or negedge txrst_n) begin
     if (!txrst_n) begin
-      lfsr0 <= prbs23_seed(2'd0);
-      lfsr1 <= prbs23_seed(2'd1);
-      lfsr2 <= prbs23_seed(2'd2);
-      lfsr3 <= prbs23_seed(2'd3);
-      pcs_pma_txdata <= {prbs23_word(prbs23_seed(2'd3)) ^ PMA_IDLE_MARK,
-                         prbs23_word(prbs23_seed(2'd2)) ^ PMA_IDLE_MARK,
-                         prbs23_word(prbs23_seed(2'd1)) ^ PMA_IDLE_MARK,
-                         prbs23_word(prbs23_seed(2'd0)) ^ PMA_IDLE_MARK};
+      lfsr0 <= prbs31_seed(2'd0);
+      lfsr1 <= prbs31_seed(2'd1);
+      lfsr2 <= prbs31_seed(2'd2);
+      lfsr3 <= prbs31_seed(2'd3);
+      pcs_pma_txdata <= {prbs31_word(prbs31_seed(2'd3)),
+                         prbs31_word(prbs31_seed(2'd2)),
+                         prbs31_word(prbs31_seed(2'd1)),
+                         prbs31_word(prbs31_seed(2'd0))};
     end else if (afifo_pma_lane_vld) begin
       pcs_pma_txdata <= {afifo_pma_lane3, afifo_pma_lane2,
                          afifo_pma_lane1, afifo_pma_lane0};
     end else begin
       pcs_pma_txdata <= {idle3, idle2, idle1, idle0};
-      lfsr0 <= prbs23_adv128(lfsr0);
-      lfsr1 <= prbs23_adv128(lfsr1);
-      lfsr2 <= prbs23_adv128(lfsr2);
-      lfsr3 <= prbs23_adv128(lfsr3);
+      lfsr0 <= prbs31_adv128(lfsr0);
+      lfsr1 <= prbs31_adv128(lfsr1);
+      lfsr2 <= prbs31_adv128(lfsr2);
+      lfsr3 <= prbs31_adv128(lfsr3);
     end
   end
 
-  function automatic prbs23_word_ok;
+  function automatic prbs31_word_ok;
     input [127:0] w;
     integer       i;
     begin
-      prbs23_word_ok = 1'b1;
-      for (i = 23; i < 128; i = i + 1)
-        if (w[i] != (w[i-23] ^ w[i-18]))
-          prbs23_word_ok = 1'b0;
+      prbs31_word_ok = 1'b1;
+      for (i = 31; i < 128; i = i + 1)
+        if (w[i] != (w[i-31] ^ w[i-28]))
+          prbs31_word_ok = 1'b0;
     end
   endfunction
 
-  // Drop decorated pin-idle only. Raw PRBS / scramble(0) 128b keeps vld.
-  wire idle_prbs = prbs23_word_ok(pma_pcs_rxdata[127:0]    ^ PMA_IDLE_MARK) &&
-                   prbs23_word_ok(pma_pcs_rxdata[255:128]  ^ PMA_IDLE_MARK) &&
-                   prbs23_word_ok(pma_pcs_rxdata[383:256]  ^ PMA_IDLE_MARK) &&
-                   prbs23_word_ok(pma_pcs_rxdata[511:384]  ^ PMA_IDLE_MARK);
+  // Drop PRBS31 pin-idle only. Non-PRBS31 128b (incl. scramble(0)) keeps vld.
+  wire idle_prbs = prbs31_word_ok(pma_pcs_rxdata[127:0]) &&
+                   prbs31_word_ok(pma_pcs_rxdata[255:128]) &&
+                   prbs31_word_ok(pma_pcs_rxdata[383:256]) &&
+                   prbs31_word_ok(pma_pcs_rxdata[511:384]);
 
   always @(posedge rxclk or negedge rxrst_n) begin
     if (!rxrst_n) begin
