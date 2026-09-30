@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo sync2 rst_sync gear_128_160 gear_160_128 dll pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port
 all: sim
 
 help:
@@ -120,6 +120,9 @@ help:
 	@echo "make units TC=tc_vibe_cfg_space - Decision-I vibe_cfg_space (module-level)"
 	@echo "make cfg_space      - same as units TC=tc_vibe_cfg_space (not full-chip gate)"
 	@echo "make tc_vibe_cfg_space - same as cfg_space"
+	@echo "make units TC=tc_vibe_port - Decision-I vibe_port wrap (not tc_port_smoke)"
+	@echo "make port_wrap      - same as units TC=tc_vibe_port (not full-chip gate)"
+	@echo "make tc_vibe_port   - same as port_wrap"
 	@echo "make port           - vibe_port PHY tests (uvm-python)"
 	@echo "make top            - vibe_ub_switch smoke (uvm-python)"
 	@echo "make neg            - static absent-feature scan"
@@ -388,6 +391,14 @@ cfg_space: $(RES)
 
 tc_vibe_cfg_space: $(RES)
 	$(MAKE) -C $(PYUVM) tc_vibe_cfg_space SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+port_wrap: $(RES)
+	$(MAKE) -C $(PYUVM) port_wrap SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+tc_vibe_port: $(RES)
+	$(MAKE) -C $(PYUVM) tc_vibe_port SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 sim-icarus: $(RES)
