@@ -5,14 +5,25 @@ credit_ret grant (already cells, no ×n / no /n), consume ceil(flits/n)
 vs golden, CFG0 skip, grain_n=0 → 0, consume_vld stall without a step,
 same-cycle credit_ret && consume_vld, 1023 vs 1024 cell thresh (bp_nw +
 force Crd_Ack), second consume after the first, port_rst / !link_up
-clear, and 1us timeout → proto_err. Not a full-chip consecutive-green
-gate. Not 1/3, 4/3, freeze, or signoff.
+clear, 1us timeout → proto_err, mid-run async rst_n through dest
+posedge, and a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/dll/vibe_dll_credit.sv: async-low rst_n, pending is
 a cell count, VIBE_CREDIT_THRESH=1024, VIBE_US_CYC=1250, CFG0 does not
-consume, credit_ret_n is already cells, no underflow subtract. Instantiated
-by vibe_dll u_crd. Stock Icarus tc_credit_1024_flit_bp / tc_credit_grain_n
-/ tc_cfg0_no_credit / tc_credit_timeout_1us remain the official scorers.
+consume, credit_ret_n is already cells, no underflow subtract.
+Instantiated by vibe_dll u_crd. This is not vibe_dll / vibe_dll_tx /
+vibe_bcrc / vibe_dll_sm / vibe_dll_rx / vibe_icrc / vibe_pcs_tx /
+vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_deskew /
+vibe_pcs_rx_amctl_lock / vibe_pcs_rx_unpack / vibe_pcs_tx_pack /
+gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Stock Icarus tc_credit_1024_flit_bp / tc_credit_grain_n /
+tc_cfg0_no_credit / tc_credit_timeout_1us remain the official scorers.
 """
 
 from uvm import uvm_component_utils
@@ -27,6 +38,32 @@ MASK16 = 0xFFFF
 MASK10 = 0x3FF
 MASK8 = 0xFF
 HIER = "u_u.pend / u_u.cells / u_u.bp_nw"
+WRAP = "vibe_dll_credit_cocotb_top"
+PINS = (
+    "clk", "rst_n", "port_rst", "link_up",
+    "grain_n", "consume_vld", "consume_flits", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_crd", "u_bcrc", "u_b", "u_l", "u_dsk", "u_un", "u_fec",
+    "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "start", "in_vld", "in_flit", "last", "error_flag", "crc_word", "done",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "status_up", "disabled",
+)
 
 
 def ceil_div(flits: int, n: int) -> int:
@@ -143,6 +180,32 @@ class tc_vibe_dll_credit(VibeUnitBaseTest):
             ival(d.u_u.cells, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.pending, -1),
+            ival(u.credit_low, -1),
+            ival(u.force_crd_ack, -1),
+            ival(u.bp_nw, -1),
+            ival(u.proto_err, -1),
+            ival(u.fc_ovf, -1),
+            ival(u.cells, -1),
+        )
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        if inner != got:
+            self.bad(name, stim + " (port vs u_u)",
+                     self._fmt(got), self._fmt(inner), WRAP)
+            return False
+        return True
+
     def _fmt(self, s):
         pend, cl, ack, bp, pe, ovf, cells = s
         return (
@@ -175,7 +238,7 @@ class tc_vibe_dll_credit(VibeUnitBaseTest):
         if got != exp:
             self.bad(name, stim, self._fmt(exp), self._fmt(got), HIER)
             return False
-        return True
+        return self._score_inner(name, stim, got)
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -570,6 +633,112 @@ class tc_vibe_dll_credit(VibeUnitBaseTest):
                      self._fmt(got), "u_u.cells_sum / fc_ovf")
             phase.drop_objection(self)
             return
+
+        # 7. Mid-run async rst_n clears registered cells / pend / to /
+        # proto_err / fc_ovf. Park live leftover (cells=65535 fc_ovf=1),
+        # then pulse rst_n through dest posedge.
+        if not self._score_inner(name, "pre-async-rst park (live cells/fc_ovf)",
+                                 got):
+            phase.drop_objection(self)
+            return
+        if got[6] != 65535 or got[5] != 1:
+            self.bad(name, "pre-async-rst park (live leftover)",
+                     "cells=65535 fc_ovf=1",
+                     self._fmt(got), "u_u.cells")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        self.g.reset()
+        got = self._sample()
+        if got[0] != 0 or got[6] != 0 or got[4] != 0 or got[5] != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "pending=0 cells=0 proto_err=0 fc_ovf=0 (async clear)",
+                     self._fmt(got), "u_u.pend / u_u.cells")
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "mid-run rst_n=0", got, consume_vld=0):
+            phase.drop_objection(self)
+            return
+        rst_to = ival(d.u_u.to, -1)
+        if rst_to != 0:
+            self.bad(name, "mid-run rst_n=0 (to async clear)",
+                     "u_u.to=0", f"to={rst_to}", "u_u.to")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        got = self._sample()
+        if got[0] != 0 or got[6] != 0 or got[4] != 0 or got[5] != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "pending=0 cells=0 proto_err=0 fc_ovf=0",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "rst_n held 0 through dest posedge",
+                           got, consume_vld=0):
+            phase.drop_objection(self)
+            return
+        hold_to = ival(d.u_u.to, -1)
+        if hold_to != 0:
+            self.bad(name, "rst_n held 0 through dest posedge (to)",
+                     "u_u.to=0", f"to={hold_to}", "u_u.to")
+            phase.drop_objection(self)
+            return
+        await self._release_reset()
+        await FallingEdge(d.clk)
+        got = self._sample()
+        if not self._score(name, "after async re-release, idle",
+                           got, consume_vld=0):
+            phase.drop_objection(self)
+            return
+        if got[0] != 0 or got[6] != 0 or got[5] != 0:
+            self.bad(name, "after async re-release, no leftover cells/fc_ovf",
+                     "pending=0 cells=0 fc_ovf=0",
+                     self._fmt(got), "u_u.cells")
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover cells / fc_ovf are gone; a new
+        # consume must add 1 cell with no leftover 65535.
+        got = await self._cycle(consume_vld=1, consume_flits=8, grain_n=8)
+        if not self._score(name, "8 flits grain=8 after mid-run rst (no leftover)",
+                           got, consume_vld=1):
+            phase.drop_objection(self)
+            return
+        if got[6] != 1 or got[0] != 1 or got[5] != 0:
+            self.bad(name, "after mid-run rst consume (no leftover 65535)",
+                     "cells=1 pending=1 fc_ovf=0",
+                     self._fmt(got), "u_u.cells")
+            phase.drop_objection(self)
+            return
+
+        # 8. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_crd). Instance u_u (not leftover u_crd / u_bcrc / u_sm).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_dll_credit product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
