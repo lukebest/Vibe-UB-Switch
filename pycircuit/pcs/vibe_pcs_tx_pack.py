@@ -1,7 +1,8 @@
 """vibe_pcs_tx_pack — PCS TX pack (AS-0.1 §5 T5 G2).
 
 Product module: ``rtl/pcs/vibe_pcs_tx_pack.sv``. Ports match tip
-``ee5e8f4`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``ad3a7165``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``sdf_period`` / ``afifo_afull``
 / 512b ``beat_data`` / ``beat_vld`` / ``beat_ready`` / 4×160b
 ``lane0``..``lane3`` / ``lane_vld`` / ``lane_ready`` / ``am_word``);

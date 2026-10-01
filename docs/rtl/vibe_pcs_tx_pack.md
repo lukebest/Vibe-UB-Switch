@@ -16,7 +16,8 @@ rtl flow. Inverse of stage-15 `vibe_pcs_rx_unpack`
 
 ## Ports (product)
 
-Same as tip `ee5e8f4` / freeze `302ac943`. Reset stays
+Same as tip `ad3a7165`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
