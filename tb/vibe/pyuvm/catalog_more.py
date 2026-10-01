@@ -88,7 +88,7 @@ TOP_WRAP = PORT_WRAP + FAB + MGMT + [
     _w("top", "vibe_ub_switch.sv"),
 ]
 # Decision-I stage-47 wrap leaf. Product vibe_pcs_tx + stock children.
-# Do not pull pcs_rx / lmsm (HOLD).
+# Do not pull lmsm (HOLD).
 PCS_TX = [
     _w("pcs", "vibe_pcs_tx.sv"),
     _w("pcs", "vibe_pcs_tx_g1.sv"),
@@ -99,6 +99,18 @@ PCS_TX = [
     _w("pcs", "vibe_pcs_tx_amctl.sv"),
     _w("pcs", "vibe_ebch16.sv"),
     _w("pcs", "vibe_pcs_scramble.sv"),
+]
+# Decision-I stage-48 wrap leaf. Product vibe_pcs_rx + stock children.
+# Do not pull lmsm (HOLD). link_up / unpack / fec input defaults
+# stripped for Verilator 5.020 (same as PORT_WRAP / leaf RX units).
+PCS_RX = [
+    _no_input_default("pcs", "vibe_pcs_rx.sv"),
+    _w("pcs", "vibe_pcs_rx_amctl_lock.sv"),
+    _w("pcs", "vibe_ebch16.sv"),
+    _w("pcs", "vibe_pcs_scramble.sv"),
+    _w("pcs", "vibe_pcs_rx_deskew.sv"),
+    _no_input_default("pcs", "vibe_pcs_rx_unpack.sv"),
+    _no_input_default("pcs", "vibe_pcs_rx_fec.sv"),
 ]
 
 UNIT_MORE = [
@@ -276,6 +288,9 @@ UNIT_MORE = [
     # Decision-I stage-47 wrap leaf. Not Icarus full-stack tc_pcs_tx.
     ("tc_vibe_pcs_tx", "vibe_pcs_tx_wrap_cocotb_top",
      [_wrap("vibe_pcs_tx_wrap_cocotb_top")] + PCS_TX, "entry_unit"),
+    # Decision-I stage-48 wrap leaf. Not Icarus full-stack tc_pcs_rx.
+    ("tc_vibe_pcs_rx", "vibe_pcs_rx_wrap_cocotb_top",
+     [_wrap("vibe_pcs_rx_wrap_cocotb_top")] + PCS_RX, "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
