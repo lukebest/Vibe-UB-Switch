@@ -27,7 +27,8 @@ child instances). Eighth DLL leaf after `vibe_bcrc` /
 
 ## Ports (product)
 
-Same as tip `dfa505a6` / freeze `302ac943`. Reset stays
+Same as tip `780018d2`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

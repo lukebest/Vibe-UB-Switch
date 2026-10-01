@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_tx.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip dfa505a6 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 780018d2. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1.2 / FS-0.2.7 overlay B: 512b NW byte stream → 20B flits with
 // cross-beat remainder (64B beat, 20B flit, rem 4B). Emit one 640b beat
 // (4 flits + BCRC in last 32b) when a group is ready. A short EOP that
