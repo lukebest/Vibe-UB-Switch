@@ -23,7 +23,8 @@ Seventh DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
 
 ## Ports (product)
 
-Same as tip `1891dec0` / freeze `302ac943`. Reset stays
+Same as tip `4f701bd1`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
