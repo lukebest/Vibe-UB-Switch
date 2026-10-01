@@ -21,7 +21,8 @@ leaf after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm`.
 
 ## Ports (product)
 
-Same as tip `7543c944` / freeze `302ac943`. Reset stays
+Same as tip `e76523bf`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`). Parameter
 `RXBUF` default 1024.
 

@@ -1,7 +1,9 @@
 """vibe_dll_rx — DLL RX unpack (AS-0.1.2 / FS-0.2.7 overlay B).
 
 Product module: ``rtl/dll/vibe_dll_rx.sv``. Ports match tip
-``7543c944`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``e76523bf``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``port_rst`` / ``link_up`` /
 ``fec_fail`` / 640b ``pcs_dll_data`` / ``pcs_dll_vld`` /
 ``pcs_dll_ready`` / 512b ``dll_nw_data`` / ``dll_nw_vld`` /
