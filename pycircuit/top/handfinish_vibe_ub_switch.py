@@ -1,6 +1,32 @@
+"""Emit the product SystemVerilog for vibe_ub_switch (hand-finished).
+
+Keeps tip ports, ``ROUTE_TABLE_DEPTH`` default 256, the stock
+children (4× ``g_port[gi].u_port``, ``u_fab``, ``u_mgmt``,
+4× ``g_byp[gi].u_byp``), interconnect nets, and generate
+loops (AS-0.1.2 §4/§17). ``vibe_fabric`` / ``vibe_mgmt`` stay
+stock SV (no pyCircuit wrap yet). pycc netlists are a
+prototype only; this file is what lands in
+``rtl/top/vibe_ub_switch.sv``. Do not rewrite F1 ``ovf_l``
+(lives under ``vibe_port``).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/top/vibe_ub_switch.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip cb644804 / 260dc6db. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
+// Regenerate: make -C pycircuit vibe_ub_switch
+"""
+
+BODY = """\
 // FS-0.2.3 + AS-0.1.2 §4/§17: top — 4-port PMA + clk_fab + rst_n + cfg_wr_* + irq_logic.
 // cfg_wr_cmd is 4 bits (opcodes 0–5; 6–15 ignore). No cfg_rd_* pin.
 // G1 named signals: rt_shortest_unimpl (32-bit saturating), sticky irq_logic. No extra IRQ pins.
@@ -128,6 +154,26 @@ module vibe_ub_switch #(
     end
   endgenerate
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
-// Regenerate: make -C pycircuit vibe_ub_switch
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "top" / "vibe_ub_switch.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
