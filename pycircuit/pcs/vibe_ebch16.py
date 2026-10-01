@@ -1,7 +1,8 @@
 """vibe_ebch16 — eBCH-16 codeword LUT (AS-0.1 §5 / UB 3.2.4.1).
 
 Product module: ``rtl/pcs/vibe_ebch16.sv``. Ports match tip
-``9f86cba`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``80ff14af``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Combo leaf (``cw_sel[4:0]`` → ``cw[15:0]``); used by
 ``vibe_pcs_tx_amctl`` and ``vibe_pcs_rx_amctl_lock``. Table 3-5
 plus default ``16'hFFFF`` (sel 31).
