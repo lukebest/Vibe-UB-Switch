@@ -1,5 +1,9 @@
 // Thin cocotb wrapper. DUT RTL never edited.
-// Dual-clock product TX config: W=160, DEPTH=16. Clocks come from entry_unit.
+// Dual-clock product TX config: W=160, DEPTH=16, AFULL=10.
+// Clocks come from entry_unit (wclk 2 ns, rclk 4 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// CHILDREN from rtl/cdc/vibe_afifo.sv: u_r2w / u_w2r (vibe_sync2).
+// ovf_l (F1) is not in this module. CFG6 packing is 未知.
 `timescale 1ns/1ps
 
 module vibe_afifo_cocotb_top (
@@ -16,7 +20,7 @@ module vibe_afifo_cocotb_top (
   output logic [159:0] rdata,
   output logic         rempty
 );
-  vibe_afifo #(.W(160), .DEPTH(16)) u_afifo (
+  vibe_afifo #(.W(160), .DEPTH(16)) u_u (
     .wclk(wclk), .wrst_n(wrst_n), .wen(wen), .wdata(wdata),
     .wfull(wfull), .almost_full(almost_full), .wocc(wocc),
     .rclk(rclk), .rrst_n(rrst_n), .ren(ren), .rdata(rdata),
