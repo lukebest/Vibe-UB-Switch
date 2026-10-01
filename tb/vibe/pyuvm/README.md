@@ -72,6 +72,7 @@ make -C tb/vibe/pyuvm amctl_lock               # same as units TC=tc_vibe_pcs_rx
 make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock  # same as amctl_lock
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_unpack  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm unpack                   # same as units TC=tc_vibe_pcs_rx_unpack
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_unpack    # same as unpack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_pack  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm pack                     # same as units TC=tc_vibe_pcs_tx_pack
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack      # same as pack
@@ -207,6 +208,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_rx_deskew SIM=verilator  # same as deskew
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock SIM=verilator  # same as amctl_lock
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_unpack SIM=verilator  # same as unpack
 make -C tb/vibe/pyuvm pack SIM=verilator          # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack SIM=verilator  # same as pack
 make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
@@ -467,18 +469,24 @@ Instantiated by `vibe_pcs_rx` `u_l0`..`u_l3`. `ovf_l` (F1) is
 not in this module. CHILDREN: `u3` / `u8` / `u9` / `u10` /
 `u21` / `u22` / `u28` (`vibe_ebch16`).
 
-`tc_vibe_pcs_rx_unpack` / `make unpack` is **module-level
+`tc_vibe_pcs_rx_unpack` / `make unpack` /
+`make tc_vibe_pcs_rx_unpack` is **module-level
 only** (reset / idle `beat_vld=0` no spurious beat, AMCTL
 `am0..am3` skip, 4×640 → exactly 5×512 unpack vs golden
 LSB-first pack, `beat_ready` hold without drop/dup, `am_gap`
 n-reset that keeps an in-flight emit, dual-buffer `nxt_full`
 / acc swap, `lane_vld` stall without a take, second group
-after drain). It is **not** 1/3, 4/3, freeze, or signoff.
-Stock Icarus `tb/vibe/tests/tc_pcs_rx_unpack.sv` /
+after drain, mid-run async `rst_n` through dest posedge,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_pcs_rx_unpack.sv` /
 `tc_pcs_rx_unpack` remains the official `beat_vld` / `am_gap`
 / `nxt_full` scorer. This is **not** the AMCTL-lock leaf /
-`amctl_lock`. Pairs with TX pack (`make pack` /
-`tc_vibe_pcs_tx_pack`).
+`amctl_lock` / `deskew` / `amctl` / `cw2beat` / `ebch16` /
+`pcs_scramble` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync` / `g1` /
+`tx_fec` / `pack`. Instantiated by `vibe_pcs_rx` `u_un`.
+`ovf_l` (F1) is not in this module. CHILDREN: none. Pairs
+with TX pack (`make pack` / `tc_vibe_pcs_tx_pack`).
 
 `tc_vibe_pcs_tx_pack` / `make pack` /
 `make tc_vibe_pcs_tx_pack` is **module-level only** (reset /
