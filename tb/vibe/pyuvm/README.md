@@ -792,14 +792,19 @@ module. Mgmt bypass is fabric-level and does not enter this DUT.
 clears rem / pkt / `fq` / `dll_pcs_*`, combo `nw_dll_ready`
 backpressure, CFG0 `consume_cfg0`, 1-flit EOP Null-pad + BCRC
 emit, 80-byte rem pack across two 64B beats, AMCTL zero-beat,
-replay `{replay_flit, 480'0}`). It is **not** 1/3, 4/3,
+replay `{replay_flit, 480'0}`, mid-run async `rst_n` through dest
+posedge, pin scan with instance `u_u`). It is **not** 1/3, 4/3,
 freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_dll_tx_cfg0.sv` / `tc_dll_tx_cfg0` remains the
-official TP scorer (tx + credit cells). Eighth DLL leaf after
-`vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` / `vibe_dll_rx`
-/ `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
-`vibe_dll_retry_req_sm`. `ovf_l` (F1) is not in this module.
-Not TP-DLL-004 / full `vibe_dll` (`make dll`).
+official TP scorer (tx + credit cells). This is **not** TP-DLL-004 /
+`dll` / `bcrc` / `credit` / `dll_sm` / `dll_rx` / `retry_ack_sm` /
+`retry_buf` / `retry_req_sm` / `icrc` / `vibe_pcs_tx` /
+`vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
+`vibe_rst_sync`. Eighth DLL leaf after `vibe_bcrc` /
+`vibe_dll_credit` / `vibe_dll_sm` / `vibe_dll_rx` /
+`vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
+`vibe_dll_retry_req_sm`. Instantiated by `vibe_dll` `u_tx`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll` / `make dll_wrap` / `make wrap` /
 `make tc_vibe_dll` is **wrap-level only** (seven children present,
