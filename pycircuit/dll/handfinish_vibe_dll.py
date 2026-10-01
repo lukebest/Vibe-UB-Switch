@@ -6,6 +6,8 @@ already-migrated children (``u_sm`` / ``u_crd`` / ``u_rbuf`` /
 nets, and wrap-local ``proto_err`` / ``fc_ovf`` assigns
 (AS-0.1 §12). pycc netlists are a prototype only; this file
 is what lands in ``rtl/dll/vibe_dll.sv``.
+Tip ``4520441a``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 5b071097 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 4520441a. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
