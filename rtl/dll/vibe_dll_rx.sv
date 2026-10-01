@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_rx.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 7543c944 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip e76523bf. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1.2 / FS-0.2.7 overlay B: 640b PCS → 4 flits, unBCRC (wire flits
 // including CRC in last 32b of the group), pack to 512b NW beats with
 // remainder. LPH is the first 160b flit of the assembled packet.
