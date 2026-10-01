@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_credit.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip ad36bf66 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 2ef95a43. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §12 / FS-0.2.6: credit consume ceil(DLLDP_flits/n), n default 8.
 // Pending-to-return is a cell count. Pending >= 1024 cell → backpressure NW
 // and force Crd_Ack (VIBE_CREDIT_THRESH stays 1024; not 1024×n flits).
