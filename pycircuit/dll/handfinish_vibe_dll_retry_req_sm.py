@@ -4,6 +4,8 @@ Keeps tip ports, async-low ``rst_n``, NORMAL / REQ (1 Idle +
 burst Req) / WAIT (``RETRY_WAIT_CYC``) / RETRAIN / ERROR.
 pycc netlists are a prototype only; this file is what lands in
 ``rtl/dll/vibe_dll_retry_req_sm.sv``.
+Tip ``4f701bd1``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_retry_req_sm.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 1891dec0 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 4f701bd1. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
