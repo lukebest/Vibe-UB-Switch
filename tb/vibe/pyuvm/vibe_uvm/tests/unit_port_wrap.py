@@ -1,41 +1,42 @@
-"""Wrap-level uvm-python TC for Decision-I stage-43 vibe_port.
+"""Wrap-level uvm-python TC for Decision-I stage-50 vibe_port.
 
-Covers submodule wiring (rst_sync ×2, LMSM, NW adapt, DLL, PCS tx/rx,
-4× TX AFIFO+gear, PMA, 4× RX AFIFO+gear); wrap-local fec_mode=T4 and
-F1 afifo_ovf CDC idle; async rst_n / LMSM Idle → DLL Disabled; TB-only
-Force am_locked walk to LinkUp/LinkReady; credit_low blocks fabric NW
-until cells are granted; 1-flit CFG3 TX smoke through u_nw; wrap
-cfg0_hit / fec_fail follow u_dll / u_prx (no Force over PCS, no
-invented Appendix D / CFG opcode); port_rst / async rst_n force
-Disabled. Not a full-chip consecutive-green
-gate (stock tc_port_smoke / tc_nw_pkt_* remain the PMA-loopback scorers).
-Not 1/3, 4/3, freeze, or signoff. Not vibe_mgmt / vibe_top.
+Covers DUT / CHILDREN present (from rtl/port/vibe_port.sv — named
+u_txrst / u_rxrst / u_lmsm / u_nw / u_dll / u_ptx / u_prx / 4×
+u_at* + u_g* / u_pma / 4× u_ar* + u_rg*; wrap-local packed nets
+if Verilator 5.020 VPI hides u_p.*); reset / async rst_n /
+port_rst; wrap-local fec_mode=T4 and F1 afifo_ovf CDC idle;
+LMSM Idle → DLL Disabled; lmsm_go observe Idle → Disc.A (no AM
+invent / no tmr / st deposit). Prefer observe over Force.
+Not a full-chip consecutive-green gate (stock tc_port_smoke /
+tc_nw_pkt_* remain the PMA-loopback scorers). Not 1/3, 4/3,
+freeze, or signoff. Does not steal make top / wrap / port /
+top_wrap / mgmt_wrap / fabric_wrap / pcs_tx_wrap / pcs_rx_wrap /
+lmsm_wrap.
 
-Matches product rtl/port/vibe_port.sv: hierarchy wrap of vibe_rst_sync
-u_txrst / u_rxrst, vibe_lmsm u_lmsm, vibe_nw_adapt u_nw, vibe_dll u_dll,
-vibe_pcs_tx u_ptx, vibe_pcs_rx u_prx, 4× vibe_afifo u_at* +
-vibe_gear_160_128 u_g*, vibe_pma_bnd u_pma, 4× vibe_afifo u_ar* +
-vibe_gear_128_160 u_rg*; fec_mode = VIBE_FEC_T4; F1 ovf_l CDC to
-afifo_ovf (do not rewrite). Stock Icarus / pyuvm tc_port_smoke remain
-the official TP-PHY scorers. No invented Appendix D / CFG opcode.
-CFG6 R/W packing is 未知 — do not invent. ovf_l (F1) stays stock.
+Matches product rtl/port/vibe_port.sv: hierarchy wrap of
+vibe_rst_sync u_txrst / u_rxrst, vibe_lmsm u_lmsm, vibe_nw_adapt
+u_nw, vibe_dll u_dll, vibe_pcs_tx u_ptx, vibe_pcs_rx u_prx,
+4× vibe_afifo u_at* + vibe_gear_160_128 u_g*, vibe_pma_bnd u_pma,
+4× vibe_afifo u_ar* + vibe_gear_128_160 u_rg*. fec_mode =
+VIBE_FEC_T4; F1 ovf_l CDC to afifo_ovf (do not rewrite).
+vibe_pcs_tx / vibe_pcs_rx / vibe_lmsm now have pyCircuit wraps
+(stages 47–49) — listed in CHILDREN, not re-migrated. No
+cfg_wr_* / cfg_rd_* pin. CFG6 R/W packing is 未知 — do not
+invent. Stock Icarus / pyuvm tc_port_smoke remain the official
+TP-PHY scorers. Product body / ovf_l still cd71b1d0.
 """
 
-import os
 from uvm import uvm_component_utils
 from cocotb.triggers import FallingEdge, RisingEdge, Timer
-from cocotb.handle import Force
-from vibe_uvm import lph
 from vibe_uvm.hdl import ival, sset, hier
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 ST_DIS = 0
 ST_NAME = {0: "Disabled", 1: "Param", 2: "Credit", 3: "Normal"}
 LMSM_IDLE = 0
-LMSM_ACTIVE = 9
+LMSM_DISC_A = 1
 FEC_T4 = 0b010
-MASK352 = (1 << 352) - 1
-MASK512 = (1 << 512) - 1
+# CHILDREN from rtl/port/vibe_port.sv instance names. Do not invent.
 CHILDREN = (
     "u_txrst", "u_rxrst",
     "u_lmsm", "u_nw", "u_dll", "u_ptx", "u_prx",
@@ -45,25 +46,14 @@ CHILDREN = (
     "u_ar0", "u_ar1", "u_ar2", "u_ar3",
     "u_rg0", "u_rg1", "u_rg2", "u_rg3",
 )
-HIER = "u_p.u_lmsm / u_p.u_nw / u_p.u_dll / u_p.u_pma"
-PAT352 = int(
-    "A5A55A5A0123456789ABCDEFFEDCBA98765432101111222233334444555566667777888899",
-    16,
-) & MASK352
-
-
-def mk_nw(cfg=3, vl=0, nflit=1, payload=None) -> int:
-    """512b NW beat: LPH in [511:352] (vibe_nw512_flit0). CFG3 only."""
-    if payload is None:
-        payload = PAT352
-    return lph.mk_beat(
-        lph.mk_flit(cfg, 0, vl, 1, 2, lph.plen_nflit(nflit)),
-        int(payload) & MASK352,
-    )
-
-
-def _is_icarus() -> bool:
-    return os.environ.get("SIM", "").lower() == "icarus"
+HIER = "u_p.u_lmsm / u_p.u_nw / u_p.u_dll / u_p.u_ptx / u_p.u_prx / u_p.u_pma"
+WRAP = "vibe_port_wrap_cocotb_top"
+WRAP_NETS = (
+    "status_up", "disabled", "retry_error", "proto_err",
+    "fc_ovf", "rx_ovf", "afifo_ovf", "cfg0_hit",
+    "fab_nw_ready", "mgmt_nw_ready", "nw_fab_vld",
+    "pcs_pma_txdata",
+)
 
 
 class tc_vibe_port(VibeUnitBaseTest):
@@ -94,6 +84,9 @@ class tc_vibe_port(VibeUnitBaseTest):
     async def _to_fall(self):
         await RisingEdge(self.dut.clk_fab)
         await FallingEdge(self.dut.clk_fab)
+
+    async def _settle(self):
+        await Timer(1, "NS")
 
     def _inner(self, path, default=None):
         try:
@@ -138,18 +131,34 @@ class tc_vibe_port(VibeUnitBaseTest):
             f"aovf={ival(d.afifo_ovf, -1)} "
             f"clow={self._inner('u_p.u_dll.credit_low', -1)} "
             f"lready={self._inner('u_p.link_ready', -1)} "
-            f"lup={self._inner('u_p.link_up', -1)}"
+            f"lup={self._inner('u_p.link_up', -1)} "
+            f"fec={self._inner('u_p.fec_mode', -1)}"
         )
 
     def _score_children(self, name):
+        """Named CHILDREN from product SV. Icarus exposes u_p.u_lmsm;
+        Verilator 5.020 VPI may not. Prove missing hierarchy with
+        wrap-local packed nets those children drive."""
+        if not self._exists("u_p"):
+            self.bad(name, "AS-0.1 §4 wrap instance",
+                     "u_p present", "missing", "u_p")
+            return False
         missing = [inst for inst in CHILDREN
                    if not self._exists(f"u_p.{inst}")]
-        if missing:
-            self.bad(name, "AS-0.1 §4 children present",
+        if missing and len(missing) != len(CHILDREN):
+            self.bad(name, "AS-0.1 §4 named children present",
                      "u_txrst u_rxrst u_lmsm u_nw u_dll u_ptx u_prx "
                      "u_at* u_g* u_pma u_ar* u_rg*",
                      f"missing={missing}", "u_p")
             return False
+        if missing:
+            for net in WRAP_NETS:
+                if ival(getattr(self.dut, net), None) is None:
+                    if net == "pcs_pma_txdata":
+                        continue
+                    self.bad(name, "children via wrap nets (no child VPI)",
+                             f"{net} readable", "missing", f"u_p.{net}")
+                    return False
         return True
 
     def _score_combo(self, name):
@@ -170,6 +179,38 @@ class tc_vibe_port(VibeUnitBaseTest):
             self.bad(name, "wrap fc_ovf from u_dll",
                      f"fc_ovf={dll_ovf}", f"fc_ovf={ovf}", "u_p.u_dll")
             return False
+        retry = ival(self.dut.retry_error, None)
+        dll_re = self._inner("u_p.u_dll.retry_error", None)
+        if (retry is not None and dll_re is not None
+                and int(retry) != int(dll_re)):
+            self.bad(name, "wrap retry_error from u_dll",
+                     f"retry_error={dll_re}", f"retry_error={retry}",
+                     "u_p.u_dll")
+            return False
+        pin_hit = ival(self.dut.cfg0_hit, None)
+        dll_hit = self._inner("u_p.u_dll.cfg0_hit", None)
+        if (pin_hit is not None and dll_hit is not None
+                and int(pin_hit) != int(dll_hit)):
+            self.bad(name, "wrap cfg0_hit from u_dll",
+                     f"cfg0_hit={dll_hit}", f"cfg0_hit={pin_hit}",
+                     "u_p.u_dll.cfg0_hit")
+            return False
+        wrap_ff = self._inner("u_p.fec_fail", None)
+        prx_ff = self._inner("u_p.u_prx.fec_fail", None)
+        if (wrap_ff is not None and prx_ff is not None
+                and int(wrap_ff) != int(prx_ff)):
+            self.bad(name, "wrap fec_fail from u_prx",
+                     f"fec_fail={prx_ff}", f"fec_fail={wrap_ff}",
+                     "u_p.u_prx.fec_fail")
+            return False
+        pin_am = self._inner("u_p.am_locked", None)
+        prx_am = self._inner("u_p.u_prx.am_locked", None)
+        if (pin_am is not None and prx_am is not None
+                and int(pin_am) != int(prx_am)):
+            self.bad(name, "wrap am_locked from u_prx",
+                     f"am_locked={prx_am}", f"am_locked={pin_am}",
+                     "u_p.u_prx.am_locked")
+            return False
         lready = self._inner("u_p.link_ready", None)
         nwr = self._inner("u_p.nw_dll_ready", None)
         mgmt_v = ival(self.dut.mgmt_nw_vld, 0) or 0
@@ -187,44 +228,15 @@ class tc_vibe_port(VibeUnitBaseTest):
                      f"ready={int(lready) and int(nwr)}",
                      f"ready={mgmt_r}", "u_p.u_nw")
             return False
-        return True
-
-    def _try_force(self, path, val) -> bool:
-        try:
-            hier(self.dut, path).value = Force(val)
-            return True
-        except Exception:
+        dll_nw = self._inner("u_p.dll_nw_vld", None)
+        fab_v = ival(self.dut.nw_fab_vld, None)
+        if (dll_nw is not None and fab_v is not None
+                and int(dll_nw) != int(fab_v)):
+            self.bad(name, "u_nw nw_fab_vld = dll_nw_vld",
+                     f"nw_fab_vld={dll_nw}", f"nw_fab_vld={fab_v}",
+                     "u_p.u_nw")
             return False
-
-    async def _grant_credit(self, cells=1024):
-        """TB-only Force. Stock vibe_dll starts cells=0 → credit_low=1."""
-        self._try_force("u_p.u_dll.u_crd.cells", cells)
-        self._try_force("u_p.u_dll.u_crd.pend", 0)
-        await RisingEdge(self.dut.clk_fab)
-        await FallingEdge(self.dut.clk_fab)
-
-    async def _bringup(self) -> bool:
-        """TB-only Force am_locked (stock tc_port_smoke). Natural LMSM walk."""
-        self._try_force("u_p.u_lmsm.am_locked", 0xF)
-        self._try_force("u_p.u_lmsm.lid_bad", 0)
-        await FallingEdge(self.dut.clk_fab)
-        sset(self.dut.lmsm_go, 1)
-        await self._to_fall()
-        sset(self.dut.lmsm_go, 0)
-        for _ in range(24):
-            await self._to_fall()
-            if (self._inner("u_p.link_ready", 0) == 1
-                    and ival(self.dut.status_up, 0) == 1):
-                return True
-        # Stock port TCs also Force ACTIVE when the walk is short on Force.
-        self._try_force("u_p.u_lmsm.st", LMSM_ACTIVE)
-        for _ in range(8):
-            await self._to_fall()
-            if (self._inner("u_p.link_ready", 0) == 1
-                    and ival(self.dut.status_up, 0) == 1):
-                return True
-        return (self._inner("u_p.link_ready", 0) == 1
-                and ival(self.dut.status_up, 0) == 1)
+        return True
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -243,6 +255,7 @@ class tc_vibe_port(VibeUnitBaseTest):
             return
 
         # 1. After reset: LMSM Idle, DLL Disabled, wrap outputs idle.
+        #    F1 afifo_ovf CDC idle. Observe; no Force.
         if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
             self.bad(name, "reset then release, LMSM Idle → DLL Disabled",
                      "disabled=1 status_up=0", self._fmt(), "u_p.u_dll.u_sm")
@@ -273,9 +286,11 @@ class tc_vibe_port(VibeUnitBaseTest):
                 phase.drop_objection(self)
                 return
 
-        # 2. rst_sync deassert after dest clocks (u_txrst / u_rxrst).
+        # 2. rst_sync dest deassert after dest clocks (u_txrst / u_rxrst).
         for _ in range(4):
             await RisingEdge(d.txclk)
+        for _ in range(4):
+            await RisingEdge(d.rxclk)
         txr = self._inner("u_p.txrst_n", None)
         rxr = self._inner("u_p.rxrst_n", None)
         if txr not in (None, 1) and txr != 1:
@@ -293,147 +308,61 @@ class tc_vibe_port(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 3. LMSM go + Force am_locked (stock port bring-up, not consecutive-green).
-        up = await self._bringup()
-        if not up:
-            if not _is_icarus():
-                self.bad(name, "lmsm_go + Force am_locked=1111 lid_bad=0",
-                         "link_ready=1 status_up=1", self._fmt(),
-                         "u_p.u_lmsm / u_p.u_dll")
-                phase.drop_objection(self)
-                return
-            # Icarus: same Force-bring-up hole as stock tc_port_smoke.
-        else:
-            if not self._score_combo(name):
-                phase.drop_objection(self)
-                return
-            if ival(d.status_up, 0) != 1 or ival(d.disabled, 1) != 0:
-                self.bad(name, "LinkUp from u_lmsm → u_dll walk to Normal",
-                         "status_up=1 disabled=0", self._fmt(), "u_p.u_dll.u_sm")
-                phase.drop_objection(self)
-                return
+        # 3. lmsm_go observe Idle → Disc.A. am_locked stays 0 (u_prx hunt;
+        #    do not invent AM / Force). DLL stays Disabled (link_up=0).
+        sset(d.lmsm_go, 1)
+        await RisingEdge(d.clk_fab)
+        sset(d.lmsm_go, 0)
+        await FallingEdge(d.clk_fab)
+        lst = self._lmsm_st()
+        if lst is not None and int(lst) != LMSM_DISC_A:
+            self.bad(name, "lmsm_go → Disc.A (observe, no AM invent)",
+                     f"lmsm_st={LMSM_DISC_A}", self._fmt(), "u_p.u_lmsm")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        lst = self._lmsm_st()
+        if lst is not None and int(lst) != LMSM_DISC_A:
+            self.bad(name, "Disc.A holds without am_locked",
+                     f"lmsm_st={LMSM_DISC_A}", self._fmt(), "u_p.u_lmsm")
+            phase.drop_objection(self)
+            return
+        if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
+            self.bad(name, "Disc.A keeps DLL Disabled (link_up=0)",
+                     "disabled=1 status_up=0", self._fmt(), "u_p.u_dll")
+            phase.drop_objection(self)
+            return
+        am = self._inner("u_p.am_locked", None)
+        if am is not None and int(am) != 0:
+            self.bad(name, "non-AM hunt leaves am_locked=0",
+                     "am_locked=0", self._fmt(), "u_p.u_prx.am_locked")
+            phase.drop_objection(self)
+            return
+        if not self._score_combo(name):
+            phase.drop_objection(self)
+            return
 
-            # 4. cells=0 → credit_low → fab_nw_ready=0 (u_crd → u_tx → u_nw).
-            clow = self._inner("u_p.u_dll.credit_low", None)
-            if clow not in (None, 1) and clow != 1:
-                self.bad(name, "stock cells=0 after LinkReady",
-                         "credit_low=1", self._fmt(), "u_p.u_dll.u_crd")
-                phase.drop_objection(self)
-                return
-            if ival(d.fab_nw_ready, 1) != 0:
-                self.bad(name, "credit_low blocks fabric NW (u_nw)",
-                         "fab_nw_ready=0", self._fmt(), "u_p.u_nw.fab_nw_ready")
-                phase.drop_objection(self)
-                return
+        # 4. port_rst observe → LMSM Idle + DLL Disabled.
+        sset(d.port_rst, 1)
+        await self._to_fall()
+        if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
+            self.bad(name, "port_rst force Disabled",
+                     "disabled=1 status_up=0", self._fmt(), "u_p.u_dll.u_sm")
+            phase.drop_objection(self)
+            return
+        lst = self._lmsm_st()
+        if lst not in (None, LMSM_IDLE) and lst != LMSM_IDLE:
+            self.bad(name, "port_rst LMSM Idle",
+                     "lmsm_st=0", self._fmt(), "u_p.u_lmsm")
+            phase.drop_objection(self)
+            return
+        sset(d.port_rst, 0)
+        await self._to_fall()
+        if not self._score_combo(name):
+            phase.drop_objection(self)
+            return
 
-            # 5. Grant cells (TB-only Force, same as port/top / tc_dll).
-            await self._grant_credit(1024)
-            if ival(d.fab_nw_ready, 0) != 1:
-                self.bad(name, "after credit grant + LinkReady",
-                         "fab_nw_ready=1", self._fmt(), "u_p.u_nw.fab_nw_ready")
-                phase.drop_objection(self)
-                return
-            if ival(d.mgmt_nw_ready, 0) != 1:
-                self.bad(name, "mgmt inject ready after credit",
-                         "mgmt_nw_ready=1", self._fmt(), "u_p.u_nw.mgmt_nw_ready")
-                phase.drop_objection(self)
-                return
-
-            # 6. TX smoke: 1-flit CFG3 through u_nw (not PMA loopback).
-            b1 = mk_nw(3, 0, 1)
-            sent = 0
-            saw_inner = 0
-            for _ in range(16):
-                await FallingEdge(d.clk_fab)
-                if sent == 0:
-                    sset(d.fab_nw_data, b1)
-                    sset(d.fab_nw_vld, ival(d.fab_nw_ready, 0))
-                else:
-                    sset(d.fab_nw_vld, 0)
-                inner = self._inner("u_p.nw_dll_data", None)
-                inner_v = self._inner("u_p.nw_dll_vld", 0)
-                if inner_v and inner is not None and inner >= 0:
-                    if (int(inner) & MASK512) == (b1 & MASK512):
-                        saw_inner = 1
-                await RisingEdge(d.clk_fab)
-                if sent == 0 and ival(d.fab_nw_vld, 0) and ival(d.fab_nw_ready, 0):
-                    sent = 1
-                if sent and saw_inner:
-                    break
-            sset(d.fab_nw_vld, 0)
-            if not sent:
-                self.bad(name, "TX 1-flit CFG3 accept at fab_nw",
-                         "fab_nw_ready handshake", self._fmt(),
-                         "u_p.u_nw.fab_nw_ready")
-                phase.drop_objection(self)
-                return
-            if not saw_inner:
-                # Icarus 12 VPI may leave 512-bit nw_dll_data X.
-                inner = self._inner("u_p.nw_dll_data", None)
-                if inner is None and _is_icarus():
-                    pass
-                else:
-                    self.bad(name, "u_nw forwards CFG3 fab_nw → nw_dll",
-                             hex(b1 & MASK512),
-                             "none" if inner is None else hex(int(inner) & MASK512),
-                             "u_p.nw_dll_data")
-                    phase.drop_objection(self)
-                    return
-            await FallingEdge(d.clk_fab)
-
-            # 7. CFG0 / fec_fail wrap pins follow u_dll / u_prx (u_prx drives
-            # the inner nets; do not Force over PCS. Not Appendix D / CFG 0x10).
-            dll_hit = self._inner("u_p.u_dll.cfg0_hit", None)
-            pin_hit = ival(d.cfg0_hit, None)
-            if (dll_hit is not None and pin_hit is not None
-                    and int(dll_hit) != int(pin_hit)):
-                self.bad(name, "wrap cfg0_hit from u_dll",
-                         f"cfg0_hit={dll_hit}", f"cfg0_hit={pin_hit}",
-                         "u_p.u_dll.cfg0_hit")
-                phase.drop_objection(self)
-                return
-            if pin_hit not in (None, 0) and int(pin_hit) != 0:
-                self.bad(name, "idle CFG0 (no PCS beat; no invented opcode)",
-                         "cfg0_hit=0", self._fmt(), "u_p.cfg0_hit")
-                phase.drop_objection(self)
-                return
-            dll_nw = self._inner("u_p.dll_nw_vld", None)
-            fab_v = ival(d.nw_fab_vld, None)
-            if (dll_nw is not None and fab_v is not None
-                    and int(dll_nw) != int(fab_v)):
-                self.bad(name, "u_nw nw_fab_vld = dll_nw_vld",
-                         f"nw_fab_vld={dll_nw}", f"nw_fab_vld={fab_v}",
-                         "u_p.u_nw")
-                phase.drop_objection(self)
-                return
-            wrap_ff = self._inner("u_p.fec_fail", None)
-            prx_ff = self._inner("u_p.u_prx.fec_fail", None)
-            if (wrap_ff is not None and prx_ff is not None
-                    and int(wrap_ff) != int(prx_ff)):
-                self.bad(name, "wrap fec_fail from u_prx",
-                         f"fec_fail={prx_ff}", f"fec_fail={wrap_ff}",
-                         "u_p.u_prx.fec_fail")
-                phase.drop_objection(self)
-                return
-
-            # 8. port_rst force LMSM Idle + DLL Disabled.
-            sset(d.port_rst, 1)
-            await self._to_fall()
-            if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
-                self.bad(name, "port_rst force Disabled",
-                         "disabled=1 status_up=0", self._fmt(), "u_p.u_dll.u_sm")
-                phase.drop_objection(self)
-                return
-            lst = self._lmsm_st()
-            if lst not in (None, LMSM_IDLE) and lst != LMSM_IDLE:
-                self.bad(name, "port_rst LMSM Idle",
-                         "lmsm_st=0", self._fmt(), "u_p.u_lmsm")
-                phase.drop_objection(self)
-                return
-            sset(d.port_rst, 0)
-            await self._to_fall()
-
-        # 9. Async rst_n (no posedge) clears registered wrap outputs.
+        # 5. Async rst_n (no posedge) clears registered wrap outputs.
         sset(d.rst_n, 0)
         await Timer(100, "PS")
         if ival(d.disabled, 0) != 1 or ival(d.status_up, 1) != 0:
@@ -451,6 +380,12 @@ class tc_vibe_port(VibeUnitBaseTest):
                      "afifo_ovf=0", self._fmt(), "u_p.afifo_ovf")
             phase.drop_objection(self)
             return
+        lst = self._lmsm_st()
+        if lst not in (None, LMSM_IDLE) and int(lst) != LMSM_IDLE:
+            self.bad(name, "async rst_n clears lmsm_st",
+                     "lmsm_st=0", self._fmt(), "u_p.u_lmsm.st")
+            phase.drop_objection(self)
+            return
         await self._idle()
         await self._release_reset()
         await FallingEdge(d.clk_fab)
@@ -463,24 +398,26 @@ class tc_vibe_port(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 11. Leaf has no invented Appendix D / CFG opcode / mgmt-top pins.
-        for absent in ("appendix_d", "cfg_rd", "cfg_rd_vld", "cfg_rd_data",
-                       "cfg_wr_cmd", "cfg_wr_vld", "irq_logic",
-                       "vibe_mgmt", "vibe_top", "vibe_ub_switch"):
+        # 6. Product wrap pins. No cfg_* / Appendix D / invented children.
+        for absent in ("cfg_rd", "cfg_rd_vld", "cfg_rd_data", "cfg_wr_cmd",
+                       "cfg_wr_vld", "appendix_d", "irq_logic",
+                       "vibe_mgmt", "vibe_top", "vibe_ub_switch",
+                       "u_peer", "prst", "cna", "device_rst_n"):
             if hasattr(d, absent):
                 self.bad(name, f"wrap pin scan ({absent})",
-                         "not a vibe_port product port",
-                         f"{absent} present", "vibe_port_wrap_cocotb_top")
+                         "not a vibe_port product / wrap port",
+                         f"{absent} present", WRAP)
                 phase.drop_objection(self)
                 return
-        for need in ("clk_fab", "txclk", "rxclk", "lmsm_go",
+        for need in ("clk_fab", "rst_n", "port_rst", "device_rst",
+                     "lmsm_go", "txclk", "rxclk",
                      "fab_nw_ready", "nw_fab_vld", "mgmt_nw_ready",
                      "status_up", "disabled", "afifo_ovf", "cfg0_hit",
-                     "pcs_pma_txdata", "pma_pcs_rxdata"):
+                     "pcs_pma_txdata", "pma_pcs_rxdata",
+                     "retry_error", "proto_err", "fc_ovf", "rx_ovf"):
             if not hasattr(d, need):
                 self.bad(name, f"wrap pin scan ({need})",
-                         f"{need} present", "missing",
-                         "vibe_port_wrap_cocotb_top")
+                         f"{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 

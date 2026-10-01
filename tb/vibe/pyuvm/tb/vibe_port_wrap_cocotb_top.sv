@@ -1,6 +1,13 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Stock Icarus / pyuvm tc_port_smoke scores PMA loopback on vibe_port_cocotb_top.
-// Decision-I wrap leaf `tc_vibe_port` / make port_wrap uses this top.
+// Decision-I wrap leaf `tc_vibe_port` / make vibe_port_wrap uses this top.
+// Product ports are all packed scalars (no unpacked-array flatten).
+// CHILDREN from rtl/port/vibe_port.sv (AS-0.1 §4). Official CFG6 opcode
+// 0x10 / Appendix D packing is 未知; this wrapper does not invent it
+// (vibe_port has no cfg_wr_* / cfg_rd_* pin). F1 ovf_l CDC stays stock
+// inside vibe_port (do not ECO).
+// Does not steal make top / wrap / port / top_wrap / mgmt_wrap /
+// fabric_wrap / pcs_tx_wrap / pcs_rx_wrap / lmsm_wrap.
 `timescale 1ns/1ps
 
 module vibe_port_wrap_cocotb_top (

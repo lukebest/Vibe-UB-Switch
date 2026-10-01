@@ -153,6 +153,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_rx           # same as pcs_rx_wrap
 make -C tb/vibe/pyuvm units TC=tc_vibe_lmsm  # Decision-I wrap leaf (not tc_lmsm_walk)
 make -C tb/vibe/pyuvm lmsm_wrap                # same as units TC=tc_vibe_lmsm
 make -C tb/vibe/pyuvm tc_vibe_lmsm             # same as lmsm_wrap
+make -C tb/vibe/pyuvm vibe_port_wrap           # Decision-I wrap leaf (not make port / port_wrap)
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -240,6 +241,7 @@ make -C tb/vibe/pyuvm pcs_rx_wrap SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_rx SIM=verilator # same as pcs_rx_wrap
 make -C tb/vibe/pyuvm lmsm_wrap SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_lmsm SIM=verilator   # same as lmsm_wrap
+make -C tb/vibe/pyuvm vibe_port_wrap SIM=verilator # or SIM=icarus
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -676,6 +678,23 @@ No invented Appendix D / CFG opcode. Icarus LMSM Force
 bring-up may not reach ACTIVE (same class as stock `tc_port_smoke`);
 children / reset / combo / async rst still score.
 
+`tc_vibe_port` / `make vibe_port_wrap` is the Decision-I **stage-50**
+wrap leaf (tip `4b2eefe4` / product body still `cd71b1d0`). It is
+**wrap-level only** (AS-0.1 §4 CHILDREN from SV — `u_txrst` /
+`u_rxrst` / `u_lmsm` / `u_nw` / `u_dll` / `u_ptx` / `u_prx` /
+4× `u_at*` + `u_g*` / `u_pma` / 4× `u_ar*` + `u_rg*` — wrap-local
+nets on Verilator 5.020 VPI, async `rst_n` / `port_rst`, wrap-local
+`fec_mode=T4` / F1 `afifo_ovf` idle, LMSM Idle → DLL Disabled,
+`lmsm_go` observe Idle → Disc.A without AM invent). It is
+**not** 1/3, 4/3, freeze, or signoff. Stock Icarus / pyuvm
+`tc_port_smoke` / `make port` remain the official TP-PHY scorers.
+Do **not** steal `make top` / `make wrap` / `make port` /
+`make top_wrap` / `make mgmt_wrap` / `make fabric_wrap` /
+`make pcs_tx_wrap` / `make pcs_rx_wrap` / `make lmsm_wrap`.
+No invented Appendix D / CFG opcode. CFG6 R/W packing is 未知 —
+do not invent (this DUT has no CFG pin). Prefer observing wrap /
+child-driven nets over Force. Do not rewrite F1 `ovf_l`.
+
 `tc_vibe_ub_switch` / `make top_wrap` / `make tc_vibe_ub_switch` is
 **wrap-level only** (AS-0.1 §4/§17 children present — 4× `vibe_port`,
 `vibe_fabric`, `vibe_mgmt`, 4× `vibe_mgmt_byp` — async `rst_n` /
@@ -962,7 +981,7 @@ tb/vibe/pyuvm/
                      tests/unit_irq_agg.py  Decision-I vibe_irq_agg (module-level)
                      tests/unit_cna_ep.py  Decision-I vibe_cna_ep (module-level)
                      tests/unit_cfg_space.py  Decision-I vibe_cfg_space (module-level)
-                     tests/unit_port_wrap.py  Decision-I vibe_port wrap (not tc_port_smoke)
+                     tests/unit_port_wrap.py  Decision-I stage-50 vibe_port wrap (not tc_port_smoke)
                      tests/unit_ub_switch_wrap.py  Decision-I vibe_ub_switch wrap (not tc_top_smoke)
                      tests/unit_mgmt_wrap.py  Decision-I vibe_mgmt wrap (not tc_mgmt)
                      tests/unit_fabric_wrap.py  Decision-I vibe_fabric wrap (not suite)
