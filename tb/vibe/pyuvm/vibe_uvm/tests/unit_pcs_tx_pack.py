@@ -4,17 +4,24 @@ Covers reset/idle (lane_vld=0, beat_ready, no spurious emit), 5×512 →
 exactly 4×640 pack (G2 / inverse of vibe_pcs_rx_unpack), lane_ready and
 afifo_afull backpressure without drop/dup, beat_vld stall without a
 take, AMCTL insert on the 512 / 640-symbol timer (am_word + per-lane
-40B halves), AM wait until a finishing 4×640 emits, and a second group
-after drain. Not a full-chip consecutive-green gate. Not 1/3, 4/3,
-freeze, or signoff.
+40B halves), AM wait until a finishing 4×640 emits, a second group
+after drain, mid-run async rst_n through dest posedge, and a pin scan
+with instance u_u. Not a full-chip consecutive-green gate. Not 1/3,
+4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_tx_pack.sv: async-low rst_n, combo
 beat_ready = !afifo_afull && lane_ready && (am_phase==0) && !pack_vld,
 lane_vld = (am_phase!=0) || pack_vld, am_word = (am_phase!=0),
 pack[512*acc_n +: 512], emit pack[640*emit_idx] as {lane3..lane0},
 insert_am = sym_cnt >= (sdf_period ? 640 : 512). Instantiates
-vibe_pcs_tx_amctl ×4. Used by vibe_pcs_tx u_pack. Stock Icarus
-tc_pcs_tx_pack remains the official lane_vld scorer.
+vibe_pcs_tx_amctl ×4. Instantiated by vibe_pcs_tx u_pack. This is not
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_unpack / gear /
+vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: u_am0 / u_am1 / u_am2 / u_am3 (vibe_pcs_tx_amctl).
+Stock Icarus tc_pcs_tx_pack remains the official lane_vld scorer.
 """
 
 from uvm import uvm_component_utils
@@ -27,7 +34,25 @@ MASK320 = (1 << 320) - 1
 MASK512 = (1 << 512) - 1
 MASK640 = (1 << 640) - 1
 MASK2560 = (1 << 2560) - 1
-HIER = "u_u.pack_vld / u_u.am_phase"
+HIER = "u_u.pack_vld / u_u.am_phase / u_u.acc_n / u_u.lane_vld"
+WRAP = "vibe_pcs_tx_pack_cocotb_top"
+PINS = (
+    "clk", "rst_n", "sdf_period", "afifo_afull",
+    "beat_data", "beat_vld", "beat_ready",
+    "lane0", "lane1", "lane2", "lane3",
+    "lane_vld", "lane_ready", "am_word",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_pack",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "win_data", "win_vld", "win_ready",
+    "in_data", "in_vld", "in_ready", "link_up",
+    "start", "in_sym", "parity", "u_enc", "u_g", "u_g1", "u_fec",
+    "amctl_40B",
+)
 
 # Table 3-5 eBCH (16, 5) plus default (sel 31). Same as unit_pcs_tx_amctl.
 EBCH16 = (
@@ -242,6 +267,10 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
     def _sample(self):
         d = self.dut
         return (
@@ -255,6 +284,46 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
                 ival(d.lane3, -1),
             ),
         )
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.beat_ready, -1),
+            ival(u.lane_vld, -1),
+            ival(u.am_word, -1),
+            (
+                ival(u.lane0, -1),
+                ival(u.lane1, -1),
+                ival(u.lane2, -1),
+                ival(u.lane3, -1),
+            ),
+        )
+
+    def _score_inner(self, name, stim, br, lv, aw, lanes):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        ibr, ilv, iaw, ilanes = inner
+        if (ibr, ilv, iaw) != (br, lv, aw):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"beat_ready={br} lane_vld={lv} am_word={aw}",
+                     f"u_u beat_ready={ibr} lane_vld={ilv} am_word={iaw}",
+                     HIER)
+            return False
+        if lv == 1 and lanes is not None:
+            exp = tuple(None if x is None else _word160(x) for x in lanes)
+            got = tuple(None if x is None else _word160(x) for x in ilanes)
+            if exp != got:
+                self.bad(name, stim + " (port vs u_u lanes)",
+                         " ".join(_hex160(x) for x in exp),
+                         " ".join(_hex160(x) for x in got),
+                         "u_u.lane0")
+                return False
+        return True
 
     def _score_now(self, name, stim, sdf, afull, lready, br, lv, aw, lanes):
         exp_br, exp_lv, exp_aw, _ = self.g.combo(sdf, afull, lready)
@@ -290,7 +359,7 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
                          " ".join(_hex160(x) for x in lanes),
                          "u_u.pack / u_am*.amctl_40B")
                 return False
-        return True
+        return self._score_inner(name, stim, br, lv, aw, lanes)
 
     async def _apply(self, name, stim, beat_vld, beat_data,
                      sdf=0, afull=0, lane_ready=1):
@@ -444,6 +513,10 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
                      "beat_ready=1 lane_vld=0 am_word=0",
                      f"beat_ready={br} lane_vld={lv} am_word={aw}",
                      HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "reset then release, idle",
+                                 br, lv, aw, lanes):
             phase.drop_objection(self)
             return
         for i in range(4):
@@ -870,6 +943,154 @@ class tc_vibe_pcs_tx_pack(VibeUnitBaseTest):
                      "u_u.am_phase")
             phase.drop_objection(self)
             return
+
+        # 6. Mid-run async rst_n clears registered pack_vld / acc_n / pack.
+        # Park a live 5×512 emit so pack_vld=1 / beat_ready=0 / lane_vld=1,
+        # then pulse rst_n through dest posedge.
+        await self._hold_reset()
+        await self._release_reset()
+        await FallingEdge(d.clk)
+        if not await self._accept_beats(name, "pre-dest-rst fill G1", G1):
+            phase.drop_objection(self)
+            return
+        br, lv, aw, lanes = self._sample()
+        if lv != 1 or br != 0 or aw != 0:
+            self.bad(name, "pre-dest-rst park (pack_vld live)",
+                     "lane_vld=1 beat_ready=0 am_word=0",
+                     f"lane_vld={lv} beat_ready={br} am_word={aw}",
+                     "u_u.pack_vld")
+            phase.drop_objection(self)
+            return
+        held = tuple(_word160(x) for x in lanes)
+        if held != exp1[0]:
+            self.bad(name, "pre-dest-rst park (first 640)",
+                     f"lane0={_hex160(exp1[0][0])}",
+                     f"lane0={_hex160(held[0])}",
+                     "u_u.pack")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park", br, lv, aw, lanes):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        pack_vld = ival(u.pack_vld, -1) if u is not None else None
+        pack = ival(u.pack, -1) if u is not None else None
+        if pack_vld != 1 or pack is None or pack == 0:
+            self.bad(name, "pre-async-rst park (live pack)",
+                     "u_u.pack_vld=1 u_u.pack!=0 after 5 beats",
+                     f"pack_vld={pack_vld} pack={pack}",
+                     "u_u.pack_vld")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        br, lv, aw, lanes = self._sample()
+        if br != 1 or lv != 0 or aw != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "beat_ready=1 lane_vld=0 am_word=0 (async clear)",
+                     f"beat_ready={br} lane_vld={lv} am_word={aw}",
+                     "u_u.pack_vld")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", br, lv, aw, lanes):
+            phase.drop_objection(self)
+            return
+        pack_vld = ival(d.u_u.pack_vld, -1)
+        acc_n = ival(d.u_u.acc_n, -1)
+        pack = ival(d.u_u.pack, -1)
+        am_phase = ival(d.u_u.am_phase, -1)
+        if pack_vld != 0 or acc_n != 0 or pack != 0 or am_phase != 0:
+            self.bad(name, "mid-run rst_n=0 (pack/acc_n async clear)",
+                     "u_u.pack_vld=0 u_u.acc_n=0 u_u.pack=0 u_u.am_phase=0",
+                     f"pack_vld={pack_vld} acc_n={acc_n} pack={pack} "
+                     f"am_phase={am_phase}",
+                     "u_u.pack_vld")
+            phase.drop_objection(self)
+            return
+        self.g.reset()
+        await self._to_fall()
+        br, lv, aw, lanes = self._sample()
+        if br != 1 or lv != 0 or aw != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "beat_ready=1 lane_vld=0 am_word=0",
+                     f"beat_ready={br} lane_vld={lv} am_word={aw}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", br, lv, aw, lanes):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        br, lv, aw, lanes = self._sample()
+        if br != 1 or lv != 0 or aw != 0:
+            self.bad(name, "after async re-release, idle",
+                     "beat_ready=1 lane_vld=0 am_word=0",
+                     f"beat_ready={br} lane_vld={lv} am_word={aw}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 br, lv, aw, lanes):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover pack / acc_n / emit_idx are gone; a
+        # new 5×512 group must emit G3 with no leftover G1.
+        outs_rst = []
+        if not await self._feed_beats(name, "G3 after mid-run rst", G3,
+                                      outs_rst):
+            phase.drop_objection(self)
+            return
+        if not await self._drain(name, "G3 after mid-run rst", outs_rst):
+            phase.drop_objection(self)
+            return
+        if outs_rst != exp3:
+            self.bad(name, "after mid-run rst, G3 4×640 (no leftover pack)",
+                     f"exactly G3 first0={_hex160(exp3[0][0])}",
+                     f"n={len(outs_rst)} first0="
+                     f"{_hex160(outs_rst[0][0]) if outs_rst else 'x'}",
+                     "u_u.pack")
+            phase.drop_objection(self)
+            return
+        if outs_rst == exp1:
+            self.bad(name, "after mid-run rst, no leftover G1",
+                     "G3 4×640",
+                     "G1 leftover",
+                     "u_u.pack")
+            phase.drop_objection(self)
+            return
+
+        # 7. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_pack). Instance u_u (not leftover u_pack).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_tx_pack product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
