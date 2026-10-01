@@ -1,7 +1,8 @@
 """vibe_pcs_tx_cw2beat — 1024b codeword → two 512b beats (AS-0.1 §5 T4).
 
 Product module: ``rtl/pcs/vibe_pcs_tx_cw2beat.sv``. Ports match tip
-``c8804c0`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``938f23f1``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ready-valid 1024 in, 512 out);
 used by ``vibe_pcs_tx`` (``u_cw``). High beat first
 (``cw_data[1023:512]``), then low (``cw_data[511:0]``).

@@ -4,6 +4,7 @@ Keeps tip ports, async-low ``rst_n``, combo ``cw_ready`` /
 ``beat_vld`` / ``beat_data``, and the ready/valid 1024→2×512 split
 (high beat first). pycc netlists are a prototype only; this file is
 what lands in ``rtl/pcs/vibe_pcs_tx_cw2beat.sv``.
+Tip ``938f23f1``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx_cw2beat.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip c8804c0 / freeze 302ac943.
+// Product ports and behavior match tip 938f23f1. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_tx_cw2beat
 //
