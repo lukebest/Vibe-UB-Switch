@@ -18,7 +18,8 @@ instantiate the decoder. Pairs with stage-17 `vibe_pcs_tx_fec`.
 
 ## Ports (product)
 
-Same as tip `b7233f49` / freeze `302ac943`. Reset stays
+Same as tip `d3a3275b`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`). Stock
 `am_gap = 1'b0` default stays on **line 14** (Verilator
 `UNSUPPORTED` on input defaults is pre-existing; official
