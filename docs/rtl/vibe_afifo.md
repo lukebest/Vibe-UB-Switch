@@ -1,7 +1,7 @@
 # vibe_afifo
 
 Per-lane gray-pointer async FIFO (AS-0.1 §7). First pyCircuit leaf after
-Decision I unfroze RTL `302ac943`.
+Decision I UNFROZEN. Tip `4dc6ce77`. Historical freeze `302ac943` VOID.
 
 | | |
 |---|---|
@@ -12,7 +12,8 @@ Decision I unfroze RTL `302ac943`.
 
 ## Ports (product)
 
-Same as freeze `302ac943`. Do not invent ready/valid names.
+Same as tip `4dc6ce77`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Do not invent ready/valid names.
 
 | Port | Dir | Notes |
 |------|-----|--------|

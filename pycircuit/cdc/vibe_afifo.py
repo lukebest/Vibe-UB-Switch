@@ -1,11 +1,12 @@
 """vibe_afifo — per-lane gray-pointer AFIFO (AS-0.1 §7).
 
-Product module: ``rtl/cdc/vibe_afifo.sv``. Ports and fire rules match freeze
-``302ac943``. SPEC / CR-B names are unchanged.
+Product module: ``rtl/cdc/vibe_afifo.sv``. Ports and fire rules match
+tip ``4dc6ce77``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 
 pyCircuit registers are dest-domain **synchronous active-high** reset. Product
 RTL uses **async active-low** ``wrst_n`` / ``rrst_n`` and instantiates
-``vibe_sync2``. Landed SV is hand-finished to keep those freeze semantics.
+``vibe_sync2``. Landed SV is hand-finished to keep those tip semantics.
 Do not replace this leaf with ``pyc.async_fifo`` (ready/valid, no ``wocc`` /
 ``almost_full``).
 """
