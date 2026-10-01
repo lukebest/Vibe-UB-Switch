@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_fec.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip b7233f49 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip d3a3275b. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 module vibe_pcs_rx_fec (
   input  logic         clk,
   input  logic         rst_n,

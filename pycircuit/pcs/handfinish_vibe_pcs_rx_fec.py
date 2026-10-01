@@ -7,6 +7,7 @@ default, inline ``gf_mul2`` / ``rs_syndromes`` (no
 always-block (2×512 → syndrome or bypass → 960b / ``fec_fail``).
 pycc netlists are a prototype only; this file is what lands in
 ``rtl/pcs/vibe_pcs_rx_fec.sv``.
+Tip ``d3a3275b``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_fec.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip b7233f49 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip d3a3275b. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
