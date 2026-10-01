@@ -4,6 +4,7 @@ Keeps tip ports, async-low ``rst_n``, ``include "vibe_ub_fn.vh"``,
 ``vibe_gf256_mul`` LFSR step, combo ``in_ready`` / ``parity``, and
 the 120-symbol systematic encode. pycc netlists are a prototype
 only; this file is what lands in ``rtl/pcs/vibe_rs128_120_enc.sv``.
+Tip ``b30e59fd``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_rs128_120_enc.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip 984e3b9 / freeze 302ac943.
+// Product ports and behavior match tip b30e59fd. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rs128_120_enc
 //
