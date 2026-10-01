@@ -5,6 +5,7 @@ pass-through ``out0``..``out3``, first-AMCTL lock pointers, and hunt
 FIFOs whose contents are not reset. Factory physical=logical (U24):
 no lane swap and no delay once aligned. pycc netlists are a prototype
 only; this file is what lands in ``rtl/pcs/vibe_pcs_rx_deskew.sv``.
+Tip ``77f9a460``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_deskew.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip ebd1671 / freeze 302ac943.
+// Product ports and behavior match tip 77f9a460. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_rx_deskew
 //
