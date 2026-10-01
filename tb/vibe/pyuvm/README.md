@@ -48,6 +48,7 @@ make -C tb/vibe/pyuvm units TC=tc_dll          # TP-DLL-004 full vibe_dll split
 make -C tb/vibe/pyuvm dll                      # same as units TC=tc_dll (≠1/3 ≠4/3)
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_scramble  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm pcs_scramble             # same as units TC=tc_vibe_pcs_scramble
+make -C tb/vibe/pyuvm tc_vibe_pcs_scramble     # same as pcs_scramble
 make -C tb/vibe/pyuvm units TC=tc_vibe_ebch16  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm ebch16                   # same as units TC=tc_vibe_ebch16
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_cw2beat  # Decision-I leaf (module-level)
@@ -180,6 +181,7 @@ make -C tb/vibe/pyuvm tc_vibe_gear_128_160 SIM=verilator  # same as gear_128_160
 make -C tb/vibe/pyuvm gear_160_128 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_gear_160_128 SIM=verilator  # same as gear_160_128
 make -C tb/vibe/pyuvm pcs_scramble SIM=verilator  # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_scramble SIM=verilator  # same as pcs_scramble
 make -C tb/vibe/pyuvm ebch16 SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm cw2beat SIM=verilator       # or SIM=icarus
 make -C tb/vibe/pyuvm amctl SIM=verilator         # or SIM=icarus
@@ -314,12 +316,21 @@ full-chip `tc_dll` (`make -C tb/vibe/pyuvm dll` / `units TC=tc_dll` scores
 that ID). Instantiated by `vibe_port` `u_g0`..`u_g3`. `ovf_l` (F1) is
 not in this module. CHILDREN: none.
 
-`tc_vibe_pcs_scramble` / `make pcs_scramble` is **module-level only** (reset
-idle / async clear, known LID seed vs golden xmask, AMCTL/EEIB `en=0`
-pass-through without LFSR advance, XOR round-trip). It is **not** 1/3,
-4/3, freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_pcs_scramble.sv` /
-`tc_pcs_scramble` remains optional control. Official TP-PHY-017 stays
-scored by `tc_pcs_scramble`. This is **not** TP-DLL-004 / `gear_160_128`.
+`tc_vibe_pcs_scramble` / `make pcs_scramble` / `make tc_vibe_pcs_scramble`
+is **module-level only** (reset idle / no spurious `out_vld`, async
+`rst_n` clear of registered outs, known LID seed `{19'd1, lane_id, 2'b01}`
+vs golden 160b xmask, distinct LIDs, AMCTL/EEIB `en=0` pass-through
+without LFSR advance, XOR round-trip, `seed_load`+`in_vld`+`en` NBA
+last-wins is the 160-step advance, mid-run async `rst_n` returns the
+LFSR to reset seed `{21'd0, 2'b01}`, pin scan with instance `u_u`).
+It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_pcs_scramble.sv` / `tc_pcs_scramble` remains optional
+control. Official TP-PHY-017 stays scored by `tc_pcs_scramble`. This is
+**not** `vibe_pcs_tx` / `vibe_pcs_rx` / `vibe_ebch16` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync` and **not** TP-DLL-004 /
+`gear_160_128`. Instantiated by `vibe_pcs_tx` `u_s0`..`u_s3` and
+`vibe_pcs_rx` `u_d0`..`u_d3`. `ovf_l` (F1) is not in this module.
+CHILDREN: none.
 
 `tc_vibe_ebch16` / `make ebch16` is **module-level only** (combo idle /
 no sequential hold, Table 3-5 encode LUT + default sel 31, unique invert
