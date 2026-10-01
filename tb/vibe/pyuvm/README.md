@@ -66,6 +66,7 @@ make -C tb/vibe/pyuvm rs128_120_dec             # same as units TC=tc_vibe_rs128
 make -C tb/vibe/pyuvm tc_vibe_rs128_120_dec     # same as rs128_120_dec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_deskew  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm deskew                   # same as units TC=tc_vibe_pcs_rx_deskew
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_deskew    # same as deskew
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_amctl_lock  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm amctl_lock               # same as units TC=tc_vibe_pcs_rx_amctl_lock
 make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock  # same as amctl_lock
@@ -202,6 +203,7 @@ make -C tb/vibe/pyuvm tc_vibe_rs128_120_enc SIM=verilator  # same as rs128_120_e
 make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_rs128_120_dec SIM=verilator  # same as rs128_120_dec
 make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_deskew SIM=verilator  # same as deskew
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock SIM=verilator  # same as amctl_lock
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
@@ -430,15 +432,22 @@ the official done-pulse scorer. The Decision-I wrap leaf is
 `vibe_pcs_rx_fec` (not an instance). `ovf_l` (F1) is not in this
 module. CHILDREN: none.
 
-`tc_vibe_pcs_rx_deskew` / `make deskew` is **module-level only**
+`tc_vibe_pcs_rx_deskew` / `make deskew` /
+`make tc_vibe_pcs_rx_deskew` is **module-level only**
 (reset / idle `aligned=0` no spurious `out_vld`, staggered AMCTL
 lane-skew absorb / first-AMCTL lock / `aligned`, factory
 physical=logical pass-through with no lane swap, AM drop
 `out_vld=0`, `in_vld` stall without a saw step, second data group
-after lock). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_pcs_rx_deskew.sv` / `tc_pcs_rx_deskew`
+after lock, mid-run async `rst_n` through dest posedge, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or signoff.
+Stock Icarus `tb/vibe/tests/tc_pcs_rx_deskew.sv` / `tc_pcs_rx_deskew`
 remains the official staggered-AM / `out_vld` scorer. This is
-**not** the decoder leaf / `rs128_120_dec`.
+**not** the decoder leaf / `rs128_120_dec` / `amctl_lock` /
+`unpack` / `amctl` / `cw2beat` / `ebch16` / `pcs_scramble` /
+`vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` /
+`vibe_sync2` / `vibe_rst_sync` / `g1` / `tx_fec` / `pack`.
+Instantiated by `vibe_pcs_rx` `u_dsk`. `ovf_l` (F1) is not in
+this module. CHILDREN: none.
 
 `tc_vibe_pcs_rx_amctl_lock` / `make amctl_lock` /
 `make tc_vibe_pcs_rx_amctl_lock` is **module-level
