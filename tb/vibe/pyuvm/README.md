@@ -95,6 +95,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_credit       # same as credit
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm dll_sm                   # same as units TC=tc_vibe_dll_sm
 make -C tb/vibe/pyuvm sm                       # same as dll_sm / tc_vibe_dll_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_sm           # same as dll_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_rx  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm dll_rx                   # same as units TC=tc_vibe_dll_rx
 make -C tb/vibe/pyuvm rx                       # same as dll_rx / tc_vibe_dll_rx
@@ -227,6 +228,7 @@ make -C tb/vibe/pyuvm credit SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_dll_credit SIM=verilator # same as credit
 make -C tb/vibe/pyuvm dll_sm SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm sm SIM=verilator            # same as dll_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_sm SIM=verilator # same as dll_sm
 make -C tb/vibe/pyuvm dll_rx SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm rx SIM=verilator            # same as dll_rx
 make -C tb/vibe/pyuvm retry_ack_sm SIM=verilator  # or SIM=icarus
@@ -605,15 +607,20 @@ timeout scorers. This is **not** TP-DLL-004 / `dll` / `bcrc` /
 `vibe_bcrc`. Instantiated by `vibe_dll` `u_crd`.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_dll_sm` / `make dll_sm` / `make sm` is **module-level
+`tc_vibe_dll_sm` / `make dll_sm` / `make sm` /
+`make tc_vibe_dll_sm` is **module-level
 only** (reset → Disabled, `!link_up` / `port_rst` / `dll_error`
 → Disabled, walk Disabled → Param → Credit → Normal on
 `param_ok` / `credit_ok`, `status_up` only in Normal, `disabled`
-only in Disabled, hold in Normal). It is **not** 1/3, 4/3,
+only in Disabled, hold in Normal, mid-run async `rst_n`
+through dest posedge, pin scan with instance `u_u`). It is **not** 1/3, 4/3,
 freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_dll_sm_states.sv`
 / `tc_dll_sm_states` remains the official TP-DLL-001 / 002 / 003
-scorer. This is **not** TP-DLL-004 / `dll`. Third DLL leaf after
-`vibe_bcrc` / `vibe_dll_credit`.
+scorer. This is **not** TP-DLL-004 / `dll` / `bcrc` / `credit` /
+`dll_rx` / `icrc` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Third DLL leaf after
+`vibe_bcrc` / `vibe_dll_credit`. Instantiated by `vibe_dll` `u_sm`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll_rx` / `make dll_rx` / `make rx` is **module-level
 only** (reset / `port_rst` / `!link_up` clears, CFG0 terminate
