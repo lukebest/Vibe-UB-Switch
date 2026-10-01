@@ -1,6 +1,8 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Product PCS TX G1: 640b=4 flits → 6-flit / 960b FEC window + Null fill
-// (AS-0.1 §5 T2). Clock from entry_unit (2 ns).
+// (AS-0.1 §5 T2). Clock comes from entry_unit. Instance u_u matches
+// Decision-I leaf wrappers. CHILDREN: none (leaf cell).
+// ovf_l (F1) is not in this module. This is not vibe_pcs_tx / rx.
 `timescale 1ns/1ps
 
 module vibe_pcs_tx_g1_cocotb_top (

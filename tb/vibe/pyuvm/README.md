@@ -77,6 +77,7 @@ make -C tb/vibe/pyuvm rx_fec                   # same as units TC=tc_vibe_pcs_rx
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_g1  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm g1                       # same as units TC=tc_vibe_pcs_tx_g1
 make -C tb/vibe/pyuvm tx_g1                    # same as g1 / tc_vibe_pcs_tx_g1
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1        # same as g1
 make -C tb/vibe/pyuvm units TC=tc_vibe_bcrc    # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm bcrc                     # same as units TC=tc_vibe_bcrc
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_credit  # Decision-I leaf (module-level)
@@ -201,6 +202,7 @@ make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm rx_fec SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm g1 SIM=verilator            # or SIM=icarus
 make -C tb/vibe/pyuvm tx_g1 SIM=verilator         # same as g1
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1 SIM=verilator  # same as g1
 make -C tb/vibe/pyuvm bcrc SIM=verilator          # or SIM=icarus
 make -C tb/vibe/pyuvm credit SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm dll_sm SIM=verilator        # or SIM=icarus
@@ -476,15 +478,22 @@ Stock Icarus `tb/vibe/tests/tc_pcs_rx_fec.sv` /
 This is **not** the decoder leaf / `rs128_120_dec`. Pairs
 with TX FEC (`make tx_fec` / `tc_vibe_pcs_tx_fec`).
 
-`tc_vibe_pcs_tx_g1` / `make g1` / `make tx_g1` is **module-level
-only** (reset / idle `win_vld=0` no spurious 960, 6-Null idle fill,
-isolated 4-flit + 2-Null complete, 1.5-beat rem-complete plus rem
-leftover + 4-Null fill, `win_ready` hold without drop/dup, `in_vld`
-stall at `nflit==4`, `link_up=0` no take / no idle fill, same-cycle
-ack+take, second window after drain). It is **not** 1/3, 4/3, freeze,
-or signoff. Stock Icarus `tb/vibe/tests/tc_pcs_tx_g1_window.sv` /
-`tc_pcs_tx_g1_window` remains the official `win_vld` scorer. This is
-**not** the TX FEC wrap / `tx_fec`. Feeds stage-17 `vibe_pcs_tx_fec`.
+`tc_vibe_pcs_tx_g1` / `make g1` / `make tx_g1` /
+`make tc_vibe_pcs_tx_g1` is **module-level only** (reset / idle
+`win_vld=0` no spurious 960, 6-Null idle fill, isolated 4-flit +
+2-Null complete, 1.5-beat rem-complete plus rem leftover + 4-Null
+fill, `win_ready` hold without drop/dup, `in_vld` stall at
+`nflit==4`, `link_up=0` no take / no idle fill, same-cycle
+ack+take, second window after drain, mid-run async `rst_n`
+through dest posedge, pin scan with instance `u_u`). It is
+**not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_pcs_tx_g1_window.sv` / `tc_pcs_tx_g1_window`
+remains the official `win_vld` scorer. This is **not** the TX FEC
+wrap / `tx_fec` / `cw2beat` / `amctl` / `ebch16` / `pcs_scramble`
+/ `vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` /
+`vibe_sync2` / `vibe_rst_sync`. Instantiated by `vibe_pcs_tx`
+`u_g1`. `ovf_l` (F1) is not in this module. CHILDREN: none.
+Feeds stage-17 `vibe_pcs_tx_fec`.
 
 `tc_vibe_bcrc` / `make bcrc` is **module-level only** (reset / idle
 `crc_word=0` `done=0` no spurious pulse, AS §12 CRC30 encode vs
