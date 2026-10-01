@@ -209,7 +209,10 @@ class tc_vibe_pcs_rx(VibeUnitBaseTest):
         return True
 
     async def _drive_junk(self, n=JUNK_CYCLES):
+        """Drive non-AM 160b. Product unpack/FEC still run in hunt
+        (rtl/pcs/vibe_pcs_rx.sv). Return observed pipeline bits."""
         d = self.dut
+        saw = {"uv": 0, "bv": 0, "dvld": 0, "am": 0}
         await FallingEdge(d.clk)
         sset(d.afifo_pcs_lane_vld, 1)
         for k in range(n):
@@ -218,12 +221,27 @@ class tc_vibe_pcs_rx(VibeUnitBaseTest):
             sset(d.afifo_pcs_lane2, junk(0x30 + k))
             sset(d.afifo_pcs_lane3, junk(0x40 + k))
             await RisingEdge(d.clk)
+            uv = self._inner("u_prx.uv", 0)
+            bv = self._inner("u_prx.bv", 0)
+            dv = ival(d.pcs_dll_vld, 0)
+            am = ival(d.am_locked, 0)
+            if uv is not None and int(uv) != 0:
+                saw["uv"] = 1
+            if bv is not None and int(bv) != 0:
+                saw["bv"] = 1
+            if dv is not None and int(dv) != 0:
+                saw["dvld"] = 1
+            if am is not None and int(am) != 0:
+                saw["am"] = 1
             await FallingEdge(d.clk)
         sset(d.afifo_pcs_lane_vld, 0)
         sset(d.afifo_pcs_lane0, 0)
         sset(d.afifo_pcs_lane1, 0)
         sset(d.afifo_pcs_lane2, 0)
         sset(d.afifo_pcs_lane3, 0)
+        await RisingEdge(d.clk)
+        await FallingEdge(d.clk)
+        return saw
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -267,25 +285,35 @@ class tc_vibe_pcs_rx(VibeUnitBaseTest):
             return
 
         # 3. Non-AM junk on RAW 160b lanes (observe). Lock stays 0.
-        # Full-stack AMCTL lock / unpack / Inverse T2 stays Icarus
+        # Hunt still feeds unpack/FEC (product comment: do not hold
+        # empty until lock). Full-stack AMCTL lock stays Icarus
         # tc_pcs_rx. Do not invent AM packing here.
-        await self._drive_junk()
+        saw = await self._drive_junk()
+        if saw["am"]:
+            self.bad(name, "non-AM lanes leave am_locked=0",
+                     "am_locked=0", self._fmt(), "u_prx.am_locked")
+            phase.drop_objection(self)
+            return
         am = ival(d.am_locked, None)
         if am is not None and int(am) != 0:
             self.bad(name, "non-AM lanes leave am_locked=0",
                      "am_locked=0", self._fmt(), "u_prx.am_locked")
             phase.drop_objection(self)
             return
-        if ival(d.deskew_ok, 1) not in (None, 0) and int(ival(d.deskew_ok, 1)) != 0:
+        dsk = ival(d.deskew_ok, None)
+        if dsk is not None and int(dsk) != 0:
             self.bad(name, "non-AM lanes leave deskew_ok=0",
                      "deskew_ok=0", self._fmt(), "u_prx.deskew_ok")
             phase.drop_objection(self)
             return
-        if ival(d.pcs_dll_vld, 1) not in (None, 0) and int(ival(d.pcs_dll_vld, 1)) != 0:
-            self.bad(name, "non-AM lanes leave pcs_dll_vld=0",
-                     "pcs_dll_vld=0", self._fmt(), "u_prx.pcs_dll_vld")
-            phase.drop_objection(self)
-            return
+        if not (saw["uv"] or saw["bv"] or saw["dvld"]):
+            # Verilator 5.020 may hide uv/bv; wrap pcs_dll_vld is enough.
+            if ival(d.pcs_dll_vld, 0) in (None, 0):
+                self.bad(name, "hunt pipeline observe (no AM invent)",
+                         "uv|bv|pcs_dll_vld != 0", self._fmt(),
+                         "u_prx.pcs_dll_vld")
+                phase.drop_objection(self)
+                return
         if not self._score_combo(name):
             phase.drop_objection(self)
             return
