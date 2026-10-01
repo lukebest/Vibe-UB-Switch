@@ -1,7 +1,9 @@
 """vibe_dll_retry_ack_sm — DLL RETRY_ACK_SM (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_dll_retry_ack_sm.sv``. Ports match tip
-``0b0a82db`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``002d054d``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``port_rst`` / ``start_ack`` /
 ``wr_ptr[7:0]`` / ``rcv_ptr[7:0]`` / ``state[2:0]`` / ``send_idle`` /
 ``send_ack`` / ``replay`` / ``rd_ptr[7:0]``). Fifth DLL leaf after

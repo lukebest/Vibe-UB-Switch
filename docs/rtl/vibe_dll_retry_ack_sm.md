@@ -19,7 +19,8 @@ then replay `RdPtr=RcvPtr` until `WrPtr`). Self-contained
 
 ## Ports (product)
 
-Same as tip `0b0a82db` / freeze `302ac943`. Reset stays
+Same as tip `002d054d`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

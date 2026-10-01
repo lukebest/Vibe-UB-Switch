@@ -4,6 +4,8 @@ Keeps tip ports, async-low ``rst_n``, NORMAL / ACK (1 Idle + 32
 Ack then replay ``RdPtr=RcvPtr`` until ``WrPtr``). pycc netlists
 are a prototype only; this file is what lands in
 ``rtl/dll/vibe_dll_retry_ack_sm.sv``.
+Tip ``002d054d``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_retry_ack_sm.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 0b0a82db / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 002d054d. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
