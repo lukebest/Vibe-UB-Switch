@@ -5,16 +5,22 @@ empty), 6-Null idle fill, isolated 4-flit beat + 2-Null complete,
 1.5-beat rem-complete (second 640 while nflit==4) plus rem leftover
 + 4-Null fill, win_ready backpressure without drop/dup, in_vld stall
 at nflit==4, link_up=0 (no take / no idle fill), rem-fill wait while
-in_vld stays 1, same-cycle ack+take, and a second window after drain.
-Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
-signoff.
+in_vld stays 1, same-cycle ack+take, a second window after drain,
+mid-run async rst_n through dest posedge, and a pin scan with
+instance u_u. Not a full-chip consecutive-green gate. Not 1/3, 4/3,
+freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_tx_g1.sv: async-low rst_n, combo
 in_ready = link_up && (!have || win_ready) && !((nflit>=4)&&rem_vld),
 win_data=acc, win_vld=have, NULL_FLIT=160'd0. NBA last-wins: ack
 have/nflit, then take fresh 4 or mid 4+2, else rem leftover, else
-2-Null complete, else idle 6-Null. Used by vibe_pcs_tx u_g1. Stock
-Icarus tc_pcs_tx_g1_window remains the official win_vld scorer.
+2-Null complete, else idle 6-Null. Instantiated by vibe_pcs_tx u_g1.
+This is not vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / gear /
+vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none (leaf cell; no FSM child).
+Stock Icarus tc_pcs_tx_g1_window remains the official win_vld scorer.
 """
 
 from uvm import uvm_component_utils
@@ -27,6 +33,21 @@ MASK320 = (1 << 320) - 1
 MASK640 = (1 << 640) - 1
 MASK960 = (1 << 960) - 1
 HIER = "u_u.nflit / u_u.have / u_u.rem_vld"
+WRAP = "vibe_pcs_tx_g1_cocotb_top"
+PINS = (
+    "clk", "rst_n", "link_up",
+    "in_data", "in_vld", "in_ready",
+    "win_data", "win_vld", "win_ready",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_g", "u_g1",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period",
+)
 
 
 def _word640(v: int) -> int:
@@ -169,6 +190,35 @@ class tc_vibe_pcs_tx_g1(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.in_ready, -1),
+            ival(u.win_vld, -1),
+            ival(u.win_data, -1),
+        )
+
+    def _score_inner(self, name, stim, ir, wv, wd):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        iir, iwv, iwd = inner
+        if (iir, iwv, iwd) != (ir, wv, wd):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"in_ready={ir} win_vld={wv} {_hex960(wd)}",
+                     f"u_u in_ready={iir} win_vld={iwv} {_hex960(iwd)}",
+                     HIER)
+            return False
+        return True
+
     def _sample(self):
         d = self.dut
         return (
@@ -204,7 +254,7 @@ class tc_vibe_pcs_tx_g1(VibeUnitBaseTest):
                          _hex960(wd),
                          "u_u.acc")
                 return False
-        return True
+        return self._score_inner(name, stim, ir, wv, wd)
 
     async def _apply(self, name, stim, in_vld, in_data,
                      link_up=1, win_ready=1):
@@ -322,6 +372,9 @@ class tc_vibe_pcs_tx_g1(VibeUnitBaseTest):
                      "in_ready=1 win_vld=0 win_data=0",
                      f"in_ready={ir} win_vld={wv} {_hex960(wd)}",
                      HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "reset then release, idle", ir, wv, wd):
             phase.drop_objection(self)
             return
         for i in range(4):
@@ -785,6 +838,142 @@ class tc_vibe_pcs_tx_g1(VibeUnitBaseTest):
                          f"taken={taken is not None} emit={emit is not None} "
                          f"win_vld={ival(d.win_vld, -1)}",
                          "u_u.have")
+                phase.drop_objection(self)
+                return
+
+        # 6. Mid-run async rst_n clears registered rem/acc/have. Park a
+        # 4+2 window so win_vld=1 / win_data!=0, then pulse rst_n through
+        # dest posedge.
+        taken, _ = await self._take_beat(
+            name, "pre-dest-rst A", BEAT_A, win_ready=1)
+        if taken != BEAT_A:
+            self.bad(name, "pre-dest-rst take",
+                     _hex640(BEAT_A),
+                     _hex640(taken),
+                     "u_u.nflit")
+            phase.drop_objection(self)
+            return
+        _, emit = await self._apply(
+            name, "pre-dest-rst complete (2-Null NBA)", 0, 0, win_ready=1)
+        if emit is not None or ival(d.win_vld, -1) != 1:
+            self.bad(name, "pre-dest-rst window live",
+                     "no handshake yet, win_vld=1",
+                     f"emit={emit is not None} win_vld={ival(d.win_vld, -1)}",
+                     "u_u.have")
+            phase.drop_objection(self)
+            return
+        _, emit = await self._apply(
+            name, "pre-dest-rst park (win_ready=0)", 0, 0, win_ready=0)
+        if emit is not None or ival(d.win_vld, -1) != 1:
+            self.bad(name, "pre-dest-rst have",
+                     "win_vld=1",
+                     f"win_vld={ival(d.win_vld, -1)}",
+                     "u_u.have")
+            phase.drop_objection(self)
+            return
+        ir, wv, wd = self._sample()
+        if wv != 1 or _word960(wd) != exp_a_null:
+            self.bad(name, "pre-async-rst park (win_ready=0, no consume)",
+                     f"win_vld=1 win_data={_hex960(exp_a_null)}",
+                     f"win_vld={wv} {_hex960(wd)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park", ir, wv, wd):
+            phase.drop_objection(self)
+            return
+        await self._idle(win_ready=0)
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        ir, wv, wd = self._sample()
+        if wv != 0 or wd != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "win_vld=0 win_data=0 (async clear)",
+                     f"win_vld={wv} {_hex960(wd)}",
+                     "u_u.have")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", ir, wv, wd):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        ir, wv, wd = self._sample()
+        if wv != 0 or wd != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "win_vld=0 win_data=0",
+                     f"win_vld={wv} {_hex960(wd)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", ir, wv, wd):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        self.g.reset()
+        await self._idle(win_ready=0)
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        ir, wv, wd = self._sample()
+        if wv != 0 or ir != 1:
+            self.bad(name, "after async re-release, idle",
+                     "win_vld=0 in_ready=1",
+                     f"win_vld={wv} in_ready={ir}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 ir, wv, wd):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst the parked window is gone; a new beat must take.
+        taken, _ = await self._take_beat(
+            name, "post-dest-rst B", BEAT_B, win_ready=1)
+        if taken != BEAT_B:
+            self.bad(name, "take after mid-run rst (no leftover rem/have)",
+                     _hex640(BEAT_B),
+                     _hex640(taken),
+                     "u_u.nflit")
+            phase.drop_objection(self)
+            return
+        rst_outs = []
+        if not await self._collect_wins(name, "after mid-run rst 4+2", 1,
+                                       rst_outs):
+            phase.drop_objection(self)
+            return
+        if rst_outs != [win_4plus2(BEAT_B)]:
+            self.bad(name, "after mid-run rst, BEAT_B + 2 Nulls",
+                     _hex960(win_4plus2(BEAT_B)),
+                     _hex960(rst_outs[0]) if rst_outs else "x",
+                     "u_u.acc")
+            phase.drop_objection(self)
+            return
+
+        # 7. Leaf pins match product SV (no ovf_l / dual-clock).
+        # Instance u_u (not leftover u_g / u_g1).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_tx_g1 product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 
