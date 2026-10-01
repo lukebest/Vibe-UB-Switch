@@ -33,6 +33,7 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_afifo   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm afifo                    # same as units TC=tc_vibe_afifo
 make -C tb/vibe/pyuvm units TC=tc_vibe_sync2   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm sync2                    # same as units TC=tc_vibe_sync2
+make -C tb/vibe/pyuvm tc_vibe_sync2            # same as sync2
 make -C tb/vibe/pyuvm units TC=tc_vibe_rst_sync  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rst_sync                 # same as units TC=tc_vibe_rst_sync
 make -C tb/vibe/pyuvm units TC=tc_vibe_gear_128_160  # Decision-I leaf (module-level)
@@ -166,6 +167,7 @@ make -C tb/vibe/pyuvm sim SIM=icarus
 make -C tb/vibe/pyuvm units TC=tc_vl_rr SIM=icarus
 make -C tb/vibe/pyuvm afifo SIM=verilator   # or SIM=icarus
 make -C tb/vibe/pyuvm sync2 SIM=verilator   # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_sync2 SIM=verilator  # same as sync2
 make -C tb/vibe/pyuvm rst_sync SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm gear_128_160 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm gear_160_128 SIM=verilator  # or SIM=icarus
@@ -248,9 +250,14 @@ make -C tb/vibe/pyuvm vibe_port_wrap SIM=verilator # or SIM=icarus
 fill/`almost_full` at occ≥10, drain). It is **not** the full-chip consecutive-green
 gate. Stock Icarus `tb/vibe/tests/tc_afifo_afull10.sv` remains optional control.
 
-`tc_vibe_sync2` / `make sync2` is **module-level only** (reset `q==0`, stable `d`
-reaches `q` after 2 posedges not 1, streaming 2-cycle delay, async `rst_n`
-clears the pipe). It is **not** 1/3, 4/3, freeze, or signoff.
+`tc_vibe_sync2` / `make sync2` / `make tc_vibe_sync2` is **module-level
+only** (reset `q==0`, stable `d` reaches `q` after 2 posedges not 1,
+walk-1 on W=5, all-1s, streaming 2-cycle delay vs golden, async
+`rst_n` clears the pipe, hold-through posedge, no ready/valid pins).
+It is **not** 1/3, 4/3, freeze, or signoff. There is no stock Icarus
+`tc_sync2`; this is the leaf scorer. This is **not** `vibe_rst_sync`
+and **not** gear. Instantiated by `vibe_afifo` `u_r2w` / `u_w2r`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_rst_sync` / `make rst_sync` is **module-level only** (async `rst_n_in`
 asserts `rst_n_out` without a dest posedge, sync deassert after 2 dest clocks
