@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_unpack.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports and behavior match tip ebd1671 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 0c167477. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2). Dual-buffer 4×640↔5×512.
 module vibe_pcs_rx_unpack (
   input  logic         clk,

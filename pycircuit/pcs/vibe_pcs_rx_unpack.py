@@ -1,7 +1,8 @@
 """vibe_pcs_rx_unpack — PCS RX unpack (AS-0.1 §6 inverse G2).
 
 Product module: ``rtl/pcs/vibe_pcs_rx_unpack.sv``. Ports match tip
-``ebd1671`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``0c167477``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / 4×160b ``lane*`` / ``lane_vld`` /
 ``am0``..``am3`` / ``am_gap`` / 512b ``beat_data`` / ``beat_vld`` /
 ``beat_ready``); used by ``vibe_pcs_rx`` (``u_un``). Strip AMCTL,
