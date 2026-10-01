@@ -5,6 +5,7 @@ seven ``vibe_ebch16`` instances, combo LID ``case (lane_id)``, and
 the 40-symbol AMCTL assemble (BODY / END / LID / CTRL_TYPE /
 CTRL_DETAIL). pycc netlists are a prototype only; this file is
 what lands in ``rtl/pcs/vibe_pcs_tx_amctl.sv``.
+Tip ``963aab5d``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx_amctl.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip 92adf9b / freeze 302ac943.
+// Product ports and behavior match tip 963aab5d. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_tx_amctl
 //

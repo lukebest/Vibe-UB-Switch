@@ -15,7 +15,8 @@ pycircuit → rtl flow.
 
 ## Ports (product)
 
-Same as tip `92adf9b` / freeze `302ac943`. Combo assemble. Reset
+Same as tip `963aab5d`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Combo assemble. Reset
 pin stays **async active-low** `rst_n` (pack wires it; the combo
 body does not sample `clk` / `rst_n` / `sdf_period`).
 
