@@ -87,6 +87,19 @@ TOP_WRAP = PORT_WRAP + FAB + MGMT + [
     _w("mgmt", "vibe_mgmt_byp.sv"),
     _w("top", "vibe_ub_switch.sv"),
 ]
+# Decision-I stage-47 wrap leaf. Product vibe_pcs_tx + stock children.
+# Do not pull pcs_rx / lmsm (HOLD).
+PCS_TX = [
+    _w("pcs", "vibe_pcs_tx.sv"),
+    _w("pcs", "vibe_pcs_tx_g1.sv"),
+    _w("pcs", "vibe_pcs_tx_fec.sv"),
+    _w("pcs", "vibe_rs128_120_enc.sv"),
+    _w("pcs", "vibe_pcs_tx_cw2beat.sv"),
+    _w("pcs", "vibe_pcs_tx_pack.sv"),
+    _w("pcs", "vibe_pcs_tx_amctl.sv"),
+    _w("pcs", "vibe_ebch16.sv"),
+    _w("pcs", "vibe_pcs_scramble.sv"),
+]
 
 UNIT_MORE = [
     ("tc_irq_agg", "vibe_irq_agg", [_w("mgmt", "vibe_irq_agg.sv")], "entry_unit"),
@@ -260,6 +273,9 @@ UNIT_MORE = [
     # Decision-I stage-46 wrap leaf. Not wrap-style fabric suite (that stays entry_fab).
     ("tc_vibe_fabric", "vibe_fabric_wrap_cocotb_top",
      [_wrap("vibe_fabric_wrap_cocotb_top")] + FAB, "entry_unit"),
+    # Decision-I stage-47 wrap leaf. Not Icarus full-stack tc_pcs_tx.
+    ("tc_vibe_pcs_tx", "vibe_pcs_tx_wrap_cocotb_top",
+     [_wrap("vibe_pcs_tx_wrap_cocotb_top")] + PCS_TX, "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
