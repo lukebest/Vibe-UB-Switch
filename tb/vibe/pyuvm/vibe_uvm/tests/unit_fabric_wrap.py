@@ -337,43 +337,8 @@ class tc_vibe_fabric(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 3. Light CFG3 forward. Observe xbar offer / egress. No Force.
-        # Icarus 12 VOQ wr_vl combo-feeds xbar out_ready (stock
-        # vibe_fab_cocotb_top Forces wr_vl); egress may stay 0. x_in_v
-        # is combo from SAF and still observable.
-        await self._inject(0, cfg3_beat(STOCK_DEST, tag=0xA11A))
-        saw_egr = 0
-        saw_xin = 0
-        saw_saf = 0
-        for _ in range(32):
-            await RisingEdge(d.clk)
-            ev = ival(d.fab_nw_vld, 0)
-            xin = self._inner("u_fab.x_in_v", 0)
-            saf = self._inner("u_fab.saf_v", 0)
-            if ev is not None and int(ev) != 0:
-                saw_egr = int(ev)
-            if xin is not None and int(xin) != 0:
-                saw_xin = int(xin)
-            if saf is not None and int(saf) != 0:
-                saw_saf = int(saf)
-            if saw_egr or saw_xin or saw_saf:
-                await FallingEdge(d.clk)
-                break
-        if saw_egr == 0 and saw_xin == 0 and saw_saf == 0:
-            self.bad(name, "CFG3 1-beat SAF/xbar offer (observe, no Force)",
-                     "fab_nw_vld|x_in_v|saf_v != 0", self._fmt(),
-                     "u_fab.x_in_v")
-            phase.drop_objection(self)
-            return
-        sset(d.nw_fab_vld, 0)
-        if saw_egr and not await self._drain_egr():
-            self.bad(name, "CFG3 egress drained before G1",
-                     "fab_nw_vld=0", self._fmt(), "u_fab.fab_nw_vld")
-            phase.drop_objection(self)
-            return
-        await FallingEdge(d.clk)
-
-        # 4. G1 RT=10: combo drop_g1 / irq_rt, saturate counter, no egress.
+        # 3. G1 RT=10 first (drains via saf_r, no xbar). Icarus VOQ wr_vl
+        # combo can stall a prior CFG3 in SAF; do not queue G1 behind it.
         sset(d.fab_nw_ready, 0xF)
         await self._inject(0, g1_beat(tag=0xB22B))
         saw_g1 = await self._wait_pulse(d.drop_g1, 16)
@@ -524,7 +489,40 @@ class tc_vibe_fabric(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 8. Product wrap pins. No cfg_rd_* / Appendix D / F1 ovf_l / smoke-top.
+        # 8. Light CFG3 on a fresh SAF. Observe xbar offer / egress.
+        # Icarus 12 VOQ wr_vl combo-feeds xbar out_ready (stock
+        # vibe_fab_cocotb_top Forces wr_vl); egress may stay 0. x_in_v
+        # is combo from SAF and still observable. No Force.
+        await self._wr_route(STOCK_DEST, STOCK_BM)
+        await self._inject(0, cfg3_beat(STOCK_DEST, tag=0xA11A))
+        saw_egr = 0
+        saw_xin = 0
+        saw_saf = 0
+        for _ in range(32):
+            await RisingEdge(d.clk)
+            ev = ival(d.fab_nw_vld, 0)
+            xin = self._inner("u_fab.x_in_v", 0)
+            saf = self._inner("u_fab.saf_v", 0)
+            if ev is not None and int(ev) != 0:
+                saw_egr = int(ev)
+            if xin is not None and int(xin) != 0:
+                saw_xin = int(xin)
+            if saf is not None and int(saf) != 0:
+                saw_saf = int(saf)
+            if saw_egr or saw_xin or saw_saf:
+                break
+        if saw_egr == 0 and saw_xin == 0 and saw_saf == 0:
+            self.bad(name, "CFG3 1-beat SAF/xbar offer (observe, no Force)",
+                     "fab_nw_vld|x_in_v|saf_v != 0", self._fmt(),
+                     "u_fab.x_in_v")
+            phase.drop_objection(self)
+            return
+        sset(d.nw_fab_vld, 0)
+        if saw_egr:
+            await self._drain_egr()
+        await FallingEdge(d.clk)
+
+        # 9. Product wrap pins. No cfg_rd_* / Appendix D / F1 ovf_l / smoke-top.
         for absent in ("cfg_rd", "cfg_rd_vld", "cfg_rd_data", "cfg_rd_cmd",
                        "cfg_wr_vld", "cfg_wr_cmd", "appendix_d", "ovf_l",
                        "u_peer", "prst", "clk_fab", "pcs_pma_txdata",
