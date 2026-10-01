@@ -4,9 +4,12 @@ Keeps tip ports, the stock children (``u_txrst`` / ``u_rxrst`` /
 ``u_lmsm`` / ``u_nw`` / ``u_dll`` / ``u_ptx`` / ``u_prx``,
 4× TX/RX afifo + gear, ``u_pma``), interconnect nets, gear
 hold, RX change-detect, and F1 ``ovf_l`` CDC sync (AS-0.1 §4).
-``vibe_lmsm`` / ``vibe_pcs_tx`` / ``vibe_pcs_rx`` stay stock
-SV. pycc netlists are a prototype only; this file is what
-lands in ``rtl/port/vibe_port.sv``. Do not rewrite ``ovf_l``.
+``vibe_pcs_tx`` / ``vibe_pcs_rx`` / ``vibe_lmsm`` now have
+pyCircuit wraps (stages 47–49); this wrap still instantiates
+them as stock children. pycc netlists are a prototype only;
+this file is what lands in ``rtl/port/vibe_port.sv``. Do not
+rewrite ``ovf_l``. Tip ``4cff3a53`` (product RTL same as
+``cd71b1d0``).
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/port/vibe_port.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 1ee80cbd. Decision I UNFROZEN. Path B hold.
+// Product ports match tip 4cff3a53 (RTL same as cd71b1d0). Decision I UNFROZEN. Path B hold.
 """
 
 FOOTER = """\
