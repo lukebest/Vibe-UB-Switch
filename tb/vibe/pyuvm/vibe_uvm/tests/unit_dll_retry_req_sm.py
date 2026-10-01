@@ -3,9 +3,11 @@
 Covers reset / port_rst / device_rst clears to NORMAL; start_retry →
 1 Idle then 32 Req; REQ → WAIT (or RETRAIN at NUM_RETRY / phy_retrain);
 wait_done_ack → NORMAL; WAIT timeout → REQ; RETRAIN 1-cycle then
-NORMAL or ERROR at NUM_PHY_REINIT; ERROR waits Port/device reset.
+NORMAL or ERROR at NUM_PHY_REINIT; ERROR waits Port/device reset,
+mid-run async rst_n through dest posedge, and a pin scan with
+instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
-signoff.
+signoff. Not TP-DLL-004 / full vibe_dll.
 
 Matches product rtl/dll/vibe_dll_retry_req_sm.sv: async-low rst_n,
 ST_N=0 / ST_Q=1 / ST_W=2 / ST_R=3 / ST_E=4, combo drop_data=REQ|WAIT,
@@ -13,6 +15,16 @@ retrain_req=(st==ST_R), retry_error=(st==ST_E),
 send_idle=(st==ST_Q)&&(burst==0), send_req=(st==ST_Q)&&(burst!=0),
 send_cnt=burst[4:0]. VIBE_NUM_RETRY=15 / VIBE_NUM_PHY_REINIT=4.
 Product RETRY_WAIT_CYC default 12500. Instantiated by vibe_dll u_req.
+This is not vibe_dll / vibe_dll_tx / vibe_bcrc / vibe_dll_credit /
+vibe_dll_sm / vibe_dll_rx / vibe_dll_retry_ack_sm /
+vibe_dll_retry_buf / vibe_icrc / vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_deskew /
+vibe_pcs_rx_amctl_lock / vibe_pcs_rx_unpack / vibe_pcs_tx_pack /
+gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
 Stock Icarus tc_retry_req_gbn / tc_retry_wait_retrain remain the
 official TP scorers. Header-only vs stock; no invented protocol.
 """
@@ -38,6 +50,42 @@ MASK6 = 0x3F
 MASK24 = 0xFFFFFF
 ST_NAME = {0: "NORMAL", 1: "REQ", 2: "WAIT", 3: "RETRAIN", 4: "ERROR"}
 HIER = "u_u.st / u_u.burst / u_u.num_retry / u_u.num_phy / u_u.wtmr"
+WRAP = "vibe_dll_retry_req_sm_cocotb_top"
+PINS = (
+    "clk", "rst_n", "port_rst", "device_rst",
+    "start_retry", "phy_retrain", "wait_done_ack",
+    "state", "drop_data", "retrain_req", "retry_error",
+    "send_idle", "send_req", "send_cnt",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_crd", "u_bcrc", "u_b", "u_l", "u_dsk", "u_un", "u_fec",
+    "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "consume_vld", "consume_flits", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "status_up", "disabled",
+    "start", "in_vld", "in_flit", "last", "error_flag", "crc_word", "done",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "rx_ovf", "cfg0_hit",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "link_up",
+    "start_ack", "send_ack", "replay", "rd_ptr",
+    "wr_ptr", "rcv_ptr", "tail_ptr", "num_free", "can_send",
+)
 
 
 def decode(st: int, burst: int):
@@ -156,6 +204,58 @@ class tc_vibe_dll_retry_req_sm(VibeUnitBaseTest):
             ival(d.send_cnt, -1) & MASK5,
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.state, -1),
+            ival(u.drop_data, -1),
+            ival(u.retrain_req, -1),
+            ival(u.retry_error, -1),
+            ival(u.send_idle, -1),
+            ival(u.send_req, -1),
+            ival(u.send_cnt, -1) & MASK5,
+        )
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        if inner != got:
+            self.bad(name, stim + " (port vs u_u)",
+                     self._fmt(got), self._fmt(inner), WRAP)
+            return False
+        try:
+            st_inner = ival(self.dut.u_u.st, -1)
+            burst_inner = ival(self.dut.u_u.burst, -1)
+            nr_inner = ival(self.dut.u_u.num_retry, -1)
+            np_inner = ival(self.dut.u_u.num_phy, -1)
+        except Exception:
+            st_inner = burst_inner = nr_inner = np_inner = None
+        if st_inner is None or st_inner != got[0]:
+            self.bad(name, stim + " (port vs u_u.st)",
+                     f"st={got[0]}", f"u_u.st={st_inner} state={got[0]}", HIER)
+            return False
+        if burst_inner is None or (burst_inner & MASK6) != self.g.burst:
+            self.bad(name, stim + " (port vs u_u.burst)",
+                     f"burst={self.g.burst}",
+                     f"u_u.burst={burst_inner}", HIER)
+            return False
+        if nr_inner is None or (nr_inner & MASK4) != self.g.num_retry:
+            self.bad(name, stim + " (port vs u_u.num_retry)",
+                     f"num_retry={self.g.num_retry}",
+                     f"u_u.num_retry={nr_inner}", HIER)
+            return False
+        if np_inner is None or (np_inner & MASK3) != self.g.num_phy:
+            self.bad(name, stim + " (port vs u_u.num_phy)",
+                     f"num_phy={self.g.num_phy}",
+                     f"u_u.num_phy={np_inner}", HIER)
+            return False
+        return True
+
     def _fmt(self, s):
         st, drop, retrain, err, idle, req, cnt = s
         name = ST_NAME.get(st, f"?{st}")
@@ -229,22 +329,7 @@ class tc_vibe_dll_retry_req_sm(VibeUnitBaseTest):
                      f"send_cnt={self.g.burst & MASK5}",
                      self._fmt(got), "u_u.send_cnt")
             return False
-        try:
-            inner = ival(self.dut.u_u.st, None)
-            inner_burst = ival(self.dut.u_u.burst, None)
-        except Exception:
-            inner = None
-            inner_burst = None
-        if inner is not None and inner != st:
-            self.bad(name, stim + " (port vs u_u.st)",
-                     f"st={st}", f"u_u.st={inner} state={st}", HIER)
-            return False
-        if inner_burst is not None and (inner_burst & MASK6) != self.g.burst:
-            self.bad(name, stim + " (port vs u_u.burst)",
-                     f"burst={self.g.burst}",
-                     f"u_u.burst={inner_burst}", HIER)
-            return False
-        return True
+        return self._score_inner(name, stim, got)
 
     async def _expect(self, name, stim, **kw):
         got = await self._cycle(**kw)
@@ -792,16 +877,26 @@ class tc_vibe_dll_retry_req_sm(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # Async rst_n from WAIT (after one more burst).
+        # 10. Mid-run async rst_n clears registered st / burst / counters.
+        # Park live leftover (WAIT / drop_data=1 after a REQ burst; reuse
+        # the existing 12500 walk — do not repeat it), then pulse rst_n
+        # through dest posedge.
         got = await self._walk_req(name, "async-from-WAIT")
         if got is None:
             phase.drop_objection(self)
             return
-        got = await self._expect(name, "enter WAIT before async rst")
-        if got is None or got[0] != ST_W:
-            if got is not None:
-                self.bad(name, "reach WAIT before async rst",
-                         "WAIT", self._fmt(got), HIER)
+        got = await self._expect(name, "enter WAIT before mid-run rst")
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park (live WAIT)",
+                                 got):
+            phase.drop_objection(self)
+            return
+        if got[0] != ST_W or got[1] != 1 or got[3] != 0 or got[4] != 0:
+            self.bad(name, "pre-async-rst park (live leftover)",
+                     "state=2 (WAIT) drop_data=1 retry_error=0 send_idle=0",
+                     self._fmt(got), "u_u.st")
             phase.drop_objection(self)
             return
         await self._idle()
@@ -809,14 +904,107 @@ class tc_vibe_dll_retry_req_sm(VibeUnitBaseTest):
         await Timer(100, "PS")
         self.g.hard_reset()
         got = self._sample()
-        if got[0] != ST_N or got[1] != 0 or got[3] != 0:
-            self.bad(name, "async rst_n from WAIT (100ps, no posedge)",
-                     "state=0 drop_data=0 retry_error=0",
+        if got != (ST_N, 0, 0, 0, 0, 0, 0):
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "state=0 drop_data=0 retry_error=0 (async clear)",
                      self._fmt(got), "u_u.st")
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "mid-run rst_n=0", got):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        got = self._sample()
+        if got != (ST_N, 0, 0, 0, 0, 0, 0):
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "state=0 (NORMAL) drop_data=0 retrain_req=0 "
+                     "retry_error=0 send_idle=0 send_req=0",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "rst_n held 0 through dest posedge", got):
+            phase.drop_objection(self)
+            return
+        try:
+            nr0 = ival(d.u_u.num_retry, -1)
+            np0 = ival(d.u_u.num_phy, -1)
+            burst0 = ival(d.u_u.burst, -1)
+            wtmr0 = ival(d.u_u.wtmr, -1)
+        except Exception:
+            nr0 = np0 = burst0 = wtmr0 = None
+        if (nr0, np0, burst0, wtmr0) != (0, 0, 0, 0):
+            self.bad(name, "rst_n through dest posedge clears counters",
+                     "num_retry=0 num_phy=0 burst=0 wtmr=0",
+                     f"nr={nr0} np={np0} burst={burst0} wtmr={wtmr0}",
+                     HIER)
             phase.drop_objection(self)
             return
         await self._release_reset()
         await FallingEdge(d.clk)
+        got = self._sample()
+        if not self._score(name, "after async re-release, idle NORMAL",
+                           got):
+            phase.drop_objection(self)
+            return
+        if got != (ST_N, 0, 0, 0, 0, 0, 0):
+            self.bad(name, "after async re-release, no leftover REQ/WAIT/ERROR",
+                     "state=0 (NORMAL) drop_data=0 retry_error=0",
+                     self._fmt(got), "u_u.st")
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover WAIT / REQ / ERROR / counters are
+        # gone; a new start_retry must enter REQ Idle, not leftover WAIT.
+        got = await self._expect(
+            name, "start_retry after mid-run rst (no leftover WAIT)",
+            start_retry=1)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[0] != ST_Q or got[4] != 1 or got[5] != 0 or got[1] != 1:
+            self.bad(name, "after mid-run rst walk (no leftover WAIT/ERROR)",
+                     "state=1 (REQ) send_idle=1 send_req=0 drop_data=1",
+                     self._fmt(got), "u_u.st")
+            phase.drop_objection(self)
+            return
+        got = await self._expect(
+            name, "Req[1] after mid-run rst (fresh burst)")
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[0] != ST_Q or got[5] != 1 or got[4] != 0 or got[6] != 1:
+            self.bad(name, "after mid-run rst Req (fresh, no leftover burst)",
+                     "state=1 send_req=1 send_idle=0 send_cnt=1",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+
+        # 11. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_req). Instance u_u (not leftover u_ack / u_rbuf / u_rx).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_dll_retry_req_sm product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)

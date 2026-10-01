@@ -2,6 +2,11 @@
 // Product DLL RETRY_REQ_SM (AS-0.1 §12): NORMAL / REQ (1 Idle + burst
 // Req) / WAIT (RETRY_WAIT_CYC, default 12500) / RETRAIN / ERROR.
 // Instantiated by vibe_dll u_req. Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_dll / vibe_dll_tx /
+// vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+// vibe_dll_retry_ack_sm / vibe_dll_retry_buf / vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_retry_req_sm_cocotb_top (
