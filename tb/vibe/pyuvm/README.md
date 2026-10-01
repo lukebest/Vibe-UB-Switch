@@ -91,6 +91,7 @@ make -C tb/vibe/pyuvm bcrc                     # same as units TC=tc_vibe_bcrc
 make -C tb/vibe/pyuvm tc_vibe_bcrc             # same as bcrc
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_credit  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm credit                   # same as units TC=tc_vibe_dll_credit
+make -C tb/vibe/pyuvm tc_vibe_dll_credit       # same as credit
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm dll_sm                   # same as units TC=tc_vibe_dll_sm
 make -C tb/vibe/pyuvm sm                       # same as dll_sm / tc_vibe_dll_sm
@@ -223,6 +224,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1 SIM=verilator  # same as g1
 make -C tb/vibe/pyuvm bcrc SIM=verilator          # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_bcrc SIM=verilator  # same as bcrc
 make -C tb/vibe/pyuvm credit SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_dll_credit SIM=verilator # same as credit
 make -C tb/vibe/pyuvm dll_sm SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm sm SIM=verilator            # same as dll_sm
 make -C tb/vibe/pyuvm dll_rx SIM=verilator        # or SIM=icarus
@@ -586,17 +588,22 @@ through dest posedge, pin scan with instance `u_u`). It is **not** 1/3,
 as TB helper `u_bcrc`; `vibe_dll_tx` inlines the same CRC30.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_dll_credit` / `make credit` is **module-level only** (reset /
+`tc_vibe_dll_credit` / `make credit` /
+`make tc_vibe_dll_credit` is **module-level only** (reset /
 idle `pending=0` `credit_low=1` no `bp_nw` / `proto_err` / `fc_ovf`,
 `credit_ret` grant already cells, consume `ceil(flits/n)` vs golden,
 CFG0 skip, `grain_n=0` → 0, `consume_vld` stall without a step,
 same-cycle `credit_ret` && `consume_vld`, 1023 vs 1024 cell thresh,
 second consume after the first, `port_rst` / `!link_up` clear, 1µs
-timeout → `proto_err`). It is **not** 1/3, 4/3, freeze, or signoff.
-Stock Icarus `tb/vibe/tests/tc_credit_*.sv` / `tc_cfg0_no_credit`
-remain the official cell-thresh / grain / CFG0 / timeout scorers.
-This is **not** TP-DLL-004 / `dll`. Second DLL leaf after
-`vibe_bcrc`.
+timeout → `proto_err`, mid-run async `rst_n` through dest posedge,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_credit_*.sv` /
+`tc_cfg0_no_credit` remain the official cell-thresh / grain / CFG0 /
+timeout scorers. This is **not** TP-DLL-004 / `dll` / `bcrc` /
+`dll_sm` / `dll_rx` / `icrc` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Second DLL leaf after
+`vibe_bcrc`. Instantiated by `vibe_dll` `u_crd`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll_sm` / `make dll_sm` / `make sm` is **module-level
 only** (reset → Disabled, `!link_up` / `port_rst` / `dll_error`

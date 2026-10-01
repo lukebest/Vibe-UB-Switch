@@ -2,6 +2,10 @@
 // Product DLL credit / backpressure / 1us timeout (AS-0.1 §12 / FS-0.2.6).
 // Consume ceil(DLLDP_flits/n); pending is cells; thresh 1024 → bp_nw.
 // Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_dll / vibe_dll_tx /
+// vibe_bcrc / vibe_dll_sm / vibe_dll_rx / vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_credit_cocotb_top (
