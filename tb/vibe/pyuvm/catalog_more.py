@@ -254,6 +254,9 @@ UNIT_MORE = [
     # Decision-I stage-44 wrap leaf. Not tc_top_smoke (that stays make top).
     ("tc_vibe_ub_switch", "vibe_ub_switch_wrap_cocotb_top",
      [_wrap("vibe_ub_switch_wrap_cocotb_top")] + TOP_WRAP, "entry_unit"),
+    # Decision-I stage-45 wrap leaf. Not wrap-style tc_mgmt (that stays vibe_mgmt top).
+    ("tc_vibe_mgmt", "vibe_mgmt_wrap_cocotb_top",
+     [_wrap("vibe_mgmt_wrap_cocotb_top")] + MGMT, "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
