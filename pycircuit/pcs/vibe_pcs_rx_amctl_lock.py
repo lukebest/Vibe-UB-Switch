@@ -1,7 +1,8 @@
 """vibe_pcs_rx_amctl_lock — PCS RX AMCTL lock per lane (AS-0.1 §6 / §14).
 
 Product module: ``rtl/pcs/vibe_pcs_rx_amctl_lock.sv``. Ports match tip
-``263aec6`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``ed0f7c47``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``in_vld`` / 160b ``in_data`` /
 ``locked`` / ``lid`` / ``lid_bad`` / ``is_amctl`` / ``sdf`` / ``edf``);
 used by ``vibe_pcs_rx`` (``u_l0``..``u_l3``). Hunt on RAW 160b

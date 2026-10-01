@@ -18,7 +18,8 @@ semantic change.**
 
 ## Ports (product)
 
-Same as tip `263aec6` / freeze `302ac943`. One 160b lane.
+Same as tip `ed0f7c47`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. One 160b lane.
 Reset stays **async active-low** (`or negedge rst_n`).
 Stock include `vibe_ub_params.vh` stays
 (`VIBE_AMCTL_CONFIRM_N` = `VIBE_AMCTL_UNLOCK_N` = 3).
