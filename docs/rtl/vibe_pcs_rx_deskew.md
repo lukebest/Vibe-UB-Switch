@@ -15,7 +15,8 @@ change.**
 
 ## Ports (product)
 
-Same as tip `ebd1671` / freeze `302ac943`. Four 160b lanes plus
+Same as tip `77f9a460`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Four 160b lanes plus
 per-lane AMCTL marks. Reset stays **async active-low**
 (`or negedge rst_n`).
 

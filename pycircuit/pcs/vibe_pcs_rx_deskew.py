@@ -1,7 +1,8 @@
 """vibe_pcs_rx_deskew — PCS RX AMCTL deskew (AS-0.1 §6).
 
 Product module: ``rtl/pcs/vibe_pcs_rx_deskew.sv``. Ports match tip
-``ebd1671`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``77f9a460``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / 4×160b ``in*`` / ``in_vld`` /
 ``am0``..``am3`` / 4×160b ``out*`` / ``out_vld`` / ``aligned``);
 used by ``vibe_pcs_rx`` (``u_dsk``). Factory physical=logical (U24):
