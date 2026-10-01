@@ -1,6 +1,9 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Product PCS RX unpack: strip AMCTL, 4×160 → 512b beats (AS-0.1 §6 inverse G2).
-// Pairs with upcoming TX pack (5×512 ↔ 4×640). Clock from entry_unit (2 ns).
+// Pairs with TX pack (5×512 ↔ 4×640). Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_pcs_rx / deskew / amctl_lock.
+// CHILDREN: none.
 // TOPLEVEL am_gap has no default (tool rejects defaults on top inputs).
 `timescale 1ns/1ps
 
