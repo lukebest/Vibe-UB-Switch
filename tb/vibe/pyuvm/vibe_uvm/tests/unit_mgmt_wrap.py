@@ -434,18 +434,34 @@ class tc_vibe_mgmt(VibeUnitBaseTest):
                      "u_m.u_cfg.port_rst_rw1c")
             phase.drop_objection(self)
             return
-        if (snap["hold"] is not None
-                and ((int(snap["hold"]) >> 0) & 1) != 1):
-            self.bad(name, "cmd=3 starts u_rst port hold",
-                     "hold[0]=1", f"hold={snap['hold']}",
-                     "u_m.u_rst.port_rst")
+        if (snap["pulse"] is not None
+                and ((int(snap["pulse"]) >> 0) & 1) != 1):
+            self.bad(name, "cmd=3 pulses u_cfg.port_rst_pulse[0]",
+                     "pulse[0]=1", f"pulse={snap['pulse']}",
+                     "u_m.u_cfg.port_rst_pulse")
+            phase.drop_objection(self)
+            return
+        # rst_ctl samples the pulse next posedge (NBA). wrap port_rst
+        # is already 1 from rw1c on the write cycle.
+        if not self._score_combo(name):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        hold = self._inner("u_m.u_rst.port_rst", None)
+        if hold is not None and ((int(hold) >> 0) & 1) != 1:
+            self.bad(name, "cmd=3 starts u_rst port hold next cycle",
+                     "hold[0]=1", f"hold={hold}", "u_m.u_rst.port_rst")
+            phase.drop_objection(self)
+            return
+        if ival(d.port_rst, 0) is not None and (ival(d.port_rst, 0) & 1) != 1:
+            self.bad(name, "wrap port_rst stays 1 while rst_ctl holds",
+                     "port_rst[0]=1", self._fmt(), "u_m.port_rst")
             phase.drop_objection(self)
             return
         if not self._score_combo(name):
             phase.drop_objection(self)
             return
         # rst_ctl stretch: hold 7 dest clocks then HW-clear RW1C.
-        still = None
         for _ in range(6):
             await self._to_fall()
             still = ival(d.port_rst, None)
@@ -558,25 +574,22 @@ class tc_vibe_mgmt(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         snap = await self._cfgw(CMD_IGNORE, 0, 0)
-        if ival(d.irq_logic, 1) != 0:
-            self.bad(name, "accepted write irq_clr clears sticky",
-                     "irq_logic=0", self._fmt(), "u_m.u_irq.irq_logic")
-            phase.drop_objection(self)
-            return
         if snap["irq_clr"] not in (None, 1) and snap["irq_clr"] != 1:
             self.bad(name, "clear write still pulses irq_clr",
                      "irq_clr=1", f"irq_clr={snap['irq_clr']}",
                      "u_m.u_cfg.irq_clr")
             phase.drop_objection(self)
             return
+        # u_irq samples registered irq_clr next posedge.
+        await self._to_fall()
+        if ival(d.irq_logic, 1) != 0:
+            self.bad(name, "accepted write irq_clr clears sticky",
+                     "irq_logic=0", self._fmt(), "u_m.u_irq.irq_logic")
+            phase.drop_objection(self)
+            return
 
         # 5. device_rst stretch clears CNA / cna_written (u_rst → u_cfg).
         snap = await self._cfgw(CMD_DEV_RST, 0, 0)
-        if snap["device_rst"] not in (None, 1) and snap["device_rst"] != 1:
-            self.bad(name, "cfg_wr cmd=4 starts device_rst hold",
-                     "device_rst=1", self._fmt(), "u_m.u_rst.device_rst")
-            phase.drop_objection(self)
-            return
         if (snap["dev_pulse"] not in (None, 1)
                 and snap["dev_pulse"] != 1):
             self.bad(name, "cmd=4 pulses u_cfg.device_rst_pulse",
@@ -584,6 +597,14 @@ class tc_vibe_mgmt(VibeUnitBaseTest):
                      "u_m.u_cfg.device_rst_pulse")
             phase.drop_objection(self)
             return
+        # rst_ctl samples the pulse next posedge (NBA).
+        await self._to_fall()
+        if ival(d.device_rst, 0) != 1:
+            self.bad(name, "cfg_wr cmd=4 starts device_rst hold next cycle",
+                     "device_rst=1", self._fmt(), "u_m.u_rst.device_rst")
+            phase.drop_objection(self)
+            return
+        # u_cfg samples device_rst the following posedge.
         await self._to_fall()
         if ival(d.cna, 1) != 0 or ival(d.cna_written, 1) != 0:
             self.bad(name, "device_rst hold clears CNA (unwritten)",
