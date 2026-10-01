@@ -17,7 +17,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_voq_egr vibe_saf_ing vibe_xbar \
         vibe_icrc vibe_nw_adapt vibe_rst_ctl vibe_mgmt_byp \
         vibe_irq_agg vibe_cna_ep vibe_cfg_space \
-        vibe_port vibe_ub_switch vibe_mgmt \
+        vibe_port vibe_ub_switch vibe_mgmt vibe_fabric \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
@@ -38,6 +38,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-mgmt-byp handfinish-irq-agg handfinish-cna-ep \
         handfinish-cfg-space \
         handfinish-port handfinish-top handfinish-mgmt \
+        handfinish-fabric \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
@@ -57,7 +58,8 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-icrc lint-leaf-nw-adapt lint-leaf-rst-ctl \
         lint-leaf-mgmt-byp lint-leaf-irq-agg lint-leaf-cna-ep \
         lint-leaf-cfg-space \
-        lint-leaf-port lint-leaf-top lint-leaf-mgmt
+        lint-leaf-port lint-leaf-top lint-leaf-mgmt \
+        lint-leaf-fabric
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -107,6 +109,7 @@ help:
 	@echo "vibe_port          land hand-finished rtl/port/vibe_port.sv (try pycc first)"
 	@echo "vibe_ub_switch     land hand-finished rtl/top/vibe_ub_switch.sv (try pycc first)"
 	@echo "vibe_mgmt          land hand-finished rtl/mgmt/vibe_mgmt.sv (try pycc first)"
+	@echo "vibe_fabric        land hand-finished rtl/fabric/vibe_fabric.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -152,6 +155,7 @@ help:
 	@echo "handfinish-port    write product vibe_port SV only"
 	@echo "handfinish-top     write product vibe_ub_switch SV only"
 	@echo "handfinish-mgmt    write product vibe_mgmt SV only"
+	@echo "handfinish-fabric  write product vibe_fabric SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -197,6 +201,7 @@ help:
 	@echo "lint-leaf-port     Verilator --lint-only on vibe_port (children on filelist)"
 	@echo "lint-leaf-top      Verilator --lint-only on vibe_ub_switch (children on filelist)"
 	@echo "lint-leaf-mgmt     Verilator --lint-only on vibe_mgmt (children on filelist)"
+	@echo "lint-leaf-fabric   Verilator --lint-only on vibe_fabric (children on filelist)"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -341,6 +346,9 @@ vibe_ub_switch:
 vibe_mgmt:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_mgmt
 
+vibe_fabric:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_fabric
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -475,6 +483,9 @@ handfinish-top:
 
 handfinish-mgmt:
 	python3 $(ROOT)/pycircuit/mgmt/handfinish_vibe_mgmt.py
+
+handfinish-fabric:
+	python3 $(ROOT)/pycircuit/fabric/handfinish_vibe_fabric.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -777,3 +788,16 @@ lint-leaf-mgmt:
 	  $(ROOT)/rtl/mgmt/vibe_cna_ep.sv \
 	  $(ROOT)/rtl/mgmt/vibe_cfg_space.sv \
 	  $(ROOT)/rtl/mgmt/vibe_mgmt.sv
+
+lint-leaf-fabric:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_fabric \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
+	  $(ROOT)/rtl/fabric/vibe_fecn_mark.sv \
+	  $(ROOT)/rtl/fabric/vibe_vl_rr.sv \
+	  $(ROOT)/rtl/fabric/vibe_route_lu.sv \
+	  $(ROOT)/rtl/fabric/vibe_port_sel.sv \
+	  $(ROOT)/rtl/fabric/vibe_voq_egr.sv \
+	  $(ROOT)/rtl/fabric/vibe_saf_ing.sv \
+	  $(ROOT)/rtl/fabric/vibe_xbar.sv \
+	  $(ROOT)/rtl/fabric/vibe_fabric.sv

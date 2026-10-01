@@ -1,6 +1,33 @@
+"""Emit the product SystemVerilog for vibe_fabric (hand-finished).
+
+Keeps tip ports, ``ROUTE_TABLE_DEPTH`` default 256, the stock
+children (4× ``g_saf[gi].u_saf``, ``u_rt`` / ``u_ps``,
+3× ``g_rt[gi].u_rti`` / ``g_rt[gi].u_psi``, ``u_xbar``,
+4× ``g_egr[gi].u_voq`` / ``u_rr`` / ``u_fecn``), interconnect
+nets, generate loops, CFG6 terminate glue, and G1 counters
+(AS-0.1 §8/§9). Do not invent CFG6 packing, Appendix D, or
+opcode 0x10. pycc netlists are a prototype only; this file
+is what lands in ``rtl/fabric/vibe_fabric.sv``. Do not
+rewrite F1 ``ovf_l`` (lives under ``vibe_port``).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_fabric.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 1ce79bfe. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
+// Regenerate: make -C pycircuit vibe_fabric
+"""
+
+BODY = """\
 // AS-0.1 §8: fabric — SAF, 8 stages, route_lu, port_sel, xbar, VOQ×16 VL, vl_rr, fecn_mark.
 // Transit MUST NOT recompute ICRC. Mgmt bypass does not enter xbar.
 module vibe_fabric #(
@@ -289,6 +316,26 @@ module vibe_fabric #(
     end
   endgenerate
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
-// Regenerate: make -C pycircuit vibe_fabric
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "fabric" / "vibe_fabric.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
