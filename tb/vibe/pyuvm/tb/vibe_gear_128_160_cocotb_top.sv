@@ -1,5 +1,8 @@
 // Thin cocotb wrapper. DUT RTL never edited.
-// Product RX 128→160 dual-residue gearbox. Clock comes from entry_unit.
+// Product RX 128→160 dual-residue gearbox (AS-0.1 §6/§7).
+// Clock comes from entry_unit. Instance u_u matches Decision-I
+// leaf wrappers. CHILDREN: none (leaf cell).
+// ovf_l (F1) is not in this module. This is not vibe_gear_160_128.
 `timescale 1ns/1ps
 
 module vibe_gear_128_160_cocotb_top (
@@ -12,7 +15,7 @@ module vibe_gear_128_160_cocotb_top (
   input  logic         out_ready,
   output logic [159:0] out_data
 );
-  vibe_gear_128_160 u_gear (
+  vibe_gear_128_160 u_u (
     .clk(clk), .rst_n(rst_n), .in_vld(in_vld), .in_ready(in_ready),
     .in_data(in_data), .out_vld(out_vld), .out_ready(out_ready),
     .out_data(out_data)
