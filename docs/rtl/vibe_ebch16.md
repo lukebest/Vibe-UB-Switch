@@ -15,8 +15,8 @@ under the pycircuit → rtl flow.
 
 ## Ports (product)
 
-Same as tip `9f86cba` / freeze `302ac943`. Combo LUT. No clock.
-No ready.
+Same as tip `80ff14af`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Combo LUT. No clock. No ready.
 
 | Port | Dir | Notes |
 |------|-----|--------|
