@@ -3,6 +3,11 @@
 // Null and Retry blocks do not enter. NumFreeBuf+ReleaseSize>256
 // → DL Protocol Error. Instantiated by vibe_dll u_rbuf.
 // Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_dll / vibe_dll_tx /
+// vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+// vibe_dll_retry_ack_sm / vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_retry_buf_cocotb_top (

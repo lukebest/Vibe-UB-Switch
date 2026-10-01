@@ -107,6 +107,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_retry_ack_sm # same as retry_ack_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_buf  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_buf                # same as units TC=tc_vibe_dll_retry_buf
 make -C tb/vibe/pyuvm buf                      # same as retry_buf / tc_vibe_dll_retry_buf
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_buf    # same as retry_buf
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_req_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_req_sm             # same as units TC=tc_vibe_dll_retry_req_sm
 make -C tb/vibe/pyuvm req_sm                   # same as retry_req_sm / tc_vibe_dll_retry_req_sm
@@ -239,6 +240,7 @@ make -C tb/vibe/pyuvm ack_sm SIM=verilator        # same as retry_ack_sm
 make -C tb/vibe/pyuvm tc_vibe_dll_retry_ack_sm SIM=verilator # same as retry_ack_sm
 make -C tb/vibe/pyuvm retry_buf SIM=verilator     # or SIM=icarus
 make -C tb/vibe/pyuvm buf SIM=verilator           # same as retry_buf
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_buf SIM=verilator # same as retry_buf
 make -C tb/vibe/pyuvm retry_req_sm SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm req_sm SIM=verilator        # same as retry_req_sm
 make -C tb/vibe/pyuvm fecn_mark SIM=verilator     # or SIM=icarus
@@ -657,18 +659,25 @@ remains the official TP scorer. This is **not** TP-DLL-004 /
 `vibe_dll_sm` / `vibe_dll_rx`. Instantiated by `vibe_dll` `u_ack`.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_dll_retry_buf` / `make retry_buf` / `make buf`
-is **module-level only** (reset / `port_rst` / `!link_up` pointers
-and free to reset values, `proto_err` cleared on hard `rst_n` only,
-normal write advances `wr_ptr` and decrements free, `can_send`
-tracks free vs `send_size`, Null and Retry writes do not enter,
-ack release advances `tail`/`rcv` and restores free, overflow
+`tc_vibe_dll_retry_buf` / `make retry_buf` / `make buf` /
+`make tc_vibe_dll_retry_buf` is **module-level only** (reset /
+`port_rst` / `!link_up` pointers and free to reset values,
+`proto_err` cleared on hard `rst_n` only, normal write advances
+`wr_ptr` and decrements free, `can_send` tracks free vs
+`send_size`, Null and Retry writes do not enter, ack release
+advances `tail`/`rcv` and restores free, overflow
 `free+rel_size>256` asserts `proto_err`, `rd_ptr_i` returns the
-stored flit). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_retry_buf_256.sv` / `tc_retry_buf_256`
-remains the official TP scorer. This is **not** TP-DLL-004 /
-`dll`. Sixth DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
-`vibe_dll_sm` / `vibe_dll_rx` / `vibe_dll_retry_ack_sm`.
+stored flit, mid-run async `rst_n` through dest posedge, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or signoff.
+Stock Icarus `tb/vibe/tests/tc_retry_buf_256.sv` /
+`tc_retry_buf_256` remains the official TP scorer. This is **not**
+TP-DLL-004 / `dll` / `bcrc` / `credit` / `dll_sm` / `dll_rx` /
+`retry_ack_sm` / `icrc` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Sixth DLL leaf
+after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
+`vibe_dll_rx` / `vibe_dll_retry_ack_sm`. Instantiated by
+`vibe_dll` `u_rbuf`. `ovf_l` (F1) is not in this module.
+CHILDREN: none.
 
 `tc_vibe_dll_retry_req_sm` / `make retry_req_sm` / `make req_sm`
 is **module-level only** (reset / `port_rst` / `device_rst` clears
