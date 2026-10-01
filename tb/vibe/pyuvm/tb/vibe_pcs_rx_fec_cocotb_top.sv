@@ -1,6 +1,10 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Product PCS RX FEC wrap: 2×512 → 960b unwrap / RS check (AS-0.1 §6).
 // Inlines stage-12 Horner (not an instance). Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_pcs_rx / deskew /
+// amctl_lock / unpack / vibe_pcs_tx_fec.
+// CHILDREN: none.
 // TOPLEVEL am_gap has no default (tool rejects defaults on top inputs).
 `timescale 1ns/1ps
 

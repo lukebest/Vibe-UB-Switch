@@ -81,6 +81,7 @@ make -C tb/vibe/pyuvm tx_fec                   # same as units TC=tc_vibe_pcs_tx
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec       # same as tx_fec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_fec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rx_fec                   # same as units TC=tc_vibe_pcs_rx_fec
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_fec       # same as rx_fec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_g1  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm g1                       # same as units TC=tc_vibe_pcs_tx_g1
 make -C tb/vibe/pyuvm tx_g1                    # same as g1 / tc_vibe_pcs_tx_g1
@@ -214,6 +215,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack SIM=verilator  # same as pack
 make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec SIM=verilator  # same as tx_fec
 make -C tb/vibe/pyuvm rx_fec SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_fec SIM=verilator  # same as rx_fec
 make -C tb/vibe/pyuvm g1 SIM=verilator            # or SIM=icarus
 make -C tb/vibe/pyuvm tx_g1 SIM=verilator         # same as g1
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1 SIM=verilator  # same as g1
@@ -427,7 +429,8 @@ mid-run async `rst_n` through dest posedge, pin scan with instance
 `u_u`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_rs_dec_syndrome.sv` / `tc_rs_dec_syndrome` remains
 the official done-pulse scorer. The Decision-I wrap leaf is
-`tc_vibe_pcs_rx_fec` / `make rx_fec`. This is **not** the encoder leaf /
+`tc_vibe_pcs_rx_fec` / `make rx_fec` /
+`make tc_vibe_pcs_rx_fec`. This is **not** the encoder leaf /
 `rs128_120_enc` / `amctl` / `cw2beat` / `ebch16` / `pcs_scramble` /
 `vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
 `vibe_rst_sync`. Same Horner recurrence is inlined in
@@ -527,18 +530,26 @@ signoff. Stock Icarus `tb/vibe/tests/tc_pcs_fec_*.sv` /
 CHILDREN: `u_enc_a` / `u_enc_b` (`vibe_rs128_120_enc`).
 Sits on stage-11 enc + stage-16 pack.
 
-`tc_vibe_pcs_rx_fec` / `make rx_fec` is **module-level
+`tc_vibe_pcs_rx_fec` / `make rx_fec` /
+`make tc_vibe_pcs_rx_fec` is **module-level
 only** (reset / idle `beat_ready=1` `win_vld=0` no spurious
 window, two-beat bypass `{hi, lo[511:64]}`, T=4 / T=2
 syndrome-check unwrap vs golden RS(128,120) Horner, garbage
 CW `fec_fail=1` without forwarding a 960, `win_ready` hold
 (`beat_ready=!win_vld`), `beat_vld` stall after the first
 half-CW, `am_gap` drop of leftover `have_hi`, second CW
-after drain). It is **not** 1/3, 4/3, freeze, or signoff.
-Stock Icarus `tb/vibe/tests/tc_pcs_rx_fec.sv` /
+after drain, mid-run async `rst_n` through dest posedge,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_pcs_rx_fec.sv` /
 `tc_pcs_rx_fec` remains the official `win_vld` scorer.
-This is **not** the decoder leaf / `rs128_120_dec`. Pairs
-with TX FEC (`make tx_fec` / `tc_vibe_pcs_tx_fec`).
+This is **not** the decoder leaf / `rs128_120_dec` /
+`amctl_lock` / `deskew` / `unpack` / `amctl` / `cw2beat` /
+`ebch16` / `pcs_scramble` / `vibe_pcs_tx` / `vibe_pcs_rx` /
+gear / `vibe_afifo` / `vibe_sync2` / `vibe_rst_sync` / `g1` /
+`tx_fec` / `pack`. Instantiated by `vibe_pcs_rx` `u_fec`.
+`ovf_l` (F1) is not in this module. CHILDREN: none (Horner
+inlined). Pairs with TX FEC (`make tx_fec` /
+`tc_vibe_pcs_tx_fec`).
 
 `tc_vibe_pcs_tx_g1` / `make g1` / `make tx_g1` /
 `make tc_vibe_pcs_tx_g1` is **module-level only** (reset / idle
