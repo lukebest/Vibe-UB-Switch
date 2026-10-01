@@ -1,7 +1,7 @@
 #!/bin/sh
 # Emit a Decision I leaf: MLIR via pycircuit.cli when possible; always land
 # hand-finished SystemVerilog that matches tip ports/behavior.
-# Usage: emit.sh [vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm|vibe_dll_retry_buf|vibe_dll_retry_req_sm|vibe_dll_tx|vibe_dll|vibe_fecn_mark|vibe_vl_rr|vibe_route_lu|vibe_port_sel|vibe_voq_egr|vibe_saf_ing|vibe_xbar|vibe_icrc|vibe_nw_adapt|vibe_rst_ctl|vibe_mgmt_byp|vibe_irq_agg|vibe_cna_ep|vibe_cfg_space|vibe_port|vibe_ub_switch|vibe_mgmt|vibe_fabric|vibe_pcs_tx]
+# Usage: emit.sh [vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm|vibe_dll_retry_buf|vibe_dll_retry_req_sm|vibe_dll_tx|vibe_dll|vibe_fecn_mark|vibe_vl_rr|vibe_route_lu|vibe_port_sel|vibe_voq_egr|vibe_saf_ing|vibe_xbar|vibe_icrc|vibe_nw_adapt|vibe_rst_ctl|vibe_mgmt_byp|vibe_irq_agg|vibe_cna_ep|vibe_cfg_space|vibe_port|vibe_ub_switch|vibe_mgmt|vibe_fabric|vibe_pcs_tx|vibe_pcs_rx]
 # Default remains vibe_afifo (stage-1).
 set -eu
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
@@ -245,8 +245,13 @@ case "$LEAF" in
     HANDFINISH="$ROOT/pycircuit/pcs/handfinish_vibe_pcs_tx.py"
     RTL="$ROOT/rtl/pcs/vibe_pcs_tx.sv"
     ;;
+  vibe_pcs_rx)
+    SRC="$ROOT/pycircuit/pcs/vibe_pcs_rx.py"
+    HANDFINISH="$ROOT/pycircuit/pcs/handfinish_vibe_pcs_rx.py"
+    RTL="$ROOT/rtl/pcs/vibe_pcs_rx.sv"
+    ;;
   *)
-    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm|vibe_dll_retry_buf|vibe_dll_retry_req_sm|vibe_dll_tx|vibe_dll|vibe_fecn_mark|vibe_vl_rr|vibe_route_lu|vibe_port_sel|vibe_voq_egr|vibe_saf_ing|vibe_xbar|vibe_icrc|vibe_nw_adapt|vibe_rst_ctl|vibe_mgmt_byp|vibe_irq_agg|vibe_cna_ep|vibe_cfg_space|vibe_port|vibe_ub_switch|vibe_mgmt|vibe_fabric|vibe_pcs_tx)" >&2
+    echo "unknown leaf: $LEAF (vibe_afifo|vibe_pma_bnd|vibe_sync2|vibe_rst_sync|vibe_gear_128_160|vibe_gear_160_128|vibe_pcs_scramble|vibe_ebch16|vibe_pcs_tx_cw2beat|vibe_pcs_tx_amctl|vibe_rs128_120_enc|vibe_rs128_120_dec|vibe_pcs_rx_deskew|vibe_pcs_rx_amctl_lock|vibe_pcs_rx_unpack|vibe_pcs_tx_pack|vibe_pcs_tx_fec|vibe_pcs_rx_fec|vibe_pcs_tx_g1|vibe_bcrc|vibe_dll_credit|vibe_dll_sm|vibe_dll_rx|vibe_dll_retry_ack_sm|vibe_dll_retry_buf|vibe_dll_retry_req_sm|vibe_dll_tx|vibe_dll|vibe_fecn_mark|vibe_vl_rr|vibe_route_lu|vibe_port_sel|vibe_voq_egr|vibe_saf_ing|vibe_xbar|vibe_icrc|vibe_nw_adapt|vibe_rst_ctl|vibe_mgmt_byp|vibe_irq_agg|vibe_cna_ep|vibe_cfg_space|vibe_port|vibe_ub_switch|vibe_mgmt|vibe_fabric|vibe_pcs_tx|vibe_pcs_rx)" >&2
     exit 2
     ;;
 esac
