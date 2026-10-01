@@ -47,6 +47,7 @@ from vibe_uvm.tests import unit_irq_agg  # noqa: F401
 from vibe_uvm.tests import unit_cna_ep  # noqa: F401
 from vibe_uvm.tests import unit_cfg_space  # noqa: F401
 from vibe_uvm.tests import unit_port_wrap  # noqa: F401
+from vibe_uvm.tests import unit_ub_switch_wrap  # noqa: F401
 
 
 @cocotb.test()
@@ -59,7 +60,11 @@ async def test_unit(dut):
     # PMA-only (no clk): 922 MHz product period ≈ 1085 ps.
     # Chain / port (has clk): 4 ns tx/rx matching Icarus always #2.
     pma_only = clk is None
-    for name in ("txclk", "rxclk"):
+    clk_names = ["txclk", "rxclk"]
+    for i in range(4):
+        clk_names.append(f"txclk_{i}")
+        clk_names.append(f"rxclk_{i}")
+    for name in clk_names:
         if hasattr(dut, name):
             if pma_only:
                 # Icarus #(1085/2) is integer 542 ps → 1084 ps period.
