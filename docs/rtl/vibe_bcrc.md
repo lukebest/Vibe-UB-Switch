@@ -17,7 +17,8 @@ First DLL leaf after PCS leaf cells (stage-1..19).
 
 ## Ports (product)
 
-Same as tip `1e57f2a5` / freeze `302ac943`. Reset stays
+Same as tip `8ad2e351`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

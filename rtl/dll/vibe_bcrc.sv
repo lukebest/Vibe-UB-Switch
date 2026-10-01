@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_bcrc.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 1e57f2a5 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 8ad2e351. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §12: BCRC CRC30, init all-1, no invert. bit31 reserved, bit30 ERROR_FLAG.
 module vibe_bcrc (
   input  logic         clk,

@@ -5,6 +5,7 @@ for ``VIBE_BCRC_POLY``, ``crc30_step``, the 160-bit eat loop, CRC30
 init all-1s / no invert, and ``{1'b0, error_flag, crc[29:0]}`` on
 ``last`` (bit31 reserved, bit30 ERROR_FLAG). pycc netlists are a
 prototype only; this file is what lands in ``rtl/dll/vibe_bcrc.sv``.
+Tip ``8ad2e351``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_bcrc.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 1e57f2a5 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 8ad2e351. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
