@@ -1,6 +1,9 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Product PCS TX pack: 5×512 → 4×640 + AMCTL insert (AS-0.1 §5 T5 G2).
-// Pairs with stage-15 RX unpack (4×640 → 5×512). Clock from entry_unit (2 ns).
+// Pairs with stage-15 RX unpack (4×640 → 5×512). Clock comes from entry_unit.
+// Instance u_u matches Decision-I leaf wrappers.
+// CHILDREN: u_am0 / u_am1 / u_am2 / u_am3 (vibe_pcs_tx_amctl).
+// ovf_l (F1) is not in this module. This is not vibe_pcs_tx / rx.
 `timescale 1ns/1ps
 
 module vibe_pcs_tx_pack_cocotb_top (

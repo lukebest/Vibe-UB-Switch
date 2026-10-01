@@ -72,6 +72,7 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_unpack  # Decision-I leaf (module-
 make -C tb/vibe/pyuvm unpack                   # same as units TC=tc_vibe_pcs_rx_unpack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_pack  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm pack                     # same as units TC=tc_vibe_pcs_tx_pack
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack      # same as pack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_fec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm tx_fec                   # same as units TC=tc_vibe_pcs_tx_fec
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec       # same as tx_fec
@@ -203,6 +204,7 @@ make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm pack SIM=verilator          # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack SIM=verilator  # same as pack
 make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec SIM=verilator  # same as tx_fec
 make -C tb/vibe/pyuvm rx_fec SIM=verilator        # or SIM=icarus
@@ -459,17 +461,25 @@ Stock Icarus `tb/vibe/tests/tc_pcs_rx_unpack.sv` /
 `amctl_lock`. Pairs with TX pack (`make pack` /
 `tc_vibe_pcs_tx_pack`).
 
-`tc_vibe_pcs_tx_pack` / `make pack` is **module-level
-only** (reset / idle `lane_vld=0` `beat_ready` no spurious
-emit, 5×512 → exactly 4×640 pack vs golden LSB-first inverse
-of unpack, `lane_ready` / `afifo_afull` hold without
-drop/dup, `beat_vld` stall without a take, AMCTL insert on
-the 512 / 640-symbol timer with per-lane 40B halves, AM wait
-until a finishing 4×640 emits, second group after drain).
-It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
-`tb/vibe/tests/tc_pcs_tx_pack.sv` / `tc_pcs_tx_pack`
+`tc_vibe_pcs_tx_pack` / `make pack` /
+`make tc_vibe_pcs_tx_pack` is **module-level only** (reset /
+idle `lane_vld=0` `beat_ready` no spurious emit, 5×512 →
+exactly 4×640 pack vs golden LSB-first inverse of unpack,
+`lane_ready` / `afifo_afull` hold without drop/dup,
+`beat_vld` stall without a take, AMCTL insert on the 512 /
+640-symbol timer with per-lane 40B halves, AM wait until a
+finishing 4×640 emits, second group after drain, mid-run
+async `rst_n` through dest posedge, pin scan with instance
+`u_u`). It is **not** 1/3, 4/3, freeze, or signoff. Stock
+Icarus `tb/vibe/tests/tc_pcs_tx_pack.sv` / `tc_pcs_tx_pack`
 remains the official `lane_vld` scorer. This is **not** the
-RX unpack leaf / `unpack`.
+RX unpack leaf / `unpack` / `amctl` / `cw2beat` / `ebch16` /
+`pcs_scramble` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync` / `g1` /
+`tx_fec`. Instantiated by `vibe_pcs_tx` `u_pack`. `ovf_l`
+(F1) is not in this module. CHILDREN: `u_am0` / `u_am1` /
+`u_am2` / `u_am3` (`vibe_pcs_tx_amctl`). Pairs with RX
+unpack (`make unpack` / `tc_vibe_pcs_rx_unpack`).
 
 `tc_vibe_pcs_tx_fec` / `make tx_fec` /
 `make tc_vibe_pcs_tx_fec` is **module-level only** (reset /
