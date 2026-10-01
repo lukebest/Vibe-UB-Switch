@@ -9,6 +9,11 @@
 // vibe_dll u_tx. Clock from entry_unit (2 ns). Instance u_u matches
 // Decision-I leaf wrappers. Stock Icarus tc_dll_tx_cfg0 still uses
 // vibe_dll_tx_cfg0_cocotb_top (tx + credit).
+// ovf_l (F1) is not in this module. This is not vibe_dll /
+// vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+// vibe_dll_retry_ack_sm / vibe_dll_retry_buf / vibe_dll_retry_req_sm /
+// vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_tx_cocotb_top (
