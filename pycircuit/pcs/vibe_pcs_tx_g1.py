@@ -1,7 +1,8 @@
 """vibe_pcs_tx_g1 — PCS TX G1 (AS-0.1 §5 T2).
 
 Product module: ``rtl/pcs/vibe_pcs_tx_g1.sv``. Ports match tip
-``24f7239a`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``6119e4db``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``link_up`` / 640b ``in_data`` /
 ``in_vld`` / ``in_ready`` / 960b ``win_data`` / ``win_vld`` /
 ``win_ready``); used by ``vibe_pcs_tx`` (``u_g1``). Collect 6 flits

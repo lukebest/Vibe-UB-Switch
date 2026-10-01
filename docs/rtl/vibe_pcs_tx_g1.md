@@ -18,7 +18,8 @@ Self-contained (no child instances). After stage-17
 
 ## Ports (product)
 
-Same as tip `24f7239a` / freeze `302ac943`. Reset stays
+Same as tip `6119e4db`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
