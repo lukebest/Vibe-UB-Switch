@@ -228,6 +228,8 @@ NAME_MAP = {
         "tc_vibe_pcs_rx (vibe_pcs_rx_wrap_cocotb_top, wrap-level; not tc_pcs_rx)",
     "make lmsm_wrap / tc_vibe_lmsm":
         "tc_vibe_lmsm (vibe_lmsm_wrap_cocotb_top, wrap-level; not tc_lmsm_walk)",
+    "make vibe_port_wrap":
+        "tc_vibe_port (vibe_port_wrap_cocotb_top, wrap-level; not tc_port_smoke)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
