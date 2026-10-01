@@ -1,7 +1,8 @@
 """vibe_bcrc — DLL BCRC CRC30 (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_bcrc.sv``. Ports match tip
-``1e57f2a5`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``8ad2e351``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``start`` / ``in_vld`` /
 160b ``in_flit`` / ``last`` / ``error_flag`` / 32b ``crc_word`` /
 ``done``). First DLL leaf after PCS leaf cells (stage-1..19).
