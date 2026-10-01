@@ -68,6 +68,7 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_deskew  # Decision-I leaf (module-
 make -C tb/vibe/pyuvm deskew                   # same as units TC=tc_vibe_pcs_rx_deskew
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_amctl_lock  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm amctl_lock               # same as units TC=tc_vibe_pcs_rx_amctl_lock
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock  # same as amctl_lock
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_unpack  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm unpack                   # same as units TC=tc_vibe_pcs_rx_unpack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_pack  # Decision-I leaf (module-level)
@@ -202,6 +203,7 @@ make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_rs128_120_dec SIM=verilator  # same as rs128_120_dec
 make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_rx_amctl_lock SIM=verilator  # same as amctl_lock
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm pack SIM=verilator          # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_pack SIM=verilator  # same as pack
@@ -438,15 +440,23 @@ Icarus `tb/vibe/tests/tc_pcs_rx_deskew.sv` / `tc_pcs_rx_deskew`
 remains the official staggered-AM / `out_vld` scorer. This is
 **not** the decoder leaf / `rs128_120_dec`.
 
-`tc_vibe_pcs_rx_amctl_lock` / `make amctl_lock` is **module-level
+`tc_vibe_pcs_rx_amctl_lock` / `make amctl_lock` /
+`make tc_vibe_pcs_rx_amctl_lock` is **module-level
 only** (reset / idle `locked=0` no spurious `is_amctl`/`sdf`/`edf`,
 AMCTL detect on `match_w0`/`match_w1`/`match_pair`, `CONFIRM_N=3`
 lock, `UNLOCK_N=3` legacy unlock, TX-layout sticky lock, all four
 LID mux arms, `lid_bad` (U24, no swap), `in_vld` stall without a
-confirm/unlock step). It is **not** 1/3, 4/3, freeze, or signoff.
-Stock Icarus `tb/vibe/tests/tc_pcs_rx_amctl.sv` / `tc_pcs_rx_amctl`
-remains the official 4-pair / LID / unlock / `lid_bad` scorer.
-This is **not** the deskew leaf / `deskew`.
+confirm/unlock step, mid-run async `rst_n` through dest posedge,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_pcs_rx_amctl.sv` /
+`tc_pcs_rx_amctl` remains the official 4-pair / LID / unlock /
+`lid_bad` scorer. This is **not** the deskew leaf / `deskew` /
+`unpack` / `amctl` / `cw2beat` / `ebch16` / `pcs_scramble` /
+`vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` /
+`vibe_sync2` / `vibe_rst_sync` / `g1` / `tx_fec` / `pack`.
+Instantiated by `vibe_pcs_rx` `u_l0`..`u_l3`. `ovf_l` (F1) is
+not in this module. CHILDREN: `u3` / `u8` / `u9` / `u10` /
+`u21` / `u22` / `u28` (`vibe_ebch16`).
 
 `tc_vibe_pcs_rx_unpack` / `make unpack` is **module-level
 only** (reset / idle `beat_vld=0` no spurious beat, AMCTL
