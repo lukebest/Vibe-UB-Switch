@@ -4,7 +4,9 @@ Covers reset / port_rst / !link_up pointers+free; proto_err cleared
 only on hard rst_n; normal write advances wr_ptr and decrements free;
 can_send tracks free vs send_size; Null and Retry writes do not enter;
 ack release advances tail/rcv and restores free; overflow
-free+rel_size>256 asserts proto_err; rd_ptr_i returns stored flit.
+free+rel_size>256 asserts proto_err; rd_ptr_i returns stored flit,
+mid-run async rst_n through dest posedge, and a pin scan with
+instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff. Not TP-DLL-004 / full vibe_dll.
 
@@ -13,9 +15,18 @@ depth 256 FS-must, write when wr_en && !is_null && !is_retry &&
 can_send, can_send=(freeb>={1'b0,send_size}), ack_rel overflow
 sticky proto_err, port_rst/!link_up clear ptrs/free not proto_err,
 mem not cleared, last NBA to freeb wins on same-cycle write+release.
-Instantiated by vibe_dll u_rbuf. Stock Icarus tc_retry_buf_256
-remains the official TP scorer. Header-only vs stock; no invented
-protocol.
+Instantiated by vibe_dll u_rbuf. This is not vibe_dll / vibe_dll_tx /
+vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+vibe_dll_retry_ack_sm / vibe_icrc / vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_deskew /
+vibe_pcs_rx_amctl_lock / vibe_pcs_rx_unpack / vibe_pcs_tx_pack /
+gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Stock Icarus tc_retry_buf_256 remains the official TP scorer.
+Header-only vs stock; no invented protocol.
 """
 
 from uvm import uvm_component_utils
@@ -28,6 +39,42 @@ MASK8 = 0xFF
 MASK9 = 0x1FF
 MASK160 = (1 << 160) - 1
 HIER = "u_u.wrp / u_u.tail / u_u.rcv / u_u.freeb / u_u.proto_err"
+WRAP = "vibe_dll_retry_buf_cocotb_top"
+PINS = (
+    "clk", "rst_n", "port_rst", "link_up",
+    "wr_en", "is_null", "is_retry", "wr_flit", "send_size",
+    "ack_rel", "rel_size", "rd_ptr_i",
+    "rd_flit", "wr_ptr", "tail_ptr", "rcv_ptr", "num_free",
+    "proto_err", "can_send",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_crd", "u_bcrc", "u_b", "u_l", "u_dsk", "u_un", "u_fec",
+    "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "consume_vld", "consume_flits", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "status_up", "disabled",
+    "start", "in_vld", "in_flit", "last", "error_flag", "crc_word", "done",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "device_rst",
+    "start_ack", "send_idle", "send_ack", "replay", "rd_ptr", "state",
+)
 
 
 class Golden:
@@ -137,6 +184,65 @@ class tc_vibe_dll_retry_buf(VibeUnitBaseTest):
             int(rd_ptr_i) & MASK8,
         )
 
+    def _inner_sample(self, send_size=1, rd_ptr_i=0):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.wr_ptr, -1) & MASK8,
+            ival(u.tail_ptr, -1) & MASK8,
+            ival(u.rcv_ptr, -1) & MASK8,
+            ival(u.num_free, -1) & MASK9,
+            ival(u.proto_err, -1),
+            ival(u.can_send, -1),
+            ival(u.rd_flit, None),
+            int(send_size) & MASK8,
+            int(rd_ptr_i) & MASK8,
+        )
+
+    def _score_inner(self, name, stim, got):
+        send_size = got[7]
+        rd_ptr = got[8]
+        inner = self._inner_sample(send_size=send_size, rd_ptr_i=rd_ptr)
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        if inner != got:
+            self.bad(name, stim + " (port vs u_u)",
+                     self._fmt(got), self._fmt(inner), WRAP)
+            return False
+        try:
+            inner_wr = ival(self.dut.u_u.wrp, -1)
+            inner_tail = ival(self.dut.u_u.tail, -1)
+            inner_rcv = ival(self.dut.u_u.rcv, -1)
+            inner_free = ival(self.dut.u_u.freeb, -1)
+            inner_err = ival(self.dut.u_u.proto_err, -1)
+        except Exception:
+            inner_wr = inner_tail = inner_rcv = inner_free = inner_err = None
+        wr, tail, rcv, free, err = got[:5]
+        if inner_wr is None or (inner_wr & MASK8) != wr:
+            self.bad(name, stim + " (port vs u_u.wrp)",
+                     f"wr_ptr={wr}", f"u_u.wrp={inner_wr}", HIER)
+            return False
+        if inner_tail is None or (inner_tail & MASK8) != tail:
+            self.bad(name, stim + " (port vs u_u.tail)",
+                     f"tail_ptr={tail}", f"u_u.tail={inner_tail}", HIER)
+            return False
+        if inner_rcv is None or (inner_rcv & MASK8) != rcv:
+            self.bad(name, stim + " (port vs u_u.rcv)",
+                     f"rcv_ptr={rcv}", f"u_u.rcv={inner_rcv}", HIER)
+            return False
+        if inner_free is None or (inner_free & MASK9) != free:
+            self.bad(name, stim + " (port vs u_u.freeb)",
+                     f"num_free={free}", f"u_u.freeb={inner_free}", HIER)
+            return False
+        if inner_err is None or inner_err != err:
+            self.bad(name, stim + " (port vs u_u.proto_err)",
+                     f"proto_err={err}", f"u_u.proto_err={inner_err}", HIER)
+            return False
+        return True
+
     def _fmt(self, s):
         wr, tail, rcv, free, err, cs, rd, send_size, rd_ptr = s
         rd_s = "X" if rd is None else hex(rd)
@@ -200,25 +306,7 @@ class tc_vibe_dll_retry_buf(VibeUnitBaseTest):
             self.bad(name, stim + " (free vs depth)",
                      f"num_free<={DEPTH}", self._fmt(got), "u_u.freeb")
             return False
-        try:
-            inner_wr = ival(self.dut.u_u.wrp, None)
-            inner_free = ival(self.dut.u_u.freeb, None)
-            inner_err = ival(self.dut.u_u.proto_err, None)
-        except Exception:
-            inner_wr = inner_free = inner_err = None
-        if inner_wr is not None and (inner_wr & MASK8) != wr:
-            self.bad(name, stim + " (port vs u_u.wrp)",
-                     f"wr_ptr={wr}", f"u_u.wrp={inner_wr}", HIER)
-            return False
-        if inner_free is not None and (inner_free & MASK9) != free:
-            self.bad(name, stim + " (port vs u_u.freeb)",
-                     f"num_free={free}", f"u_u.freeb={inner_free}", HIER)
-            return False
-        if inner_err is not None and inner_err != err:
-            self.bad(name, stim + " (port vs u_u.proto_err)",
-                     f"proto_err={err}", f"u_u.proto_err={inner_err}", HIER)
-            return False
-        return True
+        return self._score_inner(name, stim, got)
 
     async def _expect(self, name, stim, **kw):
         got = await self._cycle(**kw)
@@ -684,6 +772,123 @@ class tc_vibe_dll_retry_buf(VibeUnitBaseTest):
                          "proto_err=1 free=256", self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 11. Mid-run async rst_n clears registered ptrs / free / proto_err.
+        # Park live leftover (wr!=0, free!=256, proto_err=1), then pulse
+        # rst_n through dest posedge.
+        got = await self._expect(
+            name, "write before mid-run rst (park leftover wr/free)",
+            wr_en=1, wr_flit=0xC0, rd_ptr_i=0)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        got = await self._expect(
+            name, "write 2nd before mid-run rst (park leftover)",
+            wr_en=1, wr_flit=0xC1, rd_ptr_i=1)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park (live wr/free/err)",
+                                 got):
+            phase.drop_objection(self)
+            return
+        if got[0] != 2 or got[3] != 254 or got[4] != 1:
+            self.bad(name, "pre-async-rst park (live leftover)",
+                     "wr=2 free=254 proto_err=1",
+                     self._fmt(got), "u_u.wrp")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        self.g.hard_reset()
+        got = self._sample(send_size=1, rd_ptr_i=0)
+        if got[:6] != (0, 0, 0, DEPTH, 0, 1):
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "wr=0 tail=0 rcv=0 free=256 proto_err=0 (async clear)",
+                     self._fmt(got), "u_u.wrp")
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "mid-run rst_n=0", got):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        got = self._sample(send_size=1, rd_ptr_i=0)
+        if got[:6] != (0, 0, 0, DEPTH, 0, 1):
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "wr=0 tail=0 rcv=0 free=256 proto_err=0",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "rst_n held 0 through dest posedge", got):
+            phase.drop_objection(self)
+            return
+        await self._release_reset()
+        await FallingEdge(d.clk)
+        got = self._sample(send_size=1, rd_ptr_i=0)
+        if not self._score(name, "after async re-release, idle", got):
+            phase.drop_objection(self)
+            return
+        if got[:6] != (0, 0, 0, DEPTH, 0, 1):
+            self.bad(name, "after async re-release, no leftover write state",
+                     "wr=0 tail=0 rcv=0 free=256 proto_err=0",
+                     self._fmt(got), "u_u.wrp")
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover wr / free / proto_err are gone; a new
+        # write must start at wr=0 free=256, not leftover wr=2.
+        got = await self._expect(
+            name, "write after mid-run rst (no leftover wr)",
+            wr_en=1, wr_flit=0xD0, rd_ptr_i=0)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[0] != 1 or got[3] != 255 or got[4] != 0 or got[6] != 0xD0:
+            self.bad(name, "after mid-run rst walk (no leftover write state)",
+                     "wr=1 free=255 proto_err=0 rd_flit=0xD0",
+                     self._fmt(got), "u_u.wrp")
+            phase.drop_objection(self)
+            return
+        got = await self._expect(
+            name, "write 2nd after mid-run rst (fresh walk)",
+            wr_en=1, wr_flit=0xD1, rd_ptr_i=1)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[0] != 2 or got[3] != 254 or got[4] != 0 or got[6] != 0xD1:
+            self.bad(name, "after mid-run rst 2nd write (fresh, no leftover)",
+                     "wr=2 free=254 proto_err=0 rd_flit=0xD1",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+
+        # 12. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_rbuf). Instance u_u (not leftover u_rbuf / u_ack / u_sm / u_crd).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_dll_retry_buf product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
