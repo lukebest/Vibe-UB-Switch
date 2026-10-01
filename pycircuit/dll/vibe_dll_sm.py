@@ -1,7 +1,9 @@
 """vibe_dll_sm — DLL link SM (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_dll_sm.sv``. Ports match tip
-``39d3aa1d`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``551b6647``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``port_rst`` / ``link_up`` /
 ``param_ok`` / ``credit_ok`` / ``dll_error`` / ``state[1:0]`` /
 ``status_up`` / ``disabled``). Third DLL leaf after ``vibe_bcrc``

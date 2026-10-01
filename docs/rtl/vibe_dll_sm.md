@@ -21,7 +21,8 @@ after `vibe_bcrc` / `vibe_dll_credit`.
 
 ## Ports (product)
 
-Same as tip `39d3aa1d` / freeze `302ac943`. Reset stays
+Same as tip `551b6647`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
