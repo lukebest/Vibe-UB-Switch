@@ -1,6 +1,9 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Product PCS RX AMCTL deskew (AS-0.1 §6). Factory physical=logical (U24).
 // Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_pcs_rx / amctl_lock.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_pcs_rx_deskew_cocotb_top (
@@ -22,7 +25,7 @@ module vibe_pcs_rx_deskew_cocotb_top (
   output logic         out_vld,
   output logic         aligned
 );
-  vibe_pcs_rx_deskew u_dsk (
+  vibe_pcs_rx_deskew u_u (
     .clk(clk), .rst_n(rst_n),
     .in0(in0), .in1(in1), .in2(in2), .in3(in3), .in_vld(in_vld),
     .am0(am0), .am1(am1), .am2(am2), .am3(am3),

@@ -3,16 +3,25 @@
 Covers reset/idle (aligned=0, no spurious out_vld), lane-skew AMCTL
 absorb / first-AMCTL lock / align, factory physical=logical pass-
 through (no lane swap), AM drop (out_vld=0), in_vld stall without a
-saw step, and a second data group after lock. Not a full-chip
-consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
+saw step, a second data group after lock, mid-run async rst_n
+through dest posedge, and a pin scan with instance u_u. Not a
+full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_rx_deskew.sv: async-low rst_n,
 combo aligned = saw0&saw1&saw2&saw3, combo out_vld =
 in_vld && !(am0|am1|am2|am3), out0..out3 = in0..in3 (U24, no
 delay once aligned). First AMCTL 160b on a lane (amX && !amX_r
 while in_vld) sets sawX; FIFO pointers only record lock. Used by
-vibe_pcs_rx u_dsk. Stock Icarus tc_pcs_rx_deskew remains the
-official staggered-AM / out_vld scorer.
+vibe_pcs_rx u_dsk. This is not vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_unpack /
+vibe_pcs_tx_pack / vibe_pcs_rx_amctl_lock / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Stock Icarus tc_pcs_rx_deskew remains the official staggered-AM /
+out_vld scorer.
 """
 
 from uvm import uvm_component_utils
@@ -21,7 +30,26 @@ from vibe_uvm.hdl import ival, sset
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 MASK160 = (1 << 160) - 1
-HIER = "u_dsk.aligned / u_dsk.out_vld"
+HIER = "u_u.aligned / u_u.out_vld"
+WRAP = "vibe_pcs_rx_deskew_cocotb_top"
+PINS = (
+    "clk", "rst_n",
+    "in0", "in1", "in2", "in3", "in_vld",
+    "am0", "am1", "am2", "am3",
+    "out0", "out1", "out2", "out3", "out_vld", "aligned",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_l", "u_dsk",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "in_ready", "link_up",
+    "start", "in_sym", "parity", "u_enc", "u_g", "u_g1", "u_fec",
+    "u_pack", "u_un", "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "fec_fail", "data_out",
+)
 
 # Stock Icarus tc_pcs_rx_deskew: staggered AM 0xA..0xD, then data 1..4.
 STOCK_AM = (0xA, 0xB, 0xC, 0xD)
@@ -91,6 +119,40 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.out_vld, -1),
+            ival(u.out0, -1),
+            ival(u.out1, -1),
+            ival(u.out2, -1),
+            ival(u.out3, -1),
+            ival(u.aligned, -1),
+        )
+
+    def _score_inner(self, name, stim, ov, outs, aligned):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        got = (ov,) + tuple(outs) + (aligned,)
+        if inner != got:
+            self.bad(name, stim + " (u_u vs wrap)",
+                     f"out_vld={got[0]} aligned={got[5]} "
+                     f"out0..3={','.join(_hex160(x) for x in got[1:5])}",
+                     f"out_vld={inner[0]} aligned={inner[5]} "
+                     f"out0..3={','.join(_hex160(x) for x in inner[1:5])}",
+                     HIER)
+            return False
+        return True
+
     def _sample_combo(self):
         d = self.dut
         return (
@@ -130,14 +192,14 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             self.bad(name, stim,
                      f"out_vld={exp_ov}",
                      f"out_vld={ov}",
-                     "u_dsk.out_vld")
+                     "u_u.out_vld")
             return False
         got = tuple(outs)
         if any(x is None for x in got) or got != exp:
             self.bad(name, stim + " (pass-through, no lane swap)",
                      f"out0..3={','.join(_hex160(x) for x in exp)}",
                      f"out0..3={','.join(_hex160(x) for x in got)}",
-                     "u_dsk.out0")
+                     "u_u.out0")
             return False
         return True
 
@@ -146,7 +208,7 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             self.bad(name, stim,
                      f"aligned={exp}",
                      f"aligned={aligned}",
-                     "u_dsk.aligned")
+                     "u_u.aligned")
             return False
         return True
 
@@ -242,7 +304,7 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 mid-hunt (100ps, no posedge)",
                      "aligned=0 out_vld=0",
                      f"aligned={al} out_vld={ov}",
-                     "u_dsk.saw0")
+                     "u_u.saw0")
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -251,7 +313,7 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             self.bad(name, "after async re-reset release, idle",
                      "aligned=0",
                      f"aligned={self._sample_aligned()}",
-                     "u_dsk.aligned")
+                     "u_u.aligned")
             phase.drop_objection(self)
             return
 
@@ -298,7 +360,7 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 after lock (100ps, no posedge)",
                      "aligned=0",
                      f"aligned={self._sample_aligned()}",
-                     "u_dsk.aligned")
+                     "u_u.aligned")
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -486,6 +548,131 @@ class tc_vibe_pcs_rx_deskew(VibeUnitBaseTest):
             if not self._score(
                     name, f"streaming data[{i}] after lock (wptr walks)",
                     sample, 1, _zeros(), vec, 1):
+                phase.drop_objection(self)
+                return
+
+        # 4. Mid-run async rst_n clears registered saw / aligned.
+        # Park the post-lock streaming state (aligned=1), then pulse
+        # rst_n through dest posedge.
+        ov, o0, o1, o2, o3 = self._sample_combo()
+        al = self._sample_aligned()
+        if ov != 1 or al != 1:
+            self.bad(name, "pre-dest-rst park (streaming after lock)",
+                     "aligned=1 out_vld=1",
+                     f"aligned={al} out_vld={ov}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "pre-async-rst park", ov, (o0, o1, o2, o3), al):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        saws = [
+            ival(getattr(u, f"saw{i}"), -1) if u is not None else None
+            for i in range(4)
+        ]
+        if any(s != 1 for s in saws):
+            self.bad(name, "pre-async-rst park (live saw)",
+                     "u_u.saw0..3=1",
+                     f"saw={saws}",
+                     "u_u.saw0")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        ov, o0, o1, o2, o3 = self._sample_combo()
+        al = self._sample_aligned()
+        if al != 0 or ov != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "aligned=0 out_vld=0 (async clear)",
+                     f"aligned={al} out_vld={ov}",
+                     "u_u.aligned")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "mid-run rst_n=0", ov, (o0, o1, o2, o3), al):
+            phase.drop_objection(self)
+            return
+        saws = [ival(getattr(d.u_u, f"saw{i}"), -1) for i in range(4)]
+        amrs = [ival(getattr(d.u_u, f"am{i}_r"), -1) for i in range(4)]
+        wptr = ival(d.u_u.wptr, -1)
+        aptrs = [ival(getattr(d.u_u, f"a{i}"), -1) for i in range(4)]
+        if (any(s != 0 for s in saws) or any(r != 0 for r in amrs)
+                or wptr != 0 or any(a != 0 for a in aptrs)):
+            self.bad(name, "mid-run rst_n=0 (hunt async clear)",
+                     "u_u.saw*=0 u_u.am*_r=0 u_u.wptr=0 u_u.a*=0",
+                     f"saw={saws} am_r={amrs} wptr={wptr} a={aptrs}",
+                     "u_u.saw0")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        ov, o0, o1, o2, o3 = self._sample_combo()
+        al = self._sample_aligned()
+        if al != 0 or ov != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "aligned=0 out_vld=0",
+                     f"aligned={al} out_vld={ov}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge",
+                ov, (o0, o1, o2, o3), al):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        ov, o0, o1, o2, o3 = self._sample_combo()
+        al = self._sample_aligned()
+        if al != 0 or ov != 0:
+            self.bad(name, "after async re-release, idle",
+                     "aligned=0 out_vld=0",
+                     f"aligned={al} out_vld={ov}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "after async re-release, idle",
+                ov, (o0, o1, o2, o3), al):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover saw is gone; 4 staggered AM must lock
+        # with no leftover aligned=1.
+        if not await self._stagger_lock(
+                name, (0, 1, 2, 3), STOCK_AM, WIDE2,
+                "after dest-rst stagger 0-1-2-3"):
+            phase.drop_objection(self)
+            return
+
+        # 5. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_dsk). Instance u_u (not leftover u_dsk / u_l).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_rx_deskew product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 
