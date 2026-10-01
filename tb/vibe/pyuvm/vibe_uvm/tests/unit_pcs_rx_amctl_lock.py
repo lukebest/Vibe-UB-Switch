@@ -4,7 +4,8 @@ Covers reset/idle (locked=0, no spurious is_amctl/sdf/edf), AMCTL
 detect (combo is_amctl on match_w0 / match_w1 / match_pair),
 CONFIRM_N=3 lock, UNLOCK_N=3 legacy unlock, TX-layout sticky lock,
 all four LID mux arms, lid_bad (U24, no swap), sdf/edf pulses,
-async rst_n, and in_vld stall without a confirm/unlock step.
+async rst_n, in_vld stall without a confirm/unlock step, mid-run
+async rst_n through dest posedge, and a pin scan with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff.
 
@@ -12,8 +13,15 @@ Matches product rtl/pcs/vibe_pcs_rx_amctl_lock.sv: async-low rst_n,
 combo is_amctl = in_vld && (match_pair || match_w0 || match_w1),
 lock when conf >= CONFIRM_N-1, unlock only for via_leg hunt.
 Pairs with stage-10 vibe_pcs_tx_amctl and stage-13 deskew. Used by
-vibe_pcs_rx u_l0..u_l3. Stock Icarus tc_pcs_rx_amctl remains the
-official 4-pair / LID / unlock / lid_bad scorer.
+vibe_pcs_rx u_l0..u_l3. This is not vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_unpack /
+vibe_pcs_tx_pack / gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: u3 / u8 / u9 / u10 / u21 / u22 / u28 (vibe_ebch16).
+Stock Icarus tc_pcs_rx_amctl remains the official 4-pair / LID /
+unlock / lid_bad scorer.
 """
 
 from uvm import uvm_component_utils
@@ -49,7 +57,23 @@ CTRL_DETAIL = (
 LID_CW = (CW3, CW8, CW9, CW10)
 CONFIRM_TH = 2  # lock when conf >= CONFIRM_N-1; CONFIRM_N=3
 UNLOCK_TH = 2   # unlock when unlk >= UNLOCK_N-1; UNLOCK_N=3
-HIER = "u_l.locked / u_l.is_amctl"
+HIER = "u_u.locked / u_u.is_amctl / u_u.conf / u_u.have"
+WRAP = "vibe_pcs_rx_amctl_lock_cocotb_top"
+PINS = (
+    "clk", "rst_n", "in_vld", "in_data",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_l",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "in_ready", "link_up",
+    "start", "in_sym", "parity", "u_enc", "u_g", "u_g1", "u_fec",
+    "u_pack", "aligned", "out_vld", "fec_fail", "data_out",
+)
 
 
 def _word160(v: int) -> int:
@@ -217,6 +241,39 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.locked, -1),
+            ival(u.lid, -1),
+            ival(u.lid_bad, -1),
+            ival(u.sdf, -1),
+            ival(u.edf, -1),
+        )
+
+    def _score_inner(self, name, stim, locked, lid, lid_bad, sdf, edf):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        got = (locked, lid, lid_bad, sdf, edf)
+        if inner != got:
+            self.bad(name, stim + " (u_u vs wrap)",
+                     f"locked={got[0]} lid={got[1]} lid_bad={got[2]} "
+                     f"sdf={got[3]} edf={got[4]}",
+                     f"locked={inner[0]} lid={inner[1]} lid_bad={inner[2]} "
+                     f"sdf={inner[3]} edf={inner[4]}",
+                     HIER)
+            return False
+        return True
+
     def _sample_combo(self):
         return ival(self.dut.is_amctl, -1)
 
@@ -256,7 +313,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, stim,
                      f"is_amctl={exp_iam}",
                      f"is_amctl={iam}",
-                     "u_l.is_amctl")
+                     "u_u.is_amctl")
             return False
         exp = (self.g.locked, self.g.lid, self.g.lid_bad, self.g.sdf, self.g.edf)
         got = (locked, lid, lid_bad, sdf, edf)
@@ -337,7 +394,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "two confirm pairs (CONFIRM_N=3)",
                      "locked=0",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -351,7 +408,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
                      "locked=0 lid=0 lid_bad=0 sdf=0 edf=0",
                      f"locked={locked} lid={lid} lid_bad={lid_bad} "
                      f"sdf={sdf} edf={edf}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         self.g.reset()
@@ -361,7 +418,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "after async re-reset release, idle",
                      "locked=0",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -375,7 +432,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "3× legacy AMCTL LID0 (CONFIRM_N=3)",
                      "locked=1 lid=0",
                      f"lock={ival(d.locked, -1)} lid={ival(d.lid, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         # Fourth pair matches stock (already locked).
@@ -387,7 +444,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if ival(d.lid, -1) != 1:
-            self.bad(name, "LID cw8", "lid=1", str(ival(d.lid, -1)), "u_l.lid")
+            self.bad(name, "LID cw8", "lid=1", str(ival(d.lid, -1)), "u_u.lid")
             phase.drop_objection(self)
             return
         if not await self._legacy_pair(name, "LID cw9", CW21, CW9):
@@ -397,7 +454,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         if ival(d.lid, -1) != 3:
-            self.bad(name, "LID cw10", "lid=3", str(ival(d.lid, -1)), "u_l.lid")
+            self.bad(name, "LID cw10", "lid=3", str(ival(d.lid, -1)), "u_u.lid")
             phase.drop_objection(self)
             return
 
@@ -409,7 +466,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "legacy pair with CTRL_DETAIL",
                      "sdf=1 edf=0",
                      f"sdf={ival(d.sdf, -1)} edf={ival(d.edf, -1)}",
-                     "u_l.sdf")
+                     "u_u.sdf")
             phase.drop_objection(self)
             return
         if not await self._legacy_pair(name, "EDF pair", CW21, CW3, sdf=False):
@@ -419,7 +476,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "legacy pair without CTRL_DETAIL",
                      "sdf=0 edf=1",
                      f"sdf={ival(d.sdf, -1)} edf={ival(d.edf, -1)}",
-                     "u_l.edf")
+                     "u_u.edf")
             phase.drop_objection(self)
             return
 
@@ -432,7 +489,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "4 non-AM pairs while via_leg locked",
                      "unlock",
                      "still locked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -447,14 +504,14 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "AMCTL LID not {0,1,2,3}",
                      "lid_bad=1 (U24 no swap)",
                      str(ival(d.lid_bad, -1)),
-                     "u_l.lid_bad")
+                     "u_u.lid_bad")
             phase.drop_objection(self)
             return
         if ival(d.lid, -1) != 0:
             self.bad(name, "bad LID does not write lid",
                      "lid stays 0",
                      str(ival(d.lid, -1)),
-                     "u_l.lid")
+                     "u_u.lid")
             phase.drop_objection(self)
             return
 
@@ -466,7 +523,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 after lid_bad (100ps, no posedge)",
                      "lid_bad=0 locked=0",
                      f"lid_bad={ival(d.lid_bad, -1)} locked={ival(d.locked, -1)}",
-                     "u_l.lid_bad")
+                     "u_u.lid_bad")
             phase.drop_objection(self)
             return
         self.g.reset()
@@ -482,14 +539,14 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "3× TX-layout AMCTL LID0",
                      "locked=1 lid=0",
                      f"lock={ival(d.locked, -1)} lid={ival(d.lid, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         if ival(d.sdf, -1) != 1:
             self.bad(name, "TX word1 CTRL_DETAIL after lock pair",
                      "sdf=1",
                      f"sdf={ival(d.sdf, -1)}",
-                     "u_l.sdf")
+                     "u_u.sdf")
             phase.drop_objection(self)
             return
 
@@ -506,7 +563,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "TX-layout LID cw8 after lock",
                      "lid=1",
                      str(ival(d.lid, -1)),
-                     "u_l.lid")
+                     "u_u.lid")
             phase.drop_objection(self)
             return
 
@@ -521,7 +578,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "data after TX-layout lock",
                      "locked holds (not via_leg)",
                      "unlocked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -547,7 +604,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 after TX lock (100ps, no posedge)",
                      "locked=0",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         self.g.reset()
@@ -567,7 +624,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "stall-only AM (in_vld=0)",
                      "locked=0",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -588,7 +645,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "stall mid-confirm",
                      "locked=0 (need 3rd pair)",
                      "locked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         if not await self._legacy_pair(name, "stall-confirm[2] lock", CW21, CW3):
@@ -598,7 +655,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "resume confirm after stall (3rd pair)",
                      "locked=1",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -613,7 +670,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "idle after lock",
                      "locked holds",
                      "unlocked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -634,7 +691,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "1-beat slip of a bad pair",
                      "locked=0",
                      "locked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         # Real pair after slip still hunts from have=1: need BODY then END.
@@ -651,7 +708,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "lock after slip then 3 pairs",
                      "locked=1",
                      f"locked={ival(d.locked, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
 
@@ -664,7 +721,7 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "unlock before second lock",
                      "locked=0",
                      "still locked",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
         for n in range(3):
@@ -676,9 +733,139 @@ class tc_vibe_pcs_rx_amctl_lock(VibeUnitBaseTest):
             self.bad(name, "second lock LID1 after unlock",
                      "locked=1 lid=1",
                      f"lock={ival(d.locked, -1)} lid={ival(d.lid, -1)}",
-                     "u_l.locked")
+                     "u_u.locked")
             phase.drop_objection(self)
             return
+
+        # 5. Mid-run async rst_n clears registered lock / lid / hunt.
+        # Park the second-lock state (locked=1 lid=1), then pulse rst_n
+        # through dest posedge.
+        locked, lid, lid_bad, sdf, edf = self._sample_reg()
+        if locked != 1 or lid != 1 or lid_bad != 0:
+            self.bad(name, "pre-dest-rst park (second lock LID1)",
+                     "locked=1 lid=1 lid_bad=0",
+                     f"locked={locked} lid={lid} lid_bad={lid_bad}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "pre-async-rst park", locked, lid, lid_bad, sdf, edf):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        conf = ival(u.conf, -1) if u is not None else None
+        have = ival(u.have, -1) if u is not None else None
+        via_leg = ival(u.via_leg, -1) if u is not None else None
+        if conf is None or have is None or via_leg is None:
+            self.bad(name, "pre-async-rst park (live hunt state)",
+                     "u_u.conf/have/via_leg readable",
+                     "missing",
+                     "u_u.conf")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        locked, lid, lid_bad, sdf, edf = self._sample_reg()
+        if locked != 0 or lid != 0 or lid_bad != 0 or sdf != 0 or edf != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "locked=0 lid=0 lid_bad=0 sdf=0 edf=0 (async clear)",
+                     f"locked={locked} lid={lid} lid_bad={lid_bad} "
+                     f"sdf={sdf} edf={edf}",
+                     "u_u.locked")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "mid-run rst_n=0", locked, lid, lid_bad, sdf, edf):
+            phase.drop_objection(self)
+            return
+        conf = ival(d.u_u.conf, -1)
+        unlk = ival(d.u_u.unlk, -1)
+        have = ival(d.u_u.have, -1)
+        via_leg = ival(d.u_u.via_leg, -1)
+        if conf != 0 or unlk != 0 or have != 0 or via_leg != 0:
+            self.bad(name, "mid-run rst_n=0 (hunt async clear)",
+                     "u_u.conf=0 u_u.unlk=0 u_u.have=0 u_u.via_leg=0",
+                     f"conf={conf} unlk={unlk} have={have} via_leg={via_leg}",
+                     "u_u.conf")
+            phase.drop_objection(self)
+            return
+        self.g.reset()
+        await self._to_fall()
+        locked, lid, lid_bad, sdf, edf = self._sample_reg()
+        if locked != 0 or lid != 0 or lid_bad != 0 or sdf != 0 or edf != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "locked=0 lid=0 lid_bad=0 sdf=0 edf=0",
+                     f"locked={locked} lid={lid} lid_bad={lid_bad} "
+                     f"sdf={sdf} edf={edf}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge",
+                locked, lid, lid_bad, sdf, edf):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        locked, lid, lid_bad, sdf, edf = self._sample_reg()
+        if locked != 0 or lid != 0 or lid_bad != 0 or sdf != 0 or edf != 0:
+            self.bad(name, "after async re-release, idle",
+                     "locked=0 lid=0 lid_bad=0 sdf=0 edf=0",
+                     f"locked={locked} lid={lid} lid_bad={lid_bad} "
+                     f"sdf={sdf} edf={edf}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "after async re-release, idle",
+                locked, lid, lid_bad, sdf, edf):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover conf / have / via_leg is gone; 3
+        # pairs must lock LID0 with no leftover LID1.
+        for n in range(3):
+            if not await self._legacy_pair(
+                    name, f"after dest-rst confirm[{n}]", CW21, CW3):
+                phase.drop_objection(self)
+                return
+        if ival(d.locked, -1) != 1 or ival(d.lid, -1) != 0:
+            self.bad(name, "lock after mid-run dest-rst (no leftover)",
+                     "locked=1 lid=0",
+                     f"lock={ival(d.locked, -1)} lid={ival(d.lid, -1)}",
+                     "u_u.locked")
+            phase.drop_objection(self)
+            return
+
+        # 6. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_l). Instance u_u (not leftover u_l).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_rx_amctl_lock product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
