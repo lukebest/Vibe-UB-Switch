@@ -5,7 +5,8 @@ window), two-beat bypass unwrap ({hi, lo[511:64]}), T=4 / T=2
 syndrome-check unwrap vs golden RS(128,120) Horner, garbage CW
 fec_fail=1 without forwarding a 960, win_ready backpressure
 (beat_ready=!win_vld), beat_vld stall after the first half-CW,
-am_gap drop of leftover have_hi, and a second CW after drain.
+am_gap drop of leftover have_hi, a second CW after drain, mid-run
+async rst_n through dest posedge, and a pin scan with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff.
 
@@ -14,7 +15,15 @@ beat_ready=!win_vld, bypass=(fec_mode==VIBE_FEC_BYPASS), collect hi
 then lo, one-shot rs_syndromes({hi, beat_data}) (same Horner as
 stage-12, inlined, not an instance), emit {hi, lo[511:64]} when
 bypass or syn==0, fec_fail=|syn when !bypass, am_gap clears have_hi.
-Used by vibe_pcs_rx u_fec. Pairs with stage-17 vibe_pcs_tx_fec.
+Used by vibe_pcs_rx u_fec. This is not vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_deskew /
+vibe_pcs_rx_amctl_lock / vibe_pcs_rx_unpack / vibe_pcs_tx_pack /
+gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Pairs with stage-17 vibe_pcs_tx_fec.
 Stock Icarus tc_pcs_rx_fec remains the official win_vld scorer.
 """
 
@@ -43,6 +52,29 @@ MASK512 = (1 << 512) - 1
 MASK960 = (1 << 960) - 1
 MASK1024 = (1 << 1024) - 1
 HIER = "u_u.have_hi / u_u.win_vld / u_u.fec_fail"
+WRAP = "vibe_pcs_rx_fec_cocotb_top"
+PINS = (
+    "clk", "rst_n", "fec_mode",
+    "beat_data", "beat_vld", "beat_ready",
+    "win_data", "win_vld", "win_ready",
+    "am_gap", "fec_fail",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_l", "u_dsk", "u_un",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "amctl_40B", "sdf_period",
+    "in_ready", "link_up", "in0", "in1", "in2", "in3", "in_vld",
+    "out0", "out1", "out2", "out3", "out_vld", "aligned",
+    "start", "in_sym", "parity", "u_enc", "u_g", "u_g1", "u_fec",
+    "u_pack", "u_enc_a", "u_enc_b",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "data_out", "lane_ready", "afifo_afull", "am_word",
+    "lane0", "lane1", "lane2", "lane3", "lane_vld",
+    "am0", "am1", "am2", "am3",
+)
 
 
 def pack_window(syms) -> int:
@@ -83,6 +115,12 @@ def cw_beats(cw: int):
 def unwrap_win(cw: int) -> int:
     """Product emit: {hi, lo[511:64]} = cw[1023:64]."""
     return (int(cw) >> 64) & MASK960
+
+
+def _hex512(v) -> str:
+    if v is None:
+        return "x"
+    return f"0x{v:0128x}"
 
 
 def _hex960(v) -> str:
@@ -132,6 +170,10 @@ class tc_vibe_pcs_rx_fec(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
     def _sample(self):
         d = self.dut
         return (
@@ -140,6 +182,38 @@ class tc_vibe_pcs_rx_fec(VibeUnitBaseTest):
             ival(d.win_data, -1),
             ival(d.fec_fail, -1),
         )
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.beat_ready, -1),
+            ival(u.win_vld, -1),
+            ival(u.win_data, -1),
+            ival(u.fec_fail, -1),
+        )
+
+    def _score_inner(self, name, stim, br, wv, wd, ff):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        ibr, iwv, iwd, iff = inner
+        if (ibr, iwv, iff) != (br, wv, ff):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"beat_ready={br} win_vld={wv} fec_fail={ff}",
+                     f"u_u beat_ready={ibr} win_vld={iwv} fec_fail={iff}",
+                     HIER)
+            return False
+        if wv == 1 and (iwd is None or (int(iwd) & MASK960) != (int(wd) & MASK960)):
+            self.bad(name, stim + " (u_u vs wrap)",
+                     _win_msg(wd),
+                     _win_msg(iwd),
+                     "u_u.win_data")
+            return False
+        return True
 
     def _have_hi(self):
         try:
@@ -230,7 +304,7 @@ class tc_vibe_pcs_rx_fec(VibeUnitBaseTest):
                      f"beat_ready={br}",
                      "u_u.beat_ready")
             return False
-        return True
+        return self._score_inner(name, stim, br, wv, wd, ff)
 
     async def _ack_win(self, name, label, fec_mode):
         """Consume a pending window (win_ready=1)."""
@@ -663,6 +737,152 @@ class tc_vibe_pcs_rx_fec(VibeUnitBaseTest):
                          "beat_ready=1 win_vld=0 fec_fail=0",
                          f"beat_ready={br} win_vld={wv} fec_fail={ff}",
                          "u_u.have_hi")
+                phase.drop_objection(self)
+                return
+
+        # 6. Mid-run async rst_n clears registered have_hi / hi / win_*.
+        # Park a live bypass window so win_vld=1 / beat_ready=0, then pulse
+        # rst_n through dest posedge.
+        post = await self._feed_cw(
+            name, "pre-dest-rst bypass W0", CW_BYP0, FEC_BYPASS,
+            win_ready=0)
+        if post is None:
+            phase.drop_objection(self)
+            return
+        br, wv, wd, ff = post
+        if not self._score_win(
+                name, "pre-dest-rst park (bypass W0 held)",
+                br, wv, wd, ff, W0, 0):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        have_hi = ival(u.have_hi, -1) if u is not None else None
+        hi = ival(u.hi, -1) if u is not None else None
+        if have_hi != 0:
+            self.bad(name, "pre-async-rst park (lo consumed)",
+                     "u_u.have_hi=0 after two beats",
+                     f"have_hi={have_hi}",
+                     "u_u.have_hi")
+            phase.drop_objection(self)
+            return
+        if hi is None or (int(hi) & MASK512) != cw_beats(CW_BYP0)[0]:
+            self.bad(name, "pre-async-rst park (live hi leftover)",
+                     f"u_u.hi={_hex512(cw_beats(CW_BYP0)[0])}",
+                     f"hi={_hex512(hi)}",
+                     "u_u.hi")
+            phase.drop_objection(self)
+            return
+        await self._idle(fec_mode=FEC_BYPASS, win_ready=0)
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        br, wv, wd, ff = self._sample()
+        if br != 1 or wv != 0 or wd != 0 or ff != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "beat_ready=1 win_vld=0 win_data=0 fec_fail=0 "
+                     "(async clear)",
+                     f"beat_ready={br} win_vld={wv} {_win_msg(wd)} "
+                     f"fec_fail={ff}",
+                     "u_u.win_vld")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", br, wv, wd, ff):
+            phase.drop_objection(self)
+            return
+        have_hi = ival(d.u_u.have_hi, -1)
+        hi = ival(d.u_u.hi, -1)
+        win_data = ival(d.u_u.win_data, -1)
+        win_vld = ival(d.u_u.win_vld, -1)
+        fec_fail = ival(d.u_u.fec_fail, -1)
+        if (have_hi != 0 or hi != 0 or win_data != 0 or win_vld != 0
+                or fec_fail != 0):
+            self.bad(name, "mid-run rst_n=0 (fec async clear)",
+                     "u_u.have_hi=0 u_u.hi=0 u_u.win_data=0 "
+                     "u_u.win_vld=0 u_u.fec_fail=0",
+                     f"have_hi={have_hi} hi={hi} win_data={win_data} "
+                     f"win_vld={win_vld} fec_fail={fec_fail}",
+                     "u_u.have_hi")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        br, wv, wd, ff = self._sample()
+        if br != 1 or wv != 0 or wd != 0 or ff != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "beat_ready=1 win_vld=0 win_data=0 fec_fail=0",
+                     f"beat_ready={br} win_vld={wv} {_win_msg(wd)} "
+                     f"fec_fail={ff}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", br, wv, wd, ff):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle(fec_mode=FEC_T4, win_ready=1)
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        br, wv, wd, ff = self._sample()
+        if br != 1 or wv != 0 or wd != 0 or ff != 0:
+            self.bad(name, "after async re-release, idle",
+                     "beat_ready=1 win_vld=0 win_data=0 fec_fail=0",
+                     f"beat_ready={br} win_vld={wv} {_win_msg(wd)} "
+                     f"fec_fail={ff}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 br, wv, wd, ff):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover have_hi / hi / win_* are gone; a
+        # new T4 CW must unwrap W3 with no leftover W0.
+        post = await self._feed_cw(
+            name, "T4 after mid-run rst", CW3, FEC_T4, win_ready=1)
+        if post is None:
+            phase.drop_objection(self)
+            return
+        br, wv, wd, ff = post
+        if not self._score_win(
+                name, "after mid-run rst, T4 walk-1 (no leftover hi)",
+                br, wv, wd, ff, W3, 0):
+            phase.drop_objection(self)
+            return
+        if (int(wd) & MASK960) == W0:
+            self.bad(name, "after mid-run rst, no leftover W0",
+                     "W3 960",
+                     "W0 leftover",
+                     "u_u.hi")
+            phase.drop_objection(self)
+            return
+        if not await self._ack_win(name, "after mid-run rst", FEC_T4):
+            phase.drop_objection(self)
+            return
+
+        # 7. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_fec). Instance u_u (not leftover u_fec / u_un / u_dsk / u_l).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_rx_fec product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 
