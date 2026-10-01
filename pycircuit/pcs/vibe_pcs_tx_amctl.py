@@ -1,7 +1,8 @@
 """vibe_pcs_tx_amctl — AMCTL 40 symbol/lane, eBCH-16 (AS-0.1 §5).
 
 Product module: ``rtl/pcs/vibe_pcs_tx_amctl.sv``. Ports match tip
-``92adf9b`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``963aab5d``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``link_up`` / ``sdf_period`` /
 ``lane_id`` / ``req`` / ``ack`` / 320b ``amctl_40B``); used by
 ``vibe_pcs_tx_pack`` (``u_am0``..``u_am3``). Combo assemble after
