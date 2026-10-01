@@ -4,6 +4,7 @@ Keeps tip ports, async-low ``rst_n``, stock ``am_gap = 1'b0`` default,
 combo ``beat_vld`` / ``beat_data``, and the dual-buffer 4×640 → 5×512
 always-block (inverse G2). pycc netlists are a prototype only; this
 file is what lands in ``rtl/pcs/vibe_pcs_rx_unpack.sv``.
+Tip ``0c167477``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx_unpack.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports and behavior match tip ebd1671 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 0c167477. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §6: strip AMCTL, 4×160 → 512b beats (inverse G2). Dual-buffer 4×640↔5×512.
 """
 

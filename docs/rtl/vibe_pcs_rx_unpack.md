@@ -16,7 +16,8 @@ stage-14 amctl_lock; inverse of TX `vibe_pcs_tx_pack`
 
 ## Ports (product)
 
-Same as tip `ebd1671` / freeze `302ac943`. Four 160b lanes
+Same as tip `0c167477`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Four 160b lanes
 plus AMCTL skip / gap. Reset stays **async active-low**
 (`or negedge rst_n`). Stock `am_gap = 1'b0` default stays
 (Verilator `UNSUPPORTED` on input defaults is pre-existing;
