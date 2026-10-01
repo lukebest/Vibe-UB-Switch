@@ -17,7 +17,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_voq_egr vibe_saf_ing vibe_xbar \
         vibe_icrc vibe_nw_adapt vibe_rst_ctl vibe_mgmt_byp \
         vibe_irq_agg vibe_cna_ep vibe_cfg_space \
-        vibe_port \
+        vibe_port vibe_ub_switch \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
@@ -37,7 +37,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-icrc handfinish-nw-adapt handfinish-rst-ctl \
         handfinish-mgmt-byp handfinish-irq-agg handfinish-cna-ep \
         handfinish-cfg-space \
-        handfinish-port \
+        handfinish-port handfinish-top \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
@@ -57,7 +57,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-icrc lint-leaf-nw-adapt lint-leaf-rst-ctl \
         lint-leaf-mgmt-byp lint-leaf-irq-agg lint-leaf-cna-ep \
         lint-leaf-cfg-space \
-        lint-leaf-port
+        lint-leaf-port lint-leaf-top
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -105,6 +105,7 @@ help:
 	@echo "vibe_cna_ep        land hand-finished rtl/mgmt/vibe_cna_ep.sv (try pycc first)"
 	@echo "vibe_cfg_space     land hand-finished rtl/mgmt/vibe_cfg_space.sv (try pycc first)"
 	@echo "vibe_port          land hand-finished rtl/port/vibe_port.sv (try pycc first)"
+	@echo "vibe_ub_switch     land hand-finished rtl/top/vibe_ub_switch.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -148,6 +149,7 @@ help:
 	@echo "handfinish-cna-ep write product vibe_cna_ep SV only"
 	@echo "handfinish-cfg-space write product vibe_cfg_space SV only"
 	@echo "handfinish-port    write product vibe_port SV only"
+	@echo "handfinish-top     write product vibe_ub_switch SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -191,6 +193,7 @@ help:
 	@echo "lint-leaf-cna-ep  Verilator --lint-only on vibe_cna_ep"
 	@echo "lint-leaf-cfg-space Verilator --lint-only on vibe_cfg_space"
 	@echo "lint-leaf-port     Verilator --lint-only on vibe_port (children on filelist)"
+	@echo "lint-leaf-top      Verilator --lint-only on vibe_ub_switch (children on filelist)"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -329,6 +332,9 @@ vibe_cfg_space:
 vibe_port:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_port
 
+vibe_ub_switch:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_ub_switch
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -457,6 +463,9 @@ handfinish-cfg-space:
 
 handfinish-port:
 	python3 $(ROOT)/pycircuit/port/handfinish_vibe_port.py
+
+handfinish-top:
+	python3 $(ROOT)/pycircuit/top/handfinish_vibe_ub_switch.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -698,3 +707,54 @@ lint-leaf-port:
 	  $(ROOT)/rtl/pcs/vibe_pcs_rx_fec.sv \
 	  $(ROOT)/rtl/pcs/vibe_pcs_rx.sv \
 	  $(ROOT)/rtl/port/vibe_port.sv
+
+lint-leaf-top:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_ub_switch \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
+	  $(ROOT)/rtl/cdc/vibe_sync2.sv \
+	  $(ROOT)/rtl/cdc/vibe_rst_sync.sv \
+	  $(ROOT)/rtl/cdc/vibe_afifo.sv \
+	  $(ROOT)/rtl/cdc/vibe_gear_160_128.sv \
+	  $(ROOT)/rtl/cdc/vibe_gear_128_160.sv \
+	  $(ROOT)/rtl/pma/vibe_pma_bnd.sv \
+	  $(ROOT)/rtl/lmsm/vibe_lmsm.sv \
+	  $(ROOT)/rtl/nw/vibe_nw_adapt.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_sm.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_credit.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_retry_buf.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_retry_req_sm.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_retry_ack_sm.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_tx.sv \
+	  $(ROOT)/rtl/dll/vibe_dll_rx.sv \
+	  $(ROOT)/rtl/dll/vibe_dll.sv \
+	  $(ROOT)/rtl/pcs/vibe_ebch16.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_scramble.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_g1.sv \
+	  $(ROOT)/rtl/pcs/vibe_rs128_120_enc.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_fec.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_cw2beat.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_amctl.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_pack.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx_amctl_lock.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx_deskew.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx_unpack.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx_fec.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_rx.sv \
+	  $(ROOT)/rtl/port/vibe_port.sv \
+	  $(ROOT)/rtl/fabric/vibe_fecn_mark.sv \
+	  $(ROOT)/rtl/fabric/vibe_vl_rr.sv \
+	  $(ROOT)/rtl/fabric/vibe_route_lu.sv \
+	  $(ROOT)/rtl/fabric/vibe_port_sel.sv \
+	  $(ROOT)/rtl/fabric/vibe_voq_egr.sv \
+	  $(ROOT)/rtl/fabric/vibe_saf_ing.sv \
+	  $(ROOT)/rtl/fabric/vibe_xbar.sv \
+	  $(ROOT)/rtl/fabric/vibe_fabric.sv \
+	  $(ROOT)/rtl/mgmt/vibe_rst_ctl.sv \
+	  $(ROOT)/rtl/mgmt/vibe_mgmt_byp.sv \
+	  $(ROOT)/rtl/mgmt/vibe_irq_agg.sv \
+	  $(ROOT)/rtl/mgmt/vibe_cna_ep.sv \
+	  $(ROOT)/rtl/mgmt/vibe_cfg_space.sv \
+	  $(ROOT)/rtl/mgmt/vibe_mgmt.sv \
+	  $(ROOT)/rtl/top/vibe_ub_switch.sv
