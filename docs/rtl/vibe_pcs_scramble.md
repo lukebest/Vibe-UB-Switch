@@ -15,7 +15,8 @@ cell used by `vibe_pcs_tx` `u_s0`..`u_s3` and `vibe_pcs_rx`
 
 ## Ports (product)
 
-Same as tip `5087843` / freeze `302ac943`. No ready. Fire is
+Same as tip `bc6839d8`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). No ready. Fire is
 `in_vld`. Reset stays **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

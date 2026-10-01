@@ -1,7 +1,8 @@
 """vibe_pcs_scramble — PCS LTB/DLL scramble (AS-0.1 §5 / UB 3.2.2.4).
 
 Product module: ``rtl/pcs/vibe_pcs_scramble.sv``. Ports match tip
-``5087843`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``bc6839d8``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``lane_id`` / ``seed_load`` /
 ``en`` / ready-less 160b in/out); used by ``vibe_pcs_tx``
 (``u_s0``..``u_s3``) and ``vibe_pcs_rx`` (``u_d0``..``u_d3``).
@@ -11,7 +12,7 @@ pyCircuit registers are dest-domain **synchronous active-high** reset.
 Product RTL uses **async active-low** ``rst_n`` (``or negedge rst_n``),
 combo 160b ``xmask`` from the current LFSR, and last-NBA-wins when
 ``seed_load`` and ``in_vld && en`` both fire (advance wins). Landed
-SV is hand-finished to keep those freeze semantics. Leave
+SV is hand-finished to keep those tip semantics. Leave
 ``vibe_pcs_tx`` / rx / FEC / RS for later stages.
 """
 
