@@ -1,21 +1,28 @@
 """Module-level uvm-python TC for Decision-I leaf vibe_pcs_tx_amctl.
 
-Covers reset/idle ack=0, 40-symbol AMCTL insert/align vs Table 3-5
-(BODY / END / LID / CTRL_TYPE / CTRL_DETAIL), all four lane_id LID
-mux arms, ack=req&&link_up, and combo hold (clk / rst_n / sdf_period
-unused in the assemble body). Not a full-chip consecutive-green gate.
-Not 1/3, 4/3, freeze, or signoff.
+Covers reset/idle ack=0, async rst_n combo hold (unused pin),
+40-symbol AMCTL insert/align vs Table 3-5 (BODY / END / LID /
+CTRL_TYPE / CTRL_DETAIL), all four lane_id LID mux arms,
+ack=req&&link_up, combo hold, mid-run async rst_n through dest
+posedge still holds, CHILD eBCH-16 u3/u8/u9/u10/u21/u22/u28 vs
+Table 3-5, and a pin scan with instance u_u. Not a full-chip
+consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_tx_amctl.sv and stock tc_pcs_amctl
 nonzero / lane walk / ack semantics, plus golden eBCH-16 scoring.
-Used by vibe_pcs_tx_pack u_am0..u_am3. Combo: ack = req && link_up;
-amctl_40B is {3{CW21,CW28}}, {CW22,CW22}, {lid1,lid0,lid1,lid0},
-{CW8,CW9,CW8,CW9}, {CW10,CW22,CW10,CW22}. lid1 is always CW3.
+Combo: ack = req && link_up; amctl_40B is {3{CW21,CW28}},
+{CW22,CW22}, {lid1,lid0,lid1,lid0}, {CW8,CW9,CW8,CW9},
+{CW10,CW22,CW10,CW22}. lid1 is always CW3. Instantiated by
+vibe_pcs_tx_pack u_am0..u_am3. This is not vibe_pcs_tx /
+vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat
+/ gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: u3/u8/u9/u10/u21/u22/u28 (vibe_ebch16).
 """
 
 from uvm import uvm_component_utils
-from cocotb.triggers import FallingEdge, Timer
-from vibe_uvm.hdl import ival, sset
+from cocotb.triggers import RisingEdge, FallingEdge, Timer
+from vibe_uvm.hdl import hier, ival, sset
 from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 # Table 3-5 eBCH (16, 5) plus default (sel 31). Same as unit_ebch16 / stock.
@@ -30,7 +37,25 @@ CW3, CW8, CW9, CW10 = EBCH16[3], EBCH16[8], EBCH16[9], EBCH16[10]
 CW21, CW22, CW28 = EBCH16[21], EBCH16[22], EBCH16[28]
 
 MASK320 = (1 << 320) - 1
-HIER = "u_a.amctl_40B / u_a.cw21"
+HIER = "u_u.amctl_40B / u_u.ack / u_u.lid0"
+WRAP = "vibe_pcs_tx_amctl_cocotb_top"
+PINS = (
+    "clk", "rst_n", "link_up", "sdf_period",
+    "lane_id", "req", "ack", "amctl_40B",
+)
+ABSENT = (
+    "ovf_l", "in_ready", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_a",
+    "in_vld", "out_vld", "seed_load", "en",
+    "cw_sel", "cw", "u_cw",
+)
+CHILDREN = ("u3", "u8", "u9", "u10", "u21", "u22", "u28")
+CHILD_SEL = {
+    "u3": 3, "u8": 8, "u9": 9, "u10": 10,
+    "u21": 21, "u22": 22, "u28": 28,
+}
 
 
 def _hex320(v) -> str:
@@ -106,6 +131,80 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
         sset(self.dut.rst_n, 1)
         await self.cycles(n)
 
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
+    def _exists(self, path) -> bool:
+        try:
+            hier(self.dut, path)
+            return True
+        except Exception:
+            return False
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return ival(u.ack, -1), ival(u.amctl_40B, -1)
+
+    def _score_inner(self, name, stim, ack, word):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        iack, iword = inner
+        if (iack, iword) != (ack, word):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"ack={ack} amctl_40B={_hex320(word)}",
+                     f"u_u ack={iack} amctl_40B={_hex320(iword)}",
+                     HIER)
+            return False
+        return True
+
+    def _score_children(self, name, stim):
+        """CHILDREN from product SV. Observe; VPI hide is not a fail."""
+        if not self._exists("u_u"):
+            return True
+        missing = [inst for inst in CHILDREN
+                   if not self._exists(f"u_u.{inst}")]
+        if missing and len(missing) != len(CHILDREN):
+            self.bad(name, stim + " (product SV children)",
+                     "all seven vibe_ebch16 present or all hidden (VPI)",
+                     f"missing={missing}", "u_u")
+            return False
+        if missing:
+            return True
+        for inst, sel in CHILD_SEL.items():
+            exp = EBCH16[sel]
+            try:
+                child = hier(self.dut, f"u_u.{inst}")
+            except Exception:
+                self.bad(name, stim + f" (u_u.{inst})",
+                         f"u_u.{inst} present", "missing", "u_u")
+                return False
+            cw_sig = getattr(child, "cw", None)
+            sel_sig = getattr(child, "cw_sel", None)
+            got_cw = ival(cw_sig, None) if cw_sig is not None else None
+            got_sel = ival(sel_sig, None) if sel_sig is not None else None
+            # Constant-tied cw_sel may be inlined; score whatever VPI shows.
+            if got_cw is None and got_sel is None:
+                continue
+            if got_cw is not None and got_cw != exp:
+                self.bad(name, stim + f" (u_u.{inst} Table 3-5)",
+                         f"cw={_hex16(exp)}",
+                         f"cw={_hex16(got_cw)}",
+                         f"u_u.{inst}")
+                return False
+            if got_sel is not None and got_sel != sel:
+                self.bad(name, stim + f" (u_u.{inst} cw_sel)",
+                         f"cw_sel={sel}",
+                         f"cw_sel={got_sel}",
+                         f"u_u.{inst}")
+                return False
+        return True
+
     async def _apply(self, lane_id, req, link_up, sdf_period=1):
         """Drive combo pins and settle (#1 like stock tc_pcs_amctl)."""
         d = self.dut
@@ -119,7 +218,7 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
     def _score_word(self, name, stim, lane_id, ack, word, exp_ack):
         exp = golden_amctl(lane_id)
         if ack != exp_ack:
-            self.bad(name, stim, f"ack={exp_ack}", f"ack={ack}", "u_a.ack")
+            self.bad(name, stim, f"ack={exp_ack}", f"ack={ack}", "u_u.ack")
             return False
         if word is None or word != exp:
             self.bad(name, stim,
@@ -136,7 +235,7 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
                          f"{key}={_hex320(got_f[key])}",
                          HIER)
                 return False
-        return True
+        return self._score_inner(name, stim, ack, word)
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -205,7 +304,7 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
                 self.bad(name, f"LID field lane_id={lid}",
                          f"{{CW3,{_hex16(lid0)},CW3,{_hex16(lid0)}}}=0x{exp_lid:016x}",
                          f"0x{got_lid:016x}",
-                         "u_a.lid0")
+                         "u_u.lid0")
                 phase.drop_objection(self)
                 return
 
@@ -213,7 +312,7 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
             self.bad(name, "lane_id 0..3 AMCTL uniqueness",
                      "4 distinct 40-symbol words (LID mux)",
                      f"{len(set(seen))} distinct",
-                     "u_a.lid0")
+                     "u_u.lid0")
             phase.drop_objection(self)
             return
 
@@ -233,7 +332,7 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
                 self.bad(name, f"lane_id={lid} LID vs lane0",
                          "distinct LID field",
                          "same LID",
-                         "u_a.lid0")
+                         "u_u.lid0")
                 phase.drop_objection(self)
                 return
 
@@ -258,6 +357,11 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
+        # CHILD eBCH-16 LUTs stay at the named Table 3-5 sels.
+        if not self._score_children(name, "after lane walk"):
+            phase.drop_objection(self)
+            return
+
         # 3. ack = req && link_up (stock: req=1 link_up=0 → ack=0).
         for req in (0, 1):
             for link_up in (0, 1):
@@ -279,6 +383,9 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
                      HIER)
             phase.drop_objection(self)
             return
+        if not self._score_inner(name, "sdf_period unused, lane1", ack1, word1):
+            phase.drop_objection(self)
+            return
 
         # Combo hold: same pins, no drift (5 ns, no new drive).
         held_ack, held = await self._apply(2, 1, 1, sdf_period=1)
@@ -297,6 +404,82 @@ class tc_vibe_pcs_tx_amctl(VibeUnitBaseTest):
                      HIER)
             phase.drop_objection(self)
             return
+        if not self._score_inner(name, "hold lane_id=2", later_ack, later):
+            phase.drop_objection(self)
+            return
+
+        # 4. Mid-run async rst_n through dest posedge still holds (combo).
+        # Park a distinct lane-2 word with ack=1 first.
+        if later_ack != 1 or later != golden_amctl(2):
+            self.bad(name, "pre-async-rst park (lane2 req=1)",
+                     f"ack=1 amctl={_hex320(golden_amctl(2))}",
+                     f"ack={later_ack} amctl={_hex320(later)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        ack = ival(d.ack, -1)
+        word = ival(d.amctl_40B, -1)
+        if not self._score_word(
+                name, "mid-run rst_n=0 (100ps, combo hold)",
+                2, ack, word, 1):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        ack = ival(d.ack, -1)
+        word = ival(d.amctl_40B, -1)
+        if not self._score_word(
+                name, "rst_n held 0 through dest posedge (combo hold)",
+                2, ack, word, 1):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        ack, word = await self._apply(2, 1, 1, sdf_period=1)
+        if not self._score_word(
+                name, "after mid-run rst re-release, lane2 still golden",
+                2, ack, word, 1):
+            phase.drop_objection(self)
+            return
+        ack, word = await self._apply(1, 1, 1, sdf_period=1)
+        if not self._score_word(
+                name, "fresh lane1 after mid-run rst (combo, not latched)",
+                1, ack, word, 1):
+            phase.drop_objection(self)
+            return
+        if not self._score_children(name, "after mid-run rst"):
+            phase.drop_objection(self)
+            return
+
+        # 5. Leaf pins match product SV (no ovf_l / ready / dual-clock).
+        # Instance u_u (not leftover u_a).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_tx_amctl product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
