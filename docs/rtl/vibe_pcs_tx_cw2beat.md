@@ -14,7 +14,8 @@ PCS cell used by `vibe_pcs_tx` `u_cw`) under the pycircuit → rtl flow.
 
 ## Ports (product)
 
-Same as tip `c8804c0` / freeze `302ac943`. Ready/valid on both sides.
+Same as tip `938f23f1`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Ready/valid on both sides.
 Reset stays **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
