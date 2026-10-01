@@ -82,6 +82,11 @@ PORT_WRAP = [
     _w("nw", "vibe_nw_adapt.sv"),
     _w("port", "vibe_port.sv"),
 ]
+# Decision-I stage-44 wrap leaf. Same children as catalog.TOP_RTL.
+TOP_WRAP = PORT_WRAP + FAB + MGMT + [
+    _w("mgmt", "vibe_mgmt_byp.sv"),
+    _w("top", "vibe_ub_switch.sv"),
+]
 
 UNIT_MORE = [
     ("tc_irq_agg", "vibe_irq_agg", [_w("mgmt", "vibe_irq_agg.sv")], "entry_unit"),
@@ -246,6 +251,9 @@ UNIT_MORE = [
     # Decision-I stage-43 wrap leaf. Not TP-PHY / tc_port_smoke (that stays make port).
     ("tc_vibe_port", "vibe_port_wrap_cocotb_top",
      [_wrap("vibe_port_wrap_cocotb_top")] + PORT_WRAP, "entry_unit"),
+    # Decision-I stage-44 wrap leaf. Not tc_top_smoke (that stays make top).
+    ("tc_vibe_ub_switch", "vibe_ub_switch_wrap_cocotb_top",
+     [_wrap("vibe_ub_switch_wrap_cocotb_top")] + TOP_WRAP, "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),

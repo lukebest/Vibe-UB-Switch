@@ -135,6 +135,9 @@ make -C tb/vibe/pyuvm tc_vibe_cfg_space        # same as cfg_space
 make -C tb/vibe/pyuvm units TC=tc_vibe_port  # Decision-I wrap leaf (not tc_port_smoke)
 make -C tb/vibe/pyuvm port_wrap                # same as units TC=tc_vibe_port
 make -C tb/vibe/pyuvm tc_vibe_port             # same as port_wrap
+make -C tb/vibe/pyuvm units TC=tc_vibe_ub_switch  # Decision-I wrap leaf (not tc_top_smoke)
+make -C tb/vibe/pyuvm top_wrap                 # same as units TC=tc_vibe_ub_switch
+make -C tb/vibe/pyuvm tc_vibe_ub_switch        # same as top_wrap
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -210,6 +213,8 @@ make -C tb/vibe/pyuvm cfg_space SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_cfg_space SIM=verilator # same as cfg_space
 make -C tb/vibe/pyuvm port_wrap SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_port SIM=verilator   # same as port_wrap
+make -C tb/vibe/pyuvm top_wrap SIM=verilator       # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_ub_switch SIM=verilator # same as top_wrap
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -646,6 +651,19 @@ stay HOLD. No invented Appendix D / CFG opcode. Icarus LMSM Force
 bring-up may not reach ACTIVE (same class as stock `tc_port_smoke`);
 children / reset / combo / async rst still score.
 
+`tc_vibe_ub_switch` / `make top_wrap` / `make tc_vibe_ub_switch` is
+**wrap-level only** (AS-0.1 §4/§17 children present — 4× `vibe_port`,
+`vibe_fabric`, `vibe_mgmt`, 4× `vibe_mgmt_byp` — async `rst_n` /
+LMSM Idle → DLL Disabled on every port, observe `credit_low` /
+`!link_ready` blocking fabric NW, light CFG write smoke for RTL-known
+cmds 0–5 / 7 ignore). It is **not** 1/3, 4/3, freeze, or signoff.
+Stock Icarus / pyuvm `tc_top_smoke` / `make top` remain the official
+product-pin PMA+peer scorers. Do **not** steal `make top` / `make wrap`.
+`vibe_mgmt` / `vibe_fabric` wrap migration stays HOLD. No invented
+Appendix D / CFG opcode. CFG6 R/W packing is 未知 — do not invent.
+Prefer observing child-driven nets over Force. Do not rewrite F1
+`ovf_l`. Consecutive-green stays STOPPED.
+
 ## Topology
 
 ```
@@ -665,7 +683,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_port_wrap.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_port_wrap.py` / `unit_ub_switch_wrap.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
@@ -702,6 +720,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_cna_ep` | still `tc_cna_ep`; Decision-I module TC is `tc_vibe_cna_ep` |
 | Icarus `tc_identity_cfg_space` / `tc_cna_16bit` | still those IDs; Decision-I module TC is `tc_vibe_cfg_space` |
 | Icarus `tc_port_smoke` / `tc_nw_pkt_*` | still those IDs; Decision-I wrap TC is `tc_vibe_port` |
+| Icarus `tc_top_smoke` / `make top` | still `tc_top_smoke`; Decision-I wrap TC is `tc_vibe_ub_switch` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
 | Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
 | Icarus `tc_dll` (full stack) | still `tc_dll` (**TP-DLL-004**); Decision-I wrap TC is `tc_vibe_dll` |
@@ -769,6 +788,7 @@ those two stay Icarus.
 | `tc_vibe_cna_ep` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_cfg_space` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_port` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_ub_switch` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | pending this PR | pending this PR |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |

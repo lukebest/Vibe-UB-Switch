@@ -216,6 +216,8 @@ NAME_MAP = {
         "tc_vibe_cfg_space (vibe_cfg_space_cocotb_top, module-level)",
     "make port_wrap / tc_vibe_port":
         "tc_vibe_port (vibe_port_wrap_cocotb_top, wrap-level; not tc_port_smoke)",
+    "make top_wrap / tc_vibe_ub_switch":
+        "tc_vibe_ub_switch (vibe_ub_switch_wrap_cocotb_top, wrap-level; not tc_top_smoke)",
     "make top / tc_top_smoke": "tc_top_smoke (entry_switch)",
     "make neg / scan_absent.sh": "python3 -m vibe_uvm.tests.static_tests + run_absent_scan",
     "SV UVM +UVM_TESTNAME": "same class name, Python UVM 1.2",
