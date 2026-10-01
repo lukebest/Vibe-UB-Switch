@@ -1,15 +1,23 @@
 """Module-level uvm-python TC for Decision-I leaf vibe_pcs_scramble.
 
-Covers reset/idle clean, known LID seed vs golden xmask, AMCTL/EEIB
-pass-through (LFSR does not advance), and XOR round-trip.
-Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
+Covers reset/idle clean (no spurious out_vld), async rst_n clear of
+registered outs, known LID seed vs golden 160b xmask, distinct LIDs,
+AMCTL/EEIB en=0 pass-through (LFSR does not advance), XOR round-trip,
+seed_load+in_vld+en NBA last-wins (advance, not the new seed),
+mid-run async rst_n returning the LFSR to reset seed, and a pin
+scan with instance u_u. Not a full-chip consecutive-green gate.
+Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_scramble.sv and stock tc_pcs_scramble
 en=0 pass-through / en=1 nonzero-mask semantics. PCS scramble stays
 PRBS23: step {s[21:0], s[22]^s[17]}, seed {19'd1, lane_id, 2'b01}.
 PMA pin-idle is a different poly (PRBS31, no PMA_IDLE_MARK) — not this
 leaf. TX-side only here (one XOR cell; RX descramble is the same
-module with the same seed).
+module with the same seed). Instantiated by vibe_pcs_tx u_s0..u_s3
+and vibe_pcs_rx u_d0..u_d3. This is not vibe_pcs_tx / vibe_pcs_rx /
+vibe_ebch16 / gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none (leaf cell; no FSM child).
 """
 
 from uvm import uvm_component_utils
@@ -30,10 +38,24 @@ VECTOR = (
 )
 AMCTL0 = 0x55
 AMCTL1 = 0xAA
+EEIB0 = 0x33
 LTB0 = 0x0
 LTB1 = int("C3" * 20, 16)
 LID_A = 2
 LID_B = 1
+
+HIER = "u_u.out_vld / u_u.out_data / u_u.lfsr"
+WRAP = "vibe_pcs_scramble_cocotb_top"
+PINS = (
+    "clk", "rst_n", "lane_id", "seed_load", "en",
+    "in_vld", "in_data", "out_vld", "out_data",
+)
+ABSENT = (
+    "ovf_l", "in_ready", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_scr",
+)
 
 
 def seed_from_lid(lid: int) -> int:
@@ -128,7 +150,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
         phase.raise_objection(self)
         d = self.dut
         name = "tc_vibe_pcs_scramble"
-        hier = "u_scr.out_data"
+        hier = HIER
 
         await self._hold_reset()
         await self._release_reset()
@@ -140,7 +162,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             self.bad(name, "reset then release, in_vld=0",
                      "out_vld=0 out_data=0",
                      f"out_vld={ov} out_data={_hex160(od)}",
-                     "u_scr.out_vld")
+                     HIER)
             phase.drop_objection(self)
             return
         for i in range(4):
@@ -174,7 +196,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 mid-cycle (100ps, no posedge)",
                      "out_vld=0 out_data=0",
                      f"out_vld={ov} out_data={_hex160(od)}",
-                     "u_scr.out_vld")
+                     HIER)
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -184,7 +206,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             self.bad(name, "after async re-reset release, idle",
                      "out_vld=0 out_data=0",
                      f"out_vld={ov} out_data={_hex160(od)}",
-                     "u_scr.out_vld")
+                     HIER)
             phase.drop_objection(self)
             return
 
@@ -256,7 +278,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             self.bad(name, "in_vld=0 en=1 between AMCTL and LTB",
                      "out_vld=0 (no beat)",
                      f"out_vld={ov} out_data={_hex160(od)}",
-                     "u_scr.out_vld")
+                     HIER)
             phase.drop_objection(self)
             return
 
@@ -273,6 +295,15 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
         if ov != 1 or od != AMCTL1:
             self.bad(name, f"en=0 AMCTL in={_hex160(AMCTL1)} after one LTB",
                      f"pass-through {_hex160(AMCTL1)}",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+
+        ov, od = await self._beat(1, EEIB0, 0, lane_id=LID_A)
+        if ov != 1 or od != EEIB0:
+            self.bad(name, f"en=0 EEIB in={_hex160(EEIB0)} after AMCTL",
+                     f"pass-through {_hex160(EEIB0)} (AMCTL/EEIB)",
                      f"out_vld={ov} out_data={_hex160(od)}",
                      hier)
             phase.drop_objection(self)
@@ -295,7 +326,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             ov, od = await self._beat(1, word, 1, lane_id=LID_A)
             if ov != 1:
                 self.bad(name, "round-trip scramble beat",
-                         "out_vld=1", f"out_vld={ov}", "u_scr.out_vld")
+                         "out_vld=1", f"out_vld={ov}", HIER)
                 phase.drop_objection(self)
                 return
             scrambled.append(od)
@@ -305,7 +336,7 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
             ov, od = await self._beat(1, word, 1, lane_id=LID_A)
             if ov != 1:
                 self.bad(name, "round-trip descramble beat",
-                         "out_vld=1", f"out_vld={ov}", "u_scr.out_vld")
+                         "out_vld=1", f"out_vld={ov}", HIER)
                 phase.drop_objection(self)
                 return
             recovered.append(od)
@@ -317,6 +348,129 @@ class tc_vibe_pcs_scramble(VibeUnitBaseTest):
                      hier)
             phase.drop_objection(self)
             return
+
+        # 5. seed_load + in_vld + en: NBA last-wins is the 160-step
+        # advance (stock). Combo xmask still uses the pre-edge LFSR.
+        await self._load_seed(LID_A)
+        mask0, state1 = xmask160(seed_a)
+        mask1, state2 = xmask160(state1)
+        mask2, _ = xmask160(state2)
+        mask_b, _ = xmask160(seed_from_lid(LID_B))
+        ov, od = await self._beat(1, 0, 1, lane_id=LID_A)
+        if ov != 1 or od != mask0:
+            self.bad(name, "last-wins setup: en=1 in=0 after seed lid=A",
+                     f"out_vld=1 out_data={_hex160(mask0)}",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+        ov, od = await self._beat(1, 0, 1, seed_load=1, lane_id=LID_B)
+        if ov != 1 or od != mask1:
+            self.bad(name, "seed_load+in_vld+en same cycle (xmask pre-edge)",
+                     f"lid-A advance mask {_hex160(mask1)} (not lid-B seed)",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+        ov, od = await self._beat(1, 0, 1, lane_id=LID_B)
+        if ov != 1 or od != mask2 or od == mask_b:
+            self.bad(name, "after last-wins: next beat is advance not lid-B seed",
+                     f"out={_hex160(mask2)} != lid-B {_hex160(mask_b)}",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+
+        # seed_load + in_vld + en=0: seed loads (no advance last-wins).
+        await self._load_seed(LID_A)
+        ov, od = await self._beat(1, EEIB0, 0, seed_load=1, lane_id=LID_B)
+        if ov != 1 or od != EEIB0:
+            self.bad(name, "seed_load+in_vld+en=0 (AMCTL/EEIB + seed)",
+                     f"pass-through {_hex160(EEIB0)}",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+        ov, od = await self._beat(1, 0, 1, lane_id=LID_B)
+        if ov != 1 or od != mask_b:
+            self.bad(name, "en=1 after seed_load+en=0 loaded lid-B",
+                     f"lid-B seed mask {_hex160(mask_b)}",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+
+        # 6. Mid-run async rst_n clears outs and returns LFSR to reset seed.
+        # Park a nonzero scrambled beat so out_vld=1 / out_data!=0 first.
+        if ov != 1 or od == 0:
+            self.bad(name, "pre-async-rst park (en=1 lid-B in=0)",
+                     "out_vld=1 out_data!=0 before mid-run rst_n",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        ov, od = self._sample()
+        if ov != 0 or od != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "out_vld=0 out_data=0 (async clear)",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        ov, od = self._sample()
+        if ov != 0 or od != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "out_vld=0 out_data=0",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        ov, od = self._sample()
+        if ov != 0 or od != 0:
+            self.bad(name, "after async re-release, idle",
+                     "out_vld=0 out_data=0",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        rst_mask, _ = xmask160(RESET_SEED)
+        ov, od = await self._beat(1, 0, 1)
+        if ov != 1 or od != rst_mask:
+            self.bad(name, "en=1 in=0 after mid-run rst (no seed_load)",
+                     f"out_vld=1 out_data={_hex160(rst_mask)} (reset seed)",
+                     f"out_vld={ov} out_data={_hex160(od)}",
+                     hier)
+            phase.drop_objection(self)
+            return
+
+        # 7. Leaf pins match product SV (no ovf_l / ready / dual-clock).
+        # Instance u_u (not leftover u_scr).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_scramble product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
