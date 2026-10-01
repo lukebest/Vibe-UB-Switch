@@ -37,6 +37,7 @@ make -C tb/vibe/pyuvm sync2                    # same as units TC=tc_vibe_sync2
 make -C tb/vibe/pyuvm tc_vibe_sync2            # same as sync2
 make -C tb/vibe/pyuvm units TC=tc_vibe_rst_sync  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rst_sync                 # same as units TC=tc_vibe_rst_sync
+make -C tb/vibe/pyuvm tc_vibe_rst_sync         # same as rst_sync
 make -C tb/vibe/pyuvm units TC=tc_vibe_gear_128_160  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm gear_128_160             # same as units TC=tc_vibe_gear_128_160
 make -C tb/vibe/pyuvm units TC=tc_vibe_gear_160_128  # Decision-I leaf (module-level)
@@ -171,6 +172,7 @@ make -C tb/vibe/pyuvm tc_vibe_afifo SIM=verilator  # same as afifo
 make -C tb/vibe/pyuvm sync2 SIM=verilator   # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_sync2 SIM=verilator  # same as sync2
 make -C tb/vibe/pyuvm rst_sync SIM=verilator  # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_rst_sync SIM=verilator  # same as rst_sync
 make -C tb/vibe/pyuvm gear_128_160 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm gear_160_128 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm pcs_scramble SIM=verilator  # or SIM=icarus
@@ -269,11 +271,14 @@ It is **not** 1/3, 4/3, freeze, or signoff. There is no stock Icarus
 and **not** gear. Instantiated by `vibe_afifo` `u_r2w` / `u_w2r`.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_rst_sync` / `make rst_sync` is **module-level only** (async `rst_n_in`
-asserts `rst_n_out` without a dest posedge, sync deassert after 2 dest clocks
-not 1, mid-run re-assert clears both flops). It is **not** 1/3, 4/3, freeze,
-or signoff. Stock Icarus `tb/vibe/tests/tc_rst_sync.sv` / `tc_rst_sync` remains
-optional control.
+`tc_vibe_rst_sync` / `make rst_sync` / `make tc_vibe_rst_sync` is
+**module-level only** (async `rst_n_in` asserts `rst_n_out` without a dest
+posedge, sync deassert after 2 dest clocks not 1, hold-through dest posedge,
+mid-run re-assert clears both flops, released `rst_n_out` stays 1, no
+ready/valid pins). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_rst_sync.sv` / `tc_rst_sync` remains optional control. This
+is **not** `vibe_sync2` / `vibe_afifo` / gear. Instantiated by `vibe_port`
+`u_txrst` / `u_rxrst`. `ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_gear_128_160` / `make gear_128_160` is **module-level only** (reset
 idle / no spurious `out_vld`, 5×128 → exactly 4×160 with residue packing,
