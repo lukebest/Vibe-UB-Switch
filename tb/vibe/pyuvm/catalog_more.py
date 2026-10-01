@@ -112,6 +112,11 @@ PCS_RX = [
     _no_input_default("pcs", "vibe_pcs_rx_unpack.sv"),
     _no_input_default("pcs", "vibe_pcs_rx_fec.sv"),
 ]
+# Decision-I stage-49 wrap leaf. Product vibe_lmsm is an FSM leaf
+# (CHILDREN empty — no child RTL). Do not invent hierarchy.
+LMSM = [
+    _w("lmsm", "vibe_lmsm.sv"),
+]
 
 UNIT_MORE = [
     ("tc_irq_agg", "vibe_irq_agg", [_w("mgmt", "vibe_irq_agg.sv")], "entry_unit"),
@@ -291,6 +296,10 @@ UNIT_MORE = [
     # Decision-I stage-48 wrap leaf. Not Icarus full-stack tc_pcs_rx.
     ("tc_vibe_pcs_rx", "vibe_pcs_rx_wrap_cocotb_top",
      [_wrap("vibe_pcs_rx_wrap_cocotb_top")] + PCS_RX, "entry_unit"),
+    # Decision-I stage-49 wrap leaf. FSM leaf; CHILDREN empty.
+    # Not stock Icarus / pyuvm tc_lmsm_walk (that stays vibe_lmsm top).
+    ("tc_vibe_lmsm", "vibe_lmsm_wrap_cocotb_top",
+     [_wrap("vibe_lmsm_wrap_cocotb_top")] + LMSM, "entry_unit"),
     ("tc_lmsm_walk", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_vlock", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
     ("tc_lmsm_cc", "vibe_lmsm", [_w("lmsm", "vibe_lmsm.sv")], "entry_unit"),
