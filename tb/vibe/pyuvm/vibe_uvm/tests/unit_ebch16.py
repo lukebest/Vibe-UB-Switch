@@ -1,12 +1,20 @@
 """Module-level uvm-python TC for Decision-I leaf vibe_ebch16.
 
-Covers combo idle (no rst_n / no sequential hold), Table 3-5 encode LUT,
-default sel 31, unique invert (decode), and min Hamming distance 8.
-Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
+Covers combo idle / no sequential hold (DUT has no clk / rst_n —
+no async clear to pulse), Table 3-5 encode LUT vs product SV golden,
+default sel 31, unique invert (decode), complementary pairs at
+Hamming 16, min Hamming distance 8, mid-run cw_sel walk without
+hold, and a pin scan with instance u_u. Not a full-chip
+consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_ebch16.sv and stock tc_ebch16_lut
 sel 0..30 Table 3-5 / default 16'hFFFF semantics. Combo leaf: cw_sel[4:0]
-→ cw[15:0]. Used by vibe_pcs_tx_amctl / vibe_pcs_rx_amctl_lock.
+→ cw[15:0]. Instantiated by vibe_pcs_tx_amctl u3/u8/u9/u10/u21/u22/u28
+and vibe_pcs_rx_amctl_lock the same named LUT cells. This is not
+vibe_pcs_scramble / vibe_pcs_tx / vibe_pcs_rx / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none (leaf cell; no FSM child).
 """
 
 from uvm import uvm_component_utils
@@ -25,7 +33,16 @@ EBCH16 = (
 # AMCTL-used Table 3-5 indices (BODY/END/lane/cmd subset).
 AMCTL_SELS = (3, 8, 9, 10, 21, 22, 28)
 
-HIER = "u_ebch.cw"
+HIER = "u_u.cw / u_u.cw_sel"
+WRAP = "vibe_ebch16_cocotb_top"
+PINS = ("cw_sel", "cw")
+ABSENT = (
+    "clk", "rst_n", "ovf_l", "in_ready", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_ebch",
+    "in_vld", "out_vld", "lane_id", "seed_load", "en",
+)
 
 
 def _hex16(v) -> str:
@@ -39,6 +56,21 @@ def _hamming(a: int, b: int) -> int:
 
 
 class tc_vibe_ebch16(VibeUnitBaseTest):
+    def _inner_cw(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return ival(u.cw, -1)
+
+    def _score_inner(self, name, stim, top_cw):
+        inner = self._inner_cw()
+        if inner != top_cw:
+            self.bad(name, stim + " (port vs u_u.cw)",
+                     f"cw={_hex16(top_cw)}",
+                     f"u_u.cw={_hex16(inner)}", HIER)
+            return False
+        return True
+
     async def _apply(self, sel):
         """Drive cw_sel and settle the combo LUT (#1 like stock)."""
         sset(self.dut.cw_sel, sel & 0x1F)
@@ -47,15 +79,21 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
+        d = self.dut
         name = "tc_vibe_ebch16"
+        hier = HIER
 
-        # 1. Combo idle / no sequential state (DUT has no rst_n).
+        # 1. Combo idle / no sequential state (DUT has no rst_n / clk).
         # sel=0 is the all-zero Table 3-5 word; walking away and back
-        # must not hold the previous cw.
+        # must not hold the previous cw. This is the reset-like check:
+        # there is no async clear pin to pulse.
         cw0 = await self._apply(0)
         if cw0 != 0x0000:
             self.bad(name, "cw_sel=0 (combo idle / reset-like)",
                      "cw=0x0000", f"cw={_hex16(cw0)}", HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "cw_sel=0 (combo idle)", cw0):
             phase.drop_objection(self)
             return
         cw_def = await self._apply(31)
@@ -72,7 +110,7 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
 
-        # 2. Encode: full 32-entry LUT vs Table 3-5 + default.
+        # 2. Encode: full 32-entry LUT vs Table 3-5 + default (product SV).
         got = []
         for sel, exp in enumerate(EBCH16):
             act = await self._apply(sel)
@@ -80,6 +118,9 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
             if act != exp:
                 self.bad(name, f"encode cw_sel={sel}",
                          f"cw={_hex16(exp)}", f"cw={_hex16(act)}", HIER)
+                phase.drop_objection(self)
+                return
+            if not self._score_inner(name, f"encode cw_sel={sel}", act):
                 phase.drop_objection(self)
                 return
 
@@ -135,16 +176,36 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
         # Complementary pairs in the set are distance 16; never below 8.
         for i in range(31):
             for j in range(i + 1, 31):
-                d = _hamming(table[i], table[j])
-                if d < 8:
+                dist = _hamming(table[i], table[j])
+                if dist < 8:
                     self.bad(name,
                              f"Hamming(cw_sel={i}, cw_sel={j})",
                              "distance >= 8",
-                             f"distance={d} "
+                             f"distance={dist} "
                              f"({_hex16(table[i])} vs {_hex16(table[j])})",
                              HIER)
                     phase.drop_objection(self)
                     return
+
+        # Complementary pairs: sel i XOR sel (31-i) == 0xFFFF (i=1..15);
+        # sel 0 complement is the default (sel 31), not a Table 3-5 word.
+        if (table[0] ^ 0xFFFF) != EBCH16[31]:
+            self.bad(name, "sel 0 complement is default",
+                     f"cw={_hex16(EBCH16[31])}",
+                     f"cw={_hex16(table[0] ^ 0xFFFF)}", hier)
+            phase.drop_objection(self)
+            return
+        for i in range(1, 16):
+            pair = 31 - i
+            xor = (table[i] ^ table[pair]) & 0xFFFF
+            if xor != 0xFFFF or _hamming(table[i], table[pair]) != 16:
+                self.bad(name, f"complementary pair cw_sel={i}/{pair}",
+                         "XOR=0xFFFF Hamming=16",
+                         f"XOR={_hex16(xor)} "
+                         f"Hamming={_hamming(table[i], table[pair])}",
+                         hier)
+                phase.drop_objection(self)
+                return
 
         # Hold a named Table 3-5 sel; combo output must not drift.
         held = await self._apply(30)
@@ -162,6 +223,67 @@ class tc_vibe_ebch16(VibeUnitBaseTest):
                      f"cw={_hex16(later)}", HIER)
             phase.drop_objection(self)
             return
+
+        # 5. Mid-run cw_sel walk (combo; no rst_n to pulse). Park a
+        # nonzero AMCTL word, then walk idle / default without hold.
+        parked = await self._apply(28)
+        if parked != EBCH16[28] or parked == 0:
+            self.bad(name, "pre-mid-run park (AMCTL cw_sel=28)",
+                     f"cw={_hex16(EBCH16[28])} (nonzero)",
+                     f"cw={_hex16(parked)}", HIER)
+            phase.drop_objection(self)
+            return
+        mid0 = await self._apply(0)
+        if mid0 != 0x0000:
+            self.bad(name, "mid-run cw_sel=0 after AMCTL park",
+                     "cw=0x0000 (combo clear, no sequential hold)",
+                     f"cw={_hex16(mid0)}", HIER)
+            phase.drop_objection(self)
+            return
+        mid_def = await self._apply(31)
+        if mid_def != 0xFFFF:
+            self.bad(name, "mid-run cw_sel=31 after idle",
+                     "cw=0xFFFF", f"cw={_hex16(mid_def)}", HIER)
+            phase.drop_objection(self)
+            return
+        mid_am = await self._apply(28)
+        if mid_am != EBCH16[28]:
+            self.bad(name, "mid-run cw_sel=28 after default",
+                     f"cw={_hex16(EBCH16[28])} (combo, not latched)",
+                     f"cw={_hex16(mid_am)}", HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run cw_sel=28", mid_am):
+            phase.drop_objection(self)
+            return
+
+        # 6. Leaf pins match product SV (no clk / rst_n / ovf_l).
+        # Instance u_u (not leftover u_ebch).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_ebch16 product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)

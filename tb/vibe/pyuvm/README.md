@@ -51,6 +51,7 @@ make -C tb/vibe/pyuvm pcs_scramble             # same as units TC=tc_vibe_pcs_sc
 make -C tb/vibe/pyuvm tc_vibe_pcs_scramble     # same as pcs_scramble
 make -C tb/vibe/pyuvm units TC=tc_vibe_ebch16  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm ebch16                   # same as units TC=tc_vibe_ebch16
+make -C tb/vibe/pyuvm tc_vibe_ebch16           # same as ebch16
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_cw2beat  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm cw2beat                  # same as units TC=tc_vibe_pcs_tx_cw2beat
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_amctl  # Decision-I leaf (module-level)
@@ -183,6 +184,7 @@ make -C tb/vibe/pyuvm tc_vibe_gear_160_128 SIM=verilator  # same as gear_160_128
 make -C tb/vibe/pyuvm pcs_scramble SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_scramble SIM=verilator  # same as pcs_scramble
 make -C tb/vibe/pyuvm ebch16 SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_ebch16 SIM=verilator  # same as ebch16
 make -C tb/vibe/pyuvm cw2beat SIM=verilator       # or SIM=icarus
 make -C tb/vibe/pyuvm amctl SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm rs128_120_enc SIM=verilator # or SIM=icarus
@@ -332,12 +334,19 @@ control. Official TP-PHY-017 stays scored by `tc_pcs_scramble`. This is
 `vibe_pcs_rx` `u_d0`..`u_d3`. `ovf_l` (F1) is not in this module.
 CHILDREN: none.
 
-`tc_vibe_ebch16` / `make ebch16` is **module-level only** (combo idle /
-no sequential hold, Table 3-5 encode LUT + default sel 31, unique invert
-decode, min Hamming distance 8). The DUT has no `rst_n`. It is **not**
+`tc_vibe_ebch16` / `make ebch16` / `make tc_vibe_ebch16`
+is **module-level only** (combo idle / no sequential hold — the DUT
+has no `clk` / `rst_n`, so there is no async clear to pulse, Table 3-5
+encode LUT + default sel 31 vs product SV golden, unique invert decode,
+complementary pairs at Hamming 16, min Hamming distance 8, mid-run
+`cw_sel` walk without hold, pin scan with instance `u_u`). It is **not**
 1/3, 4/3, freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_ebch16_lut.sv`
 / `tc_ebch16_lut` remains optional control. This is **not** TP-PHY-017 /
-`pcs_scramble`.
+`pcs_scramble` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` /
+`vibe_sync2` / `vibe_rst_sync`. Instantiated by `vibe_pcs_tx_amctl`
+`u3`/`u8`/`u9`/`u10`/`u21`/`u22`/`u28` and `vibe_pcs_rx_amctl_lock`
+the same named LUT cells. `ovf_l` (F1) is not in this module.
+CHILDREN: none.
 
 `tc_vibe_pcs_tx_cw2beat` / `make cw2beat` is **module-level only**
 (reset idle / no spurious `beat_vld`, 1024→exactly 2×512 high-then-low,
