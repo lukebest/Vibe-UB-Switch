@@ -1,6 +1,32 @@
+"""Emit the product SystemVerilog for vibe_lmsm (hand-finished).
+
+Keeps tip ports and the stock leaf FSM (states, ``tmr_load``,
+always blocks, assigns, ``vibe_ub_params.vh`` include;
+AS-0.1 §11 this-rev subset). Tip stock has **zero** child
+instances — do not invent hierarchy, Probe, RXEQ_Optimize,
+Change_Speed, or QDLWS. Do not invent CFG6 packing,
+Appendix D, or opcode 0x10. pycc netlists are a prototype
+only; this file is what lands in ``rtl/lmsm/vibe_lmsm.sv``.
+Do not rewrite F1 ``ovf_l`` (lives under ``vibe_port``).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/lmsm/vibe_lmsm.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip eb452e32 (RTL same as f8ed45ac). Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
+// Regenerate: make -C pycircuit vibe_lmsm
+"""
+
+BODY = """\
 // AS-0.1 §11: LMSM this-rev subset. No Probe, no RXEQ_Optimize, no Change_Speed, no QDLWS.
 module vibe_lmsm (
   input  logic        clk,
@@ -139,6 +165,26 @@ module vibe_lmsm (
     end
   end
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
-// Regenerate: make -C pycircuit vibe_lmsm
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "lmsm" / "vibe_lmsm.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
