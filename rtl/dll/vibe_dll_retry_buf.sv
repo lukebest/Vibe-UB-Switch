@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_retry_buf.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip fc7c0151 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip eac12a8b. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §12: retry_buf depth 256 FS-must. Null and Retry blocks do not enter.
 // NumFreeBuf+ReleaseSize>256 → DL Protocol Error.
 module vibe_dll_retry_buf (
