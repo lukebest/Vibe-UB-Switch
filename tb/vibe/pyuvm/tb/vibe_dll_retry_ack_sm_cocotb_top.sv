@@ -2,6 +2,10 @@
 // Product DLL RETRY_ACK_SM (AS-0.1 §12): NORMAL / ACK (1 Idle + 32 Ack)
 // then replay RdPtr=RcvPtr until WrPtr. Instantiated by vibe_dll u_ack.
 // Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_dll / vibe_dll_tx /
+// vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx / vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_retry_ack_sm_cocotb_top (
