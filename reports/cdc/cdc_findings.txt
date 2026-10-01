@@ -1,14 +1,14 @@
-CDC structural audit 2026-10-01 (SGT)
-DUT/tip: 4c3aac730586b52fcdf411eecfa45bdfb5759f30
-RTL product tip: 260dc6db63b19bab52eca7398d7e487a2a6d83c0 (PR240 stage-43 vibe_port wrap)
+CDC structural audit 2026-10-02 (SGT)
+DUT/tip: 8b32794a3ad61167d9c411419baa492cfb01afdb
+RTL product tip: 1c088618c770a3e26f791ca425bad9e682433bf2 (PR298 stage-69 vibe_bcrc tip-align)
 Written freeze: UNFROZEN (Decision I). Last historical pin 302ac943 VOID as current; not re-pinned
-rtl/include vs 260dc6d: EMPTY (PR241 TB-only after RTL tip); include/ empty; rtl/port empty; rtl/cdc empty
-rtl/include vs 2e623708: NON-EMPTY vibe_port.sv headers only +6 (evening STATUS product tip stale)
-rtl/include vs abf05559 (2026-09-30 DUT): NON-EMPTY 8 files +100/-63 (stages 37-43 headers + PR231 PMA PRBS31); include/ empty; rtl/port headers only (F1 untouched); rtl/cdc empty
-rtl/include vs 302ac943: NON-EMPTY 43 files +354/-72 (Decision I headers + vibe_port wrap + PMA PRBS31; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port headers only; rtl/cdc headers only
+rtl/include vs 1c08861: EMPTY (PR299 reports-only after RTL tip); include/ empty; rtl/port empty; rtl/cdc empty
+rtl/include vs 8ad2e35 (expected launch tip): NON-EMPTY vibe_bcrc.sv header only +1/-1
+rtl/include vs 4c3aac73 (2026-10-01 DUT): NON-EMPTY 26 files +61/-24 (stages 44-49 wrap headers + 50-69 tip-aligns); include/ empty; rtl/port headers only (F1 untouched; :246/:252 unchanged); rtl/cdc headers only; rtl/pma empty
+rtl/include vs 302ac943: NON-EMPTY 49 files +391/-72 (Decision I headers + wraps through stage-49 + PMA PRBS31; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port headers only; rtl/cdc headers only
 Tool: structural (no SpyGlass/Ascent)
-Nightly after PR241 on tip 4c3aac73 (RTL bits = 260dc6d); baseline 2026-09-30 on main (PR225); CDC NEW=0
-Expected pin 4c3aac73 matched origin/main HEAD (tip did not move)
+Nightly after PR299 on tip 8b32794 (RTL bits = 1c08861); baseline 2026-10-01 on main (PR242); CDC NEW=0
+Expected pin 8ad2e35 did not match origin/main HEAD (tip moved; linted tip as-is)
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
@@ -16,9 +16,9 @@ TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new c
 RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
 PRBS31: txclk-local LFSR / raw-PRBS31 idle fill (no PMA_IDLE_MARK) — no new unsync multi-bit from clk_fab
 IDLE_PRBS31: combo on pma_pcs_rxdata @rxclk (w[i]==w[i-31]^w[i-28]); no txclk sample
-DECISION_I_LEAVES: through stage-43 vibe_port wrap present (expected); PMA PRBS31 vs abf05559 is same-domain — not a new crossing
-LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR231 / PR240 / PR241 did not reopen
-BASELINE_WARN: rtl/port/vibe_port.sv:246 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :252 — UNCHANGED body (F1; +3 header vs 09-30 :244/:249)
+DECISION_I_LEAVES: through stage-69 vibe_bcrc tip-align present (expected); PMA PRBS31 vs 4c3aac73 unchanged — not a new crossing
+LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR231 / stages 44-69 / PR297 / PR298 / PR299 did not reopen
+BASELINE_WARN: rtl/port/vibe_port.sv:246 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :252 — UNCHANGED body (F1; same lines as 10-01)
 NEW: 0
 ERROR: 0
-GONE: 0 (loopback already GONE vs 2026-09-30)
+GONE: 0 (loopback already GONE vs 2026-10-01)
