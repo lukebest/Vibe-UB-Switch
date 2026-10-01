@@ -3,7 +3,9 @@
 Covers reset/idle (in_ready=0, done=0, fec_fail=0, data_out=0),
 RS(128,120) syndrome-check decode / data_out pack vs a golden Horner
 recurrence, valid codeword (fec_fail=0) vs corrupted CW (fec_fail=1),
-start restart, in_vld stall without a step, and a second CW after done.
+start restart, in_vld stall without a step, a second CW after done,
+mid-run async rst_n through dest posedge, and a pin scan with instance
+u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_rs128_120_dec.sv: async-low rst_n, start
@@ -15,6 +17,11 @@ symbol included), data_out packs msg[0] as MSB. T=2 check is
 syndrome-only (no error locator / no correction). Same recurrence is
 inlined in vibe_pcs_rx_fec (not an instance). Stock Icarus
 tc_rs_dec_syndrome remains the official done-pulse scorer.
+This is not vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl /
+vibe_rs128_120_enc / gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none (leaf cell; no FSM child).
 """
 
 from uvm import uvm_component_utils
@@ -37,7 +44,23 @@ PAR_N = 8
 MASK960 = (1 << 960) - 1
 # Horner α^i = 2^i (ns0 is XOR; ns1 is gf_mul2).
 ALPHA = (1, 2, 4, 8, 16, 32, 64, 128)
-HIER = "u_dec.done / u_dec.fec_fail / u_dec.data_out"
+HIER = "u_u.done / u_u.fec_fail / u_u.data_out / u_u.in_ready"
+WRAP = "vibe_rs128_120_dec_cocotb_top"
+PINS = (
+    "clk", "rst_n", "start",
+    "in_vld", "in_sym", "in_ready",
+    "done", "fec_fail", "data_out",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_dec",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "parity", "u_enc",
+    "u_g", "u_g1",
+)
 
 
 def gf_mul2(a: int) -> int:
@@ -130,6 +153,34 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             ival(d.data_out, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.in_ready, -1),
+            ival(u.done, -1),
+            ival(u.fec_fail, -1),
+            ival(u.data_out, -1),
+        )
+
+    def _score_inner(self, name, stim, rd, dn, ff, dout):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        ird, idn, iff, idout = inner
+        if (ird, idn, iff, idout) != (rd, dn, ff, dout):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"in_ready={rd} done={dn} fec_fail={ff} "
+                     f"data_out={_hex960(dout)}",
+                     f"u_u in_ready={ird} done={idn} fec_fail={iff} "
+                     f"data_out={_hex960(idout)}",
+                     HIER)
+            return False
+        return True
+
     async def _cycle(self, start=0, in_vld=0, in_sym=0):
         """Drive on this falling edge; sample NBA-stable outs on the next fall."""
         d = self.dut
@@ -187,21 +238,21 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, stim + " (in_ready after last)",
                      "in_ready=0 (busy dropped, cnt==128)",
                      f"in_ready={rd}",
-                     "u_dec.in_ready")
+                     "u_u.in_ready")
             return False
         if ff != exp_ff:
             self.bad(name, stim,
                      f"fec_fail={exp_ff}",
                      f"fec_fail={ff}",
-                     "u_dec.fec_fail")
+                     "u_u.fec_fail")
             return False
         if dout is None or dout != exp_dout:
             self.bad(name, stim,
                      f"data_out={_hex960(exp_dout)}",
                      f"data_out={_hex960(dout)}",
-                     "u_dec.data_out")
+                     "u_u.data_out")
             return False
-        return True
+        return self._score_inner(name, stim, rd, dn, ff, dout)
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -259,6 +310,10 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                      HIER)
             phase.drop_objection(self)
             return
+        if not self._score_inner(name, "reset then release, idle",
+                                 rd, dn, ff, dout):
+            phase.drop_objection(self)
+            return
         for i in range(4):
             rd, dn, ff, dout = await self._cycle(0, 1, 0xA5)
             if rd != 0 or dn != 0 or ff != 0 or dout != 0:
@@ -277,7 +332,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                      "in_ready=1 done=0 fec_fail=0 data_out=0",
                      f"in_ready={rd} done={dn} fec_fail={ff} "
                      f"data_out={_hex960(dout)}",
-                     "u_dec.in_ready")
+                     "u_u.in_ready")
             phase.drop_objection(self)
             return
         rd, dn, ff, dout = await self._cycle(0, 1, 0x11)
@@ -285,7 +340,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "one symbol before async rst",
                      "in_ready=1 done=0 fec_fail=0",
                      f"in_ready={rd} done={dn} fec_fail={ff}",
-                     "u_dec.s0")
+                     "u_u.s0")
             phase.drop_objection(self)
             return
         await self._idle()
@@ -297,7 +352,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                      "in_ready=0 done=0 fec_fail=0 data_out=0",
                      f"in_ready={rd} done={dn} fec_fail={ff} "
                      f"data_out={_hex960(dout)}",
-                     "u_dec.s0")
+                     "u_u.s0")
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -320,7 +375,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                      "in_ready=1 done=0 fec_fail=0 data_out=0",
                      f"in_ready={rd} done={dn} fec_fail={ff} "
                      f"data_out={_hex960(dout)}",
-                     "u_dec.in_ready")
+                     "u_u.in_ready")
             phase.drop_objection(self)
             return
         zeros = codeword(_msg_const(0))
@@ -351,7 +406,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                      "done=0 fec_fail=0 in_ready=0 data_out stays 0",
                      f"in_ready={rd} done={dn} fec_fail={ff} "
                      f"data_out={_hex960(dout)}",
-                     "u_dec.done")
+                     "u_u.done")
             phase.drop_objection(self)
             return
 
@@ -362,13 +417,13 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
         if exp_inc == 0:
             self.bad(name, "incrementing golden is nonzero",
                      "data_out != 0", f"data_out={_hex960(exp_inc)}",
-                     "u_dec.data_out")
+                     "u_u.data_out")
             phase.drop_objection(self)
             return
         rd, dn, ff, _ = await self._start_dec()
         if rd != 1:
             self.bad(name, "start before incrementing decode",
-                     "in_ready=1", f"in_ready={rd}", "u_dec.in_ready")
+                     "in_ready=1", f"in_ready={rd}", "u_u.in_ready")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(cw_inc)
@@ -397,7 +452,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "A5/5A golden vs incrementing uniqueness",
                      "distinct data_out words",
                      f"both {_hex960(exp_a5)}",
-                     "u_dec.data_out")
+                     "u_u.data_out")
             phase.drop_objection(self)
             return
         rd, _, _, _ = await self._start_dec()
@@ -426,7 +481,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "walk-1 first vs last golden",
                      "two distinct nonzero data_out words",
                      f"w0={_hex960(exp_w0)} w119={_hex960(exp_w119)}",
-                     "u_dec.data_out")
+                     "u_u.data_out")
             phase.drop_objection(self)
             return
         for label, msg, exp in (
@@ -465,7 +520,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "flipped msg[17] changes data_out",
                      "data_out != incrementing pack",
                      f"both {_hex960(exp_inc)}",
-                     "u_dec.data_out")
+                     "u_u.data_out")
             phase.drop_objection(self)
             return
         rd, _, _, _ = await self._start_dec()
@@ -553,7 +608,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             cw_inc, stall_at=40, stall_n=3)
         if err:
             stim, exp, act = err
-            self.bad(name, stim, exp, act, "u_dec.cnt")
+            self.bad(name, stim, exp, act, "u_u.cnt")
             phase.drop_objection(self)
             return
         rd, dn, ff, dout = last
@@ -575,7 +630,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "partial incrementing before mid-start",
                      "17 accepts",
                      f"n={n} last={last} err={err}",
-                     "u_dec.cnt")
+                     "u_u.cnt")
             phase.drop_objection(self)
             return
         rd, dn, ff, dout = await self._start_dec()
@@ -583,7 +638,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "start mid-stream (clears syndromes)",
                      "in_ready=1 done=0 fec_fail=0",
                      f"in_ready={rd} done={dn} fec_fail={ff}",
-                     "u_dec.s0")
+                     "u_u.s0")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(cw_a5)
@@ -610,7 +665,7 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
             self.bad(name, "start&&in_vld same cycle (start wins, no step)",
                      "in_ready=1 done=0 fec_fail=0",
                      f"in_ready={rd} done={dn} fec_fail={ff}",
-                     "u_dec.s0")
+                     "u_u.s0")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(cw_inc)
@@ -662,7 +717,155 @@ class tc_vibe_rs128_120_dec(VibeUnitBaseTest):
                          f"{_hex960(held)}",
                          f"in_ready={rd} done={dn} fec_fail={ff} "
                          f"data_out={_hex960(dout)}",
-                         "u_dec.busy")
+                         "u_u.busy")
+                phase.drop_objection(self)
+                return
+
+        # 4. Mid-run async rst_n clears registered syndromes / busy / done.
+        # Park a live decode so in_ready=1 / s0!=0 (held data_out from the
+        # previous 0x3C CW), then pulse rst_n through dest posedge.
+        rd, dn, ff, dout = await self._start_dec()
+        if rd != 1 or dn != 0 or ff != 0:
+            self.bad(name, "pre-dest-rst start",
+                     "in_ready=1 done=0 fec_fail=0",
+                     f"in_ready={rd} done={dn} fec_fail={ff}",
+                     "u_u.in_ready")
+            phase.drop_objection(self)
+            return
+        n, last, _, err = await self._feed(cw_inc[:17])
+        if err or n != 17:
+            self.bad(name, "pre-dest-rst partial incrementing",
+                     "17 accepts",
+                     f"n={n} last={last} err={err}",
+                     "u_u.cnt")
+            phase.drop_objection(self)
+            return
+        rd, dn, ff, dout = last
+        if rd != 1 or dn != 0 or ff != 0:
+            self.bad(name, "pre-async-rst park (17 symbols)",
+                     "in_ready=1 done=0 fec_fail=0",
+                     f"in_ready={rd} done={dn} fec_fail={ff}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park", rd, dn, ff, dout):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        s0 = ival(u.s0, -1) if u is not None else None
+        if s0 is None or s0 == 0:
+            self.bad(name, "pre-async-rst park (live s0)",
+                     "u_u.s0 != 0 after 17 incrementing symbols",
+                     f"s0={s0}",
+                     "u_u.s0")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        rd, dn, ff, dout = self._sample()
+        if rd != 0 or dn != 0 or ff != 0 or dout != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "in_ready=0 done=0 fec_fail=0 data_out=0 (async clear)",
+                     f"in_ready={rd} done={dn} fec_fail={ff} "
+                     f"data_out={_hex960(dout)}",
+                     "u_u.s0")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", rd, dn, ff, dout):
+            phase.drop_objection(self)
+            return
+        s0 = ival(d.u_u.s0, -1)
+        if s0 != 0:
+            self.bad(name, "mid-run rst_n=0 (s0 async clear)",
+                     "u_u.s0=0", f"s0={s0}", "u_u.s0")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        rd, dn, ff, dout = self._sample()
+        if rd != 0 or dn != 0 or ff != 0 or dout != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "in_ready=0 done=0 fec_fail=0 data_out=0",
+                     f"in_ready={rd} done={dn} fec_fail={ff} "
+                     f"data_out={_hex960(dout)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", rd, dn, ff, dout):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        rd, dn, ff, dout = self._sample()
+        if rd != 0 or dn != 0 or ff != 0 or dout != 0:
+            self.bad(name, "after async re-release, idle",
+                     "in_ready=0 done=0 fec_fail=0 data_out=0",
+                     f"in_ready={rd} done={dn} fec_fail={ff} "
+                     f"data_out={_hex960(dout)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 rd, dn, ff, dout):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover syndromes / cnt / busy / msg are gone;
+        # a new start must decode incrementing with no leftover.
+        rd, dn, ff, dout = await self._start_dec()
+        if rd != 1 or dn != 0 or ff != 0 or dout != 0:
+            self.bad(name, "start after mid-run rst (no leftover syndromes)",
+                     "in_ready=1 done=0 fec_fail=0 data_out=0",
+                     f"in_ready={rd} done={dn} fec_fail={ff} "
+                     f"data_out={_hex960(dout)}",
+                     "u_u.s0")
+            phase.drop_objection(self)
+            return
+        n, last, done_last, err = await self._feed(cw_inc)
+        if err:
+            stim, exp, act = err
+            self.bad(name, stim, exp, act, HIER)
+            phase.drop_objection(self)
+            return
+        rd, dn, ff, dout = last
+        if n != CW_N or not done_last or not self._score_done(
+                name, "incrementing after mid-run rst",
+                rd, dn, ff, dout, 0, exp_inc):
+            if n != CW_N or not done_last:
+                self.bad(name, "after mid-run rst decode count",
+                         "exactly 128 accepts, done on last",
+                         f"n={n} done_on_last={done_last}",
+                         HIER)
+            phase.drop_objection(self)
+            return
+
+        # 5. Leaf pins match product SV (no ovf_l / dual-clock / encoder).
+        # Instance u_u (not leftover u_dec).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_rs128_120_dec product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 

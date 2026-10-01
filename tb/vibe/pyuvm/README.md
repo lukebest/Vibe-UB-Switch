@@ -63,6 +63,7 @@ make -C tb/vibe/pyuvm rs128_120_enc             # same as units TC=tc_vibe_rs128
 make -C tb/vibe/pyuvm tc_vibe_rs128_120_enc     # same as rs128_120_enc
 make -C tb/vibe/pyuvm units TC=tc_vibe_rs128_120_dec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rs128_120_dec             # same as units TC=tc_vibe_rs128_120_dec
+make -C tb/vibe/pyuvm tc_vibe_rs128_120_dec     # same as rs128_120_dec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_deskew  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm deskew                   # same as units TC=tc_vibe_pcs_rx_deskew
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_amctl_lock  # Decision-I leaf (module-level)
@@ -196,6 +197,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_tx_amctl SIM=verilator  # same as amctl
 make -C tb/vibe/pyuvm rs128_120_enc SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_rs128_120_enc SIM=verilator  # same as rs128_120_enc
 make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_rs128_120_dec SIM=verilator  # same as rs128_120_dec
 make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
@@ -404,16 +406,22 @@ scorers for the instantiator. The Decision-I wrap leaf is
 / `rs128_120_dec`. Instantiated by `vibe_pcs_tx_fec` `u_enc_a` /
 `u_enc_b`. `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_rs128_120_dec` / `make rs128_120_dec` is **module-level only**
-(reset / idle `in_ready=0` `done=0` `fec_fail=0` `data_out=0`,
-RS(128,120) syndrome-check decode / `data_out` pack vs golden Horner,
-valid CW `fec_fail=0` vs corrupted CW `fec_fail=1` (no correction),
-`start` restart, `in_vld` stall without a step, second CW after
-`done`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tc_vibe_rs128_120_dec` / `make rs128_120_dec` /
+`make tc_vibe_rs128_120_dec` is **module-level only** (reset / idle
+`in_ready=0` `done=0` `fec_fail=0` `data_out=0`, RS(128,120)
+syndrome-check decode / `data_out` pack vs golden Horner, valid CW
+`fec_fail=0` vs corrupted CW `fec_fail=1` (no correction), `start`
+restart, `in_vld` stall without a step, second CW after `done`,
+mid-run async `rst_n` through dest posedge, pin scan with instance
+`u_u`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_rs_dec_syndrome.sv` / `tc_rs_dec_syndrome` remains
 the official done-pulse scorer. The Decision-I wrap leaf is
 `tc_vibe_pcs_rx_fec` / `make rx_fec`. This is **not** the encoder leaf /
-`rs128_120_enc`.
+`rs128_120_enc` / `amctl` / `cw2beat` / `ebch16` / `pcs_scramble` /
+`vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
+`vibe_rst_sync`. Same Horner recurrence is inlined in
+`vibe_pcs_rx_fec` (not an instance). `ovf_l` (F1) is not in this
+module. CHILDREN: none.
 
 `tc_vibe_pcs_rx_deskew` / `make deskew` is **module-level only**
 (reset / idle `aligned=0` no spurious `out_vld`, staggered AMCTL
