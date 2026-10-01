@@ -1,7 +1,9 @@
 """vibe_dll_tx — DLL TX pack (AS-0.1.2 / FS-0.2.7 overlay B).
 
 Product module: ``rtl/dll/vibe_dll_tx.sv``. Ports match tip
-``dfa505a6`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``780018d2``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``link_up`` / ``status_up`` /
 ``credit_low`` / ``bp_pending`` / ``drop_data`` / ``can_send`` /
 ``replay`` / 160b ``replay_flit`` / ``send_idle`` / ``send_req`` /
