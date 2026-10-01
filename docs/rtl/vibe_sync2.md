@@ -14,7 +14,8 @@ used by `vibe_afifo`) under the pycircuit → rtl flow.
 
 ## Ports (product)
 
-Same as tip `7cf680f` / freeze `302ac943`. No ready/valid. Reset stays
+Same as tip `00647c9e`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). No ready/valid. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

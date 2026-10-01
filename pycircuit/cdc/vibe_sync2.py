@@ -1,12 +1,13 @@
 """vibe_sync2 — 2-FF synchronizer for gray pointers (AS-0.1 §7).
 
 Product module: ``rtl/cdc/vibe_sync2.sv``. Ports and params match
-tip ``7cf680f`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+tip ``00647c9e``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``d`` / ``q``); used by ``vibe_afifo``.
 
 pyCircuit registers are dest-domain **synchronous active-high** reset.
 Product RTL uses **async active-low** ``rst_n`` (``or negedge rst_n``).
-Landed SV is hand-finished to keep those freeze semantics. pycc lowers
+Landed SV is hand-finished to keep those tip semantics. pycc lowers
 ``cdc_sync`` to ``pyc_cdc_sync``; this leaf *is* the product 2-FF cell
 (``q1`` then ``q``), so the frontend models two dest-domain flops.
 """
