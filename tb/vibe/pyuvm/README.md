@@ -144,6 +144,9 @@ make -C tb/vibe/pyuvm tc_vibe_mgmt             # same as mgmt_wrap
 make -C tb/vibe/pyuvm units TC=tc_vibe_fabric  # Decision-I wrap leaf (not suite)
 make -C tb/vibe/pyuvm fabric_wrap              # same as units TC=tc_vibe_fabric
 make -C tb/vibe/pyuvm tc_vibe_fabric           # same as fabric_wrap
+make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx  # Decision-I wrap leaf (not tc_pcs_tx)
+make -C tb/vibe/pyuvm pcs_tx_wrap              # same as units TC=tc_vibe_pcs_tx
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx           # same as pcs_tx_wrap
 make -C tb/vibe port TC=tc_port_smoke
 make -C tb/vibe top              # vibe_ub_switch + peer PMA
 make -C tb/vibe neg              # absent-feature scan
@@ -225,6 +228,8 @@ make -C tb/vibe/pyuvm mgmt_wrap SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_mgmt SIM=verilator   # same as mgmt_wrap
 make -C tb/vibe/pyuvm fabric_wrap SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_fabric SIM=verilator # same as fabric_wrap
+make -C tb/vibe/pyuvm pcs_tx_wrap SIM=verilator    # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx SIM=verilator # same as pcs_tx_wrap
 ```
 
 `tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
@@ -707,6 +712,20 @@ observing child-driven nets over Force. Do not rewrite F1
 `ovf_l` (lives in `vibe_port`). Flattened `nw_fab_data_*` /
 `fab_nw_data_*` / `fab_mgmt_cfg6_data_*` for cocotb.
 
+`tc_vibe_pcs_tx` / `make pcs_tx_wrap` / `make tc_vibe_pcs_tx` is
+**wrap-level only** (AS-0.1 §5 children present — `u_g1` / `u_fec` /
+`u_cw` / `u_pack` / 4× `vibe_pcs_scramble` `u_s0`..`u_s3` — async
+`rst_n`, `link_up` ready, RTL-known `fec_mode` bypass pipeline
+observe, `afifo_afull` backpressure). It is **not** 1/3, 4/3,
+freeze, or signoff. Stock Icarus `tc_pcs_tx` remains the official
+full-stack scorer. Do **not** steal `make top` / `make wrap` /
+`make port` / `make top_wrap` / `make mgmt_wrap` /
+`make fabric_wrap`. No invented Appendix D / CFG opcode. CFG6 R/W
+packing is 未知 — do not invent (this DUT has no CFG pin). Prefer
+observing child-driven nets over Force. Do not rewrite F1
+`ovf_l` (lives in `vibe_port`). `vibe_pcs_rx` / `vibe_lmsm` stay
+HOLD.
+
 ## Topology
 
 ```
@@ -726,7 +745,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_port_wrap.py` / `unit_ub_switch_wrap.py` / `unit_mgmt_wrap.py` / `unit_fabric_wrap.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_port_wrap.py` / `unit_ub_switch_wrap.py` / `unit_mgmt_wrap.py` / `unit_fabric_wrap.py` / `unit_pcs_tx_wrap.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
@@ -766,8 +785,9 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_top_smoke` / `make top` | still `tc_top_smoke`; Decision-I wrap TC is `tc_vibe_ub_switch` |
 | Icarus `tc_mgmt` | still `tc_mgmt`; Decision-I wrap TC is `tc_vibe_mgmt` |
 | Icarus fabric suite / `make suite` | still `entry_fab`; Decision-I wrap TC is `tc_vibe_fabric` |
+| Icarus `tc_pcs_tx` (full stack) | still Icarus-only; Decision-I wrap TC is `tc_vibe_pcs_tx` |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` / `tc_cfg9_no_icrc` | fabric suite (`entry_fab` / `tc_suite_all`) |
-| Icarus `tc_pcs_rx` / `tc_pcs_tx` (full stack) | still Icarus-only in this PR; leaf PCS units are ported |
+| Icarus `tc_pcs_rx` (full stack) | still Icarus-only / HOLD; leaf PCS RX units are ported |
 | Icarus `tc_dll` (full stack) | still `tc_dll` (**TP-DLL-004**); Decision-I wrap TC is `tc_vibe_dll` |
 | Icarus `tc_timers_indep` | `tc_timers_indep` (`vibe_timers_indep_cocotb_top`) |
 | Icarus `tc_fabric_g1` / `tc_fabric_line_holes` | fabric suite (`tc_suite_all`) |
@@ -836,6 +856,7 @@ those two stay Icarus.
 | `tc_vibe_ub_switch` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_mgmt` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_fabric` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_pcs_tx` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `port` (smoke / TX / 100-pkt loopback) | PASS 100/100 | compile OK; LMSM Force bring-up does not reach ACTIVE |
 | `top` (`tc_top_smoke`) | PASS | not scored (same Force path) |
 | `neg` | PASS | n/a (no sim) |
@@ -902,6 +923,7 @@ tb/vibe/pyuvm/
                      tests/unit_ub_switch_wrap.py  Decision-I vibe_ub_switch wrap (not tc_top_smoke)
                      tests/unit_mgmt_wrap.py  Decision-I vibe_mgmt wrap (not tc_mgmt)
                      tests/unit_fabric_wrap.py  Decision-I vibe_fabric wrap (not suite)
+                     tests/unit_pcs_tx_wrap.py  Decision-I vibe_pcs_tx wrap (not tc_pcs_tx)
   tb/                cocotb Verilog wrappers (no SV UVM)
   entry_*.py         @cocotb.test() → await run_test(...)
   catalog.py         RTL lists + TC map
