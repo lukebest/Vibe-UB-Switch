@@ -1,6 +1,3 @@
-// GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx.py
-// pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 3365182d. Decision I UNFROZEN. Path B hold.
 // AS-0.1 §6: PCS RX — AMCTL lock x4, unpack, descramble, FEC decode, deskew.
 module vibe_pcs_rx (
   input  logic         clk,
@@ -222,6 +219,9 @@ module vibe_pcs_rx (
     end
   end
 endmodule
+// GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx.py
+// pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
+// Product ports match tip 3365182d. Decision I UNFROZEN. Path B hold.
 // pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
 // SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
 // Regenerate: make -C pycircuit vibe_pcs_rx

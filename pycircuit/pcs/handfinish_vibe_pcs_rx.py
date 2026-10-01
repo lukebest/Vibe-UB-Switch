@@ -8,20 +8,25 @@ and ``flit_null`` (AS-0.1 §6). Do not invent CFG6 packing,
 Appendix D, or opcode 0x10. ``vibe_lmsm`` stays HOLD (no
 wrap this stage). pycc netlists are a prototype only; this
 file is what lands in ``rtl/pcs/vibe_pcs_rx.sv``. Do not
-rewrite F1 ``ovf_l`` (lives under ``vibe_port``).
+rewrite F1 ``ovf_l`` (lives under ``vibe_port``). Official
+``.vlt`` waives ``link_up`` default on line 5 — keep that
+line; generation banner is footer-only.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-HEADER = """\
+# Keep the stock one-line preamble so ``link_up = 1'b0`` stays on
+# line 5. Official ``vibe_ub_switch.vlt`` waives UNSUPPORTED on
+# ``*/vibe_pcs_rx.sv`` line 5; do not expand that file. Generation
+# banner lives in FOOTER (header/footer-only vs tip stock).
+HEADER = ""
+
+FOOTER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_rx.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip 3365182d. Decision I UNFROZEN. Path B hold.
-"""
-
-FOOTER = """\
 // pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
 // SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
 // Regenerate: make -C pycircuit vibe_pcs_rx
