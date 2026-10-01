@@ -111,6 +111,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_retry_buf    # same as retry_buf
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_req_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_req_sm             # same as units TC=tc_vibe_dll_retry_req_sm
 make -C tb/vibe/pyuvm req_sm                   # same as retry_req_sm / tc_vibe_dll_retry_req_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_req_sm # same as retry_req_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_fecn_mark  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm fecn_mark                # same as units TC=tc_vibe_fecn_mark
 make -C tb/vibe/pyuvm fecn                     # same as fecn_mark / tc_vibe_fecn_mark
@@ -243,6 +244,7 @@ make -C tb/vibe/pyuvm buf SIM=verilator           # same as retry_buf
 make -C tb/vibe/pyuvm tc_vibe_dll_retry_buf SIM=verilator # same as retry_buf
 make -C tb/vibe/pyuvm retry_req_sm SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm req_sm SIM=verilator        # same as retry_req_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_req_sm SIM=verilator # same as retry_req_sm
 make -C tb/vibe/pyuvm fecn_mark SIM=verilator     # or SIM=icarus
 make -C tb/vibe/pyuvm fecn SIM=verilator          # same as fecn_mark
 make -C tb/vibe/pyuvm vl_rr SIM=verilator         # or SIM=icarus
@@ -679,18 +681,24 @@ after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
 `vibe_dll` `u_rbuf`. `ovf_l` (F1) is not in this module.
 CHILDREN: none.
 
-`tc_vibe_dll_retry_req_sm` / `make retry_req_sm` / `make req_sm`
-is **module-level only** (reset / `port_rst` / `device_rst` clears
-to NORMAL, `start_retry` → 1 Idle then 32 Req, REQ → WAIT or
-RETRAIN at `NUM_RETRY` / `phy_retrain`, `wait_done_ack` → NORMAL,
-WAIT timeout → REQ, RETRAIN 1-cycle then NORMAL or ERROR at
-`NUM_PHY_REINIT`, ERROR waits Port/device reset). It is **not**
-1/3, 4/3, freeze, or signoff. Stock Icarus
+`tc_vibe_dll_retry_req_sm` / `make retry_req_sm` / `make req_sm` /
+`make tc_vibe_dll_retry_req_sm` is **module-level only** (reset /
+`port_rst` / `device_rst` clears to NORMAL, `start_retry` → 1 Idle
+then 32 Req, REQ → WAIT or RETRAIN at `NUM_RETRY` /
+`phy_retrain`, `wait_done_ack` → NORMAL, WAIT timeout → REQ,
+RETRAIN 1-cycle then NORMAL or ERROR at `NUM_PHY_REINIT`, ERROR
+waits Port/device reset, mid-run async `rst_n` through dest
+posedge, pin scan with instance `u_u`). It is **not** 1/3, 4/3,
+freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_retry_req_gbn.sv` / `tc_retry_wait_retrain.sv`
 remain the official TP scorers. This is **not** TP-DLL-004 /
-`dll`. Seventh DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
-`vibe_dll_sm` / `vibe_dll_rx` / `vibe_dll_retry_ack_sm` /
-`vibe_dll_retry_buf`.
+`dll` / `bcrc` / `credit` / `dll_sm` / `dll_rx` / `retry_ack_sm` /
+`retry_buf` / `icrc` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Seventh DLL leaf
+after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
+`vibe_dll_rx` / `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf`.
+Instantiated by `vibe_dll` `u_req`. `ovf_l` (F1) is not in this
+module. CHILDREN: none.
 
 `tc_vibe_fecn_mark` / `make fecn_mark` / `make fecn`
 is **module-level only** (combo idle / no clk / no `rst_n` / no
