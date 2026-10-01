@@ -74,6 +74,7 @@ make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_pack  # Decision-I leaf (module-le
 make -C tb/vibe/pyuvm pack                     # same as units TC=tc_vibe_pcs_tx_pack
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_fec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm tx_fec                   # same as units TC=tc_vibe_pcs_tx_fec
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec       # same as tx_fec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_fec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rx_fec                   # same as units TC=tc_vibe_pcs_rx_fec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_g1  # Decision-I leaf (module-level)
@@ -203,6 +204,7 @@ make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
 make -C tb/vibe/pyuvm unpack SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm pack SIM=verilator          # or SIM=icarus
 make -C tb/vibe/pyuvm tx_fec SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_fec SIM=verilator  # same as tx_fec
 make -C tb/vibe/pyuvm rx_fec SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm g1 SIM=verilator            # or SIM=icarus
 make -C tb/vibe/pyuvm tx_g1 SIM=verilator         # same as g1
@@ -400,7 +402,8 @@ stall without a step, second message after `done`, mid-run async
 **not** 1/3, 4/3, freeze, or signoff. There is no stock Icarus leaf
 `tc_rs128_120_enc`; FEC wrap TCs (`tc_pcs_fec_*`) remain the official
 scorers for the instantiator. The Decision-I wrap leaf is
-`tc_vibe_pcs_tx_fec` / `make tx_fec`. This is **not** TP-PHY-016 /
+`tc_vibe_pcs_tx_fec` / `make tx_fec` / `make tc_vibe_pcs_tx_fec`.
+This is **not** TP-PHY-016 /
 `amctl` / `cw2beat` / `ebch16` / `pcs_scramble` / `vibe_pcs_tx` /
 `vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`
 / `rs128_120_dec`. Instantiated by `vibe_pcs_tx_fec` `u_enc_a` /
@@ -468,17 +471,24 @@ It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 remains the official `lane_vld` scorer. This is **not** the
 RX unpack leaf / `unpack`.
 
-`tc_vibe_pcs_tx_fec` / `make tx_fec` is **module-level
-only** (reset / idle `win_ready=1` `cw_vld=0` no spurious CW,
-two-window bypass `{w0,64'd0}` then `{w1,64'd0}`, T=4 / T=2
-encode wrap vs golden RS(128,120) parity, `cw_ready` hold
-without drop/dup, `win_vld` stall after the first window,
+`tc_vibe_pcs_tx_fec` / `make tx_fec` /
+`make tc_vibe_pcs_tx_fec` is **module-level only** (reset /
+idle `win_ready=1` `cw_vld=0` no spurious CW, two-window
+bypass `{w0,64'd0}` then `{w1,64'd0}`, T=4 / T=2 encode wrap
+vs golden RS(128,120) parity, `cw_ready` hold without
+drop/dup, `win_vld` stall after the first window,
 `win_ready=!have1` until both CWs drain, second pair after
-drain). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_pcs_fec_*.sv` / `tc_pcs_fec_*`
-remain the official wrap scorers. This is **not** the
-encoder leaf / `rs128_120_enc`. Sits on stage-11 enc +
-stage-16 pack.
+drain, mid-run async `rst_n` through dest posedge, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_pcs_fec_*.sv` /
+`tc_pcs_fec_*` remain the official wrap scorers. This is
+**not** the encoder leaf / `rs128_120_enc` / `amctl` /
+`cw2beat` / `ebch16` / `pcs_scramble` / `vibe_pcs_tx` /
+`vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
+`vibe_rst_sync` / `g1` / `rs128_120_dec`. Instantiated by
+`vibe_pcs_tx` `u_fec`. `ovf_l` (F1) is not in this module.
+CHILDREN: `u_enc_a` / `u_enc_b` (`vibe_rs128_120_enc`).
+Sits on stage-11 enc + stage-16 pack.
 
 `tc_vibe_pcs_rx_fec` / `make rx_fec` is **module-level
 only** (reset / idle `beat_ready=1` `win_vld=0` no spurious

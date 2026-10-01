@@ -4,16 +4,24 @@ Covers reset/idle (win_ready=1, cw_vld=0, no spurious CW), two-window
 align in bypass ({w0,64'd0} then {w1,64'd0}), T=4 / T=2 encode wrap
 (dual RS(128,120) vs golden GF(256) LFSR, same 8 parity symbols),
 cw_ready backpressure without drop/dup, win_vld stall after the first
-window without an emit, win_ready=!have1 until both CWs drain, and a
-second pair after drain. Not a full-chip consecutive-green gate. Not
-1/3, 4/3, freeze, or signoff.
+window without an emit, win_ready=!have1 until both CWs drain, a
+second pair after drain, mid-run async rst_n through dest posedge,
+and a pin scan with instance u_u. Not a full-chip consecutive-green
+gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_pcs_tx_fec.sv: async-low rst_n, combo
 win_ready=!have1, bypass=(fec_mode==VIBE_FEC_BYPASS), collect w0 then
 w1, encode starts both vibe_rs128_120_enc on the second window,
-cwa={w0,par_a} / cwb={w1,par_b}, emit cwa then cwb. Used by
-vibe_pcs_tx u_fec. Sits on stage-11 enc + stage-16 pack. Stock Icarus
-tc_pcs_fec_* remain the official wrap scorers.
+cwa={w0,par_a} / cwb={w1,par_b}, emit cwa then cwb. Instantiated by
+vibe_pcs_tx u_fec. This is not vibe_pcs_tx / vibe_pcs_rx /
+vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_rs128_120_enc /
+vibe_rs128_120_dec / gear / vibe_afifo / vibe_sync2 /
+vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: u_enc_a / u_enc_b (vibe_rs128_120_enc).
+Sits on stage-11 enc + stage-16 pack. Stock Icarus tc_pcs_fec_*
+remain the official wrap scorers.
 """
 
 from uvm import uvm_component_utils
@@ -36,6 +44,23 @@ MASK64 = (1 << 64) - 1
 MASK960 = (1 << 960) - 1
 MASK1024 = (1 << 1024) - 1
 HIER = "u_u.have1 / u_u.cw_vld / u_u.pair_done"
+WRAP = "vibe_pcs_tx_fec_cocotb_top"
+PINS = (
+    "clk", "rst_n", "fec_mode",
+    "win_data", "win_vld", "win_ready",
+    "cw_data", "cw_vld", "cw_ready",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_fec",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "parity", "u_enc",
+    "u_g", "u_g1", "in_data", "in_vld", "in_ready", "link_up",
+    "start", "in_sym",
+)
 ENC_TIMEOUT = 200
 BYP_TIMEOUT = 16
 
@@ -112,6 +137,35 @@ class tc_vibe_pcs_tx_fec(VibeUnitBaseTest):
             ival(d.cw_vld, -1),
             ival(d.cw_data, -1),
         )
+
+    async def _to_fall(self):
+        await RisingEdge(self.dut.clk)
+        await FallingEdge(self.dut.clk)
+
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.win_ready, -1),
+            ival(u.cw_vld, -1),
+            ival(u.cw_data, -1),
+        )
+
+    def _score_inner(self, name, stim, wr, cv, cd):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        iwr, icv, icd = inner
+        if (iwr, icv, icd) != (wr, cv, cd):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"win_ready={wr} cw_vld={cv} {_cw_msg(cd)}",
+                     f"u_u win_ready={iwr} cw_vld={icv} {_cw_msg(icd)}",
+                     HIER)
+            return False
+        return True
 
     def _enc_starts(self):
         try:
@@ -202,7 +256,8 @@ class tc_vibe_pcs_tx_fec(VibeUnitBaseTest):
                      _cw_msg(got[1]),
                      "u_u.cw_data / cwb")
             return False
-        return True
+        wr, cv, cd = self._sample()
+        return self._score_inner(name, stim, wr, cv, cd)
 
     async def _pair(self, name, label, w_a, w_b, fec_mode, timeout,
                     cw_ready=1):
@@ -285,6 +340,10 @@ class tc_vibe_pcs_tx_fec(VibeUnitBaseTest):
                      HIER)
             phase.drop_objection(self)
             return
+        if not self._score_inner(name, "reset then release, idle",
+                                 wr, cv, cd):
+            phase.drop_objection(self)
+            return
         for i in range(4):
             pre, post = await self._cycle(0, 0xA5, 1, FEC_T4)
             wr, cv, cd = post
@@ -330,6 +389,10 @@ class tc_vibe_pcs_tx_fec(VibeUnitBaseTest):
                      "win_ready=1 cw_vld=0 cw_data=0",
                      f"win_ready={wr} cw_vld={cv} {_cw_msg(cd)}",
                      "u_u.w0")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "async rst_n=0 after lone window",
+                                 wr, cv, cd):
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -577,6 +640,155 @@ class tc_vibe_pcs_tx_fec(VibeUnitBaseTest):
                          "win_ready=1 cw_vld=0",
                          f"win_ready={wr} cw_vld={cv}",
                          "u_u.have0")
+                phase.drop_objection(self)
+                return
+
+        # 5. Mid-run async rst_n clears registered have*/cw. Park a live
+        # two-window bypass hold so have1=1 / win_ready=0 / cw_data!=0,
+        # then pulse rst_n through dest posedge.
+        post0 = await self._take_window(
+            name, "pre-dest-rst w0", W0, FEC_BYPASS, cw_ready=0)
+        post1 = await self._take_window(
+            name, "pre-dest-rst w1", W1, FEC_BYPASS, cw_ready=0)
+        if post0 is None or post1 is None:
+            phase.drop_objection(self)
+            return
+        held = None
+        for i in range(BYP_TIMEOUT):
+            pre, post = await self._cycle(0, 0, 0, FEC_BYPASS)
+            wr, cv, cd = post
+            if wr != 0:
+                self.bad(name, f"pre-dest-rst wait[{i}] (slots full)",
+                         "win_ready=0",
+                         f"win_ready={wr}",
+                         "u_u.have1")
+                phase.drop_objection(self)
+                return
+            if cv == 1:
+                held = int(cd) & MASK1024
+                break
+        if held != bypass_cw(W0):
+            self.bad(name, "pre-async-rst park (first bypass CW held)",
+                     _cw_msg(bypass_cw(W0)),
+                     _cw_msg(held),
+                     "u_u.emit_b")
+            phase.drop_objection(self)
+            return
+        wr, cv, cd = self._sample()
+        if wr != 0 or cv != 1:
+            self.bad(name, "pre-async-rst park (have1 live)",
+                     "win_ready=0 cw_vld=1",
+                     f"win_ready={wr} cw_vld={cv}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park", wr, cv, cd):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        have1 = ival(u.have1, -1) if u is not None else None
+        if have1 != 1:
+            self.bad(name, "pre-async-rst park (live have1)",
+                     "u_u.have1=1 after two windows",
+                     f"have1={have1}",
+                     "u_u.have1")
+            phase.drop_objection(self)
+            return
+        await self._idle(fec_mode=FEC_BYPASS, cw_ready=0)
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        wr, cv, cd = self._sample()
+        if wr != 1 or cv != 0 or cd != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "win_ready=1 cw_vld=0 cw_data=0 (async clear)",
+                     f"win_ready={wr} cw_vld={cv} {_cw_msg(cd)}",
+                     "u_u.have1")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", wr, cv, cd):
+            phase.drop_objection(self)
+            return
+        have1 = ival(d.u_u.have1, -1)
+        w0 = ival(d.u_u.w0, -1)
+        if have1 != 0 or w0 != 0:
+            self.bad(name, "mid-run rst_n=0 (have1/w0 async clear)",
+                     "u_u.have1=0 u_u.w0=0",
+                     f"have1={have1} w0={w0}",
+                     "u_u.have1")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        wr, cv, cd = self._sample()
+        if wr != 1 or cv != 0 or cd != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "win_ready=1 cw_vld=0 cw_data=0",
+                     f"win_ready={wr} cw_vld={cv} {_cw_msg(cd)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", wr, cv, cd):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle(fec_mode=FEC_BYPASS, cw_ready=1)
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        wr, cv, cd = self._sample()
+        if wr != 1 or cv != 0 or cd != 0:
+            self.bad(name, "after async re-release, idle",
+                     "win_ready=1 cw_vld=0 cw_data=0",
+                     f"win_ready={wr} cw_vld={cv} {_cw_msg(cd)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 wr, cv, cd):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover have*/cwa/cwb/emit_b are gone; a
+        # new bypass pair must emit W2/W3 with no leftover W0.
+        got = await self._pair(
+            name, "bypass after mid-run rst", W2, W3, FEC_BYPASS,
+            BYP_TIMEOUT)
+        if not self._score_pair(
+                name, "bypass after mid-run rst (no leftover have*)",
+                got, bypass_cw(W2), bypass_cw(W3)):
+            phase.drop_objection(self)
+            return
+        if got[0] == bypass_cw(W0) or got[1] == bypass_cw(W1):
+            self.bad(name, "after mid-run rst, no leftover W0/W1",
+                     "W2/W3 CWs",
+                     _cw_msg(got[0]),
+                     "u_u.w0")
+            phase.drop_objection(self)
+            return
+
+        # 6. Leaf pins match product SV (no ovf_l / dual-clock / G1).
+        # Instance u_u (not leftover u_fec).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_pcs_tx_fec product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 
