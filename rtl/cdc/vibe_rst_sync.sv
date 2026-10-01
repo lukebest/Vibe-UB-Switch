@@ -1,7 +1,7 @@
 // GENERATED/HAND-FINISHED from pycircuit/cdc/vibe_rst_sync.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip 49421f9 / freeze 302ac943.
+// Product ports and behavior match tip 31647057. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rst_sync
 //

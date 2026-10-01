@@ -15,7 +15,8 @@ pre-Decision I stock RTL (same-layer CDC used by `vibe_port`
 
 ## Ports (product)
 
-Same as tip `49421f9` / freeze `302ac943`. No ready/valid. Reset stays
+Same as tip `31647057`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). No ready/valid. Reset stays
 **async assert on `rst_n_in`**, **sync release into `clk`**.
 
 | Port | Dir | Notes |

@@ -1,14 +1,15 @@
 """vibe_rst_sync — async assert, sync deassert into dest clock (AS-0.1 §3).
 
-Product module: ``rtl/cdc/vibe_rst_sync.sv``. Ports match tip
-``49421f9`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+Product module: ``rtl/cdc/vibe_rst_sync.sv``. Ports match
+tip ``31647057``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n_in`` / ``rst_n_out``); used by
 ``vibe_port`` (``u_txrst`` / ``u_rxrst``).
 
 pyCircuit registers are dest-domain **synchronous active-high** reset.
 Product RTL uses **async active-low** ``rst_n_in``
 (``or negedge rst_n_in``). Landed SV is hand-finished to keep those
-freeze semantics. This leaf *is* the product 2-FF reset cell
+tip semantics. This leaf *is* the product 2-FF reset cell
 (``r1`` then ``rst_n_out``); the frontend models two dest-domain
 flops that release to 1.
 """
