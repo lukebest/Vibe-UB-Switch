@@ -88,6 +88,7 @@ make -C tb/vibe/pyuvm tx_g1                    # same as g1 / tc_vibe_pcs_tx_g1
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1        # same as g1
 make -C tb/vibe/pyuvm units TC=tc_vibe_bcrc    # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm bcrc                     # same as units TC=tc_vibe_bcrc
+make -C tb/vibe/pyuvm tc_vibe_bcrc             # same as bcrc
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_credit  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm credit                   # same as units TC=tc_vibe_dll_credit
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_sm  # Decision-I leaf (module-level)
@@ -220,6 +221,7 @@ make -C tb/vibe/pyuvm g1 SIM=verilator            # or SIM=icarus
 make -C tb/vibe/pyuvm tx_g1 SIM=verilator         # same as g1
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_g1 SIM=verilator  # same as g1
 make -C tb/vibe/pyuvm bcrc SIM=verilator          # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_bcrc SIM=verilator  # same as bcrc
 make -C tb/vibe/pyuvm credit SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm dll_sm SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm sm SIM=verilator            # same as dll_sm
@@ -568,15 +570,21 @@ wrap / `tx_fec` / `cw2beat` / `amctl` / `ebch16` / `pcs_scramble`
 `u_g1`. `ovf_l` (F1) is not in this module. CHILDREN: none.
 Feeds stage-17 `vibe_pcs_tx_fec`.
 
-`tc_vibe_bcrc` / `make bcrc` is **module-level only** (reset / idle
+`tc_vibe_bcrc` / `make bcrc` /
+`make tc_vibe_bcrc` is **module-level only** (reset / idle
 `crc_word=0` `done=0` no spurious pulse, AS §12 CRC30 encode vs
 golden init-all-1 / no invert / LSB-first 160b eat, `ERROR_FLAG` /
 reserved packing, check DUT word vs golden residue, `start` restart
 that wins over `in_vld`, `in_vld` stall without a step, `last`
-without `in_vld`, second block after `done`). It is **not** 1/3, 4/3,
-freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_bcrc_crc30.sv` /
+without `in_vld`, second block after `done`, mid-run async `rst_n`
+through dest posedge, pin scan with instance `u_u`). It is **not** 1/3,
+4/3, freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_bcrc_crc30.sv` /
 `tc_bcrc_crc30` remains the official bit31 / bit30 scorer. This is
-**not** TP-DLL-004 / `dll`. First DLL leaf after PCS stage-1..19.
+**not** TP-DLL-004 / `dll` / `credit` / `dll_sm` / `dll_rx` / `icrc` /
+`vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
+`vibe_rst_sync`. First DLL leaf after PCS stage-1..19. Instantiated
+as TB helper `u_bcrc`; `vibe_dll_tx` inlines the same CRC30.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll_credit` / `make credit` is **module-level only** (reset /
 idle `pending=0` `credit_low=1` no `bp_nw` / `proto_err` / `fc_ovf`,

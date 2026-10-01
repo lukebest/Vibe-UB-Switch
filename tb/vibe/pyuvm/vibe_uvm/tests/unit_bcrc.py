@@ -4,7 +4,8 @@ Covers reset/idle (crc_word=0, done=0, no spurious pulse), AS §12
 CRC30 encode vs golden (init all-1, no invert, LSB-first 160b eat),
 ERROR_FLAG / reserved packing, check (DUT word vs golden residue),
 start restart (wins over in_vld), in_vld stall without a step, last
-without in_vld, and a second block after done.
+without in_vld, a second block after done, mid-run async rst_n
+through dest posedge, and a pin scan with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff.
 
@@ -12,8 +13,17 @@ Matches product rtl/dll/vibe_bcrc.sv: async-low rst_n, start reloads
 {30{1'b1}} and wins the if/else over in_vld, in_vld walks 160 bits
 LSB-first through crc30_step (VIBE_BCRC_POLY), last packs
 crc_word={1'b0, error_flag, t} and pulses done one cycle. Unit helper
-(TB u_bcrc); vibe_dll_tx inlines the same CRC30. Stock Icarus
-tc_bcrc_crc30 remains the official bit31/bit30 scorer.
+(TB u_bcrc); vibe_dll_tx inlines the same CRC30. This is not vibe_dll
+/ vibe_dll_tx / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+vibe_icrc / vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl /
+vibe_pcs_tx_g1 / vibe_pcs_tx_fec / vibe_rs128_120_enc /
+vibe_rs128_120_dec / vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Stock Icarus tc_bcrc_crc30 remains the official bit31/bit30 scorer.
 """
 
 from uvm import uvm_component_utils
@@ -30,6 +40,29 @@ MASK30 = CRC_INIT
 MASK32 = (1 << 32) - 1
 MASK160 = (1 << 160) - 1
 HIER = "u_u.crc / u_u.crc_word / u_u.done"
+WRAP = "vibe_bcrc_cocotb_top"
+PINS = (
+    "clk", "rst_n", "start",
+    "in_vld", "in_flit", "last", "error_flag",
+    "crc_word", "done",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_bcrc", "u_b", "u_l", "u_dsk", "u_un", "u_fec",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "credit_ret", "pending", "credit_low", "bp_nw", "proto_err", "fc_ovf",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "status_up", "disabled",
+)
 
 # Stock Icarus tc_bcrc_crc30 one-flit vector (high 80b are 0).
 STOCK_A5 = 0xA5A5A5A5A5A5A5A5A5A5
@@ -119,6 +152,44 @@ class tc_vibe_bcrc(VibeUnitBaseTest):
             ival(d.crc_word, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.done, -1),
+            ival(u.crc_word, -1),
+        )
+
+    def _score_inner(self, name, stim, dn, word):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        idn, iword = inner
+        if idn != dn:
+            self.bad(name, stim + " (port vs u_u)",
+                     f"done={dn} crc_word={_hex32(word)}",
+                     f"u_u done={idn} crc_word={_hex32(iword)}",
+                     HIER)
+            return False
+        if word is None or iword is None:
+            if word != iword:
+                self.bad(name, stim + " (u_u vs wrap)",
+                         _hex32(word),
+                         _hex32(iword),
+                         "u_u.crc_word")
+                return False
+            return True
+        if (int(iword) & MASK32) != (int(word) & MASK32):
+            self.bad(name, stim + " (u_u vs wrap)",
+                     _hex32(word),
+                     _hex32(iword),
+                     "u_u.crc_word")
+            return False
+        return True
+
     async def _cycle(self, start=0, in_vld=0, last=0, error_flag=0, in_flit=0):
         """Drive on this falling edge; sample NBA-stable outs on the next fall."""
         d = self.dut
@@ -199,7 +270,7 @@ class tc_vibe_bcrc(VibeUnitBaseTest):
                      _hex32(word),
                      "u_u.crc_word")
             return False
-        return True
+        return self._score_inner(name, stim, dn, word)
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -254,6 +325,9 @@ class tc_vibe_bcrc(VibeUnitBaseTest):
                      "done=0 crc_word=0",
                      f"done={dn} crc_word={_hex32(word)}",
                      HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "reset then release, idle", dn, word):
             phase.drop_objection(self)
             return
         for i in range(4):
@@ -539,6 +613,148 @@ class tc_vibe_bcrc(VibeUnitBaseTest):
                          HIER)
             phase.drop_objection(self)
             return
+
+        # 4. Mid-run async rst_n clears registered crc / crc_word / done.
+        # Park a live last-eat so done=1 / crc_word!=0, then pulse rst_n
+        # through dest posedge.
+        if not self._score_inner(name, "pre-async-rst park (live A5 word)",
+                                 dn, word):
+            phase.drop_objection(self)
+            return
+        u = getattr(d, "u_u", None)
+        live_crc = ival(u.crc, -1) if u is not None else None
+        exp_crc_a5 = crc30_block([STOCK_A5])
+        if live_crc is None or (int(live_crc) & MASK30) != exp_crc_a5:
+            self.bad(name, "pre-async-rst park (live crc leftover)",
+                     f"u_u.crc={exp_crc_a5:08x}",
+                     f"crc={None if live_crc is None else f'{int(live_crc)&MASK30:08x}'}",
+                     "u_u.crc")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        dn, word = self._sample()
+        if dn != 0 or word != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "done=0 crc_word=0 (async clear)",
+                     f"done={dn} crc_word={_hex32(word)}",
+                     "u_u.crc_word")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", dn, word):
+            phase.drop_objection(self)
+            return
+        rst_crc = ival(d.u_u.crc, -1)
+        rst_word = ival(d.u_u.crc_word, -1)
+        rst_done = ival(d.u_u.done, -1)
+        if (rst_crc is None or (int(rst_crc) & MASK30) != CRC_INIT
+                or rst_word != 0 or rst_done != 0):
+            self.bad(name, "mid-run rst_n=0 (bcrc async clear)",
+                     f"u_u.crc={CRC_INIT:08x} u_u.crc_word=0 u_u.done=0",
+                     f"crc={None if rst_crc is None else f'{int(rst_crc)&MASK30:08x}'} "
+                     f"crc_word={_hex32(rst_word)} done={rst_done}",
+                     "u_u.crc")
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        dn, word = self._sample()
+        if dn != 0 or word != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "done=0 crc_word=0",
+                     f"done={dn} crc_word={_hex32(word)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", dn, word):
+            phase.drop_objection(self)
+            return
+        hold_crc = ival(d.u_u.crc, -1)
+        if hold_crc is None or (int(hold_crc) & MASK30) != CRC_INIT:
+            self.bad(name, "rst_n held 0 through dest posedge (crc init)",
+                     f"u_u.crc={CRC_INIT:08x}",
+                     f"crc={None if hold_crc is None else f'{int(hold_crc)&MASK30:08x}'}",
+                     "u_u.crc")
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        dn, word = self._sample()
+        if dn != 0 or word != 0:
+            self.bad(name, "after async re-release, idle",
+                     "done=0 crc_word=0",
+                     f"done={dn} crc_word={_hex32(word)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 dn, word):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover crc / crc_word / done are gone; a
+        # new start must encode 160'h1 with no leftover A5.
+        dn, _ = await self._start_crc()
+        if dn != 0:
+            self.bad(name, "start after mid-run rst (no leftover done)",
+                     "done=0", f"done={dn}", "u_u.done")
+            phase.drop_objection(self)
+            return
+        n, last_s, done_last, err = await self._feed([FLIT_ONE], error_flag=0)
+        if err:
+            stim, exp, act = err
+            self.bad(name, stim, exp, act, HIER)
+            phase.drop_objection(self)
+            return
+        dn, word = last_s
+        if n != 1 or not done_last or not self._score_done(
+                name, "160'h1 after mid-run rst (no leftover A5)",
+                dn, word, [FLIT_ONE], 0):
+            if n != 1 or not done_last:
+                self.bad(name, "after mid-run rst encode count",
+                         "exactly 1 accept, done on last",
+                         f"n={n} done_on_last={done_last} "
+                         f"crc_word={_hex32(word)}",
+                         HIER)
+            phase.drop_objection(self)
+            return
+        if (int(word) & MASK32) in (exp_a5_ef1, exp_a5_ef0):
+            self.bad(name, "after mid-run rst, no leftover A5",
+                     f"crc_word={_hex32(exp_one)}",
+                     f"crc_word={_hex32(word)} (A5 leftover)",
+                     "u_u.crc")
+            phase.drop_objection(self)
+            return
+
+        # 5. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_bcrc). Instance u_u (not leftover u_bcrc / u_b / u_fec).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_bcrc product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
