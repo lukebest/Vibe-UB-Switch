@@ -54,6 +54,7 @@ make -C tb/vibe/pyuvm ebch16                   # same as units TC=tc_vibe_ebch16
 make -C tb/vibe/pyuvm tc_vibe_ebch16           # same as ebch16
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_cw2beat  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm cw2beat                  # same as units TC=tc_vibe_pcs_tx_cw2beat
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_cw2beat   # same as cw2beat
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_tx_amctl  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm amctl                    # same as units TC=tc_vibe_pcs_tx_amctl
 make -C tb/vibe/pyuvm units TC=tc_vibe_rs128_120_enc  # Decision-I leaf (module-level)
@@ -186,6 +187,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_scramble SIM=verilator  # same as pcs_scramble
 make -C tb/vibe/pyuvm ebch16 SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_ebch16 SIM=verilator  # same as ebch16
 make -C tb/vibe/pyuvm cw2beat SIM=verilator       # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_pcs_tx_cw2beat SIM=verilator  # same as cw2beat
 make -C tb/vibe/pyuvm amctl SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm rs128_120_enc SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
@@ -348,13 +350,21 @@ complementary pairs at Hamming 16, min Hamming distance 8, mid-run
 the same named LUT cells. `ovf_l` (F1) is not in this module.
 CHILDREN: none.
 
-`tc_vibe_pcs_tx_cw2beat` / `make cw2beat` is **module-level only**
-(reset idle / no spurious `beat_vld`, 1024→exactly 2×512 high-then-low,
-hold-full backpressure without drop/dup, second codeword after drain).
-It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
-`tb/vibe/tests/tc_pcs_cw2beat.sv` / `tc_pcs_cw2beat` remains optional
-count-only control. Official TP-PHY-009 stays scored by `tc_pcs_cw2beat`.
-This is **not** TP-PHY-017 / `pcs_scramble` / `ebch16`.
+`tc_vibe_pcs_tx_cw2beat` / `make cw2beat` / `make tc_vibe_pcs_tx_cw2beat`
+is **module-level only** (reset idle / no spurious `beat_vld`, async
+`rst_n` clear of registered halves, 1024→exactly 2×512 high-then-low
+vs golden split, hold-full backpressure without drop/dup, `cw_vld`
+while not ready does not overwrite parked halves, consume-last+`cw_vld`
+does not accept — `cw_ready` and `beat_vld` are exclusive, second
+codeword after drain, mid-run async `rst_n` through dest posedge,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_pcs_cw2beat.sv` /
+`tc_pcs_cw2beat` remains optional count-only control. Official
+TP-PHY-009 stays scored by `tc_pcs_cw2beat`. This is **not**
+TP-PHY-017 / `pcs_scramble` / `ebch16` / `vibe_pcs_tx` / `vibe_pcs_rx`
+/ gear / `vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Instantiated
+by `vibe_pcs_tx` `u_cw`. `ovf_l` (F1) is not in this module.
+CHILDREN: none.
 
 `tc_vibe_pcs_tx_amctl` / `make amctl` is **module-level only**
 (reset / idle `ack=0`, 40-symbol eBCH-16 insert/align vs Table 3-5

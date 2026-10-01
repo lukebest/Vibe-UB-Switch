@@ -1,5 +1,8 @@
 // Thin cocotb wrapper. DUT RTL never edited.
-// Product PCS TX 1024→2×512 split (AS-0.1 §5 T4). Clock from entry_unit.
+// Product PCS TX 1024→2×512 split (AS-0.1 §5 T4).
+// Clock comes from entry_unit. Instance u_u matches Decision-I
+// leaf wrappers. CHILDREN: none (leaf cell).
+// ovf_l (F1) is not in this module. This is not vibe_pcs_tx / rx.
 `timescale 1ns/1ps
 
 module vibe_pcs_tx_cw2beat_cocotb_top (
@@ -12,7 +15,7 @@ module vibe_pcs_tx_cw2beat_cocotb_top (
   output logic          beat_vld,
   input  logic          beat_ready
 );
-  vibe_pcs_tx_cw2beat u_cw (
+  vibe_pcs_tx_cw2beat u_u (
     .clk(clk), .rst_n(rst_n), .cw_data(cw_data), .cw_vld(cw_vld),
     .cw_ready(cw_ready), .beat_data(beat_data), .beat_vld(beat_vld),
     .beat_ready(beat_ready)
