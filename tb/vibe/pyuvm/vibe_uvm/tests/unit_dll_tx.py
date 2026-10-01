@@ -384,8 +384,11 @@ class tc_vibe_dll_tx(VibeUnitBaseTest):
             "rem_b": ival(u.rem_b, None),
         }
 
-    def _score_inner(self, name, stim, got):
-        inner = self._inner_sample()
+    def _score_inner(self, name, stim, got, inner=None):
+        # Compare wrap vs u_u from the same sample instant. Do not
+        # re-read after a later posedge (pre-NBA would then see post).
+        if inner is None:
+            inner = self._inner_sample()
         if inner is None:
             self.bad(name, stim + " (u_u)",
                      "u_u present", "missing", WRAP)
@@ -503,6 +506,7 @@ class tc_vibe_dll_tx(VibeUnitBaseTest):
     async def _cycle(self, **kw):
         await self._drive(**kw)
         pre = self._sample()
+        pre_inner = self._inner_sample()
         st = self._stim
         pre_exp = self.g.combo(
             st["link_up"], st["status_up"], st["credit_low"],
@@ -517,10 +521,11 @@ class tc_vibe_dll_tx(VibeUnitBaseTest):
             st["nw_dll_data"], st["nw_dll_vld"], st["dll_pcs_ready"])
         await self._to_fall()
         post = self._sample()
-        return pre, post, pre_exp
+        post_inner = self._inner_sample()
+        return pre, post, pre_exp, pre_inner, post_inner
 
     async def _expect(self, name, stim, score_wide=True, **kw):
-        pre, post, pre_exp = await self._cycle(**kw)
+        pre, post, pre_exp, pre_inner, post_inner = await self._cycle(**kw)
         if not self._score_combo(name, stim + " (pre-NBA combo)",
                                  pre, pre_exp, score_wide=score_wide):
             return None
@@ -530,9 +535,11 @@ class tc_vibe_dll_tx(VibeUnitBaseTest):
             return None
         if not self._score_state(name, stim, post):
             return None
-        if not self._score_inner(name, stim + " (pre-NBA wrap vs u_u)", pre):
+        if not self._score_inner(name, stim + " (pre-NBA wrap vs u_u)",
+                                 pre, pre_inner):
             return None
-        if not self._score_inner(name, stim + " (post-NBA wrap vs u_u)", post):
+        if not self._score_inner(name, stim + " (post-NBA wrap vs u_u)",
+                                 post, post_inner):
             return None
         return pre, post
 
