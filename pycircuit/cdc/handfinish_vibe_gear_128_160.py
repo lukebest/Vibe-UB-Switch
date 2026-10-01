@@ -4,6 +4,7 @@ Keeps tip ports, async-low ``rst_n``, combo ``in_ready``, and the
 5-beat dual-residue body (``res_a`` / ``res_b`` / ``phase`` 0..4).
 pycc netlists are a prototype only; this file is what lands in
 ``rtl/cdc/vibe_gear_128_160.sv``.
+Tip ``a7a39eb3``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/cdc/vibe_gear_128_160.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip 195d380 / freeze 302ac943.
+// Product ports and behavior match tip a7a39eb3. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_gear_128_160
 //

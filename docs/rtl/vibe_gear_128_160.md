@@ -14,7 +14,8 @@ used by `vibe_port` `u_rg0`..`u_rg3`) under the pycircuit → rtl flow.
 
 ## Ports (product)
 
-Same as tip `195d380` / freeze `302ac943`. Ready/valid on both sides.
+Same as tip `a7a39eb3`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Ready/valid on both sides.
 Reset stays **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

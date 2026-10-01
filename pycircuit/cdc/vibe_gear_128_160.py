@@ -1,14 +1,15 @@
 """vibe_gear_128_160 — RX 128→160 dual-residue gearbox (AS-0.1 §6/§7).
 
-Product module: ``rtl/cdc/vibe_gear_128_160.sv``. Ports match tip
-``195d380`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+Product module: ``rtl/cdc/vibe_gear_128_160.sv``. Ports match
+tip ``a7a39eb3``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ready-valid 128 in, 160 out);
 used by ``vibe_port`` (``u_rg0``..``u_rg3``). 5×128 = 4×160.
 
 pyCircuit registers are dest-domain **synchronous active-high** reset.
 Product RTL uses **async active-low** ``rst_n`` (``or negedge rst_n``)
 and a single always-block ``case (phase)`` with combo ``in_ready``.
-Landed SV is hand-finished to keep those freeze semantics. Leave
+Landed SV is hand-finished to keep those tip semantics. Leave
 ``vibe_gear_160_128`` (TX 160→128) for a later stage.
 """
 
