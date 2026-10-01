@@ -52,6 +52,7 @@ from vibe_uvm.tests import unit_mgmt_wrap  # noqa: F401
 from vibe_uvm.tests import unit_fabric_wrap  # noqa: F401
 from vibe_uvm.tests import unit_pcs_tx_wrap  # noqa: F401
 from vibe_uvm.tests import unit_pcs_rx_wrap  # noqa: F401
+from vibe_uvm.tests import unit_lmsm_wrap  # noqa: F401
 
 
 @cocotb.test()
