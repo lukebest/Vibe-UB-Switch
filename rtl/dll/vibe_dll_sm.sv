@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll_sm.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 39d3aa1d / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 551b6647. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §12: DLL SM. Disabled when LinkUp==0. Entity reset must not force Disabled.
 module vibe_dll_sm (
   input  logic       clk,
