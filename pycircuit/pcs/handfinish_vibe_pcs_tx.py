@@ -1,6 +1,32 @@
+"""Emit the product SystemVerilog for vibe_pcs_tx (hand-finished).
+
+Keeps tip ports, the stock children (``u_g1`` / ``u_fec`` /
+``u_cw`` / ``u_pack`` / ``u_s0``..``u_s3``), interconnect
+nets, ``p_rdy = 1'b1``, and lane assigns (AS-0.1 §5). Do
+not invent CFG6 packing, Appendix D, or opcode 0x10.
+``vibe_pcs_rx`` / ``vibe_lmsm`` stay HOLD (no wrap this
+stage). pycc netlists are a prototype only; this file is
+what lands in ``rtl/pcs/vibe_pcs_tx.sv``. Do not rewrite
+F1 ``ovf_l`` (lives under ``vibe_port``).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 // Product ports match tip deef6adc. Decision I UNFROZEN. Path B hold.
+"""
+
+FOOTER = """\
+// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
+// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
+// Regenerate: make -C pycircuit vibe_pcs_tx
+"""
+
+BODY = """\
 // AS-0.1 §5: PCS TX — G1, dual RS FEC, scramble, AMCTL insert, G2 pack.
 module vibe_pcs_tx (
   input  logic         clk,
@@ -71,6 +97,26 @@ module vibe_pcs_tx (
   assign pcs_afifo_lane3 = s3;
   assign pcs_afifo_lane_vld = s_vld;
 endmodule
-// pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// SPEC / CR-B names unchanged. F1 ovf_l stays stock (lives in vibe_port; do not rewrite).
-// Regenerate: make -C pycircuit vibe_pcs_tx
+"""
+
+
+def render() -> str:
+    return HEADER + BODY + FOOTER
+
+
+def write_rtl(dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(render(), encoding="utf-8")
+    return dest
+
+
+def main() -> int:
+    repo = Path(__file__).resolve().parents[2]
+    dest = repo / "rtl" / "pcs" / "vibe_pcs_tx.sv"
+    write_rtl(dest)
+    print(f"wrote {dest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
