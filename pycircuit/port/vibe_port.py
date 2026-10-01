@@ -1,8 +1,10 @@
 """vibe_port — per-port structural wrap (AS-0.1 §4).
 
 Product module: ``rtl/port/vibe_port.sv``. Ports match tip
-``1ee80cbd``. Decision I UNFROZEN (do not re-pin freeze).
-SPEC / CR-B names are unchanged. Hierarchy wrap
+``4cff3a53`` (product DUT after PR259 TB-only; RTL same as
+``cd71b1d0`` / PR258 stage-49). Decision I UNFROZEN (do
+not re-pin freeze). SPEC / CR-B names are unchanged.
+Hierarchy wrap
 (``clk_fab`` / ``rst_n`` / ``port_rst`` / ``device_rst`` /
 ``lmsm_go`` / ``txclk`` / ``rxclk`` / 512b
 ``pcs_pma_txdata`` / ``pma_pcs_rxdata`` / 512b
@@ -18,12 +20,14 @@ stock children: ``vibe_rst_sync u_txrst`` / ``u_rxrst``,
 ``vibe_pcs_rx u_prx``, 4× TX ``vibe_afifo u_at*`` +
 ``vibe_gear_160_128 u_g*``, ``vibe_pma_bnd u_pma``,
 4× RX ``vibe_afifo u_ar*`` + ``vibe_gear_128_160 u_rg*``.
-``vibe_lmsm`` / ``vibe_pcs_tx`` / ``vibe_pcs_rx`` are stock
-SV (no pyCircuit leaf yet) — listed in CHILDREN, not
-migrated here. Wrap-local: ``fec_mode = VIBE_FEC_T4``,
+``vibe_pcs_tx`` / ``vibe_pcs_rx`` / ``vibe_lmsm`` now have
+pyCircuit wraps (stages 47–49) — listed in CHILDREN, not
+re-migrated here. Wrap-local: ``fec_mode = VIBE_FEC_T4``,
 TX/RX gear hold, RX change-detect, F1 ``ovf_l`` CDC sync.
 Do not rewrite ``ovf_l`` (CDC F1). Instantiated by
-``vibe_ub_switch``. ``vibe_mgmt`` / ``vibe_top`` stay HOLD.
+``vibe_ub_switch``. ``vibe_ub_switch`` wrap stays HOLD.
+CDC leaf banners still cite void freeze ``302ac943`` —
+leave those for a later leaf.
 
 pyCircuit registers are dest-domain **synchronous active-high** reset.
 This wrap's sequential (``ovf_l`` / change-detect / CDC sync)
@@ -31,8 +35,8 @@ stays in the hand-finished product SV. Product RTL keeps
 **async active-low** ``rst_n`` on the children. Landed SV is
 hand-finished so the stock hierarchy (ports / instances /
 nets / AFIFO / gear / PMA / ``ovf_l``) stays byte-identical
-in the module body. Leave ``vibe_mgmt`` / ``vibe_top`` and
-PCS tx / rx tops for later stages.
+in the module body. Do not invent CFG6 packing, Appendix D,
+or opcode 0x10.
 """
 
 from __future__ import annotations
@@ -131,7 +135,8 @@ def _lane_gear_rx(inst: str, re: str, ready: str, rq: str, afrv: str, out: str):
 
 # Product instances + connects (hand-finished SV). pycc prototype
 # does not emit hierarchy; CHILDREN is the wrap contract.
-# vibe_lmsm / vibe_pcs_tx / vibe_pcs_rx are stock SV (no leaf yet).
+# vibe_pcs_tx / vibe_pcs_rx / vibe_lmsm now have pyCircuit wraps
+# (stages 47–49); listed here, not re-migrated.
 CHILDREN = (
     {
         "module": "vibe_rst_sync",

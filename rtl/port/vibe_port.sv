@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/port/vibe_port.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 1ee80cbd. Decision I UNFROZEN. Path B hold.
+// Product ports match tip 4cff3a53 (RTL same as cd71b1d0). Decision I UNFROZEN. Path B hold.
 // AS-0.1 §4: per-port — pma_bnd, afifo_tx/rx×4, pcs_tx, pcs_rx, lmsm, dll, nw_adapt.
 module vibe_port (
   input  logic         clk_fab,
