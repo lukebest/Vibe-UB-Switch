@@ -6,6 +6,7 @@ four ``vibe_pcs_tx_amctl`` instances, combo ``beat_ready`` /
 always-block (5×512 → 4×640, inverse G2). pycc netlists are a
 prototype only; this file is what lands in
 ``rtl/pcs/vibe_pcs_tx_pack.sv``.
+Tip ``ad3a7165``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_pcs_tx_pack.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip ee5e8f4 / freeze 302ac943.
+// Product ports and behavior match tip ad3a7165. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_pcs_tx_pack
 //
