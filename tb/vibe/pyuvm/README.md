@@ -31,6 +31,7 @@ make -C tb/vibe units            # leaf units + static/neg + port
 make -C tb/vibe units TC=tc_vl_rr
 make -C tb/vibe/pyuvm units TC=tc_vibe_afifo   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm afifo                    # same as units TC=tc_vibe_afifo
+make -C tb/vibe/pyuvm tc_vibe_afifo            # same as afifo
 make -C tb/vibe/pyuvm units TC=tc_vibe_sync2   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm sync2                    # same as units TC=tc_vibe_sync2
 make -C tb/vibe/pyuvm tc_vibe_sync2            # same as sync2
@@ -166,6 +167,7 @@ Simulator: `SIM=verilator` (baseline) or `SIM=icarus`.
 make -C tb/vibe/pyuvm sim SIM=icarus
 make -C tb/vibe/pyuvm units TC=tc_vl_rr SIM=icarus
 make -C tb/vibe/pyuvm afifo SIM=verilator   # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_afifo SIM=verilator  # same as afifo
 make -C tb/vibe/pyuvm sync2 SIM=verilator   # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_sync2 SIM=verilator  # same as sync2
 make -C tb/vibe/pyuvm rst_sync SIM=verilator  # or SIM=icarus
@@ -246,9 +248,17 @@ make -C tb/vibe/pyuvm tc_vibe_lmsm SIM=verilator   # same as lmsm_wrap
 make -C tb/vibe/pyuvm vibe_port_wrap SIM=verilator # or SIM=icarus
 ```
 
-`tc_vibe_afifo` / `make afifo` is **module-level only** (reset, CDC integrity,
-fill/`almost_full` at occ≥10, drain). It is **not** the full-chip consecutive-green
-gate. Stock Icarus `tb/vibe/tests/tc_afifo_afull10.sv` remains optional control.
+`tc_vibe_afifo` / `make afifo` / `make tc_vibe_afifo` is **module-level
+only** (dual-clock `wrst_n`/`rrst_n`, CDC integrity across wclk/rclk
+including 0/all-1s/walk-1, fill/`almost_full` at occ≥10, `wfull` at
+16, write-while-full, drain/`rempty`, read-while-empty, async mid-run
+reset, pin scan). It is **not** the full-chip consecutive-green gate
+and **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_afifo_afull10.sv` remains optional control. This is
+**not** `vibe_sync2` / `vibe_rst_sync` / gear. Instantiated by
+`vibe_port` TX×4 (`W=160`) and RX×4 (`W=128`). `ovf_l` (F1) is not in
+this module. CFG6 packing is 未知. CHILDREN from product SV: `u_r2w` /
+`u_w2r` (`vibe_sync2`).
 
 `tc_vibe_sync2` / `make sync2` / `make tc_vibe_sync2` is **module-level
 only** (reset `q==0`, stable `d` reaches `q` after 2 posedges not 1,
