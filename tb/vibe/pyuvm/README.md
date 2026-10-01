@@ -43,6 +43,7 @@ make -C tb/vibe/pyuvm gear_128_160             # same as units TC=tc_vibe_gear_1
 make -C tb/vibe/pyuvm tc_vibe_gear_128_160     # same as gear_128_160
 make -C tb/vibe/pyuvm units TC=tc_vibe_gear_160_128  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm gear_160_128             # same as units TC=tc_vibe_gear_160_128
+make -C tb/vibe/pyuvm tc_vibe_gear_160_128     # same as gear_160_128
 make -C tb/vibe/pyuvm units TC=tc_dll          # TP-DLL-004 full vibe_dll split
 make -C tb/vibe/pyuvm dll                      # same as units TC=tc_dll (≠1/3 ≠4/3)
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_scramble  # Decision-I leaf (module-level)
@@ -177,6 +178,7 @@ make -C tb/vibe/pyuvm tc_vibe_rst_sync SIM=verilator  # same as rst_sync
 make -C tb/vibe/pyuvm gear_128_160 SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_gear_128_160 SIM=verilator  # same as gear_128_160
 make -C tb/vibe/pyuvm gear_160_128 SIM=verilator  # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_gear_160_128 SIM=verilator  # same as gear_160_128
 make -C tb/vibe/pyuvm pcs_scramble SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm ebch16 SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm cw2beat SIM=verilator       # or SIM=icarus
@@ -296,12 +298,21 @@ full-chip `tc_dll` (`make -C tb/vibe/pyuvm dll` / `units TC=tc_dll` scores
 that ID). Instantiated by `vibe_port` `u_rg0`..`u_rg3`. `ovf_l` (F1) is
 not in this module. CHILDREN: none.
 
-`tc_vibe_gear_160_128` / `make gear_160_128` is **module-level only** (reset
-idle / no spurious `out_vld`, 4×160 → exactly 5×128 with residue packing,
-hold-full / `rbits==4` backpressure without drop/dup, phase wrap on a
-second group). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
-`tb/vibe/tests/tc_gear_160_128.sv` / `tc_gear_160_128` remains optional
-count-only control. This is **not** TP-DLL-004 / full-chip `tc_dll`.
+`tc_vibe_gear_160_128` / `make gear_160_128` / `make tc_vibe_gear_160_128`
+is **module-level only** (reset idle / no spurious `out_vld`, combo
+`in_ready = can_load && (rbits != 4)` including hold-empty + `out_ready=0`
+and `rbits==4` blocking even when `can_load`, 4×160 → exactly 5×128
+LSB-first residue packing vs golden, hold-full / `rbits==4` backpressure
+without drop/dup, same-cycle take+accept when hold is full and
+`out_ready=1` and `rbits!=4`, residue flush when `rbits==4 && can_load`,
+phase wrap on a second group, mid-run async `rst_n` clears
+`hold_vld`/`rbits`, pin scan). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_gear_160_128.sv` / `tc_gear_160_128`
+remains optional count-only control. This is **not** `vibe_gear_128_160` /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync` and **not** TP-DLL-004 /
+full-chip `tc_dll` (`make -C tb/vibe/pyuvm dll` / `units TC=tc_dll` scores
+that ID). Instantiated by `vibe_port` `u_g0`..`u_g3`. `ovf_l` (F1) is
+not in this module. CHILDREN: none.
 
 `tc_vibe_pcs_scramble` / `make pcs_scramble` is **module-level only** (reset
 idle / async clear, known LID seed vs golden xmask, AMCTL/EEIB `en=0`
