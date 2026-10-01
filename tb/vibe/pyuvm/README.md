@@ -103,6 +103,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_rx           # same as dll_rx
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_ack_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_ack_sm             # same as units TC=tc_vibe_dll_retry_ack_sm
 make -C tb/vibe/pyuvm ack_sm                   # same as retry_ack_sm / tc_vibe_dll_retry_ack_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_ack_sm # same as retry_ack_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_buf  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_buf                # same as units TC=tc_vibe_dll_retry_buf
 make -C tb/vibe/pyuvm buf                      # same as retry_buf / tc_vibe_dll_retry_buf
@@ -235,6 +236,7 @@ make -C tb/vibe/pyuvm rx SIM=verilator            # same as dll_rx
 make -C tb/vibe/pyuvm tc_vibe_dll_rx SIM=verilator # same as dll_rx
 make -C tb/vibe/pyuvm retry_ack_sm SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm ack_sm SIM=verilator        # same as retry_ack_sm
+make -C tb/vibe/pyuvm tc_vibe_dll_retry_ack_sm SIM=verilator # same as retry_ack_sm
 make -C tb/vibe/pyuvm retry_buf SIM=verilator     # or SIM=icarus
 make -C tb/vibe/pyuvm buf SIM=verilator           # same as retry_buf
 make -C tb/vibe/pyuvm retry_req_sm SIM=verilator  # or SIM=icarus
@@ -640,15 +642,20 @@ after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm`. Instantiated
 by `vibe_dll` `u_rx`.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_dll_retry_ack_sm` / `make retry_ack_sm` / `make ack_sm`
-is **module-level only** (reset / `port_rst` clears to NORMAL,
-`start_ack` → 1 Idle then 32 Ack, replay `RdPtr` from `RcvPtr`
-until `WrPtr`, return to NORMAL). It is **not** 1/3, 4/3,
-freeze, or signoff. Stock Icarus
+`tc_vibe_dll_retry_ack_sm` / `make retry_ack_sm` / `make ack_sm` /
+`make tc_vibe_dll_retry_ack_sm` is **module-level only** (reset /
+`port_rst` clears to NORMAL, `start_ack` → 1 Idle then 32 Ack,
+replay `RdPtr` from `RcvPtr` until `WrPtr`, return to NORMAL,
+`start_ack` ignored in ACK / PLAY, mid-run async `rst_n` through
+dest posedge, pin scan with instance `u_u`). It is **not** 1/3,
+4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_retry_ack_replay.sv` / `tc_retry_ack_replay`
 remains the official TP scorer. This is **not** TP-DLL-004 /
-`dll`. Fifth DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
-`vibe_dll_sm` / `vibe_dll_rx`.
+`dll` / `bcrc` / `credit` / `dll_sm` / `dll_rx` / `icrc` /
+`vibe_pcs_tx` / `vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` /
+`vibe_rst_sync`. Fifth DLL leaf after `vibe_bcrc` / `vibe_dll_credit` /
+`vibe_dll_sm` / `vibe_dll_rx`. Instantiated by `vibe_dll` `u_ack`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll_retry_buf` / `make retry_buf` / `make buf`
 is **module-level only** (reset / `port_rst` / `!link_up` pointers
