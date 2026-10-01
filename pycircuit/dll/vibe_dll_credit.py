@@ -1,7 +1,9 @@
 """vibe_dll_credit — DLL credit / backpressure / 1µs timeout (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_dll_credit.sv``. Ports match tip
-``ad36bf66`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``2ef95a43``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``port_rst`` / ``link_up`` /
 ``grain_n`` / ``consume_vld`` / ``consume_flits`` / ``is_cfg0`` /
 ``credit_ret`` / ``credit_ret_n`` / ``pending`` / ``credit_low`` /

@@ -20,7 +20,8 @@ instances). Second DLL leaf after `vibe_bcrc`.
 
 ## Ports (product)
 
-Same as tip `ad36bf66` / freeze `302ac943`. Reset stays
+Same as tip `2ef95a43`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
