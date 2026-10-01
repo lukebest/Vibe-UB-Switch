@@ -17,7 +17,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         vibe_voq_egr vibe_saf_ing vibe_xbar \
         vibe_icrc vibe_nw_adapt vibe_rst_ctl vibe_mgmt_byp \
         vibe_irq_agg vibe_cna_ep vibe_cfg_space \
-        vibe_port vibe_ub_switch vibe_mgmt vibe_fabric \
+        vibe_port vibe_ub_switch vibe_mgmt vibe_fabric vibe_pcs_tx \
         handfinish handfinish-pma handfinish-sync2 handfinish-rst-sync \
         handfinish-gear-128-160 handfinish-gear-160-128 \
         handfinish-pcs-scramble handfinish-ebch16 \
@@ -38,7 +38,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         handfinish-mgmt-byp handfinish-irq-agg handfinish-cna-ep \
         handfinish-cfg-space \
         handfinish-port handfinish-top handfinish-mgmt \
-        handfinish-fabric \
+        handfinish-fabric handfinish-pcs-tx \
         lint-leaf lint-leaf-pma lint-leaf-sync2 lint-leaf-rst-sync \
         lint-leaf-gear-128-160 lint-leaf-gear-160-128 \
         lint-leaf-pcs-scramble lint-leaf-ebch16 \
@@ -59,7 +59,7 @@ export PYTHONPATH := $(ROOT)/pycircuit$(if $(PYTHONPATH),:$(PYTHONPATH))
         lint-leaf-mgmt-byp lint-leaf-irq-agg lint-leaf-cna-ep \
         lint-leaf-cfg-space \
         lint-leaf-port lint-leaf-top lint-leaf-mgmt \
-        lint-leaf-fabric
+        lint-leaf-fabric lint-leaf-pcs-tx
 
 help:
 	@echo "setup              install pycircuit-hisi or clone lukebest/pyCircuit (pinned)"
@@ -110,6 +110,7 @@ help:
 	@echo "vibe_ub_switch     land hand-finished rtl/top/vibe_ub_switch.sv (try pycc first)"
 	@echo "vibe_mgmt          land hand-finished rtl/mgmt/vibe_mgmt.sv (try pycc first)"
 	@echo "vibe_fabric        land hand-finished rtl/fabric/vibe_fabric.sv (try pycc first)"
+	@echo "vibe_pcs_tx        land hand-finished rtl/pcs/vibe_pcs_tx.sv (try pycc first)"
 	@echo "handfinish         write product vibe_afifo SV only"
 	@echo "handfinish-pma     write product vibe_pma_bnd SV only"
 	@echo "handfinish-sync2   write product vibe_sync2 SV only"
@@ -156,6 +157,7 @@ help:
 	@echo "handfinish-top     write product vibe_ub_switch SV only"
 	@echo "handfinish-mgmt    write product vibe_mgmt SV only"
 	@echo "handfinish-fabric  write product vibe_fabric SV only"
+	@echo "handfinish-pcs-tx  write product vibe_pcs_tx SV only"
 	@echo "lint-leaf          Verilator --lint-only on vibe_afifo + vibe_sync2"
 	@echo "lint-leaf-pma      Verilator --lint-only on vibe_pma_bnd"
 	@echo "lint-leaf-sync2    Verilator --lint-only on vibe_sync2"
@@ -202,6 +204,7 @@ help:
 	@echo "lint-leaf-top      Verilator --lint-only on vibe_ub_switch (children on filelist)"
 	@echo "lint-leaf-mgmt     Verilator --lint-only on vibe_mgmt (children on filelist)"
 	@echo "lint-leaf-fabric   Verilator --lint-only on vibe_fabric (children on filelist)"
+	@echo "lint-leaf-pcs-tx   Verilator --lint-only on vibe_pcs_tx (children on filelist)"
 
 setup:
 	sh $(ROOT)/scripts/pycircuit/setup_toolchain.sh
@@ -349,6 +352,9 @@ vibe_mgmt:
 vibe_fabric:
 	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_fabric
 
+vibe_pcs_tx:
+	sh $(ROOT)/scripts/pycircuit/emit.sh vibe_pcs_tx
+
 handfinish:
 	python3 $(ROOT)/pycircuit/cdc/handfinish_vibe_afifo.py
 
@@ -486,6 +492,9 @@ handfinish-mgmt:
 
 handfinish-fabric:
 	python3 $(ROOT)/pycircuit/fabric/handfinish_vibe_fabric.py
+
+handfinish-pcs-tx:
+	python3 $(ROOT)/pycircuit/pcs/handfinish_vibe_pcs_tx.py
 
 lint-leaf:
 	verilator --lint-only -Wall -Wno-fatal --top-module vibe_afifo \
@@ -801,3 +810,17 @@ lint-leaf-fabric:
 	  $(ROOT)/rtl/fabric/vibe_saf_ing.sv \
 	  $(ROOT)/rtl/fabric/vibe_xbar.sv \
 	  $(ROOT)/rtl/fabric/vibe_fabric.sv
+
+lint-leaf-pcs-tx:
+	verilator --lint-only -Wall -Wno-fatal --top-module vibe_pcs_tx \
+	  -I$(ROOT)/rtl/common \
+	  $(ROOT)/reports/lint/vibe_ub_switch.vlt \
+	  $(ROOT)/rtl/pcs/vibe_ebch16.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_scramble.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_g1.sv \
+	  $(ROOT)/rtl/pcs/vibe_rs128_120_enc.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_fec.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_cw2beat.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_amctl.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx_pack.sv \
+	  $(ROOT)/rtl/pcs/vibe_pcs_tx.sv
