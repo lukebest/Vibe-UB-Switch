@@ -1,7 +1,7 @@
 // GENERATED/HAND-FINISHED from pycircuit/pcs/vibe_rs128_120_dec.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
 //            pyc4.0 / pycircuit-hisi 0.1.0 (pycc → Verilog when LLVM 19 is present)
-// Product ports and behavior match tip 984e3b9 / freeze 302ac943.
+// Product ports and behavior match tip c1f7d49b. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // msg reset is unrolled NBA (same zeros as stock for-loop; lint-safe).
 // SPEC / CR-B names unchanged. Do not touch F1 ovf_l (lives in vibe_port).
 // Regenerate: make -C pycircuit vibe_rs128_120_dec

@@ -16,7 +16,8 @@ RTL (same-layer PCS FEC building block; paired with stage-11
 
 ## Ports (product)
 
-Same as tip `984e3b9` / freeze `302ac943`. One codeword symbol per
+Same as tip `c1f7d49b`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. One codeword symbol per
 accepted cycle. Reset stays **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

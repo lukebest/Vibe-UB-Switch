@@ -1,7 +1,8 @@
 """vibe_rs128_120_dec — RS(128,120) syndrome-check decoder, GF(256).
 
 Product module: ``rtl/pcs/vibe_rs128_120_dec.sv``. Ports match tip
-``984e3b9`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``c1f7d49b``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``start`` / ``in_vld`` /
 ``in_sym`` / ``in_ready`` / ``done`` / ``fec_fail`` / 960b
 ``data_out``); paired with stage-11 ``vibe_rs128_120_enc``.
