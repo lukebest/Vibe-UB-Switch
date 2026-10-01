@@ -16,7 +16,8 @@ bypass. Instantiates stage-11 `vibe_rs128_120_enc` ×2.
 
 ## Ports (product)
 
-Same as tip `ee5e8f4` / freeze `302ac943`. Reset stays
+Same as tip `6fa0ff52`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

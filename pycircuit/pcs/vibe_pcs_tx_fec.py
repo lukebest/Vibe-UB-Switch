@@ -1,7 +1,8 @@
 """vibe_pcs_tx_fec — PCS TX FEC wrap (AS-0.1 §5 T3).
 
 Product module: ``rtl/pcs/vibe_pcs_tx_fec.sv``. Ports match tip
-``ee5e8f4`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``6fa0ff52``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``fec_mode[2:0]`` / 960b
 ``win_data`` / ``win_vld`` / ``win_ready`` / 1024b ``cw_data`` /
 ``cw_vld`` / ``cw_ready``); used by ``vibe_pcs_tx`` (``u_fec``).
