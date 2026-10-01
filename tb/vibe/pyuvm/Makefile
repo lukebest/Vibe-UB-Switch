@@ -4,7 +4,7 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap help clean
+.PHONY: venv gate suite units port top neg sim afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 tc_vibe_ebch16 cw2beat amctl rs128_120_enc rs128_120_dec deskew amctl_lock unpack pack tx_fec rx_fec g1 tx_g1 bcrc credit dll_sm sm dll_rx rx retry_ack_sm ack_sm retry_buf buf retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
@@ -32,6 +32,7 @@ help:
 	@echo "make -C tb/vibe/pyuvm tc_vibe_pcs_scramble # same as pcs_scramble"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_ebch16"
 	@echo "make -C tb/vibe/pyuvm ebch16  # Decision-I leaf vibe_ebch16 (module-level)"
+	@echo "make -C tb/vibe/pyuvm tc_vibe_ebch16 # same as ebch16"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_pcs_tx_cw2beat"
 	@echo "make -C tb/vibe/pyuvm cw2beat # Decision-I leaf vibe_pcs_tx_cw2beat (module-level)"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_pcs_tx_amctl"
@@ -189,6 +190,8 @@ tc_vibe_pcs_scramble: pcs_scramble
 
 ebch16: venv
 	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_ebch16 --sim $(SIM)
+
+tc_vibe_ebch16: ebch16
 
 cw2beat: venv
 	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_pcs_tx_cw2beat --sim $(SIM)
