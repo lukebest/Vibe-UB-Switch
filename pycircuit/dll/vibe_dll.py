@@ -1,7 +1,9 @@
 """vibe_dll — DLL structural top (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_dll.sv``. Ports match tip
-``5b071097`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``4520441a``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Hierarchy wrap (``clk`` / ``rst_n`` / ``port_rst`` / ``device_rst`` /
 ``link_up`` / ``fec_fail`` / 512b ``nw_dll_data`` / ``nw_dll_vld`` /
 ``nw_dll_ready`` / 512b ``dll_nw_data`` / ``dll_nw_vld`` /

@@ -24,7 +24,8 @@ already-migrated children: `vibe_dll_sm u_sm`,
 
 ## Ports (product)
 
-Same as tip `5b071097` / freeze `302ac943`. Reset stays
+Same as tip `4520441a`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** on the children (`or negedge rst_n`).
 This wrap has no sequential of its own.
 

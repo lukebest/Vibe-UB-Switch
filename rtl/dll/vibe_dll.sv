@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/dll/vibe_dll.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 5b071097 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 4520441a. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §12: DLL wrapper — sm, tx, rx, credit, retry_buf, retry_req_sm, retry_ack_sm.
 module vibe_dll #(
   parameter int RETRY_WAIT_CYC = 12500
