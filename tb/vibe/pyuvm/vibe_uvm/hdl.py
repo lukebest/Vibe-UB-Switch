@@ -33,12 +33,31 @@ def sset(sig, val) -> None:
 
 
 def hier(dut, path: str):
+    """Walk a dotted HDL path. Generate `g_port[0]` works on Icarus arrays
+    and Verilator flattened `g_port__BRA__0__KET__` / cocotb `_id` names."""
     cur = dut
     for part in path.split("."):
         if part.endswith("]") and "[" in part:
             name, rest = part.split("[", 1)
             idx = int(rest[:-1])
-            cur = getattr(cur, name)[idx]
+            got = None
+            try:
+                got = getattr(cur, name)[idx]
+            except Exception:
+                got = None
+            if got is None:
+                try:
+                    got = cur._id(part, extended=False)
+                except Exception:
+                    got = None
+            if got is None:
+                try:
+                    got = getattr(cur, f"{name}__BRA__{idx}__KET__")
+                except Exception:
+                    got = None
+            if got is None:
+                got = getattr(cur, part)
+            cur = got
         else:
             cur = getattr(cur, part)
     return cur

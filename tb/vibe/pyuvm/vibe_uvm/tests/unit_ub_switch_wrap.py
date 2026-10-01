@@ -121,17 +121,49 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
             )
         return (
             f"irq={ival(d.irq_logic, -1)} rdy={ival(d.cfg_wr_ready, -1)} "
+            f"wdis={self._inner('u_sw.disabled', -1)} "
+            f"wup={self._inner('u_sw.status_up', -1)} "
+            f"frdy={self._inner('u_sw.fab_nw_ready', -1)} "
             + " ".join(bits)
         )
 
     def _score_children(self, name):
-        missing = [inst for inst in CHILDREN
-                   if not self._exists(f"u_sw.{inst}")]
-        if missing:
+        """u_fab / u_mgmt are named instances. 4× port / 4× byp live in
+        generate — Icarus exposes `g_port[i].u_port`; Verilator 5.020 VPI
+        does not map those scopes. Prove the generate with wrap-local
+        packed nets the DUT drives from those children."""
+        if not self._exists("u_sw.u_fab") or not self._exists("u_sw.u_mgmt"):
             self.bad(name, "AS-0.1 §4/§17 children present",
-                     "4× u_port + u_fab + u_mgmt + 4× u_byp",
-                     f"missing={missing}", "u_sw")
+                     "u_fab and u_mgmt instances",
+                     f"fab={self._exists('u_sw.u_fab')} "
+                     f"mgmt={self._exists('u_sw.u_mgmt')}", "u_sw")
             return False
+        have_port = [self._exists(self._port(i)) for i in range(PORT_N)]
+        have_byp = [self._exists(f"u_sw.g_byp[{i}].u_byp")
+                    for i in range(PORT_N)]
+        if any(have_port) and not all(have_port):
+            self.bad(name, "AS-0.1 §4 4× vibe_port generate",
+                     "all four g_port[i].u_port",
+                     f"have={have_port}", "u_sw.g_port")
+            return False
+        if not any(have_port):
+            for net in ("status_up", "disabled", "port_rst", "lmsm_go",
+                        "fab_nw_ready", "nw_fab_vld"):
+                if self._inner(f"u_sw.{net}", None) is None:
+                    self.bad(name, "4× vibe_port via wrap nets (no g_port VPI)",
+                             f"u_sw.{net} readable", "missing", f"u_sw.{net}")
+                    return False
+        if any(have_byp) and not all(have_byp):
+            self.bad(name, "AS-0.1 §4 4× vibe_mgmt_byp generate",
+                     "all four g_byp[i].u_byp",
+                     f"have={have_byp}", "u_sw.g_byp")
+            return False
+        if not any(have_byp):
+            if self._inner("u_sw.mgmt_nw_vld", None) is None:
+                self.bad(name, "4× vibe_mgmt_byp via wrap nets (no g_byp VPI)",
+                         "u_sw.mgmt_nw_vld readable", "missing",
+                         "u_sw.mgmt_nw_vld")
+                return False
         return True
 
     def _score_combo(self, name):
@@ -233,6 +265,29 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
                      "irq_logic=0", self._fmt(), "u_sw.u_mgmt.irq_logic")
             phase.drop_objection(self)
             return
+        wdis = self._inner("u_sw.disabled", None)
+        wup = self._inner("u_sw.status_up", None)
+        if wdis not in (None, 0xF) and int(wdis) != 0xF:
+            self.bad(name, "reset 4× port Disabled (wrap packed)",
+                     "disabled=4'b1111", self._fmt(), "u_sw.disabled")
+            phase.drop_objection(self)
+            return
+        if wup not in (None, 0) and int(wup) != 0:
+            self.bad(name, "reset 4× port not LinkUp (wrap packed)",
+                     "status_up=4'b0000", self._fmt(), "u_sw.status_up")
+            phase.drop_objection(self)
+            return
+        for net, exp in (("fab_nw_ready", 0), ("nw_fab_vld", 0),
+                         ("mgmt_nw_vld", 0), ("lmsm_go", 0),
+                         ("port_rst", 0)):
+            got = self._inner(f"u_sw.{net}", None)
+            if got is None or (isinstance(got, int) and got < 0):
+                continue
+            if int(got) != exp:
+                self.bad(name, f"reset idle wrap {net}",
+                         f"{net}={exp}", self._fmt(), f"u_sw.{net}")
+                phase.drop_objection(self)
+                return
         for i in range(PORT_N):
             dis = self._inner(self._port(i, "disabled"), None)
             up = self._inner(self._port(i, "status_up"), None)
@@ -301,7 +356,14 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
             return
 
         # 3. credit / path block: cells=0 + !link_ready → fab_nw_ready=0.
-        # Observe child nets only — no Force over PCS-driven am_locked.
+        # Observe child-driven wrap nets — no Force over PCS-driven am_locked.
+        frw = self._inner("u_sw.fab_nw_ready", None)
+        if frw not in (None, 0) and int(frw) != 0:
+            self.bad(name, "credit/path blocks fabric NW (wrap packed)",
+                     "fab_nw_ready=4'b0000", self._fmt(),
+                     "u_sw.fab_nw_ready")
+            phase.drop_objection(self)
+            return
         for i in range(PORT_N):
             clow = self._inner(self._port(i, "u_dll.credit_low"), None)
             if clow not in (None, 1) and clow != 1:
@@ -397,7 +459,14 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         await self._to_fall()
-        # No Force am_locked: LMSM stays Idle / port stays Disabled.
+        # No Force am_locked: LMSM stays Idle / ports stay Disabled.
+        wdis = self._inner("u_sw.disabled", None)
+        if wdis is not None and int(wdis) != 0xF:
+            self.bad(name, "lmsm_go without am_locked stays Disabled",
+                     "disabled=4'b1111 (no Force over PCS)", self._fmt(),
+                     "u_sw.disabled")
+            phase.drop_objection(self)
+            return
         if self._inner(self._port(0, "disabled"), 1) == 0:
             self.bad(name, "lmsm_go without am_locked stays Disabled",
                      "disabled=1 (no Force over PCS)", self._fmt(),
@@ -410,6 +479,12 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
         if pr is not None and ((int(pr) >> 0) & 1) != 1:
             self.bad(name, "cfg_wr cmd=3 Port Reset W1C port0",
                      "port_rst[0]=1", f"port_rst={pr}", "u_sw.port_rst")
+            phase.drop_objection(self)
+            return
+        wdis = self._inner("u_sw.disabled", None)
+        if wdis is not None and (int(wdis) & 1) != 1:
+            self.bad(name, "port_rst keeps port0 Disabled (wrap packed)",
+                     "disabled[0]=1", self._fmt(), "u_sw.disabled")
             phase.drop_objection(self)
             return
         if self._inner(self._port(0, "disabled"), 1) == 0:
@@ -454,6 +529,24 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
                      "irq_logic=0", self._fmt(), "u_sw.u_mgmt.irq_logic")
             phase.drop_objection(self)
             return
+        wdis = self._inner("u_sw.disabled", None)
+        wup = self._inner("u_sw.status_up", None)
+        wnv = self._inner("u_sw.nw_fab_vld", None)
+        if wdis not in (None, 0xF) and int(wdis) != 0xF:
+            self.bad(name, "async rst_n 4× Disabled (wrap packed)",
+                     "disabled=4'b1111", self._fmt(), "u_sw.disabled")
+            phase.drop_objection(self)
+            return
+        if wup not in (None, 0) and int(wup) != 0:
+            self.bad(name, "async rst_n clears status_up",
+                     "status_up=0", self._fmt(), "u_sw.status_up")
+            phase.drop_objection(self)
+            return
+        if wnv not in (None, 0) and int(wnv) != 0:
+            self.bad(name, "async rst_n clears nw_fab_vld",
+                     "nw_fab_vld=0", self._fmt(), "u_sw.nw_fab_vld")
+            phase.drop_objection(self)
+            return
         for i in range(PORT_N):
             dis = self._inner(self._port(i, "disabled"), None)
             if dis not in (None, 1) and dis != 1:
@@ -481,6 +574,12 @@ class tc_vibe_ub_switch(VibeUnitBaseTest):
         if ival(d.irq_logic, 1) != 0 or ival(d.cfg_wr_ready, 0) != 1:
             self.bad(name, "after async re-reset release",
                      "irq_logic=0 cfg_wr_ready=1", self._fmt(), "u_sw")
+            phase.drop_objection(self)
+            return
+        wdis = self._inner("u_sw.disabled", None)
+        if wdis is not None and int(wdis) != 0xF:
+            self.bad(name, "after async re-reset, LMSM Idle",
+                     "disabled=4'b1111", self._fmt(), "u_sw.disabled")
             phase.drop_objection(self)
             return
         if self._inner(self._port(0, "disabled"), 1) == 0:
