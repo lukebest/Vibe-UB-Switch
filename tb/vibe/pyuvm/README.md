@@ -60,6 +60,7 @@ make -C tb/vibe/pyuvm amctl                    # same as units TC=tc_vibe_pcs_tx
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_amctl     # same as amctl
 make -C tb/vibe/pyuvm units TC=tc_vibe_rs128_120_enc  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rs128_120_enc             # same as units TC=tc_vibe_rs128_120_enc
+make -C tb/vibe/pyuvm tc_vibe_rs128_120_enc     # same as rs128_120_enc
 make -C tb/vibe/pyuvm units TC=tc_vibe_rs128_120_dec  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm rs128_120_dec             # same as units TC=tc_vibe_rs128_120_dec
 make -C tb/vibe/pyuvm units TC=tc_vibe_pcs_rx_deskew  # Decision-I leaf (module-level)
@@ -193,6 +194,7 @@ make -C tb/vibe/pyuvm tc_vibe_pcs_tx_cw2beat SIM=verilator  # same as cw2beat
 make -C tb/vibe/pyuvm amctl SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_pcs_tx_amctl SIM=verilator  # same as amctl
 make -C tb/vibe/pyuvm rs128_120_enc SIM=verilator # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_rs128_120_enc SIM=verilator  # same as rs128_120_enc
 make -C tb/vibe/pyuvm rs128_120_dec SIM=verilator # or SIM=icarus
 make -C tb/vibe/pyuvm deskew SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm amctl_lock SIM=verilator    # or SIM=icarus
@@ -387,15 +389,20 @@ scored by `tc_pcs_amctl`. This is **not** TP-PHY-009 / `cw2beat` /
 module. CHILDREN: `u3`/`u8`/`u9`/`u10`/`u21`/`u22`/`u28`
 (`vibe_ebch16`).
 
-`tc_vibe_rs128_120_enc` / `make rs128_120_enc` is **module-level only**
-(reset / idle `in_ready=0` `done=0` `parity=0`, systematic RS(128,120)
-encode / 8-symbol parity vs golden GF(256) LFSR, `start` restart,
-`in_vld` stall without a step, second message after `done`). It is
+`tc_vibe_rs128_120_enc` / `make rs128_120_enc` /
+`make tc_vibe_rs128_120_enc` is **module-level only** (reset / idle
+`in_ready=0` `done=0` `parity=0`, systematic RS(128,120) encode /
+8-symbol parity vs golden GF(256) LFSR, `start` restart, `in_vld`
+stall without a step, second message after `done`, mid-run async
+`rst_n` through dest posedge, pin scan with instance `u_u`). It is
 **not** 1/3, 4/3, freeze, or signoff. There is no stock Icarus leaf
 `tc_rs128_120_enc`; FEC wrap TCs (`tc_pcs_fec_*`) remain the official
 scorers for the instantiator. The Decision-I wrap leaf is
 `tc_vibe_pcs_tx_fec` / `make tx_fec`. This is **not** TP-PHY-016 /
-`amctl`.
+`amctl` / `cw2beat` / `ebch16` / `pcs_scramble` / `vibe_pcs_tx` /
+`vibe_pcs_rx` / gear / `vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`
+/ `rs128_120_dec`. Instantiated by `vibe_pcs_tx_fec` `u_enc_a` /
+`u_enc_b`. `ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_rs128_120_dec` / `make rs128_120_dec` is **module-level only**
 (reset / idle `in_ready=0` `done=0` `fec_fail=0` `data_out=0`,

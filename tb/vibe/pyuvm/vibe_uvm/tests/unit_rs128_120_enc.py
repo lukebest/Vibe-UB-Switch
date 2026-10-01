@@ -2,15 +2,23 @@
 
 Covers reset/idle (in_ready=0, done=0, parity=0), systematic RS(128,120)
 encode / 8-symbol parity vs a golden GF(256) LFSR, start restart,
-in_vld stall without a step, and a second message after done.
+in_vld stall without a step, a second message after done, mid-run
+async rst_n through dest posedge, and a pin scan with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or signoff.
 
 Matches product rtl/pcs/vibe_rs128_120_enc.sv: async-low rst_n, start
 clears r0..r7 / cnt and sets busy, combo in_ready = busy && (cnt < 120),
 step on busy && in_vld && in_ready with fb = in_sym ^ r7 and Table 3-2
 G0..G7 via vibe_gf256_mul, done 1-cycle pulse on the 120th accept,
-parity = {r7,r6,r5,r4,r3,r2,r1,r0}. Used by vibe_pcs_tx_fec u_enc_a /
-u_enc_b. T=2 encoding produces the same 8 parity symbols.
+parity = {r7,r6,r5,r4,r3,r2,r1,r0}. Instantiated by vibe_pcs_tx_fec
+u_enc_a / u_enc_b. T=2 encoding produces the same 8 parity symbols.
+This is not vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl /
+vibe_rs128_120_dec / gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none (leaf cell; no FSM child).
+There is no stock Icarus tc_rs128_120_enc; FEC wrap TCs remain the
+official scorers for the instantiator.
 """
 
 from uvm import uvm_component_utils
@@ -22,7 +30,23 @@ from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 G = (24, 200, 173, 239, 54, 81, 11, 255)
 MSG_N = 120
 MASK64 = (1 << 64) - 1
-HIER = "u_enc.parity / u_enc.done"
+HIER = "u_u.parity / u_u.done / u_u.in_ready"
+WRAP = "vibe_rs128_120_enc_cocotb_top"
+PINS = (
+    "clk", "rst_n", "start",
+    "in_vld", "in_sym", "in_ready",
+    "done", "parity",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld", "u_enc",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_dec",
+)
 
 
 def gf256_mul(a: int, b: int) -> int:
@@ -122,6 +146,31 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             ival(d.parity, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.in_ready, -1),
+            ival(u.done, -1),
+            ival(u.parity, -1),
+        )
+
+    def _score_inner(self, name, stim, rd, dn, par):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        ird, idn, ipar = inner
+        if (ird, idn, ipar) != (rd, dn, par):
+            self.bad(name, stim + " (port vs u_u)",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     f"u_u in_ready={ird} done={idn} parity={_hex64(ipar)}",
+                     HIER)
+            return False
+        return True
+
     async def _cycle(self, start=0, in_vld=0, in_sym=0):
         """Drive on this falling edge; sample NBA-stable outs on the next fall."""
         d = self.dut
@@ -175,15 +224,15 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, stim + " (in_ready after last)",
                      "in_ready=0 (busy dropped, cnt==120)",
                      f"in_ready={rd}",
-                     "u_enc.in_ready")
+                     "u_u.in_ready")
             return False
         if par is None or par != exp_par:
             self.bad(name, stim,
                      f"parity={_hex64(exp_par)}",
                      f"parity={_hex64(par)}",
-                     "u_enc.parity")
+                     "u_u.parity")
             return False
-        return True
+        return self._score_inner(name, stim, rd, dn, par)
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -203,6 +252,9 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
                      HIER)
             phase.drop_objection(self)
             return
+        if not self._score_inner(name, "reset then release, idle", rd, dn, par):
+            phase.drop_objection(self)
+            return
         for i in range(4):
             rd, dn, par = await self._cycle(0, 1, 0xA5)
             if rd != 0 or dn != 0 or par != 0:
@@ -219,7 +271,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "start then idle (before async rst)",
                      "in_ready=1 done=0 parity=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.in_ready")
+                     "u_u.in_ready")
             phase.drop_objection(self)
             return
         rd, dn, par = await self._cycle(0, 1, 0x11)
@@ -227,7 +279,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "one symbol before async rst (nonzero parity)",
                      "in_ready=1 done=0 parity!=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.parity")
+                     "u_u.parity")
             phase.drop_objection(self)
             return
         await self._idle()
@@ -238,7 +290,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "async rst_n=0 mid-encode (100ps, no posedge)",
                      "in_ready=0 done=0 parity=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.r0")
+                     "u_u.r0")
             phase.drop_objection(self)
             return
         await self._release_reset()
@@ -258,7 +310,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "start before all-zero encode",
                      "in_ready=1 done=0 parity=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.in_ready")
+                     "u_u.in_ready")
             phase.drop_objection(self)
             return
         zeros = _msg_const(0)
@@ -288,7 +340,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "cycle after all-zero done pulse",
                      "done=0 in_ready=0 parity stays 0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.done")
+                     "u_u.done")
             phase.drop_objection(self)
             return
 
@@ -297,7 +349,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
         rd, dn, par = await self._start_enc()
         if rd != 1:
             self.bad(name, "start before incrementing encode",
-                     "in_ready=1", f"in_ready={rd}", "u_enc.in_ready")
+                     "in_ready=1", f"in_ready={rd}", "u_u.in_ready")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(_msg_inc())
@@ -321,7 +373,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
         if exp_inc == 0:
             self.bad(name, "incrementing golden is nonzero",
                      "parity != 0", f"parity={_hex64(exp_inc)}",
-                     "u_enc.parity")
+                     "u_u.parity")
             phase.drop_objection(self)
             return
 
@@ -331,7 +383,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "A5/5A golden vs incrementing uniqueness",
                      "distinct parity words",
                      f"both {_hex64(exp_a5)}",
-                     "u_enc.parity")
+                     "u_u.parity")
             phase.drop_objection(self)
             return
         rd, _, _ = await self._start_enc()
@@ -360,7 +412,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "walk-1 first vs last golden",
                      "two distinct nonzero parity words",
                      f"w0={_hex64(exp_w0)} w119={_hex64(exp_w119)}",
-                     "u_enc.parity")
+                     "u_u.parity")
             phase.drop_objection(self)
             return
         for label, msg, exp in (
@@ -391,7 +443,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             _msg_inc(), stall_at=40, stall_n=3)
         if err:
             stim, exp, act = err
-            self.bad(name, stim, exp, act, "u_enc.cnt")
+            self.bad(name, stim, exp, act, "u_u.cnt")
             phase.drop_objection(self)
             return
         rd, dn, par = last
@@ -413,7 +465,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "partial incrementing before mid-start",
                      "17 accepts",
                      f"n={n} last={last} err={err}",
-                     "u_enc.cnt")
+                     "u_u.cnt")
             phase.drop_objection(self)
             return
         rd, dn, par = await self._start_enc()
@@ -421,7 +473,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "start mid-stream (clears LFSR)",
                      "in_ready=1 done=0 parity=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.r0")
+                     "u_u.r0")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(_msg_a5())
@@ -450,7 +502,7 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
             self.bad(name, "start&&in_vld same cycle (start wins, no step)",
                      "in_ready=1 done=0 parity=0",
                      f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                     "u_enc.r0")
+                     "u_u.r0")
             phase.drop_objection(self)
             return
         n, last, done_last, err = await self._feed(_msg_inc())
@@ -500,7 +552,136 @@ class tc_vibe_rs128_120_enc(VibeUnitBaseTest):
                 self.bad(name, f"in_vld after done[{i}] (not busy)",
                          f"in_ready=0 done=0 parity stays {_hex64(held)}",
                          f"in_ready={rd} done={dn} parity={_hex64(par)}",
-                         "u_enc.busy")
+                         "u_u.busy")
+                phase.drop_objection(self)
+                return
+
+        # 4. Mid-run async rst_n clears registered LFSR / busy / done.
+        # Park a live encode so in_ready=1 / parity!=0, then pulse rst_n
+        # through dest posedge.
+        rd, dn, par = await self._start_enc()
+        if rd != 1 or dn != 0 or par != 0:
+            self.bad(name, "pre-dest-rst start",
+                     "in_ready=1 done=0 parity=0",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     "u_u.in_ready")
+            phase.drop_objection(self)
+            return
+        n, last, _, err = await self._feed(_msg_inc()[:17])
+        if err or n != 17:
+            self.bad(name, "pre-dest-rst partial incrementing",
+                     "17 accepts",
+                     f"n={n} last={last} err={err}",
+                     "u_u.cnt")
+            phase.drop_objection(self)
+            return
+        rd, dn, par = last
+        if rd != 1 or dn != 0 or par == 0:
+            self.bad(name, "pre-async-rst park (17 symbols)",
+                     "in_ready=1 done=0 parity!=0",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park", rd, dn, par):
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        rd, dn, par = self._sample()
+        if rd != 0 or dn != 0 or par != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "in_ready=0 done=0 parity=0 (async clear)",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     "u_u.r0")
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "mid-run rst_n=0", rd, dn, par):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        rd, dn, par = self._sample()
+        if rd != 0 or dn != 0 or par != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "in_ready=0 done=0 parity=0",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(
+                name, "rst_n held 0 through dest posedge", rd, dn, par):
+            phase.drop_objection(self)
+            return
+        sset(d.rst_n, 1)
+        await self._idle()
+        await self.cycles(2)
+        await FallingEdge(d.clk)
+        rd, dn, par = self._sample()
+        if rd != 0 or dn != 0 or par != 0:
+            self.bad(name, "after async re-release, idle",
+                     "in_ready=0 done=0 parity=0",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "after async re-release, idle",
+                                 rd, dn, par):
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover LFSR / cnt / busy is gone; a new
+        # start must encode incrementing with no leftover.
+        rd, dn, par = await self._start_enc()
+        if rd != 1 or dn != 0 or par != 0:
+            self.bad(name, "start after mid-run rst (no leftover LFSR)",
+                     "in_ready=1 done=0 parity=0",
+                     f"in_ready={rd} done={dn} parity={_hex64(par)}",
+                     "u_u.r0")
+            phase.drop_objection(self)
+            return
+        n, last, done_last, err = await self._feed(_msg_inc())
+        if err:
+            stim, exp, act = err
+            self.bad(name, stim, exp, act, HIER)
+            phase.drop_objection(self)
+            return
+        rd, dn, par = last
+        if n != MSG_N or not done_last or not self._score_done(
+                name, "incrementing after mid-run rst",
+                rd, dn, par, exp_inc):
+            if n != MSG_N or not done_last:
+                self.bad(name, "after mid-run rst encode count",
+                         "exactly 120 accepts, done on last",
+                         f"n={n} done_on_last={done_last}",
+                         HIER)
+            phase.drop_objection(self)
+            return
+
+        # 5. Leaf pins match product SV (no ovf_l / dual-clock / decoder).
+        # Instance u_u (not leftover u_enc).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_rs128_120_enc product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
                 phase.drop_objection(self)
                 return
 
