@@ -3,6 +3,10 @@
 // flits, pack to 512b NW, CFG0 terminate, FEC/BCRC → Go-Back-N.
 // RXBUF=32 matches stock unit TCs (ovf). Product default stays 1024.
 // Clock from entry_unit (2 ns).
+// Instance u_u matches Decision-I leaf wrappers.
+// ovf_l (F1) is not in this module. This is not vibe_dll / vibe_dll_tx /
+// vibe_bcrc / vibe_dll_credit / vibe_dll_sm / vibe_icrc.
+// CHILDREN: none.
 `timescale 1ns/1ps
 
 module vibe_dll_rx_cocotb_top (

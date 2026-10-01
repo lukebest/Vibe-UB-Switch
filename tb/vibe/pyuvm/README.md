@@ -99,6 +99,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_sm           # same as dll_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_rx  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm dll_rx                   # same as units TC=tc_vibe_dll_rx
 make -C tb/vibe/pyuvm rx                       # same as dll_rx / tc_vibe_dll_rx
+make -C tb/vibe/pyuvm tc_vibe_dll_rx           # same as dll_rx
 make -C tb/vibe/pyuvm units TC=tc_vibe_dll_retry_ack_sm  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm retry_ack_sm             # same as units TC=tc_vibe_dll_retry_ack_sm
 make -C tb/vibe/pyuvm ack_sm                   # same as retry_ack_sm / tc_vibe_dll_retry_ack_sm
@@ -231,6 +232,7 @@ make -C tb/vibe/pyuvm sm SIM=verilator            # same as dll_sm
 make -C tb/vibe/pyuvm tc_vibe_dll_sm SIM=verilator # same as dll_sm
 make -C tb/vibe/pyuvm dll_rx SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm rx SIM=verilator            # same as dll_rx
+make -C tb/vibe/pyuvm tc_vibe_dll_rx SIM=verilator # same as dll_rx
 make -C tb/vibe/pyuvm retry_ack_sm SIM=verilator  # or SIM=icarus
 make -C tb/vibe/pyuvm ack_sm SIM=verilator        # same as retry_ack_sm
 make -C tb/vibe/pyuvm retry_buf SIM=verilator     # or SIM=icarus
@@ -622,15 +624,21 @@ scorer. This is **not** TP-DLL-004 / `dll` / `bcrc` / `credit` /
 `vibe_bcrc` / `vibe_dll_credit`. Instantiated by `vibe_dll` `u_sm`.
 `ovf_l` (F1) is not in this module. CHILDREN: none.
 
-`tc_vibe_dll_rx` / `make dll_rx` / `make rx` is **module-level
+`tc_vibe_dll_rx` / `make dll_rx` / `make rx` /
+`make tc_vibe_dll_rx` is **module-level
 only** (reset / `port_rst` / `!link_up` clears, CFG0 terminate
 does not enter fabric, PCS→NW packing / LPH / EOP leftover drop,
 FEC fail → `start_retry`, `rx_ovf` on buffer full, ready/valid
-handshake). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_cfg0_term_not_fabric.sv` /
+handshake, mid-run async `rst_n` through dest posedge, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or signoff.
+Stock Icarus `tb/vibe/tests/tc_cfg0_term_not_fabric.sv` /
 `tc_dll_rx_errflag.sv` / `tc_fec_fail_gbn.sv` remain the official
-TP scorers. This is **not** TP-DLL-004 / `dll`. Fourth DLL leaf
-after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm`.
+TP scorers. This is **not** TP-DLL-004 / `dll` / `bcrc` / `credit` /
+`dll_sm` / `icrc` / `vibe_pcs_tx` / `vibe_pcs_rx` / gear /
+`vibe_afifo` / `vibe_sync2` / `vibe_rst_sync`. Fourth DLL leaf
+after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm`. Instantiated
+by `vibe_dll` `u_rx`.
+`ovf_l` (F1) is not in this module. CHILDREN: none.
 
 `tc_vibe_dll_retry_ack_sm` / `make retry_ack_sm` / `make ack_sm`
 is **module-level only** (reset / `port_rst` clears to NORMAL,

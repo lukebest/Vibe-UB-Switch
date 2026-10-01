@@ -2,7 +2,9 @@
 
 Covers reset / port_rst / !link_up clears; CFG0 terminate (no fabric);
 PCS→NW packing / LPH / EOP leftover drop; FEC fail → start_retry;
-rx_ovf on buffer full (wrapper RXBUF=32); ready/valid handshake.
+rx_ovf on buffer full (wrapper RXBUF=32); ready/valid handshake,
+mid-run async rst_n through dest posedge, and a pin scan with
+instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff. Not TP-DLL-004 / full vibe_dll.
 
@@ -12,7 +14,16 @@ wptr-rptr >= RXBUF sets rx_ovf, 640b hold then OR-pack into by_lj,
 emit 512b when declared bytes are ready, EOP drops intra-group
 leftover, !link_up leftover → pad0/ERROR_FLAG, start_retry =
 fec_fail || bcrc_fail, start_ack tied 0. Instantiated by vibe_dll
-u_rx. Stock Icarus tc_cfg0_term_not_fabric / tc_dll_rx_errflag /
+u_rx. This is not vibe_dll / vibe_dll_tx / vibe_bcrc /
+vibe_dll_credit / vibe_dll_sm / vibe_icrc / vibe_pcs_tx /
+vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 / vibe_pcs_tx_cw2beat /
+vibe_pcs_tx_amctl / vibe_pcs_tx_g1 / vibe_pcs_tx_fec /
+vibe_rs128_120_enc / vibe_rs128_120_dec / vibe_pcs_rx_deskew /
+vibe_pcs_rx_amctl_lock / vibe_pcs_rx_unpack / vibe_pcs_tx_pack /
+gear / vibe_afifo / vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module.
+CHILDREN: none.
+Stock Icarus tc_cfg0_term_not_fabric / tc_dll_rx_errflag /
 tc_fec_fail_gbn remain the official TP scorers. Header-only vs
 stock; no invented protocol.
 """
@@ -34,6 +45,37 @@ MASK512 = (1 << 512) - 1
 MASK640 = (1 << 640) - 1
 MASK1280 = (1 << 1280) - 1
 HIER = "u_u.have / u_u.by_n / u_u.pkt_act / u_u.wptr"
+WRAP = "vibe_dll_rx_cocotb_top"
+PINS = (
+    "clk", "rst_n", "port_rst", "link_up",
+    "fec_fail",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "cfg0_hit", "cfg0_data", "bcrc_fail", "start_retry",
+    "rx_ovf", "start_ack",
+)
+ABSENT = (
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_crd", "u_bcrc", "u_b", "u_l", "u_dsk", "u_un", "u_fec",
+    "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "consume_vld", "consume_flits", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "state", "status_up", "disabled",
+    "start", "in_vld", "in_flit", "last", "error_flag", "crc_word", "done",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+)
 
 # Distinctive 480b payload so a slice/shift swap fails (stock overlay B).
 PAT480 = int("A5" * 60, 16) & MASK480
@@ -274,6 +316,37 @@ class tc_vibe_dll_rx(VibeUnitBaseTest):
             self._inner("u_u.pkt_act", -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, "u_u", None)
+        if u is None:
+            return None
+        return (
+            ival(u.pcs_dll_ready, -1),
+            ival(u.dll_nw_data, -1) & MASK512,
+            ival(u.dll_nw_vld, -1),
+            ival(u.cfg0_hit, -1),
+            ival(u.cfg0_data, -1) & MASK640,
+            ival(u.bcrc_fail, -1),
+            ival(u.start_retry, -1),
+            ival(u.rx_ovf, -1),
+            ival(u.start_ack, -1),
+            ival(u.have, -1),
+            ival(u.by_n, -1),
+            ival(u.pkt_act, -1),
+        )
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + " (u_u)",
+                     "u_u present", "missing", WRAP)
+            return False
+        if inner != got:
+            self.bad(name, stim + " (port vs u_u)",
+                     self._fmt(got), self._fmt(inner), WRAP)
+            return False
+        return True
+
     def _fmt(self, s):
         ready, nw, vld, hit, c0, bf, retry, ovf, ack, have, by_n, pact = s
         return (
@@ -308,7 +381,7 @@ class tc_vibe_dll_rx(VibeUnitBaseTest):
             self.bad(name, stim + " (start_ack tied 0)",
                      "start_ack=0", self._fmt(got), "u_u.start_ack")
             return False
-        return True
+        return self._score_inner(name, stim, got)
 
     async def _expect(self, name, stim, **kw):
         got = await self._cycle(**kw)
@@ -843,6 +916,122 @@ class tc_vibe_dll_rx(VibeUnitBaseTest):
                      "nw_vld=0 have=0", self._fmt(got), "u_u.dll_nw_vld")
             phase.drop_objection(self)
             return
+
+        # Restore link_up so the mid-run park can accept a live leftover.
+        got = await self._expect(name, "link_up=1 after idle drop")
+        if got is None:
+            phase.drop_objection(self)
+            return
+
+        # 10. Mid-run async rst_n clears registered have / by_n / pkt_act /
+        # rx_ovf. Park live leftover (have=1 after CFG3 accept), then
+        # pulse rst_n through dest posedge.
+        got = await self._expect(name, "accept CFG3 1-flit before mid-run rst",
+                                 pcs_data=b1, pcs_vld=1, nw_ready=0)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if not self._score_inner(name, "pre-async-rst park (live have)",
+                                 got):
+            phase.drop_objection(self)
+            return
+        if got[9] != 1:
+            self.bad(name, "pre-async-rst park (live leftover)",
+                     "have=1", self._fmt(got), "u_u.have")
+            phase.drop_objection(self)
+            return
+        await self._idle()
+        sset(d.rst_n, 0)
+        await Timer(100, "PS")
+        self.g.reset()
+        got = self._sample()
+        if got[9] != 0 or got[2] != 0 or got[7] != 0 or got[10] != 0 or got[11] != 0:
+            self.bad(name, "mid-run rst_n=0 (100ps, no posedge)",
+                     "have=0 by_n=0 pkt_act=0 nw_vld=0 rx_ovf=0 (async clear)",
+                     self._fmt(got), "u_u.have")
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "mid-run rst_n=0", got):
+            phase.drop_objection(self)
+            return
+        await self._to_fall()
+        got = self._sample()
+        if got[9] != 0 or got[2] != 0 or got[7] != 0 or got[10] != 0 or got[11] != 0:
+            self.bad(name, "rst_n held 0 through dest posedge",
+                     "have=0 by_n=0 pkt_act=0 nw_vld=0 rx_ovf=0",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+        if not self._score(name, "rst_n held 0 through dest posedge", got):
+            phase.drop_objection(self)
+            return
+        await self._release_reset()
+        await FallingEdge(d.clk)
+        got = self._sample()
+        if not self._score(name, "after async re-release, idle", got):
+            phase.drop_objection(self)
+            return
+        if got[9] != 0 or got[10] != 0 or got[11] != 0 or got[7] != 0:
+            self.bad(name, "after async re-release, no leftover have/pkt/ovf",
+                     "have=0 by_n=0 pkt_act=0 rx_ovf=0",
+                     self._fmt(got), "u_u.have")
+            phase.drop_objection(self)
+            return
+        # After mid-run rst leftover have / pkt_act are gone; a new
+        # accept must start clean (have=1, not leftover pack/emit).
+        got = await self._expect(name, "accept CFG3 after mid-run rst (no leftover)",
+                                 pcs_data=b1, pcs_vld=1)
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[9] != 1 or got[10] != 0 or got[11] != 0 or got[7] != 0:
+            self.bad(name, "after mid-run rst accept (no leftover pack)",
+                     "have=1 by_n=0 pkt_act=0 rx_ovf=0",
+                     self._fmt(got), "u_u.have")
+            phase.drop_objection(self)
+            return
+        got = await self._expect(name, "pack after mid-run rst")
+        if got is None:
+            phase.drop_objection(self)
+            return
+        got = await self._expect(name, "emit after mid-run rst (fresh 1-flit)")
+        if got is None:
+            phase.drop_objection(self)
+            return
+        if got[2] != 1 or got[9] != 0 or got[10] != 0 or got[11] != 0:
+            self.bad(name, "after mid-run rst emit (fresh EOP)",
+                     "nw_vld=1 have=0 by_n=0 pkt_act=0",
+                     self._fmt(got), HIER)
+            phase.drop_objection(self)
+            return
+
+        # 11. Leaf pins match product SV (no ovf_l / dual-clock / leftover
+        # u_rx). Instance u_u (not leftover u_rx / u_sm / u_crd / u_bcrc).
+        if not hasattr(d, "u_u"):
+            self.bad(name, "leaf instance scan (u_u)",
+                     "u_u present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_dll_rx product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = d.u_u
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan (u_u.{need})",
+                         f"u_u.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
