@@ -16,7 +16,8 @@ rtl flow.
 
 ## Ports (product)
 
-Same as tip `984e3b9` / freeze `302ac943`. One message symbol per
+Same as tip `b30e59fd`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. One message symbol per
 accepted cycle. Reset stays **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

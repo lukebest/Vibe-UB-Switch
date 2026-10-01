@@ -1,7 +1,8 @@
 """vibe_rs128_120_enc — systematic RS(128,120) encoder, GF(256).
 
 Product module: ``rtl/pcs/vibe_rs128_120_enc.sv``. Ports match tip
-``984e3b9`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``b30e59fd``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). SPEC / CR-B names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``start`` / ``in_vld`` /
 ``in_sym`` / ``in_ready`` / ``done`` / 64b ``parity``); used by
 ``vibe_pcs_tx_fec`` (``u_enc_a`` / ``u_enc_b``). AS-0.1 §5 T3 /
