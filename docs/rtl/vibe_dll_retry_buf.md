@@ -21,7 +21,8 @@ Self-contained (no child instances). Sixth DLL leaf after
 
 ## Ports (product)
 
-Same as tip `fc7c0151` / freeze `302ac943`. Reset stays
+Same as tip `eac12a8b`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

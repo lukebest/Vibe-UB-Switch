@@ -1,7 +1,9 @@
 """vibe_dll_retry_buf — DLL RETRY buffer (AS-0.1 §12).
 
 Product module: ``rtl/dll/vibe_dll_retry_buf.sv``. Ports match tip
-``fc7c0151`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``eac12a8b``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``port_rst`` / ``link_up`` /
 ``wr_en`` / ``is_null`` / ``is_retry`` / ``wr_flit[159:0]`` /
 ``send_size[7:0]`` / ``ack_rel`` / ``rel_size[7:0]`` /
