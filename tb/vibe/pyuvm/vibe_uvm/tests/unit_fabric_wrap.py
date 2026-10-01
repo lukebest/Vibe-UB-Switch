@@ -264,12 +264,31 @@ class tc_vibe_fabric(VibeUnitBaseTest):
         sset(d.nw_fab_vld, 0)
 
     async def _wait_pulse(self, sig, n=16):
+        """Combo one-shots (drop_g1 / cfg6_hit) are high only while SAF
+        presents; NBA consume clears them after the posedge. Sample at
+        RisingEdge, not the following fall."""
         for _ in range(n):
-            await self._to_fall()
+            await RisingEdge(self.dut.clk)
             got = ival(sig, 0)
             if got is not None and int(got) != 0:
                 return int(got)
         return 0
+
+    async def _wait_hit_bit(self, port, n=16):
+        for _ in range(n):
+            await RisingEdge(self.dut.clk)
+            hit = ival(self.dut.fab_mgmt_cfg6_hit, 0) or 0
+            if (int(hit) >> port) & 1:
+                return int(hit)
+        return 0
+
+    async def _drain_egr(self, n=16):
+        for _ in range(n):
+            ev = ival(self.dut.fab_nw_vld, 0)
+            if ev is None or int(ev) == 0:
+                return True
+            await self._to_fall()
+        return ival(self.dut.fab_nw_vld, 1) == 0
 
     async def run_phase(self, phase):
         phase.raise_objection(self)
@@ -333,7 +352,11 @@ class tc_vibe_fabric(VibeUnitBaseTest):
             phase.drop_objection(self)
             return
         sset(d.nw_fab_vld, 0)
-        await self.cycles(4)
+        if not await self._drain_egr():
+            self.bad(name, "CFG3 egress drained before G1",
+                     "fab_nw_vld=0", self._fmt(), "u_fab.fab_nw_vld")
+            phase.drop_objection(self)
+            return
         await FallingEdge(d.clk)
 
         # 4. G1 RT=10: combo drop_g1 / irq_rt, saturate counter, no egress.
@@ -350,6 +373,7 @@ class tc_vibe_fabric(VibeUnitBaseTest):
                      "irq_rt=1", self._fmt(), "u_fab.irq_rt")
             phase.drop_objection(self)
             return
+        await FallingEdge(d.clk)
         cnt = ival(d.rt_shortest_unimpl, None)
         if cnt is not None and int(cnt) < 1:
             self.bad(name, "G1 increments rt_shortest_unimpl",
@@ -420,13 +444,7 @@ class tc_vibe_fabric(VibeUnitBaseTest):
             return
 
         await self._inject(1, cfg6_beat(STOCK_MISS, tag=0xD44D))
-        saw_miss = 0
-        for _ in range(16):
-            await self._to_fall()
-            hit = ival(d.fab_mgmt_cfg6_hit, 0) or 0
-            if (int(hit) >> 1) & 1:
-                saw_miss = 1
-                break
+        saw_miss = 1 if await self._wait_hit_bit(1, 16) else 0
         exp_miss = lph.cfg6_should_term(
             True, STOCK_CNA, lph.nw512_flit0(cfg6_beat(STOCK_MISS)))
         if exp_miss:
@@ -444,13 +462,7 @@ class tc_vibe_fabric(VibeUnitBaseTest):
         # opc 0x10 without us does not invent CFG6 CSR packing.
         opc_beat = cfg6_beat(STOCK_MISS, opc=0x10, tag=0xE55E)
         await self._inject(2, opc_beat)
-        saw_opc = 0
-        for _ in range(16):
-            await self._to_fall()
-            hit = ival(d.fab_mgmt_cfg6_hit, 0) or 0
-            if (int(hit) >> 2) & 1:
-                saw_opc = 1
-                break
+        saw_opc = 1 if await self._wait_hit_bit(2, 16) else 0
         exp_opc = lph.cfg6_should_term(
             True, STOCK_CNA, lph.nw512_flit0(opc_beat))
         if bool(saw_opc) != bool(exp_opc):
