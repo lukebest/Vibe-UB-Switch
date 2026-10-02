@@ -5,6 +5,19 @@
 // xbar until EOP / full declared length. Length not in 16–4300 B
 // → Packet Length Error, drop, len_err pulse. Instantiated by
 // vibe_fabric g_saf.u_saf. Clock from entry_unit (2 ns).
+// Decision-I wrap leaf `tc_vibe_saf_ing` / make saf_ing /
+// make saf / make tc_vibe_saf_ing uses this top. Instance u_u
+// matches Decision-I leaf wrappers (product instantiator is
+// vibe_fabric g_saf.u_saf; stock Icarus tc_saf_ing uses u_s;
+// not leftover u_saf / u_s on this wrap). Sixth fabric leaf
+// after stage-80 vibe_fecn_mark wrap, stage-81 vibe_vl_rr wrap,
+// stage-82 vibe_route_lu wrap, stage-83 vibe_port_sel wrap,
+// and stage-84 vibe_voq_egr wrap.
+// ovf_l (F1) is not in this module. This is not vibe_fecn_mark /
+// vibe_vl_rr / vibe_route_lu / vibe_port_sel / vibe_voq_egr /
+// vibe_nw_adapt / vibe_icrc / vibe_dll / vibe_bcrc / vibe_port /
+// vibe_ub_switch.
+// CHILDREN: none. Do not invent vibe_xbar or later fabric leaves.
 `timescale 1ns/1ps
 
 module vibe_saf_ing_cocotb_top (

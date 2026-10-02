@@ -1,19 +1,41 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_saf_ing.
+"""Module-level uvm-python TC for Decision-I stage-85 vibe_saf_ing.
 
 Covers reset clearing pointers / assemble state / len_err (combo
 in_ready=1, pkt_vld=0); store-and-forward hold until declared
 beats are assembled (not cut-through); wr then drain data/sop/eop
 and pkt_bytes; 1-beat sop&&eop; oversize PLEN pulses len_err and
 rewinds wptr; max-legal 4300 B SOP does not error; async rst_n
-mid-stream. Not a full-chip consecutive-green gate. Not 1/3, 4/3,
-freeze, or signoff.
+mid-stream; wrap-vs-DUT instance score (cocotb instance u_u); and
+a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/fabric/vibe_saf_ing.sv: async-low rst_n, combo
 in_ready / pkt_*, DEPTH=128, header temps vibe_lph_plength /
 vibe_decl_flits / vibe_nw512_decl_beats, Packet Length Error when
-(dflits*20) not in 16–4300. Instantiated by vibe_fabric g_saf.u_saf.
-Stock Icarus tc_saf_ing remains the official TP scorer. Header-only
-vs stock; no invented protocol. ovf_l (F1) is not in this module.
+(dflits*20) not in 16–4300. Product instantiator is vibe_fabric
+g_saf.u_saf; stock Icarus tc_saf_ing uses u_s; Decision-I wrap
+uses instance u_u (not leftover u_saf / u_s).
+This is not vibe_fecn_mark / vibe_vl_rr / vibe_route_lu /
+vibe_port_sel / vibe_voq_egr / vibe_icrc / vibe_nw_adapt /
+vibe_dll / vibe_bcrc / vibe_dll_tx / vibe_dll_credit /
+vibe_dll_sm / vibe_dll_rx / vibe_dll_retry_ack_sm /
+vibe_dll_retry_buf / vibe_dll_retry_req_sm / vibe_port /
+vibe_ub_switch / vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl /
+vibe_pcs_tx_g1 / vibe_pcs_tx_fec / vibe_rs128_120_enc /
+vibe_rs128_120_dec / vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Sixth fabric leaf after stage-80 vibe_fecn_mark wrap, stage-81
+vibe_vl_rr wrap, stage-82 vibe_route_lu wrap, stage-83
+vibe_port_sel wrap, and stage-84 vibe_voq_egr wrap. Do not invent
+vibe_xbar or later fabric leaves here.
+Stock Icarus tc_saf_ing remains the official TP scorer
+(direct vibe_saf_ing top, instance u_s). Header-only vs stock;
+no invented protocol.
 """
 
 from uvm import uvm_component_utils
@@ -28,7 +50,62 @@ MASK16 = 0xFFFF
 MASK512 = (1 << 512) - 1
 PKT_LEN_MIN = 16
 PKT_LEN_MAX = 4300
-HIER = "u_u.in_ready / pkt_* / len_err"
+HIER = "u_u.in_ready / u_u.pkt_* / u_u.len_err"
+WRAP = "vibe_saf_ing_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_saf_ing.sv. Sequential: clk /
+# async-low rst_n. ovf_l (F1) is not a port.
+PINS = (
+    "clk", "rst_n",
+    "in_data", "in_vld", "in_ready",
+    "pkt_data", "pkt_vld", "pkt_ready",
+    "pkt_sop", "pkt_eop", "pkt_bytes", "len_err",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator g_saf.u_saf or stock Icarus u_s.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_rt", "u_rti", "u_ps", "u_psi",
+    "u_voq", "u_v", "u_saf", "u_s", "u_xbar",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "grant", "vl_sel", "valid",
+    "device_rst", "wr_idx", "lu_vld",
+    "egr", "drop", "drop_down_cnt",
+    "bitmap", "drop_g1", "status_up", "default_bm",
+    "rt", "sel_vld", "cfg", "src", "dest", "vl",
+    "wr_vl", "wr_en", "wr_data", "wr_sop", "wr_eop", "wr_ready",
+    "rd_vl", "rd_en", "rd_data", "rd_sop", "rd_eop",
+    "nonempty", "occ_vl0", "deadlock_drop", "deadlock_cnt",
+    "start", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "disabled",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 
 
 def header_fields(beat):
@@ -180,15 +257,67 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
             ival(d.len_err, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return (
+            ival(u.in_ready, -1),
+            ival(u.pkt_vld, -1),
+            ival(u.pkt_sop, -1),
+            ival(u.pkt_eop, -1),
+            ival(u.pkt_data, -1),
+            ival(u.pkt_bytes, -1),
+            ival(u.len_err, -1),
+        )
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        irdy, ivld, isop, ieop, idata, iby, ierr = inner
+        rdy, vld, sop, eop, data, by, err = got
+        if ierr != err:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"len_err={err} pkt={vld}/{sop}/{eop}",
+                     f"{INST} len_err={ierr} pkt={ivld}/{isop}/{ieop}",
+                     HIER)
+            return False
+        pairs = (
+            ("in_ready", rdy, irdy, 1),
+            ("pkt_vld", vld, ivld, 1),
+            ("pkt_sop", sop, isop, 1),
+            ("pkt_eop", eop, ieop, 1),
+            ("pkt_data", data, idata, MASK512),
+            ("pkt_bytes", by, iby, MASK16),
+            ("len_err", err, ierr, 1),
+        )
+        for pname, outer, inner_v, mask in pairs:
+            if outer is None or inner_v is None:
+                if outer != inner_v:
+                    self.bad(name, stim + f" ({INST} vs wrap)",
+                             f"{pname}={outer}",
+                             f"{INST}.{pname}={inner_v}",
+                             f"{INST}.{pname}")
+                    return False
+            elif (int(inner_v) & mask) != (int(outer) & mask):
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"{pname}={outer}",
+                         f"{INST}.{pname}={inner_v}",
+                         f"{INST}.{pname}")
+                return False
+        return True
+
     def _fmt(self, s):
         rdy, vld, sop, eop, data, by, err = s
         return (f"in_ready={rdy} pkt={vld}/{sop}/{eop} "
                 f"data={data} bytes={by} len_err={err}")
 
     def _peek_state(self):
-        try:
-            u = self.dut.u_u
-        except Exception:
+        u = getattr(self.dut, INST, None)
+        if u is None:
             return None
         keys = ("wptr", "rptr", "beat_cnt", "decl_beats",
                 "bytes", "assembling", "done", "len_err")
@@ -222,8 +351,10 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
             if (data & MASK512) != (exp[4] & MASK512):
                 self.bad(name, stim + " (pkt_data)",
                          f"pkt_data={exp[4]}",
-                         self._fmt(got), "u_u.pkt_data")
+                         self._fmt(got), f"{INST}.pkt_data")
                 return False
+        if not self._score_inner(name, stim, got):
+            return False
         st = self._peek_state()
         if st is not None:
             checks = (
@@ -241,9 +372,9 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
                 if got_v is None:
                     continue
                 if (got_v & mask) != (exp_v & mask):
-                    self.bad(name, stim + f" (u_u.{key})",
+                    self.bad(name, stim + f" ({INST}.{key})",
                              f"{key}={exp_v}",
-                             f"u_u.{key}={got_v}", f"u_u.{key}")
+                             f"{INST}.{key}={got_v}", f"{INST}.{key}")
                     return False
         return True
 
@@ -464,7 +595,7 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
         if got[6] != 1 or got[1] != 0:
             self.bad(name, "oversize PLEN",
                      "len_err=1 pkt_vld=0", self._fmt(got),
-                     "u_u.len_err")
+                     f"{INST}.len_err")
             phase.drop_objection(self)
             return
 
@@ -477,7 +608,7 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
         if got[6] != 0 or got[1] != 0:
             self.bad(name, "len_err pulse ends",
                      "len_err=0 pkt_vld=0", self._fmt(got),
-                     "u_u.len_err")
+                     f"{INST}.len_err")
             phase.drop_objection(self)
             return
 
@@ -629,6 +760,35 @@ class tc_vibe_saf_ing(VibeUnitBaseTest):
                      self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 8. Leaf pins match product SV (clk / rst_n / in_* / pkt_* /
+        # len_err; no ovf_l / leftover u_saf). Instance u_u (not
+        # leftover u_saf / u_s / u_voq / u_v).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_saf_ing product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
