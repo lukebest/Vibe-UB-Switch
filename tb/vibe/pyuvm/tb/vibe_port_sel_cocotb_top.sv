@@ -4,6 +4,17 @@
 // Default all-0 → port 0; if still empty drop+count, no flood.
 // RT=00 per-flow sticky RR (slot=vl); else per-packet RR via rr.
 // Clock from entry_unit (2 ns). Instantiated by vibe_fabric u_ps / g_rt.u_psi.
+// Decision-I wrap leaf `tc_vibe_port_sel` / make port_sel /
+// make psel / make tc_vibe_port_sel uses this top. Instance u_u
+// matches Decision-I leaf wrappers (product instantiator is
+// vibe_fabric u_ps / g_rt.u_psi; stock Icarus tc_p0_down_drop uses
+// u_ps; not leftover u_ps / u_psi / u_rt on this wrap). Fourth
+// fabric leaf after stage-80 vibe_fecn_mark wrap, stage-81
+// vibe_vl_rr wrap, and stage-82 vibe_route_lu wrap.
+// ovf_l (F1) is not in this module. This is not vibe_fecn_mark /
+// vibe_vl_rr / vibe_route_lu / vibe_nw_adapt / vibe_icrc /
+// vibe_dll / vibe_bcrc / vibe_port / vibe_ub_switch.
+// CHILDREN: none. Do not invent vibe_voq_egr or later fabric leaves.
 `timescale 1ns/1ps
 
 module vibe_port_sel_cocotb_top (

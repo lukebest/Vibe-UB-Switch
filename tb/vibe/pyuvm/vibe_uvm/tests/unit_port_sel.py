@@ -1,4 +1,4 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_port_sel.
+"""Module-level uvm-python TC for Decision-I stage-83 vibe_port_sel.
 
 Covers reset clearing egr / drop / drop_down_cnt / rr / sticky;
 normal select (bitmap & status_up nonempty → egr in use_bm, drop=0);
@@ -6,14 +6,34 @@ drop_g1 + sel_vld pulses drop without bumping drop_down_cnt; empty
 avail + default all-0 + port0 up picks port 0, port0 down drops and
 increments drop_down_cnt (no flood); RT=00 sticky keeps the slot
 when still in use_bm else pick_rr + update; RT=01 (else) successive
-sel_vld rotate via rr. Not a full-chip consecutive-green gate. Not
-1/3, 4/3, freeze, or signoff.
+sel_vld rotate via rr; wrap-vs-DUT instance score (cocotb instance
+u_u); and a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/fabric/vibe_port_sel.sv: async-low rst_n, combo
 avail/use_bm, pick_rr walk of 4 ports from start, compact sticky
-slot fidx=vl (cfg/src/dest are product ports). Instantiated by
-vibe_fabric u_ps / g_rt.u_psi. Stock Icarus tc_p0_down_drop remains
-the official TP scorer. Header-only vs stock; no flood.
+slot fidx=vl (cfg/src/dest are product ports). Product instantiator
+is vibe_fabric u_ps / g_rt.u_psi; stock Icarus tc_p0_down_drop uses
+u_ps; Decision-I wrap uses instance u_u (not leftover u_ps / u_psi).
+This is not vibe_fecn_mark / vibe_vl_rr / vibe_route_lu / vibe_icrc /
+vibe_nw_adapt / vibe_dll / vibe_bcrc / vibe_dll_tx / vibe_dll_credit /
+vibe_dll_sm / vibe_dll_rx / vibe_dll_retry_ack_sm /
+vibe_dll_retry_buf / vibe_dll_retry_req_sm / vibe_port /
+vibe_ub_switch / vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble /
+vibe_ebch16 / vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl /
+vibe_pcs_tx_g1 / vibe_pcs_tx_fec / vibe_rs128_120_enc /
+vibe_rs128_120_dec / vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Fourth fabric leaf after stage-80 vibe_fecn_mark wrap, stage-81
+vibe_vl_rr wrap, and stage-82 vibe_route_lu wrap. Do not invent
+vibe_voq_egr or later fabric leaves here.
+Stock Icarus tc_p0_down_drop remains the official TP scorer
+(direct vibe_port_sel top, instance u_ps). Header-only vs stock;
+no flood.
 """
 
 from uvm import uvm_component_utils
@@ -27,7 +47,58 @@ MASK32 = 0xFFFFFFFF
 NPORT = 4
 NSTICKY = 16
 PORT0_BM = 0b0001
-HIER = "u_u.egr / drop / drop_down_cnt"
+HIER = "u_u.egr / u_u.drop / u_u.drop_down_cnt"
+WRAP = "vibe_port_sel_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_port_sel.sv. Sequential: clk /
+# async-low rst_n. ovf_l (F1) is not a port. cfg/src/dest are
+# product ports (lint UNUSEDSIGNAL; do not drop them).
+PINS = (
+    "clk", "rst_n",
+    "bitmap", "status_up", "default_bm",
+    "rt", "drop_g1", "sel_vld",
+    "cfg", "src", "dest", "vl",
+    "egr", "drop", "drop_down_cnt",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator u_ps / g_rt.u_psi or stock Icarus u_ps.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_rt", "u_rti", "u_ps", "u_psi",
+    "u_voq", "u_saf", "u_xbar",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "nonempty", "grant", "vl_sel", "valid",
+    "device_rst", "wr_en", "wr_idx", "wr_data", "lu_vld",
+    "start", "in_vld", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "disabled",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 
 
 def pick_rr(bm, start):
@@ -143,28 +214,73 @@ class tc_vibe_port_sel(VibeUnitBaseTest):
         d = self.dut
         return (ival(d.egr, -1), ival(d.drop, -1), ival(d.drop_down_cnt, -1))
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return (ival(u.egr, -1), ival(u.drop, -1), ival(u.drop_down_cnt, -1))
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        iegr, idrop, icnt = inner
+        egr, drop, cnt = got
+        if idrop != drop:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"drop={drop} egr={egr} drop_down_cnt={cnt}",
+                     f"{INST} drop={idrop} egr={iegr} drop_down_cnt={icnt}",
+                     HIER)
+            return False
+        if egr is None or iegr is None:
+            if egr != iegr:
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"egr={egr}", f"{INST}.egr={iegr}",
+                         f"{INST}.egr")
+                return False
+        elif (int(iegr) & MASK2) != (int(egr) & MASK2):
+            self.bad(name, stim + f" ({INST} vs wrap)",
+                     f"egr={egr}", f"{INST}.egr={iegr}",
+                     f"{INST}.egr")
+            return False
+        if cnt is None or icnt is None:
+            if cnt != icnt:
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"drop_down_cnt={cnt}",
+                         f"{INST}.drop_down_cnt={icnt}",
+                         f"{INST}.drop_down_cnt")
+                return False
+        elif (int(icnt) & MASK32) != (int(cnt) & MASK32):
+            self.bad(name, stim + f" ({INST} vs wrap)",
+                     f"drop_down_cnt={cnt}",
+                     f"{INST}.drop_down_cnt={icnt}",
+                     f"{INST}.drop_down_cnt")
+            return False
+        return True
+
     def _fmt(self, s, rr=None):
         egr, drop, cnt = s
         extra = f" rr={rr}" if rr is not None else ""
         return f"egr={egr} drop={drop} drop_down_cnt={cnt}{extra}"
 
     def _peek_inner(self):
-        try:
-            u = self.dut.u_u
-            rr = ival(u.rr, None)
-            egr = ival(u.egr, None)
-            drop = ival(u.drop, None)
-            cnt = ival(u.drop_down_cnt, None)
-            sticky = []
-            try:
-                arr = u.sticky
-                for k in range(NSTICKY):
-                    sticky.append(ival(arr[k], None))
-            except Exception:
-                sticky = None
-            return rr, egr, drop, cnt, sticky
-        except Exception:
+        u = getattr(self.dut, INST, None)
+        if u is None:
             return None, None, None, None, None
+        rr = ival(u.rr, None)
+        egr = ival(u.egr, None)
+        drop = ival(u.drop, None)
+        cnt = ival(u.drop_down_cnt, None)
+        sticky = []
+        try:
+            arr = u.sticky
+            for k in range(NSTICKY):
+                sticky.append(ival(arr[k], None))
+        except Exception:
+            sticky = None
+        return rr, egr, drop, cnt, sticky
 
     def _score(self, name, stim, got, expect_in_bm=None):
         exp = (self.g.egr & MASK2, self.g.drop, self.g.drop_down_cnt & MASK32)
@@ -175,40 +291,43 @@ class tc_vibe_port_sel(VibeUnitBaseTest):
         egr, drop, _cnt = got
         if drop not in (0, 1):
             self.bad(name, stim + " (drop 0/1)",
-                     "drop=0 or 1", self._fmt(got), "u_u.drop")
+                     "drop=0 or 1", self._fmt(got), f"{INST}.drop")
             return False
         if expect_in_bm is not None and not drop:
             if egr < 0 or not ((int(expect_in_bm) >> (egr & MASK2)) & 1):
                 self.bad(name, stim + " (egr must be in use_bm)",
                          f"use_bm=0x{int(expect_in_bm) & MASK4:x} bit {egr}",
-                         self._fmt(got), "u_u.egr")
+                         self._fmt(got), f"{INST}.egr")
                 return False
+        if not self._score_inner(name, stim, got):
+            return False
         irr, iegr, idrop, icnt, isticky = self._peek_inner()
         if irr is not None and (irr & MASK2) != (self.g.rr & MASK2):
-            self.bad(name, stim + " (port vs u_u.rr)",
-                     f"rr={self.g.rr}", f"u_u.rr={irr}", "u_u.rr")
+            self.bad(name, stim + f" (port vs {INST}.rr)",
+                     f"rr={self.g.rr}", f"{INST}.rr={irr}", f"{INST}.rr")
             return False
         if iegr is not None and (iegr & MASK2) != (egr & MASK2):
-            self.bad(name, stim + " (port vs u_u.egr)",
-                     f"egr={egr}", f"u_u.egr={iegr}", "u_u.egr")
+            self.bad(name, stim + f" (port vs {INST}.egr)",
+                     f"egr={egr}", f"{INST}.egr={iegr}", f"{INST}.egr")
             return False
         if idrop is not None and idrop != drop:
-            self.bad(name, stim + " (port vs u_u.drop)",
-                     f"drop={drop}", f"u_u.drop={idrop}", "u_u.drop")
+            self.bad(name, stim + f" (port vs {INST}.drop)",
+                     f"drop={drop}", f"{INST}.drop={idrop}", f"{INST}.drop")
             return False
         if icnt is not None and (icnt & MASK32) != (self.g.drop_down_cnt & MASK32):
-            self.bad(name, stim + " (port vs u_u.drop_down_cnt)",
+            self.bad(name, stim + f" (port vs {INST}.drop_down_cnt)",
                      f"drop_down_cnt={self.g.drop_down_cnt}",
-                     f"u_u.drop_down_cnt={icnt}", "u_u.drop_down_cnt")
+                     f"{INST}.drop_down_cnt={icnt}",
+                     f"{INST}.drop_down_cnt")
             return False
         if isticky is not None:
             for k, got_st in enumerate(isticky):
                 if got_st is None:
                     continue
                 if (got_st & MASK2) != (self.g.sticky[k] & MASK2):
-                    self.bad(name, stim + f" (u_u.sticky[{k}])",
+                    self.bad(name, stim + f" ({INST}.sticky[{k}])",
                              f"sticky[{k}]={self.g.sticky[k]}",
-                             f"u_u.sticky[{k}]={got_st}", "u_u.sticky")
+                             f"{INST}.sticky[{k}]={got_st}", f"{INST}.sticky")
                     return False
         return True
 
@@ -634,6 +753,37 @@ class tc_vibe_port_sel(VibeUnitBaseTest):
                          "egr=0 drop=0", self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 8. Leaf pins match product SV (clk / rst_n / bitmap /
+        # status_up / default_bm / rt / drop_g1 / sel_vld / cfg /
+        # src / dest / vl / egr / drop / drop_down_cnt; no ovf_l /
+        # leftover u_ps).
+        # Instance u_u (not leftover u_ps / u_psi / u_rt / u_rr).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_port_sel product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)

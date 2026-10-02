@@ -247,6 +247,7 @@ UNIT_MORE = [
     ("tc_vibe_route_lu", "vibe_route_lu_cocotb_top",
      [_wrap("vibe_route_lu_cocotb_top"), _w("fabric", "vibe_route_lu.sv")],
      "entry_unit"),
+    # Decision-I stage-83 wrap leaf. Not stock tc_p0_down_drop.
     ("tc_vibe_port_sel", "vibe_port_sel_cocotb_top",
      [_wrap("vibe_port_sel_cocotb_top"), _w("fabric", "vibe_port_sel.sv")],
      "entry_unit"),
