@@ -1,18 +1,37 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_vl_rr.
+"""Module-level uvm-python TC for Decision-I stage-81 vibe_vl_rr.
 
 Covers reset rr=0 / first pick from 0; valid=|nonempty; single-bit
 nonempty (incl. VL15); grant&&valid walks the pointer; hold without
 grant; grant while !valid does not advance; stock FFFF 16-grant
-seen=FFFF; wrap and sparse masks; async rst_n mid-stream clears rr.
+seen=FFFF; wrap and sparse masks; async rst_n mid-stream clears rr;
+wrap-vs-DUT instance score (cocotb instance u_u); and a pin scan
+with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
 signoff.
 
 Matches product rtl/fabric/vibe_vl_rr.sv: async-low rst_n, combo
 valid=|nonempty and scan from rr wrapping 16 steps (first nonempty[p]
 wins as pick / vl_sel), seq !rst_n → rr=0 else grant&&valid →
-rr <= vl_sel+1. Instantiated by vibe_fabric u_rr in g_egr. Stock
-Icarus tc_vl_rr / tc_vl_rr_0_15 remain the official TP scorers.
-Header-only vs stock; no invented protocol.
+rr <= vl_sel+1. Product instantiator is vibe_fabric u_rr in g_egr;
+stock Icarus tc_vl_rr / tc_vl_rr_0_15 use u_rr; Decision-I wrap
+uses instance u_u (not leftover u_rr / u_vl).
+This is not vibe_fecn_mark / vibe_icrc / vibe_nw_adapt / vibe_dll /
+vibe_bcrc / vibe_dll_tx / vibe_dll_credit / vibe_dll_sm /
+vibe_dll_rx / vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+vibe_dll_retry_req_sm / vibe_port / vibe_ub_switch /
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_pcs_tx_fec / vibe_rs128_120_enc / vibe_rs128_120_dec /
+vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Second fabric leaf after stage-80 vibe_fecn_mark wrap. Do not
+invent vibe_route_lu or later fabric leaves here.
+Stock Icarus tc_vl_rr / tc_vl_rr_0_15 remain the official TP
+scorers (direct vibe_vl_rr top, instance u_rr). Header-only vs
+stock; no invented protocol.
 """
 
 from uvm import uvm_component_utils
@@ -22,7 +41,51 @@ from vibe_uvm.tests.unit_base import VibeUnitBaseTest
 
 MASK16 = 0xFFFF
 MASK4 = 0xF
-HIER = "u_u.rr / vl_sel"
+HIER = "u_u.rr / u_u.vl_sel / u_u.valid"
+WRAP = "vibe_vl_rr_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_vl_rr.sv. Sequential: clk /
+# async-low rst_n. ovf_l (F1) is not a port.
+PINS = (
+    "clk", "rst_n", "nonempty", "grant",
+    "vl_sel", "valid",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator u_rr or stock Icarus u_rr.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_ps", "u_voq", "u_saf", "u_xbar",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "start", "in_vld", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "status_up", "disabled",
+    "device_rst", "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 
 
 def pick_vl(rr: int, nonempty: int):
@@ -89,6 +152,40 @@ class tc_vibe_vl_rr(VibeUnitBaseTest):
         d = self.dut
         return ival(d.vl_sel, -1), ival(d.valid, -1)
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return ival(u.vl_sel, -1), ival(u.valid, -1)
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        isel, iv = inner
+        sel, valid = got
+        if iv != valid:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"valid={valid} vl_sel={sel}",
+                     f"{INST} valid={iv} vl_sel={isel}",
+                     HIER)
+            return False
+        if sel is None or isel is None:
+            if sel != isel:
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"vl_sel={sel}", f"{INST}.vl_sel={isel}",
+                         f"{INST}.vl_sel")
+                return False
+            return True
+        if (int(isel) & MASK4) != (int(sel) & MASK4):
+            self.bad(name, stim + f" ({INST} vs wrap)",
+                     f"vl_sel={sel}", f"{INST}.vl_sel={isel}",
+                     f"{INST}.vl_sel")
+            return False
+        return True
+
     def _fmt(self, s, rr=None):
         sel, valid = s
         extra = f" rr={rr}" if rr is not None else ""
@@ -104,36 +201,39 @@ class tc_vibe_vl_rr(VibeUnitBaseTest):
         exp_v = int(bool(int(nonempty) & MASK16))
         if valid != exp_v:
             self.bad(name, stim + " (valid = |nonempty)",
-                     f"valid={exp_v}", self._fmt(got), "u_u.valid")
+                     f"valid={exp_v}", self._fmt(got), f"{INST}.valid")
             return False
         if valid and sel >= 0 and not ((int(nonempty) >> (sel & MASK4)) & 1):
             self.bad(name, stim + " (vl_sel must be a nonempty VL)",
                      f"nonempty bit {sel} set",
                      f"nonempty=0x{int(nonempty) & MASK16:04x} "
                      f"{self._fmt(got)}",
-                     "u_u.vl_sel")
+                     f"{INST}.vl_sel")
             return False
         if not valid and sel != (self.g.rr & MASK4):
             self.bad(name, stim + " (empty keeps vl_sel=rr)",
                      f"vl_sel={self.g.rr}", self._fmt(got), HIER)
             return False
+        if not self._score_inner(name, stim, got):
+            return False
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return True
         try:
-            inner_rr = ival(self.dut.u_u.rr, None)
-            inner_sel = ival(self.dut.u_u.vl_sel, None)
-            inner_v = ival(self.dut.u_u.valid, None)
+            inner_rr = ival(u.rr, None)
+            inner_pick = ival(u.pick, None)
         except Exception:
-            inner_rr = inner_sel = inner_v = None
+            inner_rr = inner_pick = None
         if inner_rr is not None and (inner_rr & MASK4) != (self.g.rr & MASK4):
-            self.bad(name, stim + " (port vs u_u.rr)",
-                     f"rr={self.g.rr}", f"u_u.rr={inner_rr}", "u_u.rr")
+            self.bad(name, stim + f" ({INST}.rr)",
+                     f"rr={self.g.rr}", f"{INST}.rr={inner_rr}",
+                     f"{INST}.rr")
             return False
-        if inner_sel is not None and (inner_sel & MASK4) != (sel & MASK4):
-            self.bad(name, stim + " (port vs u_u.vl_sel)",
-                     f"vl_sel={sel}", f"u_u.vl_sel={inner_sel}", HIER)
-            return False
-        if inner_v is not None and inner_v != valid:
-            self.bad(name, stim + " (port vs u_u.valid)",
-                     f"valid={valid}", f"u_u.valid={inner_v}", "u_u.valid")
+        if (inner_pick is not None and sel is not None
+                and (inner_pick & MASK4) != (sel & MASK4)):
+            self.bad(name, stim + f" ({INST}.pick)",
+                     f"pick={sel}", f"{INST}.pick={inner_pick}",
+                     f"{INST}.pick")
             return False
         return True
 
@@ -574,6 +674,35 @@ class tc_vibe_vl_rr(VibeUnitBaseTest):
                          "vl_sel=2 valid=1", self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 8. Leaf pins match product SV (clk / rst_n / nonempty /
+        # grant / vl_sel / valid; no ovf_l / leftover u_rr).
+        # Instance u_u (not leftover u_rr / u_vl / u_fecn).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_vl_rr product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
