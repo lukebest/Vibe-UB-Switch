@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_fecn_mark.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip c33bb143 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 2c607719. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §8: if CCI.Mode is 3'b100 or 3'b010 and local congestion (VOQ occ >= FECN_WM)
 // worse than packet mark, rewrite FECN and LoC. Else don't. Not CAQM.
 module vibe_fecn_mark #(

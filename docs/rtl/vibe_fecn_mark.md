@@ -22,7 +22,8 @@ Self-contained (no child instances). First fabric leaf after
 
 ## Ports (product)
 
-Same as tip `c33bb143` / freeze `302ac943`. Combo. No clock.
+Same as tip `2c607719`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Combo. No clock.
 No ready.
 
 | Port | Dir | Notes |

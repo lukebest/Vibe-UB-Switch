@@ -1,7 +1,9 @@
 """vibe_fecn_mark — fabric FECN mark (AS-0.1 §8).
 
 Product module: ``rtl/fabric/vibe_fecn_mark.sv``. Ports match tip
-``c33bb143`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``2c607719``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Combo leaf (``cci_in[15:0]`` / ``voq_occ[5:0]`` /
 ``cci_out[15:0]`` / ``marked``). First fabric leaf after DLL
 helpers (stage-20..26). If CCI.Mode is ``3'b100`` or ``3'b010``
