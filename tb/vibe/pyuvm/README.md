@@ -812,14 +812,18 @@ wrap-local `proto_err` / `fc_ovf`, async `rst_n` / LinkUp=0 →
 Disabled, hardcoded `param_ok`/`credit_ok` walk to Normal, `credit_low`
 blocks NW, 1-flit CFG3 TX smoke, CFG0 RX terminate, CFG3 1-flit RX
 smoke, `fec_fail` → `start_retry` → `drop_data`, `port_rst` /
-`!link_up` force Disabled). It is **not** 1/3, 4/3, freeze, or
-signoff. Stock Icarus `tb/vibe/tests/tc_dll.sv` / pyuvm `tc_dll` /
-`make dll` remain the official TP-DLL-004 scorers (>32-flit split).
-First DLL structural wrap after the eight DLL leaves (`vibe_bcrc` /
+`!link_up` force Disabled, wrap-vs-DUT instance score on `u_dll`,
+mid-run async `rst_n` through dest posedge then a fresh stimulus
+walk with no leftover mid-protocol residue, pin scan with instance
+`u_dll`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_dll.sv` / pyuvm `tc_dll` / `make dll` remain the
+official TP-DLL-004 scorers (>32-flit split). First DLL structural
+wrap after the eight DLL child leaves (`vibe_bcrc` /
 `vibe_dll_credit` / `vibe_dll_sm` / `vibe_dll_rx` /
 `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
-`vibe_dll_retry_req_sm` / `vibe_dll_tx`). `ovf_l` (F1) is not in
-this module.
+`vibe_dll_retry_req_sm` / `vibe_dll_tx`). CHILDREN as instantiated:
+`u_sm` / `u_crd` / `u_rbuf` / `u_req` / `u_ack` / `u_tx` / `u_rx`.
+`ovf_l` (F1) is not in this module; do not ECO F1.
 
 `tc_vibe_icrc` / `make icrc` / `make tc_vibe_icrc` is
 **module-level only** (async `rst_n` clears `crc` / `crc_out` /
