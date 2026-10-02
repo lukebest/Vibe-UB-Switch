@@ -289,6 +289,10 @@ UNIT_MORE = [
     ("tc_vibe_cfg_space", "vibe_cfg_space_cocotb_top",
      [_wrap("vibe_cfg_space_cocotb_top"), _w("mgmt", "vibe_cfg_space.sv")],
      "entry_unit"),
+    # Decision-I stage-87 wrap leaf. Not stock tc_rst_port_device.
+    ("tc_vibe_rst_ctl", "vibe_rst_ctl_cocotb_top",
+     [_wrap("vibe_rst_ctl_cocotb_top"), _w("mgmt", "vibe_rst_ctl.sv")],
+     "entry_unit"),
     # Decision-I stage-50 wrap leaf (tip-align after stages 47–49).
     # Not TP-PHY / tc_port_smoke (that stays make port). CHILDREN from SV.
     ("tc_vibe_port", "vibe_port_wrap_cocotb_top",
