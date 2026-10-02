@@ -754,11 +754,20 @@ Do not invent `vibe_route_lu` here.
 `wr_en` stores `wr_data` at `wr_idx[7:0]`, `lu_vld` + RT=00/01
 returns `tbl[dest[7:0]][3:0]`, RT=10/11 pulse `drop_g1` one
 cycle and force `bitmap=0`, without `lu_vld` no drop / no
-bitmap update). It is **not** 1/3, 4/3, freeze, or signoff.
-Stock Icarus `tb/vibe/tests/tc_route_lu.sv` / `tc_route_lu`
-remains the official TP scorer. Third fabric leaf after
-`vibe_fecn_mark` / `vibe_vl_rr`. No Dijkstra / RT rewrite.
-Count/irq are fabric-side.
+bitmap update, wrap-vs-DUT instance score on `u_u`, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_route_lu.sv` /
+`tc_route_lu` remains the official TP scorer (direct
+`vibe_route_lu` top, instance `u_rt`). Third fabric leaf after
+stage-80 `vibe_fecn_mark` wrap and stage-81 `vibe_vl_rr` wrap.
+Instance `u_u` matches Decision-I leaf wrappers; product
+instantiator is `vibe_fabric` `u_rt` / `g_rt.u_rti`; stock
+Icarus uses `u_rt`. `ovf_l` (F1) is not in this module.
+CHILDREN: none. This is **not** `dll_wrap` / `wrap` / `top` /
+`port` / `icrc` / `nw_adapt` / `fecn_mark` / `vl_rr` /
+`vibe_fecn_mark` / `vibe_vl_rr` / `vibe_icrc` / `vibe_nw_adapt` /
+`vibe_bcrc` / `vibe_dll`. No Dijkstra / RT rewrite. Count/irq
+are fabric-side. Do not invent `vibe_port_sel` here.
 
 `tc_vibe_port_sel` / `make port_sel` / `make psel` /
 `make tc_vibe_port_sel` is **module-level only** (async `rst_n`
