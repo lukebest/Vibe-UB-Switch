@@ -1,16 +1,36 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_route_lu.
+"""Module-level uvm-python TC for Decision-I stage-82 vibe_route_lu.
 
 Covers reset / device_rst clearing tbl + bitmap + drop_g1; wr_en stores
 wr_data at wr_idx[7:0]; lu_vld + RT=00/01 returns tbl[dest[7:0]][3:0];
 lu_vld + RT=10/11 pulses drop_g1 one cycle and forces bitmap=0; without
-lu_vld no drop pulse and bitmap holds. Not a full-chip consecutive-green
-gate. Not 1/3, 4/3, freeze, or signoff.
+lu_vld no drop pulse and bitmap holds; wrap-vs-DUT instance score
+(cocotb instance u_u); and a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/fabric/vibe_route_lu.sv: async-low rst_n, sync
 device_rst OR'd into the reset clause, NBA write then lookup, drop only
-on lu_vld && (rt==10 || rt==11). Instantiated by vibe_fabric u_rt /
-g_rt.u_rti. Stock Icarus tc_route_lu remains the official TP scorer.
-Header-only vs stock; no Dijkstra / RT rewrite. Count/irq are fabric-side.
+on lu_vld && (rt==10 || rt==11). Product instantiator is vibe_fabric
+u_rt / g_rt.u_rti; stock Icarus tc_route_lu uses u_rt; Decision-I wrap
+uses instance u_u (not leftover u_rt / u_rti / u_lu).
+This is not vibe_fecn_mark / vibe_vl_rr / vibe_icrc / vibe_nw_adapt /
+vibe_dll / vibe_bcrc / vibe_dll_tx / vibe_dll_credit / vibe_dll_sm /
+vibe_dll_rx / vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+vibe_dll_retry_req_sm / vibe_port / vibe_ub_switch /
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_pcs_tx_fec / vibe_rs128_120_enc / vibe_rs128_120_dec /
+vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Third fabric leaf after stage-80 vibe_fecn_mark wrap and
+stage-81 vibe_vl_rr wrap. Do not invent vibe_port_sel or later
+fabric leaves here.
+Stock Icarus tc_route_lu remains the official TP scorer
+(direct vibe_route_lu top, instance u_rt). Header-only vs stock;
+no Dijkstra / RT rewrite. Count/irq are fabric-side.
 """
 
 from uvm import uvm_component_utils
@@ -22,7 +42,55 @@ DEPTH = 256
 MASK8 = 0xFF
 MASK4 = 0xF
 MASK2 = 0x3
-HIER = "u_u.bitmap / drop_g1"
+HIER = "u_u.bitmap / u_u.drop_g1"
+WRAP = "vibe_route_lu_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_route_lu.sv. Sequential: clk /
+# async-low rst_n + sync device_rst. ovf_l (F1) is not a port.
+PINS = (
+    "clk", "rst_n", "device_rst",
+    "wr_en", "wr_idx", "wr_data",
+    "dest", "rt", "lu_vld",
+    "bitmap", "drop_g1",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator u_rt / g_rt.u_rti or stock Icarus u_rt.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_rt", "u_rti", "u_ps", "u_voq",
+    "u_saf", "u_xbar",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "nonempty", "grant", "vl_sel", "valid",
+    "start", "in_vld", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "status_up", "disabled",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 
 
 class Golden:
@@ -97,6 +165,40 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
         d = self.dut
         return ival(d.bitmap, -1), ival(d.drop_g1, -1)
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return ival(u.bitmap, -1), ival(u.drop_g1, -1)
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        ibm, ig1 = inner
+        bm, g1 = got
+        if ig1 != g1:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"drop_g1={g1} bitmap={bm}",
+                     f"{INST} drop_g1={ig1} bitmap={ibm}",
+                     HIER)
+            return False
+        if bm is None or ibm is None:
+            if bm != ibm:
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"bitmap={bm}", f"{INST}.bitmap={ibm}",
+                         f"{INST}.bitmap")
+                return False
+            return True
+        if (int(ibm) & MASK4) != (int(bm) & MASK4):
+            self.bad(name, stim + f" ({INST} vs wrap)",
+                     f"bitmap={bm}", f"{INST}.bitmap={ibm}",
+                     f"{INST}.bitmap")
+            return False
+        return True
+
     def _fmt(self, s):
         bm, g1 = s
         return f"bitmap={bm} drop_g1={g1}"
@@ -106,19 +208,7 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
         if got != exp:
             self.bad(name, stim, self._fmt(exp), self._fmt(got), HIER)
             return False
-        try:
-            inner_bm = ival(self.dut.u_u.bitmap, None)
-            inner_g1 = ival(self.dut.u_u.drop_g1, None)
-        except Exception:
-            inner_bm = inner_g1 = None
-        sel, g1 = got
-        if inner_bm is not None and (inner_bm & MASK4) != (sel & MASK4):
-            self.bad(name, stim + " (port vs u_u.bitmap)",
-                     f"bitmap={sel}", f"u_u.bitmap={inner_bm}", "u_u.bitmap")
-            return False
-        if inner_g1 is not None and inner_g1 != g1:
-            self.bad(name, stim + " (port vs u_u.drop_g1)",
-                     f"drop_g1={g1}", f"u_u.drop_g1={inner_g1}", "u_u.drop_g1")
+        if not self._score_inner(name, stim, got):
             return False
         return True
 
@@ -418,6 +508,36 @@ class tc_vibe_route_lu(VibeUnitBaseTest):
                          "bitmap=0 drop_g1=0", self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 7. Leaf pins match product SV (clk / rst_n / device_rst /
+        # wr_en / wr_idx / wr_data / dest / rt / lu_vld / bitmap /
+        # drop_g1; no ovf_l / leftover u_rt).
+        # Instance u_u (not leftover u_rt / u_rti / u_lu / u_rr).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_route_lu product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
