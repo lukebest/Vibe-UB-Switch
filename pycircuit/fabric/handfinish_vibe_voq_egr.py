@@ -6,6 +6,8 @@ sop/eop/age, combo ``wr_ready`` / ``rd_*`` / ``nonempty`` /
 timeout from enqueue (AS-0.1 §8/§14). pycc netlists are a
 prototype only; this file is what lands in
 ``rtl/fabric/vibe_voq_egr.sv``.
+Tip ``62f97739``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_voq_egr.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 8ec96a2a / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 62f97739. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\

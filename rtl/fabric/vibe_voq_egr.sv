@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_voq_egr.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 8ec96a2a / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 62f97739. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §8/§14: VOQ 32 flit/VL/egress. Deadlock timeout 1us from enqueue.
 module vibe_voq_egr #(
   parameter int DEPTH = 32
