@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/mgmt/vibe_rst_ctl.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 0587aaee / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 2262044e. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1.2 §10 / Table D-103: device reset clears RW config (CNA unwritten),
 // MUST NOT force DLL_Disabled. LMSM → Link_Idle.
 // Port Reset is RW1C in vibe_cfg_space (stored bit = 1 while this hold is
