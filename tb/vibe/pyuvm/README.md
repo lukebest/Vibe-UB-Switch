@@ -115,6 +115,7 @@ make -C tb/vibe/pyuvm tc_vibe_dll_retry_req_sm # same as retry_req_sm
 make -C tb/vibe/pyuvm units TC=tc_vibe_fecn_mark  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm fecn_mark                # same as units TC=tc_vibe_fecn_mark
 make -C tb/vibe/pyuvm fecn                     # same as fecn_mark / tc_vibe_fecn_mark
+make -C tb/vibe/pyuvm tc_vibe_fecn_mark        # same as fecn_mark
 make -C tb/vibe/pyuvm units TC=tc_vibe_vl_rr   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm vl_rr                    # same as units TC=tc_vibe_vl_rr
 make -C tb/vibe/pyuvm vl                       # same as vl_rr / tc_vibe_vl_rr
@@ -250,6 +251,7 @@ make -C tb/vibe/pyuvm req_sm SIM=verilator        # same as retry_req_sm
 make -C tb/vibe/pyuvm tc_vibe_dll_retry_req_sm SIM=verilator # same as retry_req_sm
 make -C tb/vibe/pyuvm fecn_mark SIM=verilator     # or SIM=icarus
 make -C tb/vibe/pyuvm fecn SIM=verilator          # same as fecn_mark
+make -C tb/vibe/pyuvm tc_vibe_fecn_mark SIM=verilator # same as fecn_mark
 make -C tb/vibe/pyuvm vl_rr SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm vl SIM=verilator            # same as vl_rr
 make -C tb/vibe/pyuvm route_lu SIM=verilator      # or SIM=icarus
@@ -705,17 +707,24 @@ after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
 Instantiated by `vibe_dll` `u_req`. `ovf_l` (F1) is not in this
 module. CHILDREN: none.
 
-`tc_vibe_fecn_mark` / `make fecn_mark` / `make fecn`
-is **module-level only** (combo idle / no clk / no `rst_n` / no
-sequential hold, stock Mode `3'b100`/`3'b010` + VOQ watermark
-`FECN_WM=24`, FECN `2'b00` unmarkable / `2'b11` already-severe /
-non-markable modes, golden rewrite of FECN and LoC vs
-pass-through). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_fecn_mark.sv` / `tc_fecn_mark` remains
-the official TP scorer. This is **not** CAQM. First fabric leaf
-after `vibe_bcrc` / `vibe_dll_credit` / `vibe_dll_sm` /
-`vibe_dll_rx` / `vibe_dll_retry_ack_sm` / `vibe_dll_retry_buf` /
-`vibe_dll_retry_req_sm`.
+`tc_vibe_fecn_mark` / `make fecn_mark` / `make fecn` /
+`make tc_vibe_fecn_mark` is **module-level only** (combo idle /
+no clk / no `rst_n` / no ready / no sequential hold, stock Mode
+`3'b100`/`3'b010` + VOQ watermark `FECN_WM=24`, FECN `2'b00`
+unmarkable / `2'b11` already-severe / non-markable modes,
+congestion vs packet FECN worse, golden rewrite of FECN and LoC
+vs pass-through, wrap-vs-DUT instance score on `u_u`, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_fecn_mark.sv` /
+`tc_fecn_mark` remains the official TP scorer (direct
+`vibe_fecn_mark` top, instance `u_f`). This is **not** CAQM.
+First fabric leaf after NW tip-align wave complete (stage-79
+`vibe_nw_adapt` wrap). Instance `u_u` matches Decision-I leaf
+wrappers; product instantiator is `vibe_fabric` `u_fecn`; stock
+Icarus uses `u_f`. `ovf_l` (F1) is not in this module. CHILDREN:
+none. This is **not** `dll_wrap` / `wrap` / `top` / `port` /
+`icrc` / `nw_adapt` / `vibe_icrc` / `vibe_nw_adapt` /
+`vibe_bcrc` / `vibe_dll`. Do not invent `vibe_vl_rr` here.
 
 `tc_vibe_vl_rr` / `make vl_rr` / `make vl`
 is **module-level only** (reset `rr=0` / first pick from 0,

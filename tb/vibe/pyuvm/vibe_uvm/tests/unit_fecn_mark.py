@@ -1,10 +1,13 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_fecn_mark.
+"""Module-level uvm-python TC for Decision-I stage-80 vibe_fecn_mark.
 
-Covers combo idle (no clk / no rst_n / no sequential hold), stock
-tc_fecn_mark Mode 100/010 + VOQ watermark, FECN 00 unmarkable /
-11 already-severe / non-markable modes, golden rewrite of FECN and
-LoC vs pass-through. Not a full-chip consecutive-green gate. Not
-1/3, 4/3, freeze, or signoff.
+Covers combo idle (no clk / no rst_n / no ready / no sequential
+hold), stock tc_fecn_mark Mode 100/010 + VOQ watermark, FECN 00
+unmarkable / 11 already-severe / non-markable modes, congestion
+vs packet FECN worse, golden rewrite of FECN and LoC vs
+pass-through, wrap-vs-DUT instance score (cocotb instance u_u),
+and a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/fabric/vibe_fecn_mark.sv: combo
 mode=cci_in[15:13], fecn=cci_in[1:0], cong=(voq_occ>=FECN_WM[5:0])
@@ -12,8 +15,26 @@ with FECN_WM default 24, markable_mode=(mode==3'b100)||(mode==3'b010),
 local_lvl=cong?2'b11:2'b10, worse=cong&&(fecn!=2'b00)&&(local_lvl>fecn),
 marked=markable_mode&&worse. When marked,
 cci_out={mode,3'b000,LoC=0,cci_in[8:2],local_lvl}; else cci_out=cci_in.
-Not CAQM. Instantiated by vibe_fabric u_fecn. Stock Icarus
-tc_fecn_mark remains the official TP scorer. Header-only vs stock;
+Not CAQM. Product instantiator is vibe_fabric u_fecn; stock Icarus
+tc_fecn_mark uses u_f; Decision-I wrap uses instance u_u (not
+leftover u_fecn / u_f).
+This is not vibe_icrc / vibe_nw_adapt / vibe_dll / vibe_bcrc /
+vibe_dll_tx / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+vibe_dll_retry_req_sm / vibe_port / vibe_ub_switch /
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_pcs_tx_fec / vibe_rs128_120_enc / vibe_rs128_120_dec /
+vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+First fabric leaf after NW tip-align wave complete (stage-79
+vibe_nw_adapt wrap). Do not invent vibe_vl_rr or later fabric
+leaves here.
+Stock Icarus tc_fecn_mark remains the official TP scorer
+(direct vibe_fecn_mark top, instance u_f). Header-only vs stock;
 no invented protocol.
 """
 
@@ -39,6 +60,49 @@ LVL_NONE = 0b10
 LVL_SEVERE = 0b11
 
 HIER = "u_u.cci_out / u_u.marked"
+WRAP = "vibe_fecn_mark_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_fecn_mark.sv. Combo: no clk /
+# rst_n / ready. ovf_l (F1) is not a port.
+PINS = (
+    "cci_in", "voq_occ",
+    "cci_out", "marked",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator u_fecn or stock Icarus u_f.
+ABSENT = (
+    "clk", "rst_n", "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_ps", "u_voq", "u_saf", "u_xbar",
+    "start", "in_vld", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "status_up", "disabled",
+    "device_rst", "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 FECN_NAME = {0: "unmarkable", 1: "light", 2: "none", 3: "severe"}
 
 
@@ -99,6 +163,39 @@ class tc_vibe_fecn_mark(VibeUnitBaseTest):
         d = self.dut
         return ival(d.cci_out, -1), ival(d.marked, -1)
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return ival(u.cci_out, -1), ival(u.marked, -1)
+
+    def _score_inner(self, name, stim, got_out, got_m):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        iout, im = inner
+        if im != got_m:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"marked={got_m} cci_out={_hex16(got_out)}",
+                     f"{INST} marked={im} cci_out={_hex16(iout)}",
+                     HIER)
+            return False
+        if got_out is None or iout is None:
+            if got_out != iout:
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         _hex16(got_out), _hex16(iout),
+                         f"{INST}.cci_out")
+                return False
+            return True
+        if (int(iout) & MASK16) != (int(got_out) & MASK16):
+            self.bad(name, stim + f" ({INST} vs wrap)",
+                     _hex16(got_out), _hex16(iout),
+                     f"{INST}.cci_out")
+            return False
+        return True
+
     def _score(self, name, stim, cci_in, voq_occ, got):
         exp_out, exp_m, mode, fecn, cong, markable, local_lvl, worse = decode(
             cci_in, voq_occ)
@@ -143,47 +240,52 @@ class tc_vibe_fecn_mark(VibeUnitBaseTest):
                 self.bad(name, stim + " (pass-through)",
                          _hex16(cci_in), _fmt(got_out, got_m), "u_u.cci_out")
                 return False
+        if not self._score_inner(name, stim, got_out, got_m):
+            return False
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return True
         try:
-            inner_m = ival(self.dut.u_u.marked, None)
-            inner_o = ival(self.dut.u_u.cci_out, None)
-            inner_cong = ival(self.dut.u_u.cong, None)
-            inner_worse = ival(self.dut.u_u.worse, None)
-            inner_mode = ival(self.dut.u_u.mode, None)
-            inner_fecn = ival(self.dut.u_u.fecn, None)
-            inner_mm = ival(self.dut.u_u.markable_mode, None)
+            inner_cong = ival(u.cong, None)
+            inner_worse = ival(u.worse, None)
+            inner_mode = ival(u.mode, None)
+            inner_fecn = ival(u.fecn, None)
+            inner_mm = ival(u.markable_mode, None)
+            inner_lvl = ival(u.local_lvl, None)
         except Exception:
-            inner_m = inner_o = None
             inner_cong = inner_worse = inner_mode = inner_fecn = None
-            inner_mm = None
-        if inner_m is not None and inner_m != got_m:
-            self.bad(name, stim + " (port vs u_u.marked)",
-                     f"marked={got_m}", f"u_u.marked={inner_m}", HIER)
-            return False
-        if inner_o is not None and (inner_o & MASK16) != got_out:
-            self.bad(name, stim + " (port vs u_u.cci_out)",
-                     _hex16(got_out), _hex16(inner_o), HIER)
-            return False
+            inner_mm = inner_lvl = None
         if inner_cong is not None and inner_cong != cong:
-            self.bad(name, stim + " (u_u.cong)",
-                     f"cong={cong}", f"u_u.cong={inner_cong}", "u_u.cong")
+            self.bad(name, stim + f" ({INST}.cong)",
+                     f"cong={cong}", f"{INST}.cong={inner_cong}",
+                     f"{INST}.cong")
             return False
         if inner_worse is not None and inner_worse != worse:
-            self.bad(name, stim + " (u_u.worse)",
-                     f"worse={worse}", f"u_u.worse={inner_worse}", "u_u.worse")
+            self.bad(name, stim + f" ({INST}.worse)",
+                     f"worse={worse}", f"{INST}.worse={inner_worse}",
+                     f"{INST}.worse")
             return False
         if inner_mode is not None and (inner_mode & MASK3) != mode:
-            self.bad(name, stim + " (u_u.mode)",
-                     f"mode={mode:03b}", f"u_u.mode={inner_mode}", "u_u.mode")
+            self.bad(name, stim + f" ({INST}.mode)",
+                     f"mode={mode:03b}", f"{INST}.mode={inner_mode}",
+                     f"{INST}.mode")
             return False
         if inner_fecn is not None and (inner_fecn & MASK2) != fecn:
-            self.bad(name, stim + " (u_u.fecn)",
-                     f"fecn={fecn:02b}", f"u_u.fecn={inner_fecn}", "u_u.fecn")
+            self.bad(name, stim + f" ({INST}.fecn)",
+                     f"fecn={fecn:02b}", f"{INST}.fecn={inner_fecn}",
+                     f"{INST}.fecn")
             return False
         if inner_mm is not None and inner_mm != markable:
-            self.bad(name, stim + " (u_u.markable_mode)",
+            self.bad(name, stim + f" ({INST}.markable_mode)",
                      f"markable_mode={markable}",
-                     f"u_u.markable_mode={inner_mm}",
-                     "u_u.markable_mode")
+                     f"{INST}.markable_mode={inner_mm}",
+                     f"{INST}.markable_mode")
+            return False
+        if inner_lvl is not None and (inner_lvl & MASK2) != local_lvl:
+            self.bad(name, stim + f" ({INST}.local_lvl)",
+                     f"local_lvl={local_lvl:02b}",
+                     f"{INST}.local_lvl={inner_lvl}",
+                     f"{INST}.local_lvl")
             return False
         return True
 
@@ -399,6 +501,35 @@ class tc_vibe_fecn_mark(VibeUnitBaseTest):
                            held_cci, 24, later):
             phase.drop_objection(self)
             return
+
+        # 5. Leaf pins match product SV (no clk / rst_n / ovf_l /
+        # leftover u_fecn). Instance u_u (not leftover u_fecn / u_f).
+        d = self.dut
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_fecn_mark product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)

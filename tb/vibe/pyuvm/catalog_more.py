@@ -235,6 +235,7 @@ UNIT_MORE = [
     ("tc_vibe_dll_retry_req_sm", "vibe_dll_retry_req_sm_cocotb_top",
      [_wrap("vibe_dll_retry_req_sm_cocotb_top")] + RETRY_REQ,
      "entry_unit"),
+    # Decision-I stage-80 wrap leaf. Not stock tc_fecn_mark.
     ("tc_vibe_fecn_mark", "vibe_fecn_mark_cocotb_top",
      [_wrap("vibe_fecn_mark_cocotb_top"), _w("fabric", "vibe_fecn_mark.sv")],
      "entry_unit"),

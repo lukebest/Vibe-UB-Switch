@@ -9,7 +9,7 @@ RES       := $(TB)/results
 PYUVM     := $(TB)/pyuvm
 SIM       ?= verilator
 
-.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 tc_vibe_ebch16 cw2beat tc_vibe_pcs_tx_cw2beat amctl tc_vibe_pcs_tx_amctl rs128_120_enc tc_vibe_rs128_120_enc rs128_120_dec tc_vibe_rs128_120_dec deskew tc_vibe_pcs_rx_deskew amctl_lock tc_vibe_pcs_rx_amctl_lock unpack tc_vibe_pcs_rx_unpack pack tc_vibe_pcs_tx_pack tx_fec tc_vibe_pcs_tx_fec rx_fec tc_vibe_pcs_rx_fec g1 tx_g1 tc_vibe_pcs_tx_g1 bcrc tc_vibe_bcrc credit tc_vibe_dll_credit dll_sm tc_vibe_dll_sm sm dll_rx tc_vibe_dll_rx rx retry_ack_sm tc_vibe_dll_retry_ack_sm ack_sm retry_buf tc_vibe_dll_retry_buf buf retry_req_sm tc_vibe_dll_retry_req_sm req_sm fecn_mark fecn vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc nw_adapt tc_vibe_nw_adapt irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap
+.PHONY: all sim suite units port top cov clean help waves sim-icarus sim-xsim neg afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 tc_vibe_ebch16 cw2beat tc_vibe_pcs_tx_cw2beat amctl tc_vibe_pcs_tx_amctl rs128_120_enc tc_vibe_rs128_120_enc rs128_120_dec tc_vibe_rs128_120_dec deskew tc_vibe_pcs_rx_deskew amctl_lock tc_vibe_pcs_rx_amctl_lock unpack tc_vibe_pcs_rx_unpack pack tc_vibe_pcs_tx_pack tx_fec tc_vibe_pcs_tx_fec rx_fec tc_vibe_pcs_rx_fec g1 tx_g1 tc_vibe_pcs_tx_g1 bcrc tc_vibe_bcrc credit tc_vibe_dll_credit dll_sm tc_vibe_dll_sm sm dll_rx tc_vibe_dll_rx rx retry_ack_sm tc_vibe_dll_retry_ack_sm ack_sm retry_buf tc_vibe_dll_retry_buf buf retry_req_sm tc_vibe_dll_retry_req_sm req_sm fecn_mark fecn tc_vibe_fecn_mark vl_rr vl route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc nw_adapt tc_vibe_nw_adapt irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap
 all: sim
 
 help:
@@ -103,6 +103,7 @@ help:
 	@echo "make units TC=tc_vibe_fecn_mark - Decision-I vibe_fecn_mark (module-level)"
 	@echo "make fecn_mark      - same as units TC=tc_vibe_fecn_mark (not full-chip gate)"
 	@echo "make fecn           - same as fecn_mark / tc_vibe_fecn_mark"
+	@echo "make tc_vibe_fecn_mark - same as fecn_mark"
 	@echo "make units TC=tc_vibe_vl_rr - Decision-I vibe_vl_rr (module-level)"
 	@echo "make vl_rr          - same as units TC=tc_vibe_vl_rr (not full-chip gate)"
 	@echo "make vl             - same as vl_rr / tc_vibe_vl_rr"
@@ -414,6 +415,10 @@ req_sm: $(RES)
 
 fecn_mark: $(RES)
 	$(MAKE) -C $(PYUVM) fecn_mark SIM=$(SIM)
+	@$(TB)/scripts/summarize.sh $(RES) || true
+
+tc_vibe_fecn_mark: $(RES)
+	$(MAKE) -C $(PYUVM) tc_vibe_fecn_mark SIM=$(SIM)
 	@$(TB)/scripts/summarize.sh $(RES) || true
 
 fecn: $(RES)
