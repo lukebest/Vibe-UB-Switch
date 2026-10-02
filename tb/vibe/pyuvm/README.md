@@ -830,13 +830,19 @@ wrap after the eight DLL child leaves (`vibe_bcrc` /
 `done`, idle `last` without `in_vld` does not eat, AS §13 CRC32
 encode vs golden — init all-1, per-byte bit reverse then
 reverse+invert — `start` reloads and wins over `in_vld`, `in_vld=0`
-stall, second block after `done`). It is **not** 1/3, 4/3, freeze,
-or signoff. Stock Icarus
+stall, second block after `done`, wrap-vs-DUT instance score on
+`u_u`, mid-run async `rst_n` through dest posedge then a fresh
+encode with no leftover residue, pin scan with instance `u_u`).
+It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_icrc_txrx_vs_transit.sv` /
 `tc_icrc_txrx_vs_transit` remains the official unit-responds
 scorer (direct `vibe_icrc` top, wrap-style). First NW leaf after
-PCS/CDC/DLL/fabric leaves (stage-1..35). `ovf_l` (F1) is not in
-this module. Transit has no ICRC unit.
+stage-77 DLL wrap (PCS/CDC/DLL/fabric leaves stage-1..77).
+Instance `u_u` matches Decision-I leaf wrappers; product
+instantiator is Unit TB / `cna_ep` `u_icrc`. `ovf_l` (F1) is
+not in this module. CHILDREN: none. Transit has no ICRC unit.
+This is **not** `dll_wrap` / `wrap` / `top` / `port` /
+`vibe_bcrc` / `vibe_dll` / `vibe_nw_adapt`.
 
 `tc_vibe_irq_agg` / `make irq_agg` / `make tc_vibe_irq_agg` is
 **module-level only** (async `rst_n` clears `sticky` / `irq_logic`,
