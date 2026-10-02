@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/nw/vibe_icrc.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 186dde4e / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 6dd82499. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §13: CRC32 0x04C11DB7 init 0xFFFFFFFF, per-byte bit reverse then reverse+invert.
 // Used only by cna_ep (sender/receiver). Transit has NO ICRC unit.
 module vibe_icrc (

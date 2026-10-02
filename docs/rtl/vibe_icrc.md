@@ -18,7 +18,8 @@ fabric leaves (stage-1..35).
 
 ## Ports (product)
 
-Same as tip `186dde4e` / freeze `302ac943`. Reset stays
+Same as tip `6dd82499`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
