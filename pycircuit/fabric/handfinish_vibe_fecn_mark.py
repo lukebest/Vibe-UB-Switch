@@ -4,6 +4,8 @@ Keeps tip ports and the combo FECN / LoC rewrite (AS-0.1 §8:
 Mode ``3'b100`` / ``3'b010`` and local cong worse than packet
 FECN). pycc netlists are a prototype only; this file is what
 lands in ``rtl/fabric/vibe_fecn_mark.sv``.
+Tip ``2c607719``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_fecn_mark.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip c33bb143 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 2c607719. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
