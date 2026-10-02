@@ -1,7 +1,9 @@
 """vibe_vl_rr — fabric VL round-robin (AS-0.1 §8).
 
 Product module: ``rtl/fabric/vibe_vl_rr.sv``. Ports match tip
-``450ed1c2`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``78000930``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``nonempty[15:0]`` /
 ``grant`` / ``vl_sel[3:0]`` / ``valid``). Second fabric leaf
 after ``vibe_fecn_mark``. RR among non-empty VOQs of an egress;
