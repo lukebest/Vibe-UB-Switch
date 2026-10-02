@@ -799,12 +799,24 @@ clears `deadlock_*` / `wptr` / `rptr`, combo `wr_ready` /
 `nonempty` / `occ_vl0` / `rd_*`, wr then rd same VL
 data/sop/eop, `wr_ready=0` at `occ==DEPTH`, per-VL
 `nonempty`, short `deadlock_drop` after `VIBE_US_CYC=1250`
-aging). It is **not** 1/3, 4/3, freeze, or signoff. Stock
-Icarus `tb/vibe/tests/tc_voq_rd.sv` / `tc_deadlock_timeout_1us.sv`
-/ `tc_voq_rd` / `tc_deadlock_timeout_1us` remain the official
-TP scorers. Fifth fabric leaf after `vibe_fecn_mark` /
-`vibe_vl_rr` / `vibe_route_lu` / `vibe_port_sel`. `ovf_l`
-(F1) is not in this module.
+aging, wrap-vs-DUT instance score on `u_u`, pin scan
+with instance `u_u`). It is **not** 1/3, 4/3, freeze, or
+signoff. Stock Icarus `tb/vibe/tests/tc_voq_rd.sv` /
+`tc_deadlock_timeout_1us.sv` / `tc_voq_rd` /
+`tc_deadlock_timeout_1us` remain the official TP scorers
+(direct `vibe_voq_egr` top, instance `u_v`). Fifth fabric
+leaf after stage-80 `vibe_fecn_mark` wrap, stage-81
+`vibe_vl_rr` wrap, stage-82 `vibe_route_lu` wrap, and
+stage-83 `vibe_port_sel` wrap. Instance `u_u` matches
+Decision-I leaf wrappers; product instantiator is
+`vibe_fabric` `g_egr.u_voq`; stock Icarus uses `u_v`.
+`ovf_l` (F1) is not in this module. CHILDREN: none. This
+is **not** `dll_wrap` / `wrap` / `top` / `port` / `icrc` /
+`nw_adapt` / `fecn_mark` / `vl_rr` / `route_lu` /
+`port_sel` / `vibe_fecn_mark` / `vibe_vl_rr` /
+`vibe_route_lu` / `vibe_port_sel` / `vibe_icrc` /
+`vibe_nw_adapt` / `vibe_bcrc` / `vibe_dll`. Do not invent
+`vibe_saf_ing` here.
 
 `tc_vibe_saf_ing` / `make saf_ing` / `make saf` /
 `make tc_vibe_saf_ing` is **module-level only** (async `rst_n`

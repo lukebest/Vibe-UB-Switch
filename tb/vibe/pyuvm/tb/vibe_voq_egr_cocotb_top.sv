@@ -4,6 +4,18 @@
 // deadlock_* + wptr/rptr (mem/sop/eop/age not cleared). Deadlock
 // timeout VIBE_US_CYC (1250) from enqueue. Instantiated by
 // vibe_fabric g_egr.u_voq. Clock from entry_unit (2 ns).
+// Decision-I wrap leaf `tc_vibe_voq_egr` / make voq_egr /
+// make voq / make tc_vibe_voq_egr uses this top. Instance u_u
+// matches Decision-I leaf wrappers (product instantiator is
+// vibe_fabric g_egr.u_voq; stock Icarus tc_voq_rd /
+// tc_deadlock_timeout_1us use u_v; not leftover u_voq / u_v
+// on this wrap). Fifth fabric leaf after stage-80 vibe_fecn_mark
+// wrap, stage-81 vibe_vl_rr wrap, stage-82 vibe_route_lu wrap,
+// and stage-83 vibe_port_sel wrap.
+// ovf_l (F1) is not in this module. This is not vibe_fecn_mark /
+// vibe_vl_rr / vibe_route_lu / vibe_port_sel / vibe_nw_adapt /
+// vibe_icrc / vibe_dll / vibe_bcrc / vibe_port / vibe_ub_switch.
+// CHILDREN: none. Do not invent vibe_saf_ing or later fabric leaves.
 `timescale 1ns/1ps
 
 module vibe_voq_egr_cocotb_top (

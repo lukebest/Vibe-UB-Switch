@@ -251,6 +251,7 @@ UNIT_MORE = [
     ("tc_vibe_port_sel", "vibe_port_sel_cocotb_top",
      [_wrap("vibe_port_sel_cocotb_top"), _w("fabric", "vibe_port_sel.sv")],
      "entry_unit"),
+    # Decision-I stage-84 wrap leaf. Not stock tc_voq_rd / tc_deadlock_timeout_1us.
     ("tc_vibe_voq_egr", "vibe_voq_egr_cocotb_top",
      [_wrap("vibe_voq_egr_cocotb_top"), _w("fabric", "vibe_voq_egr.sv")],
      "entry_unit"),

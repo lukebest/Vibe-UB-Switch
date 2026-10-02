@@ -1,18 +1,40 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_voq_egr.
+"""Module-level uvm-python TC for Decision-I stage-84 vibe_voq_egr.
 
 Covers reset clearing deadlock_* / wptr / rptr (combo wr_ready=1,
 nonempty=0, occ_vl0=0); wr then rd same VL data/sop/eop; wr_ready
 backpressure when occ==DEPTH; nonempty bit per VL; short
 deadlock_drop after VIBE_US_CYC aging (1250 clk, included — sim
-time stays a few microseconds). Not a full-chip consecutive-green
-gate. Not 1/3, 4/3, freeze, or signoff.
+time stays a few microseconds); wrap-vs-DUT instance score
+(cocotb instance u_u); and a pin scan with instance u_u.
+Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze, or
+signoff.
 
 Matches product rtl/fabric/vibe_voq_egr.sv: async-low rst_n, combo
 occ/wr_ready/rd_*/nonempty/occ_vl0, DEPTH=32, 16 VLs, age load
-VIBE_US_CYC[10:0] on accepted write. Instantiated by vibe_fabric
-g_egr.u_voq. Stock Icarus tc_voq_rd / tc_deadlock_timeout_1us
-remain the official TP scorers. Header-only vs stock; no invented
-protocol. ovf_l (F1) is not in this module.
+VIBE_US_CYC[10:0] on accepted write. Product instantiator is
+vibe_fabric g_egr.u_voq; stock Icarus tc_voq_rd /
+tc_deadlock_timeout_1us use u_v; Decision-I wrap uses instance
+u_u (not leftover u_voq / u_v).
+This is not vibe_fecn_mark / vibe_vl_rr / vibe_route_lu /
+vibe_port_sel / vibe_icrc / vibe_nw_adapt / vibe_dll / vibe_bcrc /
+vibe_dll_tx / vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+vibe_dll_retry_req_sm / vibe_port / vibe_ub_switch /
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_pcs_tx_fec / vibe_rs128_120_enc / vibe_rs128_120_dec /
+vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Fifth fabric leaf after stage-80 vibe_fecn_mark wrap, stage-81
+vibe_vl_rr wrap, stage-82 vibe_route_lu wrap, and stage-83
+vibe_port_sel wrap. Do not invent vibe_saf_ing or later fabric
+leaves here.
+Stock Icarus tc_voq_rd / tc_deadlock_timeout_1us remain the
+official TP scorers (direct vibe_voq_egr top, instance u_v).
+Header-only vs stock; no invented protocol.
 """
 
 from uvm import uvm_component_utils
@@ -30,7 +52,59 @@ MASK16 = 0xFFFF
 MASK32 = 0xFFFFFFFF
 MASK512 = (1 << 512) - 1
 VIBE_US_CYC = 1250
-HIER = "u_u.wr_ready / nonempty / occ_vl0 / rd_* / deadlock_*"
+HIER = "u_u.wr_ready / u_u.nonempty / u_u.occ_vl0 / u_u.rd_* / u_u.deadlock_*"
+WRAP = "vibe_voq_egr_cocotb_top"
+INST = "u_u"
+# Product ports from rtl/fabric/vibe_voq_egr.sv. Sequential: clk /
+# async-low rst_n. ovf_l (F1) is not a port.
+PINS = (
+    "clk", "rst_n",
+    "wr_vl", "wr_en", "wr_data", "wr_sop", "wr_eop", "wr_ready",
+    "rd_vl", "rd_en", "rd_data", "rd_sop", "rd_eop",
+    "nonempty", "occ_vl0", "deadlock_drop", "deadlock_cnt",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator g_egr.u_voq or stock Icarus u_v.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "out_ready", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_rt", "u_rti", "u_ps", "u_psi",
+    "u_voq", "u_v", "u_saf", "u_xbar",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "grant", "vl_sel", "valid",
+    "device_rst", "wr_idx", "lu_vld",
+    "egr", "drop", "drop_down_cnt",
+    "bitmap", "drop_g1", "status_up", "default_bm",
+    "rt", "sel_vld", "cfg", "src", "dest", "vl",
+    "start", "in_vld", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity", "in_ready",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "disabled",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+)
 
 
 def flit(tag, hi=0):
@@ -165,15 +239,68 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
             ival(d.deadlock_cnt, -1),
         )
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        return (
+            ival(u.wr_ready, -1),
+            ival(u.nonempty, -1),
+            ival(u.occ_vl0, -1),
+            ival(u.rd_data, -1),
+            ival(u.rd_sop, -1),
+            ival(u.rd_eop, -1),
+            ival(u.deadlock_drop, -1),
+            ival(u.deadlock_cnt, -1),
+        )
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        irdy, ine, iocc, idata, isop, ieop, idrop, icnt = inner
+        rdy, ne, occ, data, sop, eop, drop, cnt = got
+        if idrop != drop:
+            self.bad(name, stim + f" (port vs {INST})",
+                     f"drop={drop} wr_ready={rdy} nonempty=0x{ne:x}",
+                     f"{INST} drop={idrop} wr_ready={irdy} nonempty=0x{ine:x}",
+                     HIER)
+            return False
+        pairs = (
+            ("wr_ready", rdy, irdy, 1),
+            ("nonempty", ne, ine, MASK16),
+            ("occ_vl0", occ, iocc, MASK6),
+            ("rd_data", data, idata, MASK512),
+            ("rd_sop", sop, isop, 1),
+            ("rd_eop", eop, ieop, 1),
+            ("deadlock_cnt", cnt, icnt, MASK32),
+        )
+        for pname, outer, inner_v, mask in pairs:
+            if outer is None or inner_v is None:
+                if outer != inner_v:
+                    self.bad(name, stim + f" ({INST} vs wrap)",
+                             f"{pname}={outer}",
+                             f"{INST}.{pname}={inner_v}",
+                             f"{INST}.{pname}")
+                    return False
+            elif (int(inner_v) & mask) != (int(outer) & mask):
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"{pname}={outer}",
+                         f"{INST}.{pname}={inner_v}",
+                         f"{INST}.{pname}")
+                return False
+        return True
+
     def _fmt(self, s):
         rdy, ne, occ, data, sop, eop, drop, cnt = s
         return (f"wr_ready={rdy} nonempty=0x{ne:x} occ_vl0={occ} "
                 f"rd={data}/{sop}/{eop} drop={drop} cnt={cnt}")
 
     def _peek_ptrs(self):
-        try:
-            u = self.dut.u_u
-        except Exception:
+        u = getattr(self.dut, INST, None)
+        if u is None:
             return None, None
         wptr, rptr = [], []
         try:
@@ -199,27 +326,29 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
         if drop != exp_drop or (cnt & MASK32) != exp_cnt:
             self.bad(name, stim + " (deadlock)",
                      f"drop={exp_drop} cnt={exp_cnt}",
-                     self._fmt(got), "u_u.deadlock_drop / deadlock_cnt")
+                     self._fmt(got), f"{INST}.deadlock_drop / deadlock_cnt")
             return False
         if score_rd and exp_ne & (1 << (ival(self.dut.rd_vl, 0) & MASK4)):
             ed, es, ee = self.g.rd_word(ival(self.dut.rd_vl, 0))
             if data != ed or sop != es or eop != ee:
                 self.bad(name, stim + " (rd head)",
                          f"rd={ed}/{es}/{ee}",
-                         self._fmt(got), "u_u.rd_data / rd_sop / rd_eop")
+                         self._fmt(got), f"{INST}.rd_data / rd_sop / rd_eop")
                 return False
+        if not self._score_inner(name, stim, got):
+            return False
         wptr, rptr = self._peek_ptrs()
         if wptr is not None:
             for k in range(NVL):
                 if wptr[k] is not None and (wptr[k] & MASK6) != self.g.wptr[k]:
-                    self.bad(name, stim + f" (u_u.wptr[{k}])",
+                    self.bad(name, stim + f" ({INST}.wptr[{k}])",
                              f"wptr[{k}]={self.g.wptr[k]}",
-                             f"u_u.wptr[{k}]={wptr[k]}", "u_u.wptr")
+                             f"{INST}.wptr[{k}]={wptr[k]}", f"{INST}.wptr")
                     return False
                 if rptr[k] is not None and (rptr[k] & MASK6) != self.g.rptr[k]:
-                    self.bad(name, stim + f" (u_u.rptr[{k}])",
+                    self.bad(name, stim + f" ({INST}.rptr[{k}])",
                              f"rptr[{k}]={self.g.rptr[k]}",
-                             f"u_u.rptr[{k}]={rptr[k]}", "u_u.rptr")
+                             f"{INST}.rptr[{k}]={rptr[k]}", f"{INST}.rptr")
                     return False
         return True
 
@@ -607,9 +736,38 @@ class tc_vibe_voq_egr(VibeUnitBaseTest):
         if self.g.deadlock_cnt < 1:
             self.bad(name, "deadlock_cnt after expire",
                      "cnt>=1", f"cnt={self.g.deadlock_cnt}",
-                     "u_u.deadlock_cnt")
+                     f"{INST}.deadlock_cnt")
             phase.drop_objection(self)
             return
+
+        # 6. Leaf pins match product SV (clk / rst_n / wr_* / rd_* /
+        # nonempty / occ_vl0 / deadlock_*; no ovf_l / leftover u_voq).
+        # Instance u_u (not leftover u_voq / u_v / u_ps / u_rr).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_voq_egr product port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)
