@@ -1,7 +1,9 @@
 """vibe_nw_adapt — NW 512b vld/ready adapter (AS-0.1).
 
 Product module: ``rtl/nw/vibe_nw_adapt.sv``. Ports match tip
-``2b4a8408`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``8c0057ab``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Combo leaf (``clk`` / ``rst_n`` unused in the body;
 ``link_ready``; FAB→NW VOQ 512b ``fab_nw_data`` / ``fab_nw_vld`` /
 ``fab_nw_ready``; mgmt inject priority ``mgmt_nw_data`` /

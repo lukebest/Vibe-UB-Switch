@@ -18,7 +18,8 @@ priority over VOQ. Self-contained (no child instances).
 
 ## Ports (product)
 
-Same as tip `2b4a8408` / freeze `302ac943`. Combo. Reset
+Same as tip `8c0057ab`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Combo. Reset
 pin stays **async active-low** `rst_n` (port wires it; the
 combo body does not sample `clk` / `rst_n`).
 
