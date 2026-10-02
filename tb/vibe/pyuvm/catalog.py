@@ -208,6 +208,8 @@ NAME_MAP = {
         "tc_vibe_dll (vibe_dll_cocotb_top, wrap-level; not TP-DLL-004)",
     "make icrc / tc_vibe_icrc":
         "tc_vibe_icrc (vibe_icrc_cocotb_top, module-level)",
+    "make nw_adapt / tc_vibe_nw_adapt":
+        "tc_vibe_nw_adapt (vibe_nw_adapt_cocotb_top, module-level)",
     "make irq_agg / tc_vibe_irq_agg":
         "tc_vibe_irq_agg (vibe_irq_agg_cocotb_top, module-level)",
     "make cna_ep / tc_vibe_cna_ep":

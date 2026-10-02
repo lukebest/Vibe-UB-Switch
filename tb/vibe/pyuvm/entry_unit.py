@@ -43,6 +43,7 @@ from vibe_uvm.tests import unit_xbar  # noqa: F401
 from vibe_uvm.tests import unit_dll_tx  # noqa: F401
 from vibe_uvm.tests import unit_dll_wrap  # noqa: F401
 from vibe_uvm.tests import unit_icrc  # noqa: F401
+from vibe_uvm.tests import unit_nw_adapt  # noqa: F401
 from vibe_uvm.tests import unit_irq_agg  # noqa: F401
 from vibe_uvm.tests import unit_cna_ep  # noqa: F401
 from vibe_uvm.tests import unit_cfg_space  # noqa: F401
