@@ -1,7 +1,9 @@
 """vibe_voq_egr — fabric egress VOQ (AS-0.1 §8/§14).
 
 Product module: ``rtl/fabric/vibe_voq_egr.sv``. Ports match tip
-``8ec96a2a`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``62f97739``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``wr_vl[3:0]`` / ``wr_en`` /
 ``wr_data[511:0]`` / ``wr_sop`` / ``wr_eop`` / ``wr_ready`` /
 ``rd_vl[3:0]`` / ``rd_en`` / ``rd_data[511:0]`` / ``rd_sop`` /
