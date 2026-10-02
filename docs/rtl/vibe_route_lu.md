@@ -22,7 +22,8 @@ after `vibe_fecn_mark` / `vibe_vl_rr`.
 
 ## Ports (product)
 
-Same as tip `2841888e` / freeze `302ac943`. Reset stays
+Same as tip `5f082040`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |

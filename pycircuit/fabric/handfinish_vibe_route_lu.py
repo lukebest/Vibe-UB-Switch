@@ -5,6 +5,8 @@ dest → 4-bit egress bitmap, and RT=10/11 DROP (pulse
 ``drop_g1``). No Dijkstra, no treat-as-RT=00, no RT rewrite
 (AS-0.1 §2/§8 + FS-0.2.3 G1). pycc netlists are a prototype
 only; this file is what lands in ``rtl/fabric/vibe_route_lu.sv``.
+Tip ``5f082040``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -14,7 +16,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_route_lu.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 2841888e / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 5f082040. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
