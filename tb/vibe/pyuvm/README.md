@@ -776,12 +776,22 @@ normal select when `bitmap & status_up` is nonempty, `drop_g1`
 pulses `drop` without bumping `drop_down_cnt`, empty avail +
 Default all-0 + port0 up picks port 0 / port0 down drops and
 increments `drop_down_cnt` with no flood, RT=00 sticky on
-`sticky[vl]`, RT=01 per-packet RR via `rr`). It is **not** 1/3,
+`sticky[vl]`, RT=01 per-packet RR via `rr`, wrap-vs-DUT instance
+score on `u_u`, pin scan with instance `u_u`). It is **not** 1/3,
 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_p0_down_drop.sv` / `tc_p0_down_drop` remains
-the official TP scorer. Fourth fabric leaf after
-`vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu`. Compact
-sticky slot is `vl` (cfg/src/dest are product ports).
+the official TP scorer (direct `vibe_port_sel` top, instance
+`u_ps`). Fourth fabric leaf after stage-80 `vibe_fecn_mark` wrap,
+stage-81 `vibe_vl_rr` wrap, and stage-82 `vibe_route_lu` wrap.
+Instance `u_u` matches Decision-I leaf wrappers; product
+instantiator is `vibe_fabric` `u_ps` / `g_rt.u_psi`; stock
+Icarus uses `u_ps`. `ovf_l` (F1) is not in this module.
+CHILDREN: none. This is **not** `dll_wrap` / `wrap` / `top` /
+`port` / `icrc` / `nw_adapt` / `fecn_mark` / `vl_rr` /
+`route_lu` / `vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu` /
+`vibe_icrc` / `vibe_nw_adapt` / `vibe_bcrc` / `vibe_dll`. Compact
+sticky slot is `vl` (cfg/src/dest are product ports). Do not
+invent `vibe_voq_egr` here.
 
 `tc_vibe_voq_egr` / `make voq_egr` / `make voq` /
 `make tc_vibe_voq_egr` is **module-level only** (async `rst_n`
