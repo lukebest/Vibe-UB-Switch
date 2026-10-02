@@ -148,6 +148,9 @@ make -C tb/vibe/pyuvm tc_vibe_dll              # same as dll_wrap / wrap
 make -C tb/vibe/pyuvm units TC=tc_vibe_icrc  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm icrc                     # same as units TC=tc_vibe_icrc
 make -C tb/vibe/pyuvm tc_vibe_icrc             # same as icrc
+make -C tb/vibe/pyuvm units TC=tc_vibe_nw_adapt  # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm nw_adapt                 # same as units TC=tc_vibe_nw_adapt
+make -C tb/vibe/pyuvm tc_vibe_nw_adapt         # same as nw_adapt
 make -C tb/vibe/pyuvm units TC=tc_vibe_irq_agg  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm irq_agg                  # same as units TC=tc_vibe_irq_agg
 make -C tb/vibe/pyuvm tc_vibe_irq_agg          # same as irq_agg
@@ -271,6 +274,8 @@ make -C tb/vibe/pyuvm wrap SIM=verilator           # same as dll_wrap
 make -C tb/vibe/pyuvm tc_vibe_dll SIM=verilator    # same as dll_wrap
 make -C tb/vibe/pyuvm icrc SIM=verilator           # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_icrc SIM=verilator   # same as icrc
+make -C tb/vibe/pyuvm nw_adapt SIM=verilator       # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_nw_adapt SIM=verilator # same as nw_adapt
 make -C tb/vibe/pyuvm irq_agg SIM=verilator        # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_irq_agg SIM=verilator  # same as irq_agg
 make -C tb/vibe/pyuvm cna_ep SIM=verilator         # or SIM=icarus
@@ -844,6 +849,24 @@ not in this module. CHILDREN: none. Transit has no ICRC unit.
 This is **not** `dll_wrap` / `wrap` / `top` / `port` /
 `vibe_bcrc` / `vibe_dll` / `vibe_nw_adapt`.
 
+`tc_vibe_nw_adapt` / `make nw_adapt` / `make tc_vibe_nw_adapt` is
+**module-level only** (combo idle; `clk` / `rst_n` unused in the
+combo body; `link_ready` gates both TX readies and `nw_dll_vld`;
+mgmt inject priority over VOQ; TX/RX 512b GOLDEN plus SOP LPH
+`[511:352]`; ready trees `mgmt_nw_ready` / `fab_nw_ready` /
+`dll_nw_ready`; wrap-vs-DUT instance score on `u_u`; `rst_n`
+toggle does not change combo outs; pin scan with instance `u_u`).
+It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_nw_adapt_linkready.sv` /
+`tc_nw_adapt_linkready` remains the official LinkReady / mgmt-pri
+scorer (direct `vibe_nw_adapt` top, instance `u_n`). Last NW leaf
+after stage-78 `vibe_icrc` wrap (PCS/CDC/DLL/fabric/NW leaves
+stage-1..79; NW tip-align wave complete). Instance `u_u` matches
+Decision-I leaf wrappers; product instantiator is `vibe_port`
+`u_nw`; stock Icarus uses `u_n`. `ovf_l` (F1) is not in this
+module. CHILDREN: none. This is **not** `dll_wrap` / `wrap` /
+`top` / `port` / `icrc` / `vibe_icrc` / `vibe_bcrc` / `vibe_dll`.
+
 `tc_vibe_irq_agg` / `make irq_agg` / `make tc_vibe_irq_agg` is
 **module-level only** (async `rst_n` clears `sticky` / `irq_logic`,
 idle sources stay 0, SPEC §14 / AS §15 must-observe sources —
@@ -1069,6 +1092,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_xbar_unit` | still `tc_xbar_unit`; Decision-I module TC is `tc_vibe_xbar` |
 | Icarus `tc_dll_tx_cfg0` | still `tc_dll_tx_cfg0`; Decision-I module TC is `tc_vibe_dll_tx` |
 | Icarus `tc_icrc_txrx_vs_transit` | still `tc_icrc_txrx_vs_transit`; Decision-I module TC is `tc_vibe_icrc` |
+| Icarus `tc_nw_adapt_linkready` | still `tc_nw_adapt_linkready`; Decision-I module TC is `tc_vibe_nw_adapt` |
 | Icarus `tc_irq_agg` | still `tc_irq_agg`; Decision-I module TC is `tc_vibe_irq_agg` |
 | Icarus `tc_cna_ep` | still `tc_cna_ep`; Decision-I module TC is `tc_vibe_cna_ep` |
 | Icarus `tc_identity_cfg_space` / `tc_cna_16bit` | still those IDs; Decision-I module TC is `tc_vibe_cfg_space` |
@@ -1141,6 +1165,7 @@ those two stay Icarus.
 | `tc_vibe_dll_tx` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_dll` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_icrc` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_nw_adapt` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_irq_agg` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_cna_ep` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_cfg_space` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
