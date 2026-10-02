@@ -1,7 +1,16 @@
 // Thin cocotb wrapper. DUT RTL never edited.
 // Stock Icarus tc_dll instantiates vibe_dll #(.RETRY_WAIT_CYC(4)).
 // TP-DLL-004 (`tc_dll` / make dll) scores a >32-flit DLLDP split.
-// Decision-I wrap leaf `tc_vibe_dll` / make dll_wrap uses this top too.
+// Decision-I wrap leaf `tc_vibe_dll` / make dll_wrap / make wrap /
+// make tc_vibe_dll uses this top too. Instance u_dll matches stock
+// tc_dll (not leftover u_u). CHILDREN as instantiated: u_sm / u_crd /
+// u_rbuf / u_req / u_ack / u_tx / u_rx. First DLL structural wrap
+// after child leaves bcrc / credit / dll_sm / dll_rx / retry_ack_sm /
+// retry_buf / retry_req_sm / dll_tx. ovf_l (F1) is not in this
+// module; do not ECO F1. This is not TP-DLL-004 / vibe_bcrc /
+// vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+// vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+// vibe_dll_retry_req_sm / vibe_dll_tx / vibe_icrc.
 `timescale 1ns/1ps
 
 module vibe_dll_cocotb_top (
