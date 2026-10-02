@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_xbar.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 782f2181 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 0f453ed6. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §8: output queued, ingress RR on conflict, one full packet per grant.
 // Down ports get no data DLLDP. Mgmt bypass does not enter xbar.
 module vibe_xbar (
