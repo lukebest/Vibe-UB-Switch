@@ -1,7 +1,9 @@
 """vibe_icrc — NW ICRC CRC32 (AS-0.1 §13).
 
 Product module: ``rtl/nw/vibe_icrc.sv``. Ports match tip
-``186dde4e`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``6dd82499``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``start`` / ``in_vld`` /
 8b ``in_byte`` / ``last`` / 32b ``crc_out`` / ``done``). First
 NW leaf after PCS/CDC/DLL/fabric leaves (stage-1..35). CRC32
