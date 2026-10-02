@@ -1,26 +1,49 @@
-"""Module-level uvm-python TC for Decision-I leaf vibe_xbar.
+"""Module-level uvm-python TC for Decision-I stage-86 vibe_xbar.
 
 Covers reset clearing lock / locked / rr (combo in_ready=0,
 out_vld=0); 1-beat sop&&eop route in0 dest=1; 2-beat locked
 grant; candidate out_data independent of out_ready (accept
 still needs out_ready); ingress RR on two-to-one conflict and
 rr<=lock+1 after EOP; down port status_up=0 emits no data;
-parallel grants to distinct dests; async rst_n mid-stream.
+parallel grants to distinct dests; async rst_n mid-stream;
+wrap-vs-DUT instance score (cocotb instance u_u); and a pin
+scan with instance u_u.
 Not a full-chip consecutive-green gate. Not 1/3, 4/3, freeze,
 or signoff.
 
 Matches product rtl/fabric/vibe_xbar.sv: async-low rst_n,
 combo cand_* independent of out_ready, accept
 (out_vld / in_ready) requires out_ready, 4 ports, ingress RR
-from rr[e], one full packet per grant. Instantiated by
-vibe_fabric u_xbar. Stock Icarus tc_xbar_unit remains the
-official TP scorer. Header-only vs stock; no invented
-protocol. Icarus 12 VPI leaves 512-bit unpacked out_data
-X (stock tc_xbar_unit / TC_RESULTS) — X is not treated as
-0; packed in_ready / out_* and lock / locked / rr still
-score. Verilator resolves out_data and scores it. ovf_l
-(F1) is not in this module. Mgmt bypass is fabric-level
-and does not enter this DUT.
+from rr[e], one full packet per grant. Product instantiator
+is vibe_fabric u_xbar; stock Icarus tc_xbar_unit uses u_xbar;
+Decision-I wrap uses instance u_u (not leftover u_xbar).
+This is not vibe_fecn_mark / vibe_vl_rr / vibe_route_lu /
+vibe_port_sel / vibe_voq_egr / vibe_saf_ing / vibe_icrc /
+vibe_nw_adapt / vibe_dll / vibe_bcrc / vibe_dll_tx /
+vibe_dll_credit / vibe_dll_sm / vibe_dll_rx /
+vibe_dll_retry_ack_sm / vibe_dll_retry_buf /
+vibe_dll_retry_req_sm / vibe_port / vibe_ub_switch /
+vibe_pcs_tx / vibe_pcs_rx / vibe_pcs_scramble / vibe_ebch16 /
+vibe_pcs_tx_cw2beat / vibe_pcs_tx_amctl / vibe_pcs_tx_g1 /
+vibe_pcs_tx_fec / vibe_rs128_120_enc / vibe_rs128_120_dec /
+vibe_pcs_rx_deskew / vibe_pcs_rx_amctl_lock /
+vibe_pcs_rx_unpack / vibe_pcs_tx_pack / gear / vibe_afifo /
+vibe_sync2 / vibe_rst_sync / vibe_rst_ctl.
+ovf_l (F1) is not in this module; do not ECO F1.
+CHILDREN: none.
+Seventh fabric leaf after stage-80 vibe_fecn_mark wrap,
+stage-81 vibe_vl_rr wrap, stage-82 vibe_route_lu wrap,
+stage-83 vibe_port_sel wrap, stage-84 vibe_voq_egr wrap,
+and stage-85 vibe_saf_ing wrap. Fabric tip-align queue is
+empty. Do not invent vibe_rst_ctl here.
+Stock Icarus tc_xbar_unit remains the official TP scorer
+(direct vibe_xbar top, instance u_xbar). Header-only vs
+stock; no invented protocol. Icarus 12 VPI leaves 512-bit
+unpacked out_data X (stock tc_xbar_unit / TC_RESULTS) — X
+is not treated as 0; packed in_ready / out_* and lock /
+locked / rr still score. Verilator resolves out_data and
+scores it. Mgmt bypass is fabric-level and does not enter
+this DUT.
 """
 
 from uvm import uvm_component_utils
@@ -32,7 +55,75 @@ NPORT = 4
 MASK2 = 0x3
 MASK4 = 0xF
 MASK512 = (1 << 512) - 1
-HIER = "u_u.in_ready / out_vld / out_data / lock / locked / rr"
+HIER = "u_u.in_ready / u_u.out_vld / u_u.out_data / u_u.lock / u_u.locked / u_u.rr"
+WRAP = "vibe_xbar_cocotb_top"
+INST = "u_u"
+# Flattened wrap ports (cocotb cannot drive unpacked arrays).
+# Product DUT ports on u_u keep in_data / in_dst / out_data arrays.
+# Sequential: clk / async-low rst_n. ovf_l (F1) is not a port.
+PINS = (
+    "clk", "rst_n", "status_up",
+    "in_vld", "in_sop", "in_eop", "out_ready",
+    "in_data_0", "in_data_1", "in_data_2", "in_data_3",
+    "in_dst_0", "in_dst_1", "in_dst_2", "in_dst_3",
+    "in_ready", "out_vld", "out_sop", "out_eop",
+    "out_data_0", "out_data_1", "out_data_2", "out_data_3",
+)
+DUT_PINS = (
+    "clk", "rst_n", "status_up",
+    "in_data", "in_vld", "in_sop", "in_eop", "in_dst",
+    "in_ready", "out_data", "out_vld", "out_sop", "out_eop",
+    "out_ready",
+)
+# Leftover leaf / dual-clock / F1 / sibling pins must not appear on
+# the wrap top. Instance is u_u (Decision-I leaf wrappers), not
+# leftover product instantiator u_xbar or stock Icarus u_xbar.
+# in_data / out_data / in_dst are wrap-internal unpacked arrays
+# (not leftover ports) — do not list them here.
+ABSENT = (
+    "clk_fab",
+    "ovf_l", "almost_full",
+    "wclk", "rclk", "wen", "ren", "wfull", "rempty", "wocc",
+    "rst_n_in", "rst_n_out", "d", "q", "phase", "hold_vld",
+    "rbits", "cfg_wr_vld", "dll_pcs_vld",
+    "u_fecn", "u_f", "u_n", "u_nw", "u_icrc", "u_bcrc", "u_b",
+    "u_l", "u_dsk", "u_un", "u_fec",
+    "u_crd", "u_sm", "u_rbuf", "u_dll", "u_tx", "u_rx",
+    "u_ack", "u_req", "u_rack", "u_adapt",
+    "u_vl", "u_rr", "u_lu", "u_rt", "u_rti", "u_ps", "u_psi",
+    "u_voq", "u_v", "u_saf", "u_s", "u_xbar", "u_rst",
+    "cci_in", "voq_occ", "cci_out", "marked",
+    "grant", "vl_sel", "valid",
+    "device_rst", "wr_idx", "lu_vld",
+    "egr", "drop", "drop_down_cnt",
+    "bitmap", "drop_g1", "default_bm",
+    "rt", "sel_vld", "cfg", "src", "dest", "vl",
+    "wr_vl", "wr_en", "wr_data", "wr_sop", "wr_eop", "wr_ready",
+    "rd_vl", "rd_en", "rd_data", "rd_sop", "rd_eop",
+    "nonempty", "occ_vl0", "deadlock_drop", "deadlock_cnt",
+    "start", "in_byte", "last", "crc_out", "done",
+    "lane_id", "seed_load", "en", "cw_sel", "cw", "u_cw", "u_a",
+    "cw_data", "cw_vld", "cw_ready", "beat_data", "beat_vld", "beat_ready",
+    "amctl_40B", "sdf_period", "fec_fail", "data_out",
+    "u_g", "u_g1", "u_enc", "u_enc_a", "u_enc_b", "u_pack", "u_dec",
+    "grain_n", "is_cfg0",
+    "credit_ret", "credit_ret_n",
+    "pending", "credit_low", "force_crd_ack",
+    "bp_nw", "proto_err", "fc_ovf",
+    "param_ok", "credit_ok", "dll_error",
+    "in_flit", "error_flag", "crc_word",
+    "in_sym", "parity",
+    "win_data", "win_vld", "win_ready",
+    "locked", "lid", "lid_bad", "is_amctl", "sdf", "edf",
+    "bcrc_fail", "start_retry", "rx_ovf", "cfg0_hit",
+    "link_up", "port_rst", "disabled",
+    "pcs_dll_data", "pcs_dll_vld", "dll_nw_ready",
+    "pcs_dll_ready", "dll_nw_data", "dll_nw_vld",
+    "start_ack", "rd_ptr", "wr_ptr", "rcv_ptr", "tail_ptr", "num_free",
+    "link_ready", "fab_nw_data", "fab_nw_vld", "fab_nw_ready",
+    "pkt_data", "pkt_vld", "pkt_ready", "pkt_sop", "pkt_eop",
+    "pkt_bytes", "len_err",
+)
 
 
 def beat(tag):
@@ -241,6 +332,64 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                          for i in range(NPORT)],
         }
 
+    def _inner_sample(self):
+        u = getattr(self.dut, INST, None)
+        if u is None:
+            return None
+        try:
+            return {
+                "in_ready": ival(u.in_ready, -1),
+                "out_vld": ival(u.out_vld, -1),
+                "out_sop": ival(u.out_sop, -1),
+                "out_eop": ival(u.out_eop, -1),
+                "out_data": [ival(u.out_data[i], -1) for i in range(NPORT)],
+            }
+        except Exception:
+            return None
+
+    def _score_inner(self, name, stim, got):
+        inner = self._inner_sample()
+        if inner is None:
+            self.bad(name, stim + f" ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            return False
+        pairs = (
+            ("in_ready", got["in_ready"], inner["in_ready"], MASK4),
+            ("out_vld", got["out_vld"], inner["out_vld"], MASK4),
+            ("out_sop", got["out_sop"], inner["out_sop"], MASK4),
+            ("out_eop", got["out_eop"], inner["out_eop"], MASK4),
+        )
+        for pname, outer, inner_v, mask in pairs:
+            if outer is None or inner_v is None:
+                if outer != inner_v:
+                    self.bad(name, stim + f" ({INST} vs wrap)",
+                             f"{pname}={outer}",
+                             f"{INST}.{pname}={inner_v}",
+                             f"{INST}.{pname}")
+                    return False
+            elif (int(inner_v) & mask) != (int(outer) & mask):
+                self.bad(name, stim + f" ({INST} vs wrap)",
+                         f"{pname}={outer}",
+                         f"{INST}.{pname}={inner_v}",
+                         f"{INST}.{pname}")
+                return False
+        # Packed wrap out_data_* vs unpacked u_u.out_data[i].
+        # Icarus 12 VPI: unpacked DUT out_data is X; packed wrap
+        # outs may resolve. Unresolved on either side is not 0
+        # and is not a wrap-vs-DUT mismatch.
+        for e in range(NPORT):
+            outer = got["out_data"][e]
+            inner_v = inner["out_data"][e]
+            if outer is None or int(outer) < 0 or inner_v is None or int(inner_v) < 0:
+                continue
+            if (int(inner_v) & MASK512) != (int(outer) & MASK512):
+                self.bad(name, stim + f" ({INST} vs wrap out_data[{e}])",
+                         f"out_data_{e}={outer}",
+                         f"{INST}.out_data[{e}]={inner_v}",
+                         f"{INST}.out_data[{e}]")
+                return False
+        return True
+
     def _fmt(self, s):
         data = " ".join(
             f"{i}={s['out_data'][i]}" if s['out_data'][i] is not None
@@ -256,9 +405,8 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             st["in_eop"], st["in_dst"], st["out_ready"])
 
     def _peek_state(self):
-        try:
-            u = self.dut.u_u
-        except Exception:
+        u = getattr(self.dut, INST, None)
+        if u is None:
             return None
         lock, locked, rr = [], [], []
         try:
@@ -293,7 +441,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                 if (gd & MASK512) != ed:
                     self.bad(name, stim + f" (out_data[{e}])",
                              f"out_data[{e}]={ed}",
-                             self._fmt(got), f"u_u.out_data[{e}]")
+                             self._fmt(got), f"{INST}.out_data[{e}]")
                     return False
             # Icarus 12 VPI: 512-bit unpacked vibe_xbar.out_data is X
             # (stock tc_xbar_unit / TC_RESULTS). Do not treat X as 0.
@@ -303,7 +451,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             if unresolved and unresolved != NPORT:
                 self.bad(name, stim + " (mixed out_data X)",
                          "all out_data resolvable or all X",
-                         self._fmt(got), "u_u.out_data")
+                         self._fmt(got), f"{INST}.out_data")
                 return False
         return True
 
@@ -322,9 +470,9 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                 if got_v is None:
                     continue
                 if (got_v & mask) != (exp_v & mask):
-                    self.bad(name, stim + f" (u_u.{key}[{k}])",
+                    self.bad(name, stim + f" ({INST}.{key}[{k}])",
                              f"{key}[{k}]={exp_v}",
-                             f"u_u.{key}[{k}]={got_v}", f"u_u.{key}")
+                             f"{INST}.{key}[{k}]={got_v}", f"{INST}.{key}")
                     return False
         return True
 
@@ -332,6 +480,8 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         """Score combo vs current (already-updated) golden — idle / async rst."""
         if not self._score_combo(name, stim, got, self._exp_combo(),
                                  score_data=score_data):
+            return False
+        if not self._score_inner(name, stim, got):
             return False
         return self._score_state(name, stim)
 
@@ -378,6 +528,10 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if not self._score_combo(name, stim + " (post-NBA combo)",
                                  post, self._exp_combo(),
                                  score_data=score_data):
+            return None
+        if not self._score_inner(name, stim + " (pre-NBA grant)", pre):
+            return None
+        if not self._score_inner(name, stim + " (post-NBA combo)", post):
             return None
         if not self._score_state(name, stim):
             return None
@@ -519,7 +673,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if not self._data_match(got["out_data"][1], d0):
             self.bad(name, "1-beat data",
                      f"out_data[1]={d0}",
-                     self._fmt(got), "u_u.out_data")
+                     self._fmt(got), f"{INST}.out_data")
             phase.drop_objection(self)
             return
         if not bit(got["out_sop"], 1) or not bit(got["out_eop"], 1):
@@ -561,7 +715,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             self.bad(name, "lock after SOP",
                      "locked[2]=1 lock[2]=0",
                      f"locked={self.g.locked} lock={self.g.lock}",
-                     "u_u.locked")
+                     f"{INST}.locked")
             phase.drop_objection(self)
             return
 
@@ -587,7 +741,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if self.g.locked[2] != 0:
             self.bad(name, "EOP clears locked",
                      "locked[2]=0",
-                     f"locked={self.g.locked}", "u_u.locked")
+                     f"locked={self.g.locked}", f"{INST}.locked")
             phase.drop_objection(self)
             return
 
@@ -626,13 +780,13 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if not self._data_match(got["out_data"][1], mid):
             self.bad(name, "candidate out_data independent of out_ready",
                      f"out_data[1]={mid}",
-                     self._fmt(got), "u_u.out_data")
+                     self._fmt(got), f"{INST}.out_data")
             phase.drop_objection(self)
             return
         if self.g.locked[1] != 1:
             self.bad(name, "lock held while out_ready=0",
                      "locked[1]=1",
-                     f"locked={self.g.locked}", "u_u.locked")
+                     f"locked={self.g.locked}", f"{INST}.locked")
             phase.drop_objection(self)
             return
 
@@ -678,7 +832,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         if self.g.rr[3] != 1:
             self.bad(name, "rr[3] after first conflict EOP",
                      "rr[3]=1 (old lock+1)",
-                     f"rr={self.g.rr}", "u_u.rr")
+                     f"rr={self.g.rr}", f"{INST}.rr")
             phase.drop_objection(self)
             return
 
@@ -763,7 +917,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
             if got is not None:
                 self.bad(name, "pre-rst must be locked",
                          "locked[1]=1",
-                         f"locked={self.g.locked}", "u_u.locked")
+                         f"locked={self.g.locked}", f"{INST}.locked")
             phase.drop_objection(self)
             return
         await self._idle()
@@ -802,6 +956,36 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                      self._fmt(got), HIER)
             phase.drop_objection(self)
             return
+
+        # 9. Leaf pins match wrap flattened ports + product DUT
+        # ports on u_u (clk / rst_n / status_up / in_* / out_*;
+        # no ovf_l / leftover u_xbar). Instance u_u (not leftover
+        # u_xbar / u_saf / u_s).
+        if not hasattr(d, INST):
+            self.bad(name, f"leaf instance scan ({INST})",
+                     f"{INST} present", "missing", WRAP)
+            phase.drop_objection(self)
+            return
+        for absent in ABSENT:
+            if hasattr(d, absent):
+                self.bad(name, f"leaf pin scan ({absent})",
+                         "not a vibe_xbar wrap port",
+                         f"{absent} present", WRAP)
+                phase.drop_objection(self)
+                return
+        for need in PINS:
+            if not hasattr(d, need):
+                self.bad(name, f"leaf pin scan ({need})",
+                         f"{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
+        u = getattr(d, INST)
+        for need in DUT_PINS:
+            if not hasattr(u, need):
+                self.bad(name, f"leaf instance pin scan ({INST}.{need})",
+                         f"{INST}.{need} present", "missing", WRAP)
+                phase.drop_objection(self)
+                return
 
         self.ok(name)
         phase.drop_objection(self)

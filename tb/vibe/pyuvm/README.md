@@ -845,13 +845,25 @@ CHILDREN: none. This is **not** `dll_wrap` / `wrap` / `top` /
 `rr`, combo `in_ready` / `out_*`, 1-beat `sop&&eop` route,
 2-beat locked grant, candidate `out_data` independent of
 `out_ready`, ingress RR on conflict + `rr<=lock+1` after EOP,
-down port `status_up=0` emits no data, parallel distinct dests).
-It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+down port `status_up=0` emits no data, parallel distinct dests,
+wrap-vs-DUT instance score on `u_u`, pin scan with instance
+`u_u`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
 `tb/vibe/tests/tc_xbar_unit.sv` / `tc_xbar_unit` remains the
-official TP scorer. Seventh fabric leaf after `vibe_fecn_mark` /
-`vibe_vl_rr` / `vibe_route_lu` / `vibe_port_sel` /
-`vibe_voq_egr` / `vibe_saf_ing`. `ovf_l` (F1) is not in this
-module. Mgmt bypass is fabric-level and does not enter this DUT.
+official TP scorer (direct `vibe_xbar` top, instance `u_xbar`).
+Seventh fabric leaf after stage-80 `vibe_fecn_mark` wrap,
+stage-81 `vibe_vl_rr` wrap, stage-82 `vibe_route_lu` wrap,
+stage-83 `vibe_port_sel` wrap, stage-84 `vibe_voq_egr` wrap,
+and stage-85 `vibe_saf_ing` wrap. Instance `u_u` matches
+Decision-I leaf wrappers; product instantiator is `vibe_fabric`
+`u_xbar`; stock Icarus uses `u_xbar`. `ovf_l` (F1) is not in
+this module. Mgmt bypass is fabric-level and does not enter
+this DUT. CHILDREN: none. This is **not** `dll_wrap` / `wrap` /
+`top` / `port` / `icrc` / `nw_adapt` / `fecn_mark` / `vl_rr` /
+`route_lu` / `port_sel` / `voq_egr` / `saf_ing` /
+`vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu` /
+`vibe_port_sel` / `vibe_voq_egr` / `vibe_saf_ing` /
+`vibe_icrc` / `vibe_nw_adapt` / `vibe_bcrc` / `vibe_dll`.
+Do not invent `vibe_rst_ctl` here. Fabric tip-align queue empty.
 
 `tc_vibe_dll_tx` / `make dll_tx` / `make tx` /
 `make tc_vibe_dll_tx` is **module-level only** (async `rst_n`

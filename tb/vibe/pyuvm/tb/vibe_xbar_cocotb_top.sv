@@ -7,11 +7,24 @@
 // requires out_ready. Async-low rst_n clears lock / locked / rr.
 // Instantiated by vibe_fabric u_xbar. Clock from entry_unit (2 ns).
 // Flattened in_data_* / in_dst_* / out_data_* — cocotb cannot
-// drive unpacked array ports. Instance u_u matches Decision-I
-// leaf wrappers (tc_xbar_unit still uses flattened ports only).
-// Icarus 12 VPI leaves 512-bit unpacked out_data X (stock
-// tc_xbar_unit note); packed in_ready / out_vld / sop / eop
-// and lock / locked / rr remain the Icarus-readable scorers.
+// drive unpacked array ports. Decision-I wrap leaf
+// `tc_vibe_xbar` / make xbar / make tc_vibe_xbar uses this top.
+// Instance u_u matches Decision-I leaf wrappers (product
+// instantiator is vibe_fabric u_xbar; stock Icarus tc_xbar_unit
+// uses u_xbar; not leftover u_xbar on this wrap). Seventh
+// fabric leaf after stage-80 vibe_fecn_mark wrap, stage-81
+// vibe_vl_rr wrap, stage-82 vibe_route_lu wrap, stage-83
+// vibe_port_sel wrap, stage-84 vibe_voq_egr wrap, and
+// stage-85 vibe_saf_ing wrap.
+// ovf_l (F1) is not in this module. This is not vibe_fecn_mark /
+// vibe_vl_rr / vibe_route_lu / vibe_port_sel / vibe_voq_egr /
+// vibe_saf_ing / vibe_nw_adapt / vibe_icrc / vibe_dll /
+// vibe_bcrc / vibe_port / vibe_ub_switch.
+// CHILDREN: none. Fabric tip-align queue empty. Do not invent
+// vibe_rst_ctl. Icarus 12 VPI leaves 512-bit unpacked out_data
+// X (stock tc_xbar_unit note); packed in_ready / out_vld / sop
+// / eop and lock / locked / rr remain the Icarus-readable
+// scorers.
 `timescale 1ns/1ps
 
 module vibe_xbar_cocotb_top (
