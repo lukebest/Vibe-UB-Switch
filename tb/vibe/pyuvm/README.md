@@ -119,6 +119,7 @@ make -C tb/vibe/pyuvm tc_vibe_fecn_mark        # same as fecn_mark
 make -C tb/vibe/pyuvm units TC=tc_vibe_vl_rr   # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm vl_rr                    # same as units TC=tc_vibe_vl_rr
 make -C tb/vibe/pyuvm vl                       # same as vl_rr / tc_vibe_vl_rr
+make -C tb/vibe/pyuvm tc_vibe_vl_rr            # same as vl_rr
 make -C tb/vibe/pyuvm units TC=tc_vibe_route_lu  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm route_lu                 # same as units TC=tc_vibe_route_lu
 make -C tb/vibe/pyuvm route                    # same as route_lu / tc_vibe_route_lu
@@ -254,6 +255,7 @@ make -C tb/vibe/pyuvm fecn SIM=verilator          # same as fecn_mark
 make -C tb/vibe/pyuvm tc_vibe_fecn_mark SIM=verilator # same as fecn_mark
 make -C tb/vibe/pyuvm vl_rr SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm vl SIM=verilator            # same as vl_rr
+make -C tb/vibe/pyuvm tc_vibe_vl_rr SIM=verilator # same as vl_rr
 make -C tb/vibe/pyuvm route_lu SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm route SIM=verilator         # same as route_lu
 make -C tb/vibe/pyuvm tc_vibe_route_lu SIM=verilator  # same as route_lu
@@ -726,16 +728,25 @@ none. This is **not** `dll_wrap` / `wrap` / `top` / `port` /
 `icrc` / `nw_adapt` / `vibe_icrc` / `vibe_nw_adapt` /
 `vibe_bcrc` / `vibe_dll`. Do not invent `vibe_vl_rr` here.
 
-`tc_vibe_vl_rr` / `make vl_rr` / `make vl`
-is **module-level only** (reset `rr=0` / first pick from 0,
-`valid=|nonempty`, single-bit nonempty incl. VL15, `grant&&valid`
-walks the pointer, hold without grant, grant while `!valid` does
-not advance, stock nonempty=`FFFF` 16-grant `seen=FFFF`, wrap and
-sparse masks, async `rst_n` mid-stream clears `rr`). It is
-**not** 1/3, 4/3, freeze, or signoff. Stock Icarus
-`tb/vibe/tests/tc_vl_rr.sv` / `tc_vl_rr_0_15.sv` / `tc_vl_rr` /
-`tc_vl_rr_0_15` remain the official TP scorers. Second fabric
-leaf after `vibe_fecn_mark`.
+`tc_vibe_vl_rr` / `make vl_rr` / `make vl` /
+`make tc_vibe_vl_rr` is **module-level only** (reset `rr=0` /
+first pick from 0, `valid=|nonempty`, single-bit nonempty incl.
+VL15, `grant&&valid` walks the pointer, hold without grant,
+grant while `!valid` does not advance, stock nonempty=`FFFF`
+16-grant `seen=FFFF`, wrap and sparse masks, async `rst_n`
+mid-stream clears `rr`, wrap-vs-DUT instance score on `u_u`,
+pin scan with instance `u_u`). It is **not** 1/3, 4/3, freeze,
+or signoff. Stock Icarus `tb/vibe/tests/tc_vl_rr.sv` /
+`tc_vl_rr_0_15.sv` / `tc_vl_rr` / `tc_vl_rr_0_15` remain the
+official TP scorers (direct `vibe_vl_rr` top, instance `u_rr`).
+Second fabric leaf after stage-80 `vibe_fecn_mark` wrap.
+Instance `u_u` matches Decision-I leaf wrappers; product
+instantiator is `vibe_fabric` `u_rr` in `g_egr`; stock Icarus
+uses `u_rr`. `ovf_l` (F1) is not in this module. CHILDREN:
+none. This is **not** `dll_wrap` / `wrap` / `top` / `port` /
+`icrc` / `nw_adapt` / `fecn_mark` / `vibe_fecn_mark` /
+`vibe_icrc` / `vibe_nw_adapt` / `vibe_bcrc` / `vibe_dll`.
+Do not invent `vibe_route_lu` here.
 
 `tc_vibe_route_lu` / `make route_lu` / `make route` /
 `make tc_vibe_route_lu` is **module-level only** (async `rst_n`

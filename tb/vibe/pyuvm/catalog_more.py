@@ -239,6 +239,7 @@ UNIT_MORE = [
     ("tc_vibe_fecn_mark", "vibe_fecn_mark_cocotb_top",
      [_wrap("vibe_fecn_mark_cocotb_top"), _w("fabric", "vibe_fecn_mark.sv")],
      "entry_unit"),
+    # Decision-I stage-81 wrap leaf. Not stock tc_vl_rr / tc_vl_rr_0_15.
     ("tc_vibe_vl_rr", "vibe_vl_rr_cocotb_top",
      [_wrap("vibe_vl_rr_cocotb_top"), _w("fabric", "vibe_vl_rr.sv")],
      "entry_unit"),
