@@ -255,6 +255,7 @@ UNIT_MORE = [
     ("tc_vibe_voq_egr", "vibe_voq_egr_cocotb_top",
      [_wrap("vibe_voq_egr_cocotb_top"), _w("fabric", "vibe_voq_egr.sv")],
      "entry_unit"),
+    # Decision-I stage-85 wrap leaf. Not stock tc_saf_ing.
     ("tc_vibe_saf_ing", "vibe_saf_ing_cocotb_top",
      [_wrap("vibe_saf_ing_cocotb_top"), _w("fabric", "vibe_saf_ing.sv")],
      "entry_unit"),

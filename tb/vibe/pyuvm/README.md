@@ -823,12 +823,22 @@ is **not** `dll_wrap` / `wrap` / `top` / `port` / `icrc` /
 clears pointers / assemble state / `len_err`, combo `in_ready` /
 `pkt_*`, SAF hold until declared beats assembled, wr then drain
 data/sop/eop + `pkt_bytes`, 1-beat `sop&&eop`, oversize PLEN
-pulses `len_err` and rewinds `wptr`). It is **not** 1/3, 4/3,
+pulses `len_err` and rewinds `wptr`, wrap-vs-DUT instance score
+on `u_u`, pin scan with instance `u_u`). It is **not** 1/3, 4/3,
 freeze, or signoff. Stock Icarus `tb/vibe/tests/tc_saf_ing.sv` /
-`tc_saf_ing` remains the official TP scorer. Sixth fabric leaf
-after `vibe_fecn_mark` / `vibe_vl_rr` / `vibe_route_lu` /
-`vibe_port_sel` / `vibe_voq_egr`. `ovf_l` (F1) is not in this
-module.
+`tc_saf_ing` remains the official TP scorer (direct `vibe_saf_ing`
+top, instance `u_s`). Sixth fabric leaf after stage-80
+`vibe_fecn_mark` wrap, stage-81 `vibe_vl_rr` wrap, stage-82
+`vibe_route_lu` wrap, stage-83 `vibe_port_sel` wrap, and
+stage-84 `vibe_voq_egr` wrap. Instance `u_u` matches Decision-I
+leaf wrappers; product instantiator is `vibe_fabric` `g_saf.u_saf`;
+stock Icarus uses `u_s`. `ovf_l` (F1) is not in this module.
+CHILDREN: none. This is **not** `dll_wrap` / `wrap` / `top` /
+`port` / `icrc` / `nw_adapt` / `fecn_mark` / `vl_rr` /
+`route_lu` / `port_sel` / `voq_egr` / `vibe_fecn_mark` /
+`vibe_vl_rr` / `vibe_route_lu` / `vibe_port_sel` /
+`vibe_voq_egr` / `vibe_icrc` / `vibe_nw_adapt` / `vibe_bcrc` /
+`vibe_dll`. Do not invent `vibe_xbar` here.
 
 `tc_vibe_xbar` / `make xbar` / `make tc_vibe_xbar` is
 **module-level only** (async `rst_n` clears `lock` / `locked` /
