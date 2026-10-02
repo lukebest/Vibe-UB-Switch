@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_vl_rr.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 450ed1c2 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 78000930. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §8: VL scheduling RR among non-empty VOQs of an egress; FCFS within VL. No SL.
 module vibe_vl_rr (
   input  logic        clk,
