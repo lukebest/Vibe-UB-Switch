@@ -1,7 +1,9 @@
 """vibe_xbar — fabric 4-port crossbar (AS-0.1 §8).
 
 Product module: ``rtl/fabric/vibe_xbar.sv``. Ports match tip
-``782f2181`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``0f453ed6``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``status_up[3:0]`` /
 ``in_data[511:0][0:3]`` / ``in_vld[3:0]`` / ``in_sop[3:0]`` /
 ``in_eop[3:0]`` / ``in_dst[1:0][0:3]`` / ``in_ready[3:0]`` /
