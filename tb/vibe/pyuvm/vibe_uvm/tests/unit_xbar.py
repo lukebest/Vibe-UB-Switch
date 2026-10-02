@@ -347,8 +347,9 @@ class tc_vibe_xbar(VibeUnitBaseTest):
         except Exception:
             return None
 
-    def _score_inner(self, name, stim, got):
-        inner = self._inner_sample()
+    def _score_inner(self, name, stim, got, inner=None):
+        if inner is None:
+            inner = self._inner_sample()
         if inner is None:
             self.bad(name, stim + f" ({INST})",
                      f"{INST} present", "missing", WRAP)
@@ -506,6 +507,7 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                           in_dst, out_ready)
         # Combo grant uses pre-NBA lock/locked/rr (the fire this posedge).
         pre = self._sample()
+        pre_inner = self._inner_sample()
         st = self._stim
         pre_exp = self.g.combo(
             st["status_up"], st["in_data"], st["in_vld"], st["in_sop"],
@@ -515,12 +517,13 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                     st["out_ready"])
         await self._to_fall()
         post = self._sample()
-        return pre, post, pre_exp
+        post_inner = self._inner_sample()
+        return pre, post, pre_exp, pre_inner, post_inner
 
     async def _expect(self, name, stim, status_up=None, in_data=None,
                       in_vld=0, in_sop=0, in_eop=0, in_dst=None,
                       out_ready=None, score_data=True):
-        pre, post, pre_exp = await self._cycle(
+        pre, post, pre_exp, pre_inner, post_inner = await self._cycle(
             status_up, in_data, in_vld, in_sop, in_eop, in_dst, out_ready)
         if not self._score_combo(name, stim + " (pre-NBA grant)",
                                  pre, pre_exp, score_data=score_data):
@@ -529,9 +532,11 @@ class tc_vibe_xbar(VibeUnitBaseTest):
                                  post, self._exp_combo(),
                                  score_data=score_data):
             return None
-        if not self._score_inner(name, stim + " (pre-NBA grant)", pre):
+        if not self._score_inner(name, stim + " (pre-NBA grant)", pre,
+                                inner=pre_inner):
             return None
-        if not self._score_inner(name, stim + " (post-NBA combo)", post):
+        if not self._score_inner(name, stim + " (post-NBA combo)", post,
+                                inner=post_inner):
             return None
         if not self._score_state(name, stim):
             return None
