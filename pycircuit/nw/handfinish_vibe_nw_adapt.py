@@ -4,6 +4,8 @@ Keeps tip ports, unused ``clk`` / ``rst_n`` pins, and the combo
 512b vld/ready mux (AS-0.1: LinkReady in ready; mgmt inject
 priority over VOQ). pycc netlists are a prototype only; this
 file is what lands in ``rtl/nw/vibe_nw_adapt.sv``.
+Tip ``8c0057ab``. Decision I UNFROZEN (freeze ``302ac943`` VOID).
+Path B hold.
 """
 
 from __future__ import annotations
@@ -13,7 +15,7 @@ from pathlib import Path
 HEADER = """\
 // GENERATED/HAND-FINISHED from pycircuit/nw/vibe_nw_adapt.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip 2b4a8408 / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 8c0057ab. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 """
 
 FOOTER = """\
