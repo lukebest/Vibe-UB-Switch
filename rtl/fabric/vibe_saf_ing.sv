@@ -1,6 +1,6 @@
 // GENERATED/HAND-FINISHED from pycircuit/fabric/vibe_saf_ing.py
 // pyCircuit: lukebest/pyCircuit @ 43cc5918e3d09ecc0c814cabef6c1384cb9980ae
-// Product ports match tip d8fdf91f / freeze 302ac943. Path B hold.
+// Product ports and behavior match tip 4c08425b. Decision I UNFROZEN (freeze 302ac943 VOID). Path B hold.
 // AS-0.1 §8: store-and-forward. Do not present to xbar until EOP/full declared length.
 // Length not in 16–4300B → Packet Length Error, drop, irq.
 module vibe_saf_ing #(

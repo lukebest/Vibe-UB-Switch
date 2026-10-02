@@ -1,7 +1,9 @@
 """vibe_saf_ing — fabric store-and-forward ingress (AS-0.1 §8).
 
 Product module: ``rtl/fabric/vibe_saf_ing.sv``. Ports match tip
-``d8fdf91f`` / freeze ``302ac943``. SPEC / CR-B names are unchanged.
+``4c08425b``. Decision I UNFROZEN (do not re-pin freeze;
+historical freeze ``302ac943`` is VOID). Path B hold. SPEC / CR-B
+names are unchanged.
 Internal leaf (``clk`` / ``rst_n`` / ``in_data[511:0]`` /
 ``in_vld`` / ``in_ready`` / ``pkt_data[511:0]`` / ``pkt_vld`` /
 ``pkt_ready`` / ``pkt_sop`` / ``pkt_eop`` / ``pkt_bytes[15:0]`` /
