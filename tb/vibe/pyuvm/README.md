@@ -162,6 +162,9 @@ make -C tb/vibe/pyuvm tc_vibe_cna_ep           # same as cna_ep
 make -C tb/vibe/pyuvm units TC=tc_vibe_cfg_space  # Decision-I leaf (module-level)
 make -C tb/vibe/pyuvm cfg_space                # same as units TC=tc_vibe_cfg_space
 make -C tb/vibe/pyuvm tc_vibe_cfg_space        # same as cfg_space
+make -C tb/vibe/pyuvm units TC=tc_vibe_rst_ctl  # Decision-I leaf (module-level)
+make -C tb/vibe/pyuvm rst_ctl                  # same as units TC=tc_vibe_rst_ctl
+make -C tb/vibe/pyuvm tc_vibe_rst_ctl          # same as rst_ctl
 make -C tb/vibe/pyuvm units TC=tc_vibe_port  # Decision-I wrap leaf (not tc_port_smoke)
 make -C tb/vibe/pyuvm port_wrap                # same as units TC=tc_vibe_port
 make -C tb/vibe/pyuvm tc_vibe_port             # same as port_wrap
@@ -286,6 +289,8 @@ make -C tb/vibe/pyuvm cna_ep SIM=verilator         # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_cna_ep SIM=verilator # same as cna_ep
 make -C tb/vibe/pyuvm cfg_space SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_cfg_space SIM=verilator # same as cfg_space
+make -C tb/vibe/pyuvm rst_ctl SIM=verilator        # or SIM=icarus
+make -C tb/vibe/pyuvm tc_vibe_rst_ctl SIM=verilator # same as rst_ctl
 make -C tb/vibe/pyuvm port_wrap SIM=verilator      # or SIM=icarus
 make -C tb/vibe/pyuvm tc_vibe_port SIM=verilator   # same as port_wrap
 make -C tb/vibe/pyuvm top_wrap SIM=verilator       # or SIM=icarus
@@ -990,6 +995,28 @@ signoff. Stock Icarus `tb/vibe/tests/tc_identity_cfg_space.sv` /
 `vibe_irq_agg` and stage-41 `vibe_cna_ep`. `ovf_l` (F1) is not in
 this module.
 
+`tc_vibe_rst_ctl` / `make rst_ctl` / `make tc_vibe_rst_ctl` is
+**module-level only** (async `rst_n` clears `device_rst` /
+`port_rst`, idle pulses stay 0, stock Icarus `tc_rst_port_device`
+— `port_rst_pulse[2]` isolate, `device_rst` hold then release —
+walk-1 on every port bit, 7-dest-clock stretch vs product
+`dct` / `pct`, retrigger while holding reloads the counter,
+device and port holds independent, multi-port same-cycle pulse,
+wrap-vs-DUT instance score on `u_u`, pin scan with instance
+`u_u`). It is **not** 1/3, 4/3, freeze, or signoff. Stock Icarus
+`tb/vibe/tests/tc_rst_port_device.sv` / `tc_rst_port_device`
+remains the official TP scorer (direct `vibe_rst_ctl` top,
+instance `u_r`). Fourth mgmt leaf after stage-40 `vibe_irq_agg`,
+stage-41 `vibe_cna_ep`, and stage-42 `vibe_cfg_space`. Instance
+`u_u` matches Decision-I leaf wrappers; product instantiator is
+`vibe_mgmt` `u_rst`; stock Icarus uses `u_r`. `ovf_l` (F1) is
+not in this module. Device reset MUST NOT force `DLL_Disabled`
+(wrap / LMSM). Port Reset RW1C lives in `vibe_cfg_space`.
+CHILDREN: none. Tip-align leaf wave done; do not invent further
+tip-align leaves. This is **not** `rst_sync` / `irq_agg` /
+`cna_ep` / `cfg_space` / `mgmt_wrap` / `vibe_rst_sync` /
+`vibe_irq_agg` / `vibe_cna_ep` / `vibe_cfg_space` / `vibe_mgmt`.
+
 `tc_vibe_port` / `make port_wrap` / `make tc_vibe_port` is
 **wrap-level only** (AS-0.1 §4 children present, wrap-local
 `fec_mode=T4` / F1 `afifo_ovf` CDC idle, async `rst_n` / LMSM Idle
@@ -1132,7 +1159,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 |----------|-----|
 | Icarus `vibe_suite.sv` tasks | `tc_suite_all` or `UVM_TESTNAME=tc_*` on `entry_fab` |
 | SV UVM `+UVM_TESTNAME=` | same class name, Python UVM 1.2 |
-| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_port_wrap.py` / `unit_ub_switch_wrap.py` / `unit_mgmt_wrap.py` / `unit_fabric_wrap.py` / `unit_pcs_tx_wrap.py` / `unit_pcs_rx_wrap.py` / `unit_lmsm_wrap.py` / `port_tests.py` / `static_tests.py` |
+| Icarus `tb/vibe/tests/tc_*.sv` | same `tc_*` class in `unit_leaf.py` / `unit_more.py` / `unit_pcs.py` / `unit_afifo.py` / `unit_sync2.py` / `unit_rst_sync.py` / `unit_gear_128_160.py` / `unit_gear_160_128.py` / `unit_dll.py` / `unit_pcs_scramble.py` / `unit_ebch16.py` / `unit_pcs_tx_cw2beat.py` / `unit_pcs_tx_amctl.py` / `unit_rs128_120_enc.py` / `unit_rs128_120_dec.py` / `unit_pcs_rx_deskew.py` / `unit_pcs_rx_amctl_lock.py` / `unit_pcs_rx_unpack.py` / `unit_pcs_tx_pack.py` / `unit_pcs_tx_fec.py` / `unit_pcs_rx_fec.py` / `unit_pcs_tx_g1.py` / `unit_bcrc.py` / `unit_dll_credit.py` / `unit_dll_sm.py` / `unit_dll_rx.py` / `unit_dll_retry_ack_sm.py` / `unit_dll_retry_buf.py` / `unit_dll_retry_req_sm.py` / `unit_fecn_mark.py` / `unit_vl_rr.py` / `unit_route_lu.py` / `unit_port_sel.py` / `unit_voq_egr.py` / `unit_saf_ing.py` / `unit_xbar.py` / `unit_dll_tx.py` / `unit_dll_wrap.py` / `unit_icrc.py` / `unit_irq_agg.py` / `unit_cna_ep.py` / `unit_cfg_space.py` / `unit_rst_ctl.py` / `unit_port_wrap.py` / `unit_ub_switch_wrap.py` / `unit_mgmt_wrap.py` / `unit_fabric_wrap.py` / `unit_pcs_tx_wrap.py` / `unit_pcs_rx_wrap.py` / `unit_lmsm_wrap.py` / `port_tests.py` / `static_tests.py` |
 | Icarus `tc_afifo_afull10` | still `tc_afifo_afull10`; Decision-I module TC is `tc_vibe_afifo` |
 | Icarus `tc_rst_sync` | still `tc_rst_sync`; Decision-I module TC is `tc_vibe_rst_sync` |
 | Icarus `tc_gear_128_160` | still `tc_gear_128_160`; Decision-I module TC is `tc_vibe_gear_128_160` |
@@ -1169,6 +1196,7 @@ ConfigDb outs are fresh empty lists. Types registered with `uvm_component_utils`
 | Icarus `tc_irq_agg` | still `tc_irq_agg`; Decision-I module TC is `tc_vibe_irq_agg` |
 | Icarus `tc_cna_ep` | still `tc_cna_ep`; Decision-I module TC is `tc_vibe_cna_ep` |
 | Icarus `tc_identity_cfg_space` / `tc_cna_16bit` | still those IDs; Decision-I module TC is `tc_vibe_cfg_space` |
+| Icarus `tc_rst_port_device` | still `tc_rst_port_device`; Decision-I module TC is `tc_vibe_rst_ctl` |
 | Icarus `tc_port_smoke` / `tc_nw_pkt_*` | still those IDs; Decision-I wrap TC is `tc_vibe_port` |
 | Icarus `tc_top_smoke` / `make top` | still `tc_top_smoke`; Decision-I wrap TC is `tc_vibe_ub_switch` |
 | Icarus `tc_mgmt` | still `tc_mgmt`; Decision-I wrap TC is `tc_vibe_mgmt` |
@@ -1242,6 +1270,7 @@ those two stay Icarus.
 | `tc_vibe_irq_agg` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_cna_ep` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_cfg_space` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
+| `tc_vibe_rst_ctl` (module-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_port` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_ub_switch` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
 | `tc_vibe_mgmt` (wrap-level; ≠ 1/3 ≠ 4/3 ≠ signoff) | PASS | PASS |
@@ -1311,6 +1340,7 @@ tb/vibe/pyuvm/
                      tests/unit_irq_agg.py  Decision-I vibe_irq_agg (module-level)
                      tests/unit_cna_ep.py  Decision-I vibe_cna_ep (module-level)
                      tests/unit_cfg_space.py  Decision-I vibe_cfg_space (module-level)
+                     tests/unit_rst_ctl.py  Decision-I vibe_rst_ctl (module-level)
                      tests/unit_port_wrap.py  Decision-I stage-50 vibe_port wrap (not tc_port_smoke)
                      tests/unit_ub_switch_wrap.py  Decision-I vibe_ub_switch wrap (not tc_top_smoke)
                      tests/unit_mgmt_wrap.py  Decision-I vibe_mgmt wrap (not tc_mgmt)

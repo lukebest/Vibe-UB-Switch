@@ -216,6 +216,8 @@ NAME_MAP = {
         "tc_vibe_cna_ep (vibe_cna_ep_cocotb_top, module-level)",
     "make cfg_space / tc_vibe_cfg_space":
         "tc_vibe_cfg_space (vibe_cfg_space_cocotb_top, module-level)",
+    "make rst_ctl / tc_vibe_rst_ctl":
+        "tc_vibe_rst_ctl (vibe_rst_ctl_cocotb_top, module-level)",
     "make port_wrap / tc_vibe_port":
         "tc_vibe_port (vibe_port_wrap_cocotb_top, wrap-level; not tc_port_smoke)",
     "make top_wrap / tc_vibe_ub_switch":

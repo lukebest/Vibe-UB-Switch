@@ -4,7 +4,7 @@ PYUVM  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 VENV   := $(PYUVM)/.venv
 PY     := $(VENV)/bin/python
 
-.PHONY: venv gate suite units port top neg sim afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 tc_vibe_ebch16 cw2beat tc_vibe_pcs_tx_cw2beat amctl tc_vibe_pcs_tx_amctl rs128_120_enc tc_vibe_rs128_120_enc rs128_120_dec tc_vibe_rs128_120_dec deskew tc_vibe_pcs_rx_deskew amctl_lock tc_vibe_pcs_rx_amctl_lock unpack tc_vibe_pcs_rx_unpack pack tc_vibe_pcs_tx_pack tx_fec tc_vibe_pcs_tx_fec rx_fec tc_vibe_pcs_rx_fec g1 tx_g1 tc_vibe_pcs_tx_g1 bcrc tc_vibe_bcrc credit tc_vibe_dll_credit dll_sm tc_vibe_dll_sm sm dll_rx tc_vibe_dll_rx rx retry_ack_sm tc_vibe_dll_retry_ack_sm ack_sm retry_buf tc_vibe_dll_retry_buf buf retry_req_sm tc_vibe_dll_retry_req_sm req_sm fecn_mark fecn tc_vibe_fecn_mark vl_rr vl tc_vibe_vl_rr route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc nw_adapt tc_vibe_nw_adapt irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap help clean
+.PHONY: venv gate suite units port top neg sim afifo tc_vibe_afifo sync2 tc_vibe_sync2 rst_sync tc_vibe_rst_sync gear_128_160 tc_vibe_gear_128_160 gear_160_128 tc_vibe_gear_160_128 dll pcs_scramble tc_vibe_pcs_scramble ebch16 tc_vibe_ebch16 cw2beat tc_vibe_pcs_tx_cw2beat amctl tc_vibe_pcs_tx_amctl rs128_120_enc tc_vibe_rs128_120_enc rs128_120_dec tc_vibe_rs128_120_dec deskew tc_vibe_pcs_rx_deskew amctl_lock tc_vibe_pcs_rx_amctl_lock unpack tc_vibe_pcs_rx_unpack pack tc_vibe_pcs_tx_pack tx_fec tc_vibe_pcs_tx_fec rx_fec tc_vibe_pcs_rx_fec g1 tx_g1 tc_vibe_pcs_tx_g1 bcrc tc_vibe_bcrc credit tc_vibe_dll_credit dll_sm tc_vibe_dll_sm sm dll_rx tc_vibe_dll_rx rx retry_ack_sm tc_vibe_dll_retry_ack_sm ack_sm retry_buf tc_vibe_dll_retry_buf buf retry_req_sm tc_vibe_dll_retry_req_sm req_sm fecn_mark fecn tc_vibe_fecn_mark vl_rr vl tc_vibe_vl_rr route_lu route tc_vibe_route_lu port_sel psel tc_vibe_port_sel voq_egr voq tc_vibe_voq_egr saf_ing saf tc_vibe_saf_ing xbar tc_vibe_xbar dll_tx tx tc_vibe_dll_tx dll_wrap wrap tc_vibe_dll icrc tc_vibe_icrc nw_adapt tc_vibe_nw_adapt irq_agg tc_vibe_irq_agg cna_ep tc_vibe_cna_ep cfg_space tc_vibe_cfg_space rst_ctl tc_vibe_rst_ctl port_wrap tc_vibe_port top_wrap tc_vibe_ub_switch mgmt_wrap tc_vibe_mgmt fabric_wrap tc_vibe_fabric pcs_tx_wrap tc_vibe_pcs_tx pcs_rx_wrap tc_vibe_pcs_rx lmsm_wrap tc_vibe_lmsm vibe_port_wrap help clean
 help:
 	@echo "SIM=verilator|icarus (default verilator)"
 	@echo "make -C tb/vibe/pyuvm venv"
@@ -143,6 +143,9 @@ help:
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_cfg_space"
 	@echo "make -C tb/vibe/pyuvm cfg_space # Decision-I leaf vibe_cfg_space (module-level)"
 	@echo "make -C tb/vibe/pyuvm tc_vibe_cfg_space # same as cfg_space"
+	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_rst_ctl"
+	@echo "make -C tb/vibe/pyuvm rst_ctl # Decision-I leaf vibe_rst_ctl (module-level)"
+	@echo "make -C tb/vibe/pyuvm tc_vibe_rst_ctl # same as rst_ctl"
 	@echo "make -C tb/vibe/pyuvm units   TC=tc_vibe_port"
 	@echo "make -C tb/vibe/pyuvm port_wrap # Decision-I wrap leaf vibe_port (not tc_port_smoke)"
 	@echo "make -C tb/vibe/pyuvm tc_vibe_port # same as port_wrap"
@@ -405,6 +408,12 @@ cfg_space: venv
 	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_cfg_space --sim $(SIM)
 
 tc_vibe_cfg_space: cfg_space
+
+# Decision-I wrap leaf. Not stock tc_rst_port_device.
+rst_ctl: venv
+	$(PY) $(PYUVM)/run_gate.py units --tc tc_vibe_rst_ctl --sim $(SIM)
+
+tc_vibe_rst_ctl: rst_ctl
 
 # Decision-I wrap leaf. Not TP-PHY / tc_port_smoke (that stays `make port`).
 port_wrap: venv
