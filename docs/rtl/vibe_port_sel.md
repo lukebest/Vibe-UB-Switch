@@ -25,7 +25,8 @@ instances). Fourth fabric leaf after `vibe_fecn_mark` /
 
 ## Ports (product)
 
-Same as tip `89c388cb` / freeze `302ac943`. Reset stays
+Same as tip `637175ee`. Decision I **UNFROZEN** (historical freeze
+`302ac943` VOID). Path B hold. Reset stays
 **async active-low** (`or negedge rst_n`).
 
 | Port | Dir | Notes |
