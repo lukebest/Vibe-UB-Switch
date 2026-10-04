@@ -1,17 +1,18 @@
-CDC structural audit 2026-10-04 (SGT)
-DUT/tip: 16272b7751f9ab22ffaf74d49d5da714c53f1db6
+CDC structural audit 2026-10-05 (SGT)
+DUT/tip: 39293e0189c277bb50e7c6b6a851c41ff6dc8582
 RTL product tip: 42ad05ca59f8614c739d5f5cb98100e2d0253216 (PR338 stage-87 vibe_rst_ctl tip-align)
 Written freeze: UNFROZEN (Decision I). Last historical pin 302ac943 VOID as current; not re-pinned
-rtl/include vs 42ad05ca: EMPTY (PR339 TB-only + PR340/PR342/PR344 reports + PR341 docs + PR343 lint+CDC after RTL tip); include/ empty; rtl/port empty; rtl/cdc empty; rtl/pma empty
-rtl/include vs eef4493 (launch expected): EMPTY (PR344 reports/regress only)
-rtl/include vs 5dd4186 (2026-10-03 DUT): EMPTY (PR342/PR343/PR344 reports)
+rtl/include vs 42ad05ca: EMPTY (PR339 TB-only + PR340/PR342/PR344 reports + PR341 docs + PR343/PR345 lint+CDC after RTL tip); include/ empty; rtl/port empty; rtl/cdc empty; rtl/pma empty
+rtl/include vs 39293e0 (launch expected): EMPTY (HEAD is the launch SHA)
+rtl/include vs 16272b77 (2026-10-04 DUT): EMPTY (PR345 reports)
+rtl/include vs 5dd4186 (2026-10-03 DUT): EMPTY (PR342/PR343/PR344/PR345 reports)
 rtl/include vs 8b32794 (2026-10-02 DUT): NON-EMPTY 18 files +18/-18 (stages 70-87 tip-align headers only); include/ empty; rtl/port empty; rtl/cdc empty; rtl/pma empty
 rtl/include vs 1c08861 (2026-10-02 product leaf): NON-EMPTY same 18 files +18/-18
 rtl/include vs 4c3aac73 (2026-10-01 DUT): NON-EMPTY 44 files +79/-42 (stages 44-49 wrap headers + 50-87 tip-aligns); include/ empty; rtl/port headers only (F1 untouched; :246/:252 unchanged); rtl/cdc headers only; rtl/pma empty
 rtl/include vs 302ac943: NON-EMPTY 49 files +391/-72 (Decision I headers + wraps through stage-49 + PMA PRBS31; rs128_120_dec NBA unroll already on main); include/ empty; rtl/port headers only; rtl/cdc headers only
 Tool: structural (no SpyGlass/Ascent)
-Nightly after PR344 on tip 16272b7 (RTL bits = 42ad05ca); baseline 2026-10-03 on main (PR343); CDC NEW=0
-Expected pin eef4493; tip moved (PR344 health Accept); linted tip as-is
+Nightly after PR345 on tip 39293e0 (RTL bits = 42ad05ca); baseline 2026-10-04 on main (PR345); CDC NEW=0
+Expected pin 39293e0; tip did not move; linted tip as-is
 
 SANCTIONED_CELLS: vibe_sync2 vibe_afifo vibe_rst_sync (present)
 AFIFO_INSTANCES_PER_PORT: 8 (4 TX + 4 RX)
@@ -19,9 +20,9 @@ TXRST_N: dest-domain via u_txrst; also PMA async reset — sanctioned, not new c
 RXRST_N: dest-domain via u_rxrst; also PMA async reset — sanctioned, not new crossing
 PRBS31: txclk-local LFSR / raw-PRBS31 idle fill (no PMA_IDLE_MARK) — no new unsync multi-bit from clk_fab
 IDLE_PRBS31: combo on pma_pcs_rxdata @rxclk (w[i]==w[i-31]^w[i-28]); no txclk sample
-DECISION_I_LEAVES: through stage-87 vibe_rst_ctl tip-align present (expected); PMA PRBS31 vs 5dd4186 / 8b32794 unchanged — not a new crossing
-LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR231 / stages 44-87 / PR339 / PR340 / PR341 / PR342 / PR343 / PR344 did not reopen
-BASELINE_WARN: rtl/port/vibe_port.sv:246 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :252 — UNCHANGED body (F1; same lines as 10-03)
+DECISION_I_LEAVES: through stage-87 vibe_rst_ctl tip-align present (expected); PMA PRBS31 vs 16272b77 / 5dd4186 / 8b32794 unchanged — not a new crossing
+LOOPBACK: still GONE — no tx_pcs_d / pcs_pma_txdata compare; PR231 / stages 44-87 / PR339 / PR340 / PR341 / PR342 / PR343 / PR344 / PR345 did not reopen
+BASELINE_WARN: rtl/port/vibe_port.sv:246 ovf_l ad-hoc 2FF (ovf_s1/ovf_s2); |ovf_l at :252 — UNCHANGED body (F1; same lines as 10-04)
 NEW: 0
 ERROR: 0
-GONE: 0 (loopback already GONE vs 2026-10-03)
+GONE: 0 (loopback already GONE vs 2026-10-04)
