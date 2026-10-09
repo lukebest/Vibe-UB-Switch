@@ -135,6 +135,19 @@ PORT_TESTS = [
     ("tc_nw_pkt_pma_loopback", "vibe_port_cocotb_top", [PORT_TOP] + PORT_RTL, "entry_port"),
 ]
 
+# Decision 3A 2026-10-09 / PR349 option A: bookkeeping skip only.
+# Verilator 5.020 + cocotb 1.9.2 VPI does not honor hierarchical Force
+# used by these four TCs. Icarus still runs them. Do not delete the TCs.
+VERILATOR_TOOL_SKIP = frozenset({
+    "tc_port_smoke",
+    "tc_nw_pkt_to_pma_tx",
+    "tc_nw_pkt_pma_loopback",
+    "tc_top_smoke",
+})
+VERILATOR_TOOL_SKIP_REASON = (
+    "TOOL: Verilator Force gap, PR349, Decision 3A 2026-10-09"
+)
+
 # Old Icarus name → new uvm-python test (same identifier when possible).
 NAME_MAP = {
     "make suite / vibe_suite tasks": "tc_suite_all + per-TC UVM_TESTNAME (entry_fab)",
