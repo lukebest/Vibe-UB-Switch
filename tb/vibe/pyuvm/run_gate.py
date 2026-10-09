@@ -12,7 +12,8 @@ from pathlib import Path
 
 from catalog import (
     FAB_RTL, FAB_TOP, INC, PORT_RTL, PORT_TESTS, PORT_TOP, SUITE_TESTS,
-    SWITCH_TOP, TOP_RTL, UNIT_SIM,
+    SWITCH_TOP, TOP_RTL, UNIT_SIM, VERILATOR_TOOL_SKIP,
+    VERILATOR_TOOL_SKIP_REASON,
 )
 from vibe_uvm.tests.static_tests import run_absent_scan, run_all_static
 
@@ -30,8 +31,19 @@ def _venv_env() -> dict:
     return env
 
 
+def _skip_verilator_tool(name: str) -> int:
+    """Bookkeeping SKIP. Do not run the TC; do not count as PASS or FAIL."""
+    RES.mkdir(parents=True, exist_ok=True)
+    line = f"SKIP {name} {VERILATOR_TOOL_SKIP_REASON}"
+    (RES / f"{name}.log").write_text(line + "\n", encoding="utf-8")
+    print(line, flush=True)
+    return 0
+
+
 def _run_cocotb(name: str, toplevel: str, sources: list[str], module: str,
                 sim: str) -> int:
+    if sim == "verilator" and name in VERILATOR_TOOL_SKIP:
+        return _skip_verilator_tool(name)
     RES.mkdir(parents=True, exist_ok=True)
     log = RES / f"{name}.log"
     build = PYUVM / "sim_build" / name
@@ -56,7 +68,7 @@ def _run_cocotb(name: str, toplevel: str, sources: list[str], module: str,
     text = log.read_text(encoding="utf-8", errors="replace")
     # Echo PASS/FAIL to stdout for summarize.sh when we tee.
     for line in text.splitlines():
-        if line.startswith(("PASS ", "FAIL ", "NOTE ", "HOLE ", "SUITE", "WARN")):
+        if line.startswith(("PASS ", "FAIL ", "NOTE ", "HOLE ", "SUITE", "WARN", "SKIP")):
             print(line, flush=True)
     failed = (
         p.returncode != 0
