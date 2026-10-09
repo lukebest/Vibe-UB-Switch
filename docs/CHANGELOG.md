@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-10-09 (Decision 1A re-pin, Asia/Shanghai)
+
+### Changed
+
+- **Ends** Decision I UNFROZEN as the current written freeze.
+  Re-pins the written RTL freeze on product leaf `42ad05ca`
+  (`42ad05ca59f8614c739d5f5cb98100e2d0253216`).
+- Decision **1A** (Luke, 2026-10-09 Asia/Shanghai): re-pin.
+  PR348 measured all five re-pin conditions **TRUE**.
+  Decision I UNFROZEN **ends**. A new consecutive-green
+  series is authorised to start at 1/3 on this pin.
+  Consecutive-green count remains **0** until 验证 lands
+  a 1/3 report. ≠1/3 ≠4/3 ≠signoff.
+- New RTL freeze SHA: `42ad05ca`
+  (`42ad05ca59f8614c739d5f5cb98100e2d0253216`). Same role
+  as old `302ac943` / earlier `a658d141` / `982ddd0a` /
+  `1ed4d350` / `32a7f5e0`. This docs record is **not** the
+  freeze pin (HEAD after this PR is a docs tip).
+- Last historical pin `302ac943`
+  (`302ac943c3737c288f3af6c4857bb3a9b1683a26`) remains
+  **VOID as current** (Decision I). Merge-trace `df7c286e`
+  remains history. Do **not** treat `302ac943` as the live
+  freeze.
+- Naming / functional widths / protocol / handshake in
+  SPEC body are **unchanged** unless a later CR. F1
+  `ovf_l` unchanged. Path B **HOLD**. FPGA **deferred**.
+
 ## 2026-09-30 (CR-PMA-IDLE-PRBS31 — SPEC/docs only)
 
 ### Changed
